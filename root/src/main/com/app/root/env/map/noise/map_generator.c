@@ -2,41 +2,152 @@
 #include "file_saver.h"
 
 /*
-** Generate Enhanced Height
+** Generate Height Map
 */
-float generateEnhancedHeight(
+float generateHeightMap(
     float worldX,
     float worldZ,
     PointCollection* collection
 ) {
     float warpedX = worldX;
     float warpedY = worldZ;
-    domainWarp(&warpedX, &warpedY, 50.0f, 2);
-
-    float baseNoise = fractualSimplexNoise(
-        warpedX * 0.001f, 
-        warpedY * 0.001f, 
-        4, 0.5f, 2.0f
-    );
+    domainWarp(&warpedX, &warpedY, 15.0f, 2);
     
-    float mountainNoise = fractualSimplexNoise(
-        warpedX * 0.003f, 
+    float continentMask = fractualSimplexNoise(
+        warpedX * 0.0005f,
+        warpedY * 0.0005f, 
+        3,
+        0.35f,
+        2.0f
+    );
+    float archipelagoMask = fractualSimplexNoise(
+        warpedX * 0.0015f,
+        warpedY * 0.0015f, 
+        3,
+        0.4f,
+        2.0f
+    );
+    float islandMask = fractualSimplexNoise(
+        warpedX * 0.003f,
         warpedY * 0.003f, 
-        6, 0.6f, 2.2f
+        3,
+        0.45f,
+        2.0f
+    );
+    float terrainDetail = fractualSimplexNoise(
+        warpedX * 0.008f,
+        warpedY * 0.008f, 
+        4,
+        0.5f,
+        2.0f
+    );
+    float coastSmooth = fractualSimplexNoise(
+        warpedX * 0.002f,
+        warpedY * 0.002f, 
+        2,
+        0.3f,
+        2.0f
     );
     
-    float detailNoise = fractualSimplexNoise(
-        warpedX * 0.01f, 
-        warpedY * 0.01f, 
-        3, 0.5f, 2.5f
-    );
+    float continentNorm = (continentMask + 1.0f) * 0.5f;
+    float archipelagoNorm = (archipelagoMask + 1.0f) * 0.5f;
+    float islandNorm = (islandMask + 1.0f) * 0.5f;
+    float coastSmoothNorm = (coastSmooth + 1.0f) * 0.5f;
+    float terrainDetailNorm = (terrainDetail + 1.0f) * 0.5f;
+    
+    float landMask = 0.0f;
+    float continentThreshold = 0.35f;
+    
+    if(continentNorm > continentThreshold) {
+        float continentStrength = (continentNorm - continentThreshold) / (1.0f - continentThreshold);
+        continentStrength = powf(continentStrength, 1.5f);
+        landMask = fmaxf(landMask, continentStrength * 1.0f);
+    }
+    
+    float archipelagoThreshold = 0.4f;
+    if(archipelagoNorm > archipelagoThreshold) {
+        float archipelagoStrength = (archipelagoNorm - archipelagoThreshold) / (1.0f - archipelagoThreshold);
+        archipelagoStrength = powf(archipelagoStrength, 1.3f);
+        landMask = fmaxf(landMask, archipelagoStrength * 0.8f);
+    }
+    
+    float islandThreshold = 0.45f;
+    if(islandNorm > islandThreshold) {
+        float islandStrength = (islandNorm - islandThreshold) / (1.0f - islandThreshold);
+        islandStrength = powf(islandStrength, 1.2f);
+        if(landMask < 0.3f) {
+            landMask = fmaxf(landMask, islandStrength * 0.6f);
+        }
+    }
+    
+    float coastlineVariation = coastSmoothNorm * 0.2f;
+    float effectiveLandMask = landMask + coastlineVariation;
+    effectiveLandMask = fminf(fmaxf(effectiveLandMask, 0.0f), 1.0f);
+    
+    float baseOceanDepth = -60.0f;
+    float height = baseOceanDepth;
+    
+    float transitionT = 0.0f;
+    float baseLandHeight = 0.0f;
+    
+    if(effectiveLandMask > 0.0f) {
+        float transitionStart = 0.0f;
+        float transitionEnd = 0.25f;
+        
+        if(effectiveLandMask < transitionEnd) {
+            transitionT = effectiveLandMask / transitionEnd;
+            if(transitionT < 0.5f) {
+                transitionT = 4.0f * transitionT * transitionT * transitionT;
+            } else {
+                transitionT = 1.0f - powf(-2.0f * transitionT + 2.0f, 3.0f) * 0.5f;
+            }
+            
+            float oceanToBeachHeight = -30.0f;
+            float beachHeight = baseOceanDepth + transitionT * (oceanToBeachHeight - baseOceanDepth);
+            float beachTexture = terrainDetailNorm * 3.0f * transitionT;
+            height = beachHeight + beachTexture;
+        } else {
+            transitionT = (effectiveLandMask - transitionEnd) / (1.0f - transitionEnd);
+            
+            if(transitionT < 0.5f) {
+                transitionT = 4.0f * transitionT * transitionT * transitionT;
+            } else {
+                transitionT = 1.0f - powf(-2.0f * transitionT + 2.0f, 3.0f) * 0.5f;
+            }
+            
+            baseLandHeight = 0.0f;
+            
+            if(continentNorm > continentThreshold) {
+                float continentT = (continentNorm - continentThreshold) / (1.0f - continentThreshold);
+                baseLandHeight = 50.0f + continentT * 250.0f;
+            } else if(archipelagoNorm > archipelagoThreshold) {
+                float archT = (archipelagoNorm - archipelagoThreshold) / (1.0f - archipelagoThreshold);
+                baseLandHeight = 20.0f + archT * 120.0f;
+            } else {
+                float islandT = (islandNorm - islandThreshold) / (1.0f - islandThreshold);
+                baseLandHeight = 10.0f + islandT * 60.0f;
+            }
+            
+            float detailHeight = terrainDetailNorm * 40.0f * effectiveLandMask;
+            
+            float beachToLandHeight = -10.0f;
+            float landHeight = beachToLandHeight + transitionT * (baseLandHeight - beachToLandHeight);
+            
+            height = landHeight + detailHeight;
+        }
+    }
+    
+    float smoothHeight = fractualSimplexNoise(
+        worldX * 0.001f,
+        worldZ * 0.001f, 
+        1,
+        0.2f,
+        2.0f
+    ) * 5.0f;
 
-    float height = 
-        baseNoise * 100.0f +
-        mountainNoise * 200.0f +
-        detailNoise * 50.0f;
-    
-    return height;
+    float finalHeight = height + smoothHeight;
+
+    return finalHeight;
 }
 
 /*
@@ -55,7 +166,7 @@ void generateChunk(
             float globalX = worldX + x;
             float globalZ = worldZ + z;
 
-            chunk->heightMap[x][z] = generateEnhancedHeight(globalX, globalZ, collection);
+            chunk->heightMap[x][z] = generateHeightMap(globalX, globalZ, collection);
             chunk->pointId[x][z] = 0;
             float bestMask = 0.0f;
             for(int i = 0; i < collection->count; i++) {
@@ -109,9 +220,9 @@ void generateMap(const char* fileName) {
 
     for(int x = 0; x < WORLD_SIZE; x++) {
         for(int z = 0; z < WORLD_SIZE; z++) {
-            worldHeightMap[x][z] = generateEnhancedHeight(x, z, &pointCollection);
+            worldHeightMap[x][z] = generateHeightMap(x, z, &pointCollection);
         }
-        if ((x + 1) % 100 == 0) {
+        if((x + 1) % 100 == 0) {
             printf("  Base terrain: %.1f%%\n", (float)(x + 1) / WORLD_SIZE * 100.0f);
         }
     }

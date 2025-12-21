@@ -29,7 +29,7 @@ public class PlayerController {
     private float movSpeed; 
 
     private float xPos = 0.0f;
-    private float yPos = 0.0f;
+    private float yPos = 10.0f;
     private float zPos = 5.0f;
 
     private float xSpeed = 0.0f;
@@ -63,7 +63,7 @@ public class PlayerController {
     private void set() {
         this.position = new Vector3f(xPos, yPos, zPos);
         this.velocity = new Vector3f(xSpeed, ySpeed, zSpeed);
-        this.movSpeed = 2.0f;
+        this.movSpeed = 50.0f;
         updateCameraPosition(); 
     }
 

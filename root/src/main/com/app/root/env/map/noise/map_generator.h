@@ -22,7 +22,7 @@ typedef struct {
     unsigned char objMap[CHUNK_SIZE][CHUNK_SIZE];
 } Chunk;
 
-float generateEnhancedHeight(
+float generateHeightMap(
     float worldX,
     float worldZ,
     PointCollection* collection

@@ -49,24 +49,19 @@ public class MapGenerator {
     }
 
     private float[] createVertices(float[] heightData) {
-        if(heightData == null || mapWidth <= 0 || mapHeight <= 0) {
-            return new float[0];
+    float[] vertices = new float[mapWidth * mapHeight * 3];
+    for(int x = 0; x < mapWidth; x++) {
+        for(int z = 0; z < mapHeight; z++) {
+            int heightIndex = x * mapHeight + z;
+            int vertexIndex = heightIndex * 3;
+
+            vertices[vertexIndex] = (x - mapWidth / 2.0f);
+            vertices[vertexIndex+1] = heightData[heightIndex] * 2.0f;
+            vertices[vertexIndex+2] = (z - mapHeight / 2.0f);
         }
-
-        float[] vertices = new float[mapWidth * mapHeight * 3];
-        for(int x = 0; x < mapWidth; x++) {
-            for(int z = 0; z < mapHeight; z++) {
-                int heightIndex = x * mapHeight + z;
-                int vertexIndex = heightIndex * 3;
-
-                vertices[vertexIndex] = (x - mapWidth / 2.0f) * 0.1f;
-                vertices[vertexIndex+1] = heightData[heightIndex] * 0.05f;
-                vertices[vertexIndex+2] = (z - mapHeight / 2.0f) * 0.1f;
-            }
-        }
-
-        return vertices;
     }
+    return vertices;
+}
 
     /**
      * Generate Map Data
@@ -109,7 +104,8 @@ public class MapGenerator {
             return;
         }
 
-        float[] vertices = mapGeneratorWrapper.getHeightMapData();
+        float[] heightData = mapGeneratorWrapper.getHeightMapData();
+        float[] vertices = createVertices(heightData);
         int[] indices = mapGeneratorWrapper.getIndicesData();
         float[] normals = mapGeneratorWrapper.getNormalsData();
         float[] colors = mapGeneratorWrapper.getColorsData();
@@ -117,19 +113,13 @@ public class MapGenerator {
         int vertexCount = mapGeneratorWrapper.getVertexCount();
         int indexCount = mapGeneratorWrapper.getIndexCount();
 
-        if(vertices != null && vertices.length > 0) meshData.setVertices(createVertices(vertices));
-        if(indices != null && vertices.length > 0) meshData.setIndices(indices);
-        if(normals != null && indices.length > 0) meshData.setNormals(normals);
+        if(vertices != null && vertices.length > 0) meshData.setVertices(vertices);
+        if(indices != null && indices.length > 0) meshData.setIndices(indices);
+        if(normals != null && normals.length > 0) meshData.setNormals(normals);
         if(colors != null && colors.length > 0) meshData.setColors(colors);
 
         mesh.add(MAP_ID, meshData);
         //loadTex();
-
-        System.out.println("Map mesh created with:");
-        System.out.println("  Vertices: " + (vertices != null ? vertices.length/3 : 0));
-        System.out.println("  Indices: " + (indices != null ? indices.length : 0));
-        System.out.println("  Normals: " + (normals != null ? normals.length/3 : 0));
-        System.out.println("  Colors: " + (colors != null ? colors.length/4 : 0));
     }
 
     /**

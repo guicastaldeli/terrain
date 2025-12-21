@@ -27,7 +27,7 @@ public class Camera {
 
     public float distanceFromTarget = 1.5f;
     private float minDistance = 1.0f;
-    private float maxDistance = 10.0f;
+    private float maxDistance = 50.0f;
     private Vector3f targetOffset = new Vector3f(0.0f, 1.0f, 0.0f);
 
     public Camera() {

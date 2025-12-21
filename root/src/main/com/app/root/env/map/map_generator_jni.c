@@ -43,6 +43,18 @@ void generateMapMeshData(
     *normals = malloc(*vertexCount * 3 * sizeof(float));
     *colors = malloc(*vertexCount * 4 * sizeof(float));
 
+    // First, find the actual min and max heights
+    float minHeight = 999999.0f;
+    float maxHeight = -999999.0f;
+    for(int z = 0; z < height; z++) {
+        for(int x = 0; x < width; x++) {
+            if(heightMap[x][z] < minHeight) minHeight = heightMap[x][z];
+            if(heightMap[x][z] > maxHeight) maxHeight = heightMap[x][z];
+        }
+    }
+    
+    printf("DEBUG: Height range for colors: min=%.2f, max=%.2f\n", minHeight, maxHeight);
+
     for(int z = 0; z < height; z++) {
         for(int x = 0; x < width; x++) {
             int idx = (z * width + x) * 3;
@@ -51,25 +63,55 @@ void generateMapMeshData(
             (*vertices)[idx+2] = (float)z - height / 2.0f;
 
             int colorIdx = (z * width + x) * 4;
-            float heightVal = heightMap[x][z] * 0.1f;
-            (*colors)[colorIdx] = 0.2f;
-            (*colors)[colorIdx + 1] = 0.7f;
-            (*colors)[colorIdx + 2] = 0.2f;
-            /* TO DO later...
-            if(heightVal < 0.4f) {
+            float heightVal = heightMap[x][z];
+            (*colors)[colorIdx + 3] = 1.0f;
+            
+            if(heightVal < -200.0f) {
+                (*colors)[colorIdx] = 0.0f;
+                (*colors)[colorIdx + 1] = 0.1f;
+                (*colors)[colorIdx + 2] = 0.4f;
+            } else if(heightVal < -100.0f) {
+                (*colors)[colorIdx] = 0.0f;
+                (*colors)[colorIdx + 1] = 0.2f;
+                (*colors)[colorIdx + 2] = 0.5f;
+            } else if(heightVal < -50.0f) {
+                (*colors)[colorIdx] = 0.0f;
+                (*colors)[colorIdx + 1] = 0.3f;
+                (*colors)[colorIdx + 2] = 0.6f;
+            } else if(heightVal < -20.0f) {
+                (*colors)[colorIdx] = 0.0f;
+                (*colors)[colorIdx + 1] = 0.4f;
+                (*colors)[colorIdx + 2] = 0.7f;
+            } else if(heightVal < 0.0f) {
+                float t = (heightVal + 20.0f) / 20.0f;
+                (*colors)[colorIdx] = t * 0.9f;
+                (*colors)[colorIdx + 1] = 0.4f + t * 0.4f;
+                (*colors)[colorIdx + 2] = 0.7f - t * 0.5f;
+            } else if(heightVal < 5.0f) {
                 (*colors)[colorIdx] = 0.9f;
                 (*colors)[colorIdx + 1] = 0.8f;
                 (*colors)[colorIdx + 2] = 0.2f;
-            } else if(heightVal < 0.7f) {
-                (*colors)[colorIdx] = 0.2f;
+            } else if(heightVal < 20.0f) {
+                (*colors)[colorIdx] = 0.3f;
                 (*colors)[colorIdx + 1] = 0.7f;
+                (*colors)[colorIdx + 2] = 0.3f;
+            } else if(heightVal < 50.0f) {
+                (*colors)[colorIdx] = 0.2f;
+                (*colors)[colorIdx + 1] = 0.6f;
                 (*colors)[colorIdx + 2] = 0.2f;
-            } else {
+            } else if(heightVal < 80.0f) {
+                (*colors)[colorIdx] = 0.1f;
+                (*colors)[colorIdx + 1] = 0.5f;
+                (*colors)[colorIdx + 2] = 0.1f;
+            } else if(heightVal < 100.0f) {
                 (*colors)[colorIdx] = 0.5f;
                 (*colors)[colorIdx + 1] = 0.5f;
                 (*colors)[colorIdx + 2] = 0.5f;
+            } else {
+                (*colors)[colorIdx] = 1.0f;
+                (*colors)[colorIdx + 1] = 1.0f;
+                (*colors)[colorIdx + 2] = 1.0f;
             }
-                */
         }
     }
 
@@ -90,16 +132,6 @@ void generateMapMeshData(
             (*indices)[indicesIdx++] = bottomRight;
         }
     }
-
-    /* see this later too... xD
-    calculateNormals(
-        *vertices,
-        *indices,
-        *indexCount,
-        *normals,
-        *vertexCount
-    );
-    */
 }
 
 /**
@@ -259,7 +291,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_ge
     for(int i = 0; i < MAP_SIZE; i++) {
         heightMap[i] = malloc(MAP_SIZE * sizeof(float));
         for(int j = 0; j < MAP_SIZE; j++) {
-            heightMap[i][j] = generateEnhancedHeight(i, j, &collection);
+            heightMap[i][j] = generateHeightMap(i, j, &collection);
         }
     }
     

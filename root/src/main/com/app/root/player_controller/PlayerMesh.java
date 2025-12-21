@@ -61,7 +61,7 @@ public class PlayerMesh {
             //data.setColorHex("#b45353ff");
             mesh.add(PLAYER_MESH_ID, data);
             meshData = data;
-            //loadTex();
+            loadTex();
         }
     }
 
