@@ -13,7 +13,8 @@ public class MeshData {
         QUAD,
         CUBE,
         SPHERE,
-        RECTANGLE
+        RECTANGLE,
+        MAP
     }
 
     /**
@@ -44,6 +45,10 @@ public class MeshData {
     /**
      * Vertices
      */
+    public void setVertices(float[] vertices) {
+        addData(DataType.VERTICES, vertices);
+    }
+
     public float[] getVertices() {
         return (float[]) data.get(DataType.VERTICES);
     }
@@ -56,6 +61,10 @@ public class MeshData {
     /**
      * Indices
      */
+    public void setIndices(int[] indices) {
+        addData(DataType.INDICES, indices);
+    }
+
     public int[] getIndices() {
         return (int[]) data.get(DataType.INDICES);
     }
@@ -127,6 +136,10 @@ public class MeshData {
     /**
      * Normals
      */
+    public void setNormals(float[] normals) {
+        addData(DataType.NORMALS, normals);
+    }
+
     public float[] getNormals() {
         return (float[]) data.get(DataType.NORMALS);
     }
@@ -134,12 +147,12 @@ public class MeshData {
     /**
      * Texture
      */
-    public float[] getTexCoords() {
-        return (float[]) data.get(DataType.TEX_COORDS);
+    public void setTexCoords(float[] texCoords) {
+        addData(DataType.TEX_COORDS, texCoords);
     }
 
-    public void setTexCoords(float[] texCoords) {
-        data.put(DataType.TEX_COORDS, texCoords);
+    public float[] getTexCoords() {
+        return (float[]) data.get(DataType.TEX_COORDS);
     }
 
     /**

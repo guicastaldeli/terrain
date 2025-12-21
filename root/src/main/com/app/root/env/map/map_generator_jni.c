@@ -101,6 +101,21 @@ void generateMapMeshData(
 }
 
 /**
+ * Generate Vertex Positions
+ */
+void generateVertexPositions(float** heightMap, int width, int height, float** vertices) {
+    *vertices = malloc(width * height * 3 * sizeof(float));
+    for(int z = 0; z < height; z++) {
+        for(int x = 0; x < width; x++) {
+            int i = (z * width + x) * 3;
+            (*vertices)[i] = (float)x - width / 2.0f;
+            (*vertices)[i+1] = heightMap[x][z] * 0.1f;
+            (*vertices)[i+2] = (float)z - height / 2.0f;
+        }
+    }
+}
+
+/**
  * Calculate Normals
  */
 void calculateNormals(

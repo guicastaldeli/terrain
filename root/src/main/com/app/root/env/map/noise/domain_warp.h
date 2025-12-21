@@ -1,3 +1,4 @@
+#pragma once
 #include "noise.h"
 
 void domainWarp(

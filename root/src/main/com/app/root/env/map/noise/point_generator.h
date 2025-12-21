@@ -1,3 +1,4 @@
+#pragma once
 #include "main.h"
 #define MAX_POINT_RADIUS 200.f
 #define MIN_POINT_RADIUS 40.0f
@@ -29,7 +30,7 @@ float pointMask(
     float centerZ,
     float radius
 );
-float freePointCollection(PointCollection* collection);
+void freePointCollection(PointCollection* collection);
 void addPoint(PointCollection* collection, Point point);
 void initCollection(PointCollection* collection, int initialCapacity);
 

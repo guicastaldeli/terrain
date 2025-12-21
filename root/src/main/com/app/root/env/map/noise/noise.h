@@ -1,3 +1,4 @@
+#pragma once
 #include "main.h"
 #include "poisson_disk.h"
 
