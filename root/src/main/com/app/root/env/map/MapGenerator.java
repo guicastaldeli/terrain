@@ -1,7 +1,6 @@
 package main.com.app.root.env.map;
 import java.io.File;
 import java.nio.file.Paths;
-
 import main.com.app.root.Tick;
 import main.com.app.root._resources.TextureLoader;
 import main.com.app.root._shaders.ShaderProgram;
@@ -56,7 +55,7 @@ public class MapGenerator {
             int vertexIndex = heightIndex * 3;
 
             vertices[vertexIndex] = (x - mapWidth / 2.0f);
-            vertices[vertexIndex+1] = heightData[heightIndex];
+            vertices[vertexIndex+1] = heightData[heightIndex] * 2.0f;
             vertices[vertexIndex+2] = (z - mapHeight / 2.0f);
         }
     }

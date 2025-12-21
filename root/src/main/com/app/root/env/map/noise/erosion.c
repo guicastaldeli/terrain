@@ -50,9 +50,13 @@ void simulateHydraulicErosion(
                     droplet.speedX * droplet.speedX +
                     droplet.speedY * droplet.speedY
                 );
-                if(speedLen > 0) {
+                if(speedLen > 0.0001f) {
                     droplet.speedX /= speedLen;
                     droplet.speedY /= speedLen;
+                } else {
+                    float randomAngle = (float)rand() / RAND_MAX * 2.0f * PI;
+                    droplet.speedX = cosf(randomAngle);
+                    droplet.speedY = sinf(randomAngle);
                 }
 
                 droplet.posX += droplet.speedX;

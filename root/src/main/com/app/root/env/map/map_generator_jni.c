@@ -6,9 +6,6 @@
 #include "stb_image_write.h"
 #include "noise/map_generator.h"
 
-#define MAP_SIZE 3000
-#define CHUNK_SIZE 128
-
 static float* heightMapData = NULL;
 static int* indicesData = NULL;
 static float* normalsData = NULL;
@@ -273,7 +270,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_ge
     
     PointCollection collection;
     initCollection(&collection, 50);
-    generatePoints(&collection, MAP_SIZE, 15);
+    generatePoints(&collection, WORLD_SIZE, 15);
     pointCount = collection.count;
     
     pointData = malloc(pointCount * 6 * sizeof(float));
@@ -287,17 +284,15 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_ge
         pointData[idx + 5] = collection.points[i].elevation;
     }
     
-    float** heightMap = malloc(MAP_SIZE * sizeof(float*));
-    for(int i = 0; i < MAP_SIZE; i++) {
-        heightMap[i] = malloc(MAP_SIZE * sizeof(float));
-        for(int j = 0; j < MAP_SIZE; j++) {
+    float** heightMap = malloc(WORLD_SIZE * sizeof(float*));
+    for(int i = 0; i < WORLD_SIZE; i++) {
+        heightMap[i] = malloc(WORLD_SIZE * sizeof(float));
+        for(int j = 0; j < WORLD_SIZE; j++) {
             heightMap[i][j] = generateHeightMap(i, j, &collection);
         }
     }
     
-    saveAsImage(heightMap, MAP_SIZE, MAP_SIZE, "map.png");
-    simulateHydraulicErosion(heightMap, MAP_SIZE, 1000, 2);
-    thermalErosion(heightMap, MAP_SIZE, 0.1f, 5);
+    saveAsImage(heightMap, WORLD_SIZE, WORLD_SIZE, "map.png");
     
     float* vertices;
     int* indices;
@@ -307,8 +302,8 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_ge
     int iCount;
     generateMapMeshData(
         heightMap, 
-        MAP_SIZE, 
-        MAP_SIZE, 
+        WORLD_SIZE, 
+        WORLD_SIZE, 
         &vertices, 
         &indices, 
         &normals, 
@@ -316,8 +311,8 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_ge
         &vCount, 
         &iCount
     );
-    mapWidth = MAP_SIZE;
-    mapHeight = MAP_SIZE;
+    mapWidth = WORLD_SIZE;
+    mapHeight = WORLD_SIZE;
     vertexCount = vCount;
     indexCount = iCount;
     

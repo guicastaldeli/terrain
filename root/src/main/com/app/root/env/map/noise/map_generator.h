@@ -8,7 +8,7 @@
 
 #define WORLD_SIZE 1024
 #define CHUNK_SIZE 64
-#define OCTAVES 6
+#define OCTAVES 8
 #define PERSISTENCE 0.5
 #define LACUNARITY 2.0
 

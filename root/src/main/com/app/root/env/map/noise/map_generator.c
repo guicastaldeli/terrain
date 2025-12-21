@@ -2,7 +2,7 @@
 #include "file_saver.h"
 
 /*
-** Generate Height Map
+** Generate Enhanced Height
 */
 float generateHeightMap(
     float worldX,
@@ -11,17 +11,18 @@ float generateHeightMap(
 ) {
     float warpedX = worldX;
     float warpedY = worldZ;
-    domainWarp(&warpedX, &warpedY, 10.0f, 2);
+    domainWarp(&warpedX, &warpedY, 50.0f, OCTAVES);
 
     float noise = fractualSimplexNoise(
-        warpedX * 0.005f,
-        warpedY * 0.005f, 
-        2,
-        0.5f,
-        2.0f
+        worldX * 0.003f, 
+        worldZ * 0.003f, 
+        OCTAVES,
+        PERSISTENCE,
+        LACUNARITY
     );
-    
-    return noise * 100.0f;
+
+    float height = noise * 100.0f;
+    return height;
 }
 
 /*
@@ -100,9 +101,10 @@ void generateMap(const char* fileName) {
             printf("  Base terrain: %.1f%%\n", (float)(x + 1) / WORLD_SIZE * 100.0f);
         }
     }
-    simulateHydraulicErosion(worldHeightMap, WORLD_SIZE, 3000, 3);
-    thermalErosion(worldHeightMap, WORLD_SIZE, 0.08f, 8);
-    generateRivers(worldHeightMap, riverMap, WORLD_SIZE, pointCount);
+    //simulateHydraulicErosion(worldHeightMap, WORLD_SIZE, 3000, 3);
+    //thermalErosion(worldHeightMap, WORLD_SIZE, 0.08f, 8);
+    //generateRivers(worldHeightMap, riverMap, WORLD_SIZE, pointCount);
+
     PoissonCollection* objLocations = poissonDiskSampling(25.0f, WORLD_SIZE, WORLD_SIZE, 30);
     printf("Generated %d object locations\n", objLocations->count);
 
