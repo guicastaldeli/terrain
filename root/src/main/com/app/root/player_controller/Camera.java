@@ -27,7 +27,7 @@ public class Camera {
 
     public float distanceFromTarget = 1.5f;
     private float minDistance = 1.0f;
-    private float maxDistance = 50.0f;
+    private float maxDistance = 5000.0f;
     private Vector3f targetOffset = new Vector3f(0.0f, 1.0f, 0.0f);
 
     public Camera() {
@@ -43,7 +43,7 @@ public class Camera {
         this.fov = 120.0f;
         this.aspectRatio = 16.0f / 9.0f;
         this.zNear = 0.1f;
-        this.zFar = 100.0f;
+        this.zFar = maxDistance;
 
         this.viewMatrix = new Matrix4f();
         this.projectionMatrix = new Matrix4f();

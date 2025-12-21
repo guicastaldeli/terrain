@@ -6,8 +6,8 @@
 #include "stb_image_write.h"
 #include "noise/map_generator.h"
 
-#define MAP_SIZE 1024
-#define CHUNK_SIZE 64
+#define MAP_SIZE 3000
+#define CHUNK_SIZE 128
 
 static float* heightMapData = NULL;
 static int* indicesData = NULL;

@@ -56,7 +56,7 @@ public class MapGenerator {
             int vertexIndex = heightIndex * 3;
 
             vertices[vertexIndex] = (x - mapWidth / 2.0f);
-            vertices[vertexIndex+1] = heightData[heightIndex] * 2.0f;
+            vertices[vertexIndex+1] = heightData[heightIndex];
             vertices[vertexIndex+2] = (z - mapHeight / 2.0f);
         }
     }
