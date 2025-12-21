@@ -1,0 +1,113 @@
+package main.com.app.root.mesh;
+import main.com.app.root.Tick;
+import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.player_controller.PlayerController;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.joml.Matrix4f;
+
+public class Mesh {
+    private final Tick tick;
+    private final ShaderProgram shaderProgram;
+
+    private MeshRenderer meshRenderer;
+    private MeshData meshData;
+    private final Map<String, MeshRenderer> meshRendererMap;
+    private final Map<String, MeshData> meshDataMap;
+
+    public Mesh(Tick tick, ShaderProgram shaderProgram) {
+        this.tick = tick;
+        this.shaderProgram = shaderProgram;
+        this.meshRendererMap = new HashMap<>();
+        this.meshDataMap = new HashMap<>();
+        this.meshRenderer = new MeshRenderer(tick, shaderProgram);
+    }
+
+    public MeshRenderer getMeshRenderer() {
+        return meshRenderer;
+    }
+
+    /**
+     * Add Mesh
+     */
+    public void add(String id, MeshData meshData) {
+        addToMap(id, meshData);
+    }
+    
+    public void add(String id, MeshData.MeshType type) {
+        MeshData meshData = MeshLoader.load(type, id);
+        addToMap(id, meshData);
+    }
+
+    public void setTex(String id, int textureId) {
+        MeshRenderer renderer = meshRendererMap.get(id);
+        if(renderer != null) {
+            renderer.setTex(textureId);
+        } else {
+            System.err.println("No renderer found for mesh ID: " + id);
+        }
+    }
+
+    private void addToMap(String id, MeshData data) {
+        meshDataMap.put(id, data);
+
+        MeshRenderer newRenderer = new MeshRenderer(tick, shaderProgram);
+        newRenderer.setData(data);
+        if(meshRenderer != null && meshRenderer.getPlayerController() != null) {
+            newRenderer.setPlayerController(meshRenderer.getPlayerController());
+        }
+        
+        meshRendererMap.put(id, newRenderer);
+    }
+    
+    public void setPlayerController(PlayerController playerController) {
+        this.meshRenderer.setPlayerController(playerController);
+        for(MeshRenderer renderer : meshRendererMap.values()) {
+            renderer.setPlayerController(playerController);
+        }
+    }
+
+    public MeshData getData(String id) {
+        return meshDataMap.get(id);
+    }
+
+    public void setModelMatrix(String id, Matrix4f matrix) {
+        MeshRenderer renderer = meshRendererMap.get(id);
+        if(renderer != null) {
+            renderer.setModelMatrix(matrix);
+        }
+    }
+
+    /**
+     * Update
+     */
+    public void update() {
+        for(MeshRenderer meshRenderer : meshRendererMap.values()) {
+            //meshRenderer.updateRotation();
+        }
+    }
+
+    /**
+     * Render
+     */
+    public void render(String id) {
+        MeshRenderer meshRenderer = meshRendererMap.get(id);
+        if(meshRenderer != null) meshRenderer.render();
+    }
+
+    public void renderAll() {
+        for(MeshRenderer meshRenderer : meshRendererMap.values()) {
+            meshRenderer.render();
+        }
+    }
+
+    public void cleanup() {
+        for(MeshRenderer meshRenderer : meshRendererMap.values()) {
+            meshRenderer.cleanup();
+        }
+        meshRendererMap.clear();
+        meshDataMap.clear();
+    }
+}

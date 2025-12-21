@@ -1,0 +1,28 @@
+package main.com.app.root.env;
+import main.com.app.root.DependencyContainer;
+import main.com.app.root.env.map.MapController;
+
+public enum EnvData {
+    MAP(MapController.class);
+    //TREE(TreeController.class),
+    //ITEM(ItemController.class),
+    //NPC(NpcController.class);
+
+    private final Class<? extends EnvInstance<?>> instance;
+
+    EnvData(Class<? extends EnvInstance<?>> instance) {
+        this.instance = instance;
+    }
+
+    public EnvInstance<?> createInstance(DependencyContainer dependencyContainer) {
+        try {
+            return dependencyContainer.createInstance(this.instance);
+        } catch(Exception err) {
+            throw new RuntimeException("Failed to create " + this.name(), err);
+        }
+    }
+
+    public<T> T getInstance(DependencyContainer dependencyContainer) {
+        return (T) createInstance(dependencyContainer).getInstance();
+    }
+}

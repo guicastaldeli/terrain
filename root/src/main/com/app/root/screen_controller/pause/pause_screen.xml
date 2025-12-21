@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pause_screen>
+    <label 
+        id="title" 
+        x="300" y="100" 
+        scale="1.0" 
+        color="0.0,3.0,0.0"
+    >
+        PAUSED!!!!!!!!!!!
+    </label>
+
+    <button 
+        id="continueBtn" 
+        x="300" y="200" 
+        scale="1.0" 
+        color="1.0,1.0,1.0" 
+        action="continue"
+    >
+        Continue
+    </button>
+    <button 
+        id="settingsBtn" 
+        x="300" y="280" 
+        scale="1.0" 
+        color="1.0,1.0,1.0" 
+        action="settings"
+    >
+        Settings
+    </button>
+    <button 
+        id="exitBtn" 
+        x="300" y="360" 
+        scale="1.0" 
+        color="1.0,1.0,1.0" 
+        action="exit"
+    >
+        Exit to Menu
+    </button>
+</pause_screen>

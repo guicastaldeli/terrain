@@ -1,0 +1,125 @@
+package main.com.app.root.screen_controller;
+import main.com.app.root.Window;
+import main.com.app.root._shaders.ShaderProgram;
+import java.util.List;
+import main.com.app.root.Console;
+import main.com.app.root.DocParser;
+import main.com.app.root._text.TextRenderer;
+
+public class Screen implements ScreenInputHandler {
+    private static final String DIR = "main/com/app/root/screen/";
+    private Window window;
+    private ShaderProgram shaderProgram;
+    private TextRenderer textRenderer;
+    public ScreenData screenData;
+    private boolean active = false;
+    private String screenName;
+
+    public Screen(
+        Window window,
+        ShaderProgram shaderProgram,
+        String filePath, 
+        String screenName, 
+        String fontPath, 
+        float fontSize
+    ) {
+        this.shaderProgram = shaderProgram;
+        this.window = window;
+        this.screenName = screenName;
+        try {
+            System.out.println("Loading font from: " + fontPath);
+            System.out.println("Loading screen XML from: " + DIR + filePath);
+            
+            this.textRenderer = new TextRenderer(
+                window,
+                shaderProgram,
+                fontPath,
+                fontSize,
+                window.getWidth(),
+                window.getHeight()
+            );
+            
+            this.screenData = DocParser.parseScreen(
+                filePath, 
+                window.getWidth(), 
+                window.getHeight()
+            );
+            
+            System.out.println("Screen initialized successfully");
+            System.out.println("TextRenderer: " + textRenderer);
+            System.out.println("ScreenData: " + screenData);
+            System.out.println("Elements count: " + (screenData != null ? screenData.elements.size() : 0));
+        } catch (Exception err) {
+            System.err.println("Failed to init screen: " + screenName);
+            System.err.println("Error: " + err.getMessage());
+            err.printStackTrace();
+        }
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+    
+    public boolean isActive() {
+        return active;
+    }
+    
+    public String getScreenType() {
+        return screenData.screenType;
+    }
+    
+    public String getScreenName() {
+        return screenName;
+    }
+
+    public String checkClick(int mouseX, int mouseY) {
+        if(!active) return null;
+
+        List<ScreenElement> buttons = DocParser.getElementsByType(screenData, "button");
+        for(ScreenElement button : buttons) {
+            float width = textRenderer.getTextWidth(button.text, button.scale);
+            float height = textRenderer.getFontMetrics().lineHeight * button.scale;
+
+            if(mouseX >= button.x && 
+                mouseX <= button.x + width &&
+                mouseY >= button.y && 
+                mouseY <= button.y + height
+            ) {
+                Console.getInstance().handleAction(button.action);
+                return button.action;
+            }
+        }
+        return null;
+    }
+
+    public ScreenElement getElementById(String id) {
+        return DocParser.getElementById(screenData, id);
+    }
+    
+    public List<ScreenElement> getElementsByType(String type) {
+        return DocParser.getElementsByType(screenData, type);
+    }
+
+    public TextRenderer getTextRenderer() {
+        return textRenderer;
+    }
+    
+    /**
+     * Render
+     */
+    public void render() {
+        if(!active || textRenderer == null) {
+            System.out.println("Screen not rendering: active=" + active + ", textRenderer=" + textRenderer);
+            return;
+        }
+        
+        for(ScreenElement el : screenData.elements) {
+            textRenderer.renderText(
+                el.text,
+                el.x, el.y,
+                el.scale,
+                el.color   
+            );
+        }
+    }
+}

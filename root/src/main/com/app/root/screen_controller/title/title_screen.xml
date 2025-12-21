@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<title_screen>
+    <label 
+        id="title" 
+        x="50" y="100" 
+        scale="1.0" 
+        color="12.0,3.0,0.0"
+    >
+        Terrain (ULTRA ALPHA BUILD)
+    </label>
+
+    <button 
+        id="startBtn" 
+        x="50" y="200" 
+        scale="1.0" 
+        color="1.0,1.0,1.0" 
+        action="start"
+    >
+        Start
+    </button>
+    <button 
+        id="continueBtn" 
+        x="50" y="280" 
+        scale="1.0" 
+        color="1.0,1.0,1.0" 
+        action="continue"
+    >
+        Continue
+    </button>
+    <button 
+        id="settingsBtn" 
+        x="50" y="360" 
+        scale="1.0" 
+        color="1.0,1.0,1.0" 
+        action="settings"
+    >
+        Settings
+    </button>
+    <button 
+        id="exitBtn" 
+        x="50" y="450" 
+        scale="1.0" 
+        color="1.0,1.0,1.0" 
+        action="exit"
+    >
+        Exit
+    </button>
+</title_screen>
