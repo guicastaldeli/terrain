@@ -9,12 +9,10 @@ float generateEnhancedHeight(
     float worldZ,
     PointCollection* collection
 ) {
-    // Domain warp
     float warpedX = worldX;
     float warpedY = worldZ;
     domainWarp(&warpedX, &warpedY, 50.0f, 2);
 
-    // Simple multi-octave noise - MUCH more reasonable scales
     float baseNoise = fractualSimplexNoise(
         warpedX * 0.001f, 
         warpedY * 0.001f, 
