@@ -11,7 +11,7 @@ void saveMapToFile(
 ) {
     FILE* file = fopen(fileName, "wb");
     if(!file) {
-        prinf("Error: could not create file", fileName);
+        printf("Error: could not create file", fileName);
         return;
     }
 

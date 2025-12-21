@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class MapGeneratorWrapper {
-    private static final String DLL_PATH = "main/com/app/root/env/map/noise/.build/";
+    private static final String DLL_PATH = "root/src/main/com/app/root/env/map/noise/.build/";
     
     static {
         loadNativeLibraries();

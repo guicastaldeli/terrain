@@ -13,29 +13,31 @@ float generateEnhancedHeight(
     float warpedY = worldZ;
     domainWarp(&warpedX, &warpedY, 50.0f, 2);
 
-    float baseNoise = fractualSimplexNoise(
-        warpedX * 0.001f,
-        warpedY * 0.001f,
-        4,
-        0.5f,
-        2.0f
-    );
-    float mountainNoise = fractualSimplexNoise(
-        warpedX * 0.005f,
-        warpedY * 0.005f,
-        6,
-        0.6f,
-        2.2f
-    );
-    float detailNoise = fractualSimplexNoise(
-        warpedX * 0.02f,
-        warpedY * 0.02f,
-        3,
-        0.07f,
-        2.5f
-    );
+    float baseNoise = (
+        fractualSimplexNoise(
+            warpedX * 0.001f, 
+            warpedY * 0.001f, 
+            4, 0.5f, 2.0f
+        ) + 1.0f) * 0.5f;
+    float mountainNoise = (
+        fractualSimplexNoise(
+            warpedX * 0.005f, 
+            warpedY * 0.005f, 
+            6, 0.6f, 2.2f
+        ) + 1.0f) * 0.5f;
+    float detailNoise = (
+        fractualSimplexNoise(
+            warpedX * 0.02f, 
+            warpedY * 0.02f, 
+            3, 0.07f, 2.5f
+        ) + 1.0f) * 0.5f;
 
-    float height = baseNoise * 100.0f + mountainNoise * 50.0f + detailNoise * 15.0f;
+    float height = baseNoise * 500.0f + mountainNoise * 1000.0f + detailNoise * 500.0f;
+    if(worldX == 512 && worldZ == 512) {
+        printf("DEBUG Height at center: baseNoise=%f (x500=%f), mountainNoise=%f (x300=%f), detailNoise=%f (x100=%f), TOTAL=%f\n",
+               baseNoise, baseNoise*500.0f, mountainNoise, mountainNoise*300.0f,
+               detailNoise, detailNoise*100.0f, height);
+    }
     float pointInfluence = 0.0f;
     int dominantPoint = -1;
     float dominantMask = 0.0f;
@@ -74,14 +76,14 @@ float generateEnhancedHeight(
                 0.5f,
                 2.0f
             );
-            pointHeight += ruggedNoise * 30.0f * point->ruggedness;
+            pointHeight += ruggedNoise * 80.0f * point->ruggedness;
         }
         pointInfluence = pointHeight * dominantMask;
     }
     if(pointInfluence > 0) {
         height = pointInfluence;
     } else {
-        height = -30.0f + detailNoise * 8.0f;
+        height = -10.0f + detailNoise * 20.0f;
     }
 
     return height;

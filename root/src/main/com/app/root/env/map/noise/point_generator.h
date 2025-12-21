@@ -1,7 +1,7 @@
 #pragma once
 #include "main.h"
-#define MAX_POINT_RADIUS 200.f
-#define MIN_POINT_RADIUS 40.0f
+#define MIN_POINT_RADIUS 30.0f
+#define MAX_POINT_RADIUS 1000.f
 
 typedef struct {
     float centerX;

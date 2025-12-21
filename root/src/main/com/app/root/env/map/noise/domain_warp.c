@@ -11,7 +11,7 @@ void domainWarp(
 
     float warpX = 0.0f;
     float warpY = 0.0f;
-    float frequency = 1.0;
+    float frequency = 1.0f;
     float amplitude = 1.0f;
     float maxAmplitude = 0.0f;
 

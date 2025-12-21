@@ -9,7 +9,7 @@ void generatePoints(
     int targetCount
 ) {
     int attempts = 0;
-    int maxAttempts = targetCount * 10;
+    int maxAttempts = targetCount * 100;
 
     while(collection->count < targetCount && attempts < maxAttempts) {
         Point newPoint;
@@ -29,7 +29,7 @@ void generatePoints(
             float dx = newPoint.centerX - collection->points[i].centerX;
             float dz = newPoint.centerZ - collection->points[i].centerZ;
             float distance = sqrtf(dx * dx + dz * dz);
-            float minDistance = newPoint.radius + collection->points[i].radius * 20.0f;
+            float minDistance = (newPoint.radius + collection->points[i].radius) * 0.5f;
             if(distance < minDistance) {
                 validPlacement = 0;
                 break;
@@ -42,26 +42,27 @@ void generatePoints(
         attempts++;
     }
 
-    prinf("Generated %d points after %d attempts ", collection->count, attempts);
+    printf("Generated %d points after %d attempts ", collection->count, attempts);
 }
 
 /*
 ** Point Mask
 */
 float pointMask(
-    float worldX,
-    float worldZ,
-    float centerX,
-    float centerZ,
+    float worldX, 
+    float worldZ, 
+    float centerX, 
+    float centerZ, 
     float radius
 ) {
     float dx = worldX - centerX;
-    float dz = worldZ - centerX;
+    float dz = worldZ - centerZ;
     float distance = sqrtf(dx * dx + dz * dz);
-    if(distance > radius) return 0.0f;
-
-    float falloff = 1.0f - (distance / radius);
-    return falloff * falloff * (3.0f - 2.0f * falloff);
+    if(distance > radius * 1.5f) return 0.0f;
+    
+    float normalizedDist = distance / (radius * 1.5f);
+    float t = 1.0f - normalizedDist;
+    return t * t * (3.0f - 2.0f * t);
 }
 
 void freePointCollection(PointCollection* collection) {
