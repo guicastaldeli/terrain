@@ -8,6 +8,7 @@ set JAVA_HOME=C:\Program Files\Java\jdk-22
 set VCPKG_ROOT=C:\Users\casta\OneDrive\Desktop\vscode\messages\main\vcpkg
 set OPENSSL_INCLUDE=%VCPKG_ROOT%\installed\x64-windows\include
 set OPENSSL_LIB=%VCPKG_ROOT%\installed\x64-windows\lib
+set STB_INCLUDE=C:\Users\casta\OneDrive\Documentos\stb-master
 
 set SRC_DIR=C:\Users\casta\OneDrive\Desktop\vscode\terrain\root\src\main\com\app\root\env\map\noise
 set MAP_DIR=C:\Users\casta\OneDrive\Desktop\vscode\terrain\root\src\main\com\app\root\env\map
@@ -34,7 +35,6 @@ del libssl-3-x64.dll 2>nul
 echo.
 echo Compiling with CL.EXE...
 
-rem Compile all C files with OpenSSL includes
 cl /nologo /c /O2 /EHsc /std:c17 ^
     /I"%JAVA_HOME%\include" ^
     /I"%JAVA_HOME%\include\win32" ^
@@ -51,6 +51,8 @@ cl /nologo /c /O2 /EHsc /std:c17 ^
     /I"%JAVA_HOME%\include" ^
     /I"%JAVA_HOME%\include\win32" ^
     /I"%OPENSSL_INCLUDE%" ^
+    /I"%MAP_DIR%" ^
+    /I"%STB_INCLUDE%" ^
     "%MAP_DIR%\map_generator_jni.c"
 
 if %errorlevel% neq 0 (

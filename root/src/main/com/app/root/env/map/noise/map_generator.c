@@ -9,83 +9,35 @@ float generateEnhancedHeight(
     float worldZ,
     PointCollection* collection
 ) {
+    // Domain warp
     float warpedX = worldX;
     float warpedY = worldZ;
     domainWarp(&warpedX, &warpedY, 50.0f, 2);
 
-    float baseNoise = (
-        fractualSimplexNoise(
-            warpedX * 0.001f, 
-            warpedY * 0.001f, 
-            4, 0.5f, 2.0f
-        ) + 1.0f) * 0.5f;
-    float mountainNoise = (
-        fractualSimplexNoise(
-            warpedX * 0.005f, 
-            warpedY * 0.005f, 
-            6, 0.6f, 2.2f
-        ) + 1.0f) * 0.5f;
-    float detailNoise = (
-        fractualSimplexNoise(
-            warpedX * 0.02f, 
-            warpedY * 0.02f, 
-            3, 0.07f, 2.5f
-        ) + 1.0f) * 0.5f;
+    // Simple multi-octave noise - MUCH more reasonable scales
+    float baseNoise = fractualSimplexNoise(
+        warpedX * 0.001f, 
+        warpedY * 0.001f, 
+        4, 0.5f, 2.0f
+    );
+    
+    float mountainNoise = fractualSimplexNoise(
+        warpedX * 0.003f, 
+        warpedY * 0.003f, 
+        6, 0.6f, 2.2f
+    );
+    
+    float detailNoise = fractualSimplexNoise(
+        warpedX * 0.01f, 
+        warpedY * 0.01f, 
+        3, 0.5f, 2.5f
+    );
 
-    float height = baseNoise * 500.0f + mountainNoise * 1000.0f + detailNoise * 500.0f;
-    if(worldX == 512 && worldZ == 512) {
-        printf("DEBUG Height at center: baseNoise=%f (x500=%f), mountainNoise=%f (x300=%f), detailNoise=%f (x100=%f), TOTAL=%f\n",
-               baseNoise, baseNoise*500.0f, mountainNoise, mountainNoise*300.0f,
-               detailNoise, detailNoise*100.0f, height);
-    }
-    float pointInfluence = 0.0f;
-    int dominantPoint = -1;
-    float dominantMask = 0.0f;
-
-    for(int i = 0; i < collection->count; i++) {
-        float mask = pointMask(
-            worldX,
-            worldZ,
-            collection->points[i].centerX,
-            collection->points[i].centerZ,
-            collection->points[i].radius
-        );
-        if(mask > dominantMask) {
-            dominantMask = mask;
-            dominantPoint = i;
-        }
-    }
-    if(dominantMask != -1 && dominantMask > 0.01f) {
-        Point* point = &collection->points[dominantPoint];
-        
-        float dx = worldX - point->centerX;
-        float dz = worldZ - point->centerZ;
-        float distFromCenter = sqrtf(dx * dx + dz * dz) / point->radius;
-        float centerBias = 1.0f - (distFromCenter * distFromCenter);
-        float pointHeight = 
-            height * 
-            point->heightScale *
-            point->elevation + centerBias *
-            40.0f;
-
-        if(point->ruggedness > 0.5f) {
-            float ruggedNoise = fractualSimplexNoise(
-                warpedX * 0.01f,
-                warpedY * 0.01f,
-                3,
-                0.5f,
-                2.0f
-            );
-            pointHeight += ruggedNoise * 80.0f * point->ruggedness;
-        }
-        pointInfluence = pointHeight * dominantMask;
-    }
-    if(pointInfluence > 0) {
-        height = pointInfluence;
-    } else {
-        height = -10.0f + detailNoise * 20.0f;
-    }
-
+    float height = 
+        baseNoise * 100.0f +
+        mountainNoise * 200.0f +
+        detailNoise * 50.0f;
+    
     return height;
 }
 

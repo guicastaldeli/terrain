@@ -29,7 +29,7 @@ float simplexNoise(float x, float y) {
 
     float t = (i + j) * G2;
     float X0 = i - t;
-    float Y0 = i - t;
+    float Y0 = j - t;
     float x0 = x - X0;
     float y0 = y - Y0;
 
@@ -52,7 +52,7 @@ float simplexNoise(float x, float y) {
     int jj = j & 255;
 
     int gi0 = permutation[ii + permutation[jj]] % 12;
-    int gi1 = permutation[ii + permutation[jj + j1]] % 12;
+    int gi1 = permutation[ii + i1 + permutation[jj + j1]] % 12;
     int gi2 = permutation[ii + 1 + permutation[jj + 1]] % 12;
 
     float t0 = 0.5f - x0 * x0 - y0 * y0;
