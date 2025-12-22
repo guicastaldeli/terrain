@@ -39,12 +39,20 @@ public class TitleScreenAction {
     /**
      * Load
      */
-    public void load(String saveId) {
+    public void load() {
+        String saveId = stateController.getCurrentSaveId();
         if(saveLoader.loadSave(saveId)) {
             screenController.switchTo(null);
             screenController.disableCursor();
             stateController.setInMenu(false);
         }
+    }
+
+    /**
+     * Open Settings
+     */
+    public void openSettings() {
+        /////
     }
 
     /**
@@ -55,5 +63,12 @@ public class TitleScreenAction {
             titleScreen.refreshSaveList();
             titleScreen.renderSaveMenu();
         }
+    }
+
+    /**
+     * Exit
+     */
+    public void exit() {
+        ////////
     }
 }

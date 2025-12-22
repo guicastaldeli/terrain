@@ -11,7 +11,12 @@ public class PauseScreen extends Screen {
 
     public PauseScreen() {
         super(SCREEN_PATH, "pause");
-        this.pauseScreenAction = new PauseScreenAction(screenController, this);
+        this.pauseScreenAction = new PauseScreenAction(
+            screenController, 
+            this,
+            stateController,
+            saveGenerator
+        );
     }
 
     @Override
@@ -20,9 +25,14 @@ public class PauseScreen extends Screen {
             case "continue":
                 pauseScreenAction.togglePause();
                 break;
-            case "exit":
+            case "save":
+                pauseScreenAction.save();
                 break;
-            default:
+            case "settings":
+                pauseScreenAction.openSettings();
+                break;
+            case "exit":
+                pauseScreenAction.exitToMenu();
                 break;
         }
     }

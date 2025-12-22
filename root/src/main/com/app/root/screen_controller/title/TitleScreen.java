@@ -51,10 +51,10 @@ public class TitleScreen extends Screen {
                 titleScreenAction.start();
                 break;
             case "load":
-                //titleScreenAction.load();
+                titleScreenAction.load();
                 break;
             case "settings":
-                //showSettings(); //Implement later
+                titleScreenAction.openSettings(); //Implement later
             case "exit":
                 System.exit(0);
                 break;
@@ -67,7 +67,7 @@ public class TitleScreen extends Screen {
     private void handleSaveMenuAction(String action) {
         if(action.startsWith("load_")) {
             String saveId = action.substring(5);
-            titleScreenAction.load(saveId);
+            titleScreenAction.load();
         } else if(action.startsWith("delete_")) {
             String saveId = action.substring(7);
             titleScreenAction.deleteSave(saveId);
