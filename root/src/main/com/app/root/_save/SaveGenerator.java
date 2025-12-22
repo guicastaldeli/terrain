@@ -1,29 +1,30 @@
 package main.com.app.root._save;
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
+import main.com.app.root.env.EnvCall;
+import main.com.app.root.env.EnvController;
+import main.com.app.root.env.EnvData;
 
 public class SaveGenerator {
     private final DataController dataController;
     private final StateController stateController;
     private final DataGetter dataGetter;
+    private final EnvController envController;
 
     public SaveGenerator(
         DataController dataController,
         StateController stateController,
-        DataGetter dataGetter
+        DataGetter dataGetter,
+        EnvController envController
     ) {
         this.dataController = dataController;
         this.stateController = stateController;
         this.dataGetter = dataGetter;
+        this.envController = envController;
     }
 
     /**
@@ -34,7 +35,9 @@ public class SaveGenerator {
         SaveFile saveFile = new SaveFile(saveId);
         saveFile.createSaveDir();
 
-        generateWorldMap(saveFile);
+        Object instance = envController.getEnv(EnvData.MAP).getInstance();
+        EnvCall.call(instance, "getGenerator", "generateNewMap");
+
         String creationDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         saveFile.setSaveInfo("save_name", saveName);
         saveFile.setSaveInfo("creation_date", saveId);

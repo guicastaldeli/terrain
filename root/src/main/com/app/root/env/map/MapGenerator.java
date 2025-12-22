@@ -1,12 +1,4 @@
 package main.com.app.root.env.map;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Random;
-
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
 import main.com.app.root.Tick;
@@ -17,6 +9,13 @@ import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.mesh.MeshRenderer;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Random;
 
 public class MapGenerator {
     private final Tick tick;
@@ -79,7 +78,9 @@ public class MapGenerator {
 }
 
     /**
+     * 
      * Generate Map Data
+     * 
      */
     private boolean generateMapData(SaveFile saveFile) throws IOException {
         String currentSaveId = stateController.getCurrentSaveId();
@@ -107,8 +108,8 @@ public class MapGenerator {
                 heightMapData = mapGeneratorWrapper.getHeightMapData();
                 mapWidth = mapGeneratorWrapper.getMapWidth();
                 mapHeight = mapGeneratorWrapper.getMapHeight();
-                System.out.println("Terrain generated successfully: " + path);
-                System.out.println("Terrain dimensions: " + mapWidth + "x" + mapHeight);
+                System.out.println("Map generated successfully: " + path);
+                System.out.println("Map dimensions: " + mapWidth + "x" + mapHeight);
                 
                 Path source = Paths.get(path);
                 Path target = saveFile.getSavePath().resolve("world").resolve("d.m.0.dat");
@@ -122,10 +123,53 @@ public class MapGenerator {
     }
 
     /**
+     * Generate New Map
+     */
+    private boolean generateNewMap(String saveId) {
+        try {
+            SaveFile saveFile = new SaveFile(saveId);
+            long seed = dataController.getWorldSeed();
+
+            String tempPath = "temp_map_" + System.currentTimeMillis() + ".dat";
+            boolean success = mapGeneratorWrapper.generateMap(tempPath, seed);
+            if(success) {
+                Path source = Paths.get(tempPath);
+                Path target = saveFile.getSavePath().resolve("world").resolve("d.m.0.dat");
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+                Files.deleteIfExists(source);
+
+                System.out.println("New map generated for save: " + saveId);
+                return true;
+            }
+
+            return false;
+        } catch (Exception err) {
+            System.err.println("Failed to generate new map for save: " + saveId);
+            err.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * Load Map
      */
     public boolean loadMapData(String saveId) {
-
+        try {
+            SaveFile saveFile = new SaveFile(saveId);
+            if(saveFile.hasData("world", "d.m.0")) {
+                byte[] mapData = saveFile.loadData("world", "d.m.0");
+                
+                System.out.println("Map loaded from save: " + saveId);
+                return true;
+            } else {
+                System.out.println("No map data found in save, generating new map");
+                return generateNewMap(saveId);
+            }
+        } catch (Exception err) {
+            System.err.println("Failed to load map from save: " + saveId);
+            err.printStackTrace();
+            return false;
+        }
     }
 
     /**

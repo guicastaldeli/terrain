@@ -1,5 +1,7 @@
 package main.com.app.root.env.map;
+import main.com.app.root.DataController;
 import main.com.app.root.DependencyValue;
+import main.com.app.root.StateController;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.env.EnvInstance;
@@ -11,6 +13,8 @@ public class MapController implements EnvInstance<MapController> {
     @DependencyValue private ShaderProgram shaderProgram;
     @DependencyValue private Mesh mesh;
     @DependencyValue private MeshRenderer meshRenderer;
+    @DependencyValue private DataController dataController;
+    @DependencyValue private StateController stateController;
 
     private MapGenerator mapGenerator;
 
@@ -20,7 +24,9 @@ public class MapController implements EnvInstance<MapController> {
             tick, 
             mesh, 
             meshRenderer, 
-            shaderProgram
+            shaderProgram,
+            dataController,
+            stateController
         );
         return this;
     }

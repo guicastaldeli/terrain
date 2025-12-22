@@ -9,6 +9,8 @@ import main.com.app.root.env.EnvData;
 public class Scene {
     private final Window window;
     private final Tick tick;
+    private final DataController dataController;
+    private final StateController stateController;
 
     private Mesh mesh;
     private ShaderProgram shaderProgram;
@@ -18,9 +20,17 @@ public class Scene {
 
     private boolean init = false;
 
-    public Scene(Window window, Tick tick, ShaderProgram shaderProgram) {
+    public Scene(
+        Window window, 
+        Tick tick,
+        DataController dataController,
+        StateController stateController, 
+        ShaderProgram shaderProgram
+    ) {
         this.window = window;
         this.tick = tick;
+        this.dataController = dataController;
+        this.stateController = stateController;
         this.shaderProgram = shaderProgram;
     }
 
@@ -53,7 +63,9 @@ public class Scene {
                 tick,
                 shaderProgram,
                 mesh,
-                mesh.getMeshRenderer()
+                mesh.getMeshRenderer(),
+                dataController,
+                stateController
             );
     
             this.envController = new EnvController(dependencyContainer);
