@@ -54,60 +54,58 @@ void generateMapMeshData(
 
     for(int z = 0; z < height; z++) {
         for(int x = 0; x < width; x++) {
-            int idx = (z * width + x) * 3;
-            (*vertices)[idx] = (float)x - width / 2.0f;
-            (*vertices)[idx+1] = heightMap[x][z] * 2.0f;
-            (*vertices)[idx+2] = (float)z - height / 2.0f;
-
             int colorIdx = (z * width + x) * 4;
             float heightVal = heightMap[x][z];
             (*colors)[colorIdx + 3] = 1.0f;
             
-            if(heightVal < -200.0f) {
+            float centerX = width / 2.0f;
+            float centerZ = height / 2.0f;
+            float dx = x - centerX;
+            float dz = z - centerZ;
+            float distFromCenter = sqrtf(dx * dx + dz * dz);
+            float normalizedDist = distFromCenter / (width * 0.5f);
+            
+            float normalizedHeight = (heightVal - minHeight) / (maxHeight - minHeight);
+            
+            if(normalizedHeight < 0.1f) {
+                //Blue
                 (*colors)[colorIdx] = 0.0f;
                 (*colors)[colorIdx + 1] = 0.1f;
                 (*colors)[colorIdx + 2] = 0.4f;
-            } else if(heightVal < -100.0f) {
-                (*colors)[colorIdx] = 0.0f;
-                (*colors)[colorIdx + 1] = 0.2f;
-                (*colors)[colorIdx + 2] = 0.5f;
-            } else if(heightVal < -50.0f) {
-                (*colors)[colorIdx] = 0.0f;
-                (*colors)[colorIdx + 1] = 0.3f;
-                (*colors)[colorIdx + 2] = 0.6f;
-            } else if(heightVal < -20.0f) {
-                (*colors)[colorIdx] = 0.0f;
-                (*colors)[colorIdx + 1] = 0.4f;
-                (*colors)[colorIdx + 2] = 0.7f;
-            } else if(heightVal < 0.0f) {
-                float t = (heightVal + 20.0f) / 20.0f;
-                (*colors)[colorIdx] = t * 0.9f;
-                (*colors)[colorIdx + 1] = 0.4f + t * 0.4f;
-                (*colors)[colorIdx + 2] = 0.7f - t * 0.5f;
-            } else if(heightVal < 5.0f) {
-                (*colors)[colorIdx] = 0.9f;
-                (*colors)[colorIdx + 1] = 0.8f;
-                (*colors)[colorIdx + 2] = 0.2f;
-            } else if(heightVal < 20.0f) {
-                (*colors)[colorIdx] = 0.3f;
-                (*colors)[colorIdx + 1] = 0.7f;
-                (*colors)[colorIdx + 2] = 0.3f;
-            } else if(heightVal < 50.0f) {
-                (*colors)[colorIdx] = 0.2f;
-                (*colors)[colorIdx + 1] = 0.6f;
-                (*colors)[colorIdx + 2] = 0.2f;
-            } else if(heightVal < 80.0f) {
-                (*colors)[colorIdx] = 0.1f;
-                (*colors)[colorIdx + 1] = 0.5f;
-                (*colors)[colorIdx + 2] = 0.1f;
-            } else if(heightVal < 100.0f) {
-                (*colors)[colorIdx] = 0.5f;
-                (*colors)[colorIdx + 1] = 0.5f;
-                (*colors)[colorIdx + 2] = 0.5f;
-            } else {
-                (*colors)[colorIdx] = 1.0f;
-                (*colors)[colorIdx + 1] = 1.0f;
-                (*colors)[colorIdx + 2] = 1.0f;
+            } else if(normalizedHeight < 0.2f) { 
+                // Green
+                float noise = fractualSimplexNoise(x * 0.05f, z * 0.05f, 3, 0.4f, 2.0f);
+                float baseGreen = 0.7f + noise * 0.15f;
+                float redTint = 0.3f + noise * 0.1f;
+                
+                (*colors)[colorIdx] = redTint;
+                (*colors)[colorIdx + 1] = baseGreen;
+                (*colors)[colorIdx + 2] = 0.3f + noise * 0.1f;
+            } else if(normalizedHeight < 0.4f) { 
+                // Mountain Gray
+                float noise = fractualSimplexNoise(x * 0.1f, z * 0.1f, 2, 0.3f, 2.0f) * 0.15f;
+                float mountainBlend = (normalizedHeight - 0.2f) / 0.2f;
+                float gray = 0.35f + mountainBlend * 0.25f + noise;
+                
+                (*colors)[colorIdx] = gray;
+                (*colors)[colorIdx + 1] = gray;
+                (*colors)[colorIdx + 2] = gray;
+            } else { 
+                // Snow
+                float snowBlend = (normalizedHeight - 0.4f) / 0.6f;
+                float baseGray = 0.6f;
+                float smoothBlend = snowBlend * snowBlend * (3.0f - 2.0f * snowBlend);
+                float color = baseGray + (1.0f - baseGray) * smoothBlend;
+                
+                float snowNoise = fractualSimplexNoise(x * 0.08f, z * 0.08f, 3, 0.3f, 2.0f) * 0.08f;
+                color += snowNoise;
+                
+                if(color > 1.0f) color = 1.0f;
+                if(color < baseGray) color = baseGray;
+                
+                (*colors)[colorIdx] = color;
+                (*colors)[colorIdx + 1] = color;
+                (*colors)[colorIdx + 2] = color;
             }
         }
     }

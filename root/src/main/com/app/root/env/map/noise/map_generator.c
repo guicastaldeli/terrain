@@ -1,33 +1,84 @@
 #include "map_generator.h"
 #include "file_saver.h"
+#include <math.h>
 
-/*
-** Generate Enhanced Height
-*/
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+#define OCTAVES 8
+#define PERSISTENCE 0.5
+#define LACUNARITY 2.0
+
+/**
+ * Generate Height Map
+ */
 float generateHeightMap(
     float worldX,
     float worldZ,
     PointCollection* collection
 ) {
-    float warpedX = worldX;
-    float warpedY = worldZ;
-    domainWarp(&warpedX, &warpedY, 50.0f, OCTAVES);
-
-    float noise = fractualSimplexNoise(
-        worldX * 0.003f, 
-        worldZ * 0.003f, 
-        OCTAVES,
-        PERSISTENCE,
-        LACUNARITY
+    float centerX = WORLD_SIZE / 2.0f;
+    float centerZ = WORLD_SIZE / 2.0f;
+    
+    float dx = worldX - centerX;
+    float dz = worldZ - centerZ;
+    float distFromCenter = sqrtf(dx * dx + dz * dz);
+    
+    float maxRadius = WORLD_SIZE * 0.45f;
+    float normalizedDist = distFromCenter / maxRadius;
+    
+    float islandFalloff = 1.0f;
+    if(normalizedDist > 0.7f) {
+        float edgeFactor = (normalizedDist - 0.7f) / 0.3f;
+        islandFalloff = 1.0f - (edgeFactor * edgeFactor);
+        islandFalloff = fmaxf(0.0f, islandFalloff);
+    }
+    
+    float baseHeight = 100.0f * (1.0f - normalizedDist * normalizedDist) * islandFalloff;
+    float mountainHeight = 0.0f;
+    float mountainRadius = WORLD_SIZE * 0.15f;
+    
+    if(distFromCenter < mountainRadius) {
+        float mountainNorm = distFromCenter / mountainRadius;
+        mountainHeight = 400.0f * (1.0f - mountainNorm * mountainNorm);
+    }
+    
+    float noiseInfluence = 1.0f;
+    if(distFromCenter > mountainRadius) {
+        float distanceFromMountain = distFromCenter - mountainRadius;
+        float maxIslandRadius = maxRadius * 0.7f;
+        noiseInfluence = 1.0f - (distanceFromMountain / (maxIslandRadius - mountainRadius));
+        noiseInfluence = fmaxf(0.1f, fminf(1.0f, noiseInfluence));
+    }
+    
+    float terrainNoise = fractualSimplexNoise(
+        worldX * 0.01f,
+        worldZ * 0.01f,
+        4,
+        0.5f,
+        2.0f
     );
-
-    float height = noise * 100.0f;
+    float detailNoise = fractualSimplexNoise(
+        worldX * 0.05f,
+        worldZ * 0.05f,
+        3,
+        0.3f,
+        2.0f
+    );
+    
+    float height = baseHeight + mountainHeight;
+    
+    height += terrainNoise * 30.0f * islandFalloff * noiseInfluence;
+    height += detailNoise * 10.0f * islandFalloff * noiseInfluence;
+    
+    height = fmaxf(height, 0.0f);
     return height;
 }
 
-/*
-** Generate Chunk
-*/
+/**
+ * Generate Chunk
+ */
 void generateChunk(
     Chunk* chunk,
     PointCollection* collection,
@@ -71,9 +122,9 @@ void generateChunk(
     }
 }
 
-/*
-** Generate Map
-*/
+/**
+ * Generate Map
+ */
 void generateMap(const char* fileName) {
     unsigned long seed = (unsigned long)time(NULL) ^ (unsigned long)rand();
     int pointCount = 15 + (rand() % 20);
@@ -101,9 +152,9 @@ void generateMap(const char* fileName) {
             printf("  Base terrain: %.1f%%\n", (float)(x + 1) / WORLD_SIZE * 100.0f);
         }
     }
-    //simulateHydraulicErosion(worldHeightMap, WORLD_SIZE, 3000, 3);
-    //thermalErosion(worldHeightMap, WORLD_SIZE, 0.08f, 8);
-    //generateRivers(worldHeightMap, riverMap, WORLD_SIZE, pointCount);
+    simulateHydraulicErosion(worldHeightMap, WORLD_SIZE, 3000, 3);
+    thermalErosion(worldHeightMap, WORLD_SIZE, 0.08f, 8);
+    generateRivers(worldHeightMap, riverMap, WORLD_SIZE, pointCount);
 
     PoissonCollection* objLocations = poissonDiskSampling(25.0f, WORLD_SIZE, WORLD_SIZE, 30);
     printf("Generated %d object locations\n", objLocations->count);
