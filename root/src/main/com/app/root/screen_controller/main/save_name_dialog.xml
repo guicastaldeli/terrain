@@ -9,15 +9,17 @@
         Enter Save Name...
     </label>
     
-    <input
-        id="nameInput" 
-        x="40%" y="35%" 
+    <inputfield
+        id="nameDisplay" 
+        x="35%" y="40%" 
+        width="30%" 
+        height="50"
         scale="1.0" 
-        color="1.0,1.0,1.0" 
-        action="name"
-    >
-        Enter name
-    </input>
+        color="0.2,0.2,0.2"
+        placeholder="Type world name..."
+        maxLength="30"
+        enabled="true"
+    />
     <button
         id="confirmBtn" 
         x="35%" y="60%" 

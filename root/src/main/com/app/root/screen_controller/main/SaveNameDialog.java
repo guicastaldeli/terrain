@@ -1,17 +1,25 @@
 package main.com.app.root.screen_controller.main;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+
 import main.com.app.root.DocParser;
+import main.com.app.root.KeyboardInputHandler;
 import main.com.app.root.screen_controller.Screen;
 import main.com.app.root.screen_controller.ScreenElement;
 
 public class SaveNameDialog extends Screen {
     public static final String DIALOG_PATH = DIR + "main/save_name_dialog.xml";
+    
     private final MainScreenAction mainScreenAction;
+    private KeyboardInputHandler keyboardInputHandler;
+
     public boolean active = false;
-    private String enteredName = "";
     
     public SaveNameDialog(MainScreenAction mainScreenAction) {
         super(DIALOG_PATH, "save_name_dialog");
         this.mainScreenAction = mainScreenAction;
+        this.keyboardInputHandler = new KeyboardInputHandler(15);
     }
 
     @Override
@@ -24,7 +32,7 @@ public class SaveNameDialog extends Screen {
                 cancel();
                 break;
             case "clear":
-                enteredName = "";
+                keyboardInputHandler.clear();
                 updateNameDisplay();
                 break;
         }
@@ -34,30 +42,22 @@ public class SaveNameDialog extends Screen {
      * Confirm Save Name
      */
     private void confirmName() {
-        if(!enteredName.trim().isEmpty()) {
-            mainScreenAction.start(enteredName.trim());
-        }
-        setActive(false);
-        clearEl();
-    }
-
-    /**
-     * Cancel
-     */
-    private void cancel() {
-        setActive(false);
-        clearEl();
-        enteredName = "";
+        String saveName = keyboardInputHandler.getText().trim();
+        if(!saveName.isEmpty()) mainScreenAction.start(saveName);
+        hide();
     }
 
     /**
      * Update Name Display
      */
     private void updateNameDisplay() {
-        for(ScreenElement el : screenData.elements) {
-            if(el.id.equals("nameDisplay")) {
-                el.text = enteredName;
-                break;
+        ScreenElement nameDisplay = DocParser.getElementById(screenData, "nameDisplay");
+        if(nameDisplay != null) {
+            String currentText = keyboardInputHandler.getText();
+            if(currentText.isEmpty() && nameDisplay.attr.containsKey("placeholder")) {
+                nameDisplay.text = nameDisplay.attr.get("placeholder");
+            } else {
+                nameDisplay.text = currentText;
             }
         }
     }
@@ -68,7 +68,7 @@ public class SaveNameDialog extends Screen {
     public void show() {
         setActive(true);
         active = true;
-        enteredName = "";
+        keyboardInputHandler.clear();
 
         try {
             this.screenData = DocParser.parseScreen(
@@ -90,6 +90,43 @@ public class SaveNameDialog extends Screen {
         screenData.elements.clear();
     }
 
+    /**
+     * Hide
+     */
+    private void hide() {
+        setActive(false);
+        active = false;
+        keyboardInputHandler.clear();
+        clearEl();
+    }
+
+    /**
+     * Cancel
+     */
+    private void cancel() {
+        hide();
+    }
+
+    @Override
+    public void handleKeyPress(int key, int action) {
+        if(!active) return;
+
+        boolean textChanged = keyboardInputHandler.handleKey(key, action);
+        if(action == GLFW_PRESS) {
+            if(key == GLFW_KEY_ENTER) {
+                confirmName();
+                return;
+            }
+            if(key == GLFW_KEY_ESCAPE) {
+                cancel();
+                return;
+            }
+        }
+        if(textChanged) {
+            updateNameDisplay();
+        }
+    }
+
     @Override
     public void render() {
         if(active) {
@@ -109,6 +146,7 @@ public class SaveNameDialog extends Screen {
                 width,
                 height
             );
+            updateNameDisplay();
         } catch (Exception err) {
             System.err.println("Failed to re-parse save menu on resize: " + err.getMessage());
         }

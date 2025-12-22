@@ -1,13 +1,11 @@
 package main.com.app.root;
 import main.com.app.root.screen_controller.ScreenData;
 import main.com.app.root.screen_controller.ScreenElement;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +101,13 @@ public class DocParser {
             element.getAttribute("action") : 
             "";
         
+        String placeholder = element.hasAttribute("placeholder") ? 
+            element.getAttribute("placeholder") : "";
+        int maxLength = element.hasAttribute("maxLength") ? 
+            Integer.parseInt(element.getAttribute("maxLength")) : 50;
+        boolean enabled = !element.hasAttribute("enabled") || 
+            Boolean.parseBoolean(element.getAttribute("enabled"));
+        
         ScreenElement screenElement = new ScreenElement(
             type, 
             id, 
@@ -112,6 +117,14 @@ public class DocParser {
             color, 
             action
         );
+        
+        if("input".equals(type)) {
+            screenElement.attr.put("placeholder", placeholder);
+            screenElement.attr.put("maxLength", String.valueOf(maxLength));
+            screenElement.attr.put("enabled", String.valueOf(enabled));
+            screenElement.attr.put("isInput", "true");
+        }
+        
         parseAttr(element, screenElement.attr);
         return screenElement;
     }
@@ -148,6 +161,19 @@ public class DocParser {
         List<ScreenElement> result = new ArrayList<>();
         for(ScreenElement element : screenData.elements) {
             if(element.type.equals(type)) {
+                result.add(element);
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * Get Input Elements
+     */
+    public static List<ScreenElement> getInputElements(ScreenData screenData) {
+        List<ScreenElement> result = new ArrayList<>();
+        for(ScreenElement element : screenData.elements) {
+            if("input".equals(element.type) || "true".equals(element.attr.get("isInput"))) {
                 result.add(element);
             }
         }
