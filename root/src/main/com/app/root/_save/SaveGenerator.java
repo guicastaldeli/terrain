@@ -10,7 +10,6 @@ import java.util.*;
 import java.text.SimpleDateFormat;
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
-import main.com.app.root.env.map.MapGeneratorWrapper;
 
 public class SaveGenerator {
     private final DataController dataController;
@@ -58,39 +57,6 @@ public class SaveGenerator {
 
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         return baseId + "_" + timestamp;
-    }
-
-    /**
-     * Generate World Map
-     */
-    private void generateWorldMap(SaveFile saveFile) throws IOException {
-        String noiseDir = "C:/Users/casta/OneDrive/Desktop/vscode/terrain/root/src/main/com/app/root/env/map/noise/data";
-        File dir = new File(noiseDir);
-        if(!dir.exists()) dir.mkdirs();
-
-        Random r = new Random();
-        int r1 = r.nextInt(9);
-        int r2 = r.nextInt(9);
-        String fileName = String.format(
-            "m.%03d.%03d.%d.dat",
-            r1,
-            r2,
-            System.currentTimeMillis()
-        );
-        String path = Paths.get(noiseDir, fileName).toString();
-
-        long seed = dataController.getWorldSeed();
-        MapGeneratorWrapper mapGeneratorWrapper = new MapGeneratorWrapper();
-
-        boolean success = mapGeneratorWrapper.generateMap(path, seed);
-        if(success) {
-            Path source = Paths.get(path);
-            Path target = saveFile.getSavePath().resolve("world").resolve("d.m.0.dat");
-            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("World map generated and saved to: " + target);
-        } else {
-            throw new IOException("Failed to generate world map");
-        }
     }
 
     /**

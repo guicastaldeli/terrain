@@ -1,8 +1,17 @@
 package main.com.app.root.env.map;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Random;
+
+import main.com.app.root.DataController;
+import main.com.app.root.StateController;
 import main.com.app.root.Tick;
 import main.com.app.root._resources.TextureLoader;
+import main.com.app.root._save.SaveFile;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
@@ -23,17 +32,24 @@ public class MapGenerator {
     private int mapWidth;
     private int mapHeight;
 
+    private final DataController dataController;
+    private final StateController stateController;
+
     public MapGenerator(
         Tick tick, 
         Mesh mesh,
         MeshRenderer meshRenderer, 
-        ShaderProgram shaderProgram
+        ShaderProgram shaderProgram,
+        DataController dataController,
+        StateController stateController
     ) {
         this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
         this.meshRenderer = meshRenderer;
         this.mapGeneratorWrapper = new MapGeneratorWrapper();
+        this.dataController = dataController;
+        this.stateController = stateController;
     }
 
     private void loadTex() {
@@ -65,27 +81,51 @@ public class MapGenerator {
     /**
      * Generate Map Data
      */
-    private boolean generateMapData() {
-        String noiseDir = "C:/Users/casta/OneDrive/Desktop/vscode/terrain/root/src/main/com/app/root/_resources/noise";
-        File dir = new File(noiseDir);
-        if(!dir.exists()) dir.mkdirs();
-
-        String fileName = "map_" + System.currentTimeMillis() + ".bin";
-        String path = Paths.get(noiseDir, fileName).toString();
-        
-        long seed = System.currentTimeMillis();
-        boolean success = mapGeneratorWrapper.generateMap(path, seed);
-        if(success) {
-            heightMapData = mapGeneratorWrapper.getHeightMapData();
-            mapWidth = mapGeneratorWrapper.getMapWidth();
-            mapHeight = mapGeneratorWrapper.getMapHeight();
-            System.out.println("Terrain generated successfully: " + path);
-            System.out.println("Terrain dimensions: " + mapWidth + "x" + mapHeight);
-            return true;
+    private boolean generateMap(SaveFile saveFile) throws IOException {
+        String currentSaveId = stateController.getCurrentSaveId();
+        if(currentSaveId != null && stateController.isLoadInProgress()) {
+            return loadMap(currentSaveId);
         } else {
-            System.err.println("Failed to generate terrain");
-            return false;
+            String noiseDir = "C:/Users/casta/OneDrive/Desktop/vscode/terrain/root/src/main/com/app/root/env/map/noise/data";
+            File dir = new File(noiseDir);
+            if(!dir.exists()) dir.mkdirs();
+    
+            Random r = new Random();
+            int r1 = r.nextInt(9);
+            int r2 = r.nextInt(9);
+            String fileName = String.format(
+                "m.%03d.%03d.%d.dat",
+                r1,
+                r2,
+                System.currentTimeMillis()
+            );
+            String path = Paths.get(noiseDir, fileName).toString();
+    
+            long seed = dataController.getWorldSeed();
+            boolean success = mapGeneratorWrapper.generateMap(path, seed);
+            if(success) {
+                heightMapData = mapGeneratorWrapper.getHeightMapData();
+                mapWidth = mapGeneratorWrapper.getMapWidth();
+                mapHeight = mapGeneratorWrapper.getMapHeight();
+                System.out.println("Terrain generated successfully: " + path);
+                System.out.println("Terrain dimensions: " + mapWidth + "x" + mapHeight);
+                
+                Path source = Paths.get(path);
+                Path target = saveFile.getSavePath().resolve("world").resolve("d.m.0.dat");
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("World map generated and saved to: " + target);
+                return true;
+            } else {
+                throw new IOException("Failed to generate world map");
+            }
         }
+    }
+
+    /**
+     * Load Map
+     */
+    public boolean loadMap(String saveId) {
+
     }
 
     /**

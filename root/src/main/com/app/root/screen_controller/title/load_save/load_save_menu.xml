@@ -1,4 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <load_save_menu>
+    <label 
+        id="title" 
+        x="50" y="50" 
+        scale="1.2" 
+        color="1.0,1.0,0.0"
+    >
+        Load Game
+    </label>
     
+    <button 
+        id="backBtn" 
+        x="50" y="100" 
+        scale="1.0" 
+        color="0.8,0.8,0.8" 
+        action="back"
+    >
+        ← Back to Menu
+    </button>
+    
+    <container id="saveSlots" x="50" y="150">
+    </container>
+    
+    <label 
+        id="noSavesLabel" 
+        x="50" y="200" 
+        scale="1.0" 
+        color="1.0,0.5,0.5"
+        visible="false"
+    >
+        No save games found
+    </label>
 </load_save_menu>
