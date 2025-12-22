@@ -16,9 +16,10 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class SaveFile {
-    private static final String SAVE_BASE_PATH = "C:/Users/casta/OneDrive/Desktop/vscode/terrain/root/src/main/com/app/root/_resources/saves";
+    private static final String SAVE_BASE_PATH = "root/src/main/com/app/root/_resources/saves";
     private static final String FILE_EXTENSION = ".dat";
     private static final String SAVE_INFO = "save.info";
     private static final String INFO_COMMENT = "SAVE INFORMATION";
@@ -41,6 +42,7 @@ public class SaveFile {
         List<String> saves = new ArrayList<>();
         File baseDir = new File(SAVE_BASE_PATH);
         if(baseDir.exists() || !baseDir.isDirectory()) {
+            System.out.println("Save directory does not exist: " + SAVE_BASE_PATH);
             return saves;
         }
 
@@ -53,7 +55,19 @@ public class SaveFile {
             }
         }
 
+        System.out.println("Found " + saves.size() + " saves");
         return saves;
+    }
+
+    public static List<Path> getAllSaveInfoFiles() {
+        try {
+            return Files.walk(Paths.get(SAVE_BASE_PATH))
+                .filter(path -> path.endsWith(SAVE_INFO))
+                .collect(Collectors.toList());
+        } catch(Exception err) {
+            System.err.println("Error walking save directory: " + err.getMessage());
+            return new ArrayList<>();
+        }
     }
 
     public boolean exists() {

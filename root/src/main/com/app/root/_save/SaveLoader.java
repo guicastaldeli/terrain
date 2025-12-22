@@ -106,7 +106,16 @@ public class SaveLoader {
             saves.add(info);
         }
 
-        saves.sort((a, b) -> b.lastPlayed.compareTo(a.lastPlayed));
+        saves.sort((a, b) -> {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date dA = sdf.parse(a.lastPlayed);
+                Date dB = sdf.parse(b.lastPlayed);
+                return dB.compareTo(dA);
+            } catch(Exception e) {
+                return 0;
+            }
+        });
         return saves;
     }
 
@@ -132,5 +141,23 @@ public class SaveLoader {
     public boolean saveExists(String saveId) {
         SaveFile saveFile = new SaveFile(saveId);
         return saveFile.exists();
+    }
+
+    /**
+     * Get Save Info
+     */
+    public SaveInfo getSaveInfo(String saveId) {
+        SaveFile saveFile = new SaveFile(saveId);
+        if(!saveFile.exists()) return null;
+
+        SaveInfo info = new SaveInfo();
+        info.saveId = saveId;
+        info.saveName = saveFile.getSaveInfo("save_name");
+        info.creationDate = saveFile.getSaveInfo("creation_date");
+        info.lastPlayed = saveFile.getSaveInfo("last_played");
+        info.playTime = saveFile.getSaveInfo("play_time");
+        info.version = saveFile.getSaveInfo("version");
+        info.lastModified = saveFile.getFormattedLastModified();
+        return info;
     }
 }
