@@ -11,6 +11,6 @@ public class SaveInfo {
 
     @Override
     public String toString() {
-        return saveId + " - " + playTime + " - " + lastPlayed;
+        return saveName + " - " + playTime + " - " + lastPlayed;
     }
 }
