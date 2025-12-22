@@ -11,7 +11,6 @@ public class Console {
     private ScreenController screenController;
 
     private boolean running = false;
-    private boolean sceneInit = false;
     
     private boolean standalone = false;
     private boolean initializationComplete = false;
@@ -39,7 +38,7 @@ public class Console {
         this.standalone = false;
 
         this.running = false;
-        this.sceneInit = false;
+        scene.init = false;
         this.initializationComplete = false;
         this.sessionDetected = false;
         
@@ -230,11 +229,7 @@ public class Console {
             info("Starting...");
 
             if(!standalone && screenController != null) {
-                sceneInit = true;
-
-                screenController.switchTo(null);
-                screenController.disableCursor();
-                scene.init();
+                //////
             }
             running = true;
 
@@ -262,7 +257,7 @@ public class Console {
      * Resume
      */
     public void resume() {
-        if(sceneInit && !running) {
+        if(scene.init && !running) {
             info("Resuming...");            
             if(!standalone) {
                 System.out.println("resumed");
@@ -275,7 +270,7 @@ public class Console {
     }
 
     public boolean isSceneInitialized() {
-        return sceneInit;
+        return scene.init;
     }
 
     public void setScene(Scene scene) {

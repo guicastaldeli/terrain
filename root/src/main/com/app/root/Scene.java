@@ -18,7 +18,7 @@ public class Scene {
     private PlayerController playerController;
     private DependencyContainer dependencyContainer;
 
-    private boolean init = false;
+    public boolean init = false;
 
     public Scene(
         Window window, 

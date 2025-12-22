@@ -8,43 +8,82 @@ import main.com.app.root.screen_controller.ScreenController;
 import java.util.*;
 
 public class TitleScreen extends Screen {
-    private final Window window;
-    private final ShaderProgram shaderProgram;
-    private final ScreenController screenController;
-    private static final String SCREEN_PATH = "C:/Users/casta/OneDrive/Desktop/vscode/terrain/root/src/main/com/app/root/screen_controller/title/title_screen.xml";
+    private static final String SCREEN_PATH = DIR + "/title/title_screen.xml";
+    private static final String FONT_PATH = "main/com/app/root/_text/font/arial.ttf";
 
-    private static final String FONT_PATH = "C:/Users/casta/OneDrive/Desktop/vscode/terrain/root/src/main/com/app/root/_text/font/arial.ttf";
-    private static float fontSize = 24.0f;
-
+    private TitleScreenAction titleScreenAction;
     private boolean showSaveMenu = false;
     private List<SaveInfo> availableSaves;
 
-    public TitleScreen(
-        Window window,
-        ShaderProgram shaderProgram, 
-        ScreenController screenController
-    ) {
+    private static float fontSize = 24.0f;
+
+    public TitleScreen() {
         super(
-            window,
-            shaderProgram,
             SCREEN_PATH,
             "title",
             FONT_PATH,
             fontSize
         );
-        this.shaderProgram = shaderProgram;
-        this.screenController = screenController;
-        this.window = window;
+        this.titleScreenAction = new TitleScreenAction(
+            this,
+            getScene(), 
+            screenController,
+            saveLoader,
+            stateController
+        );
+
+        refreshSaveList();
     }
 
     @Override
     public void handleAction(String action) {
-        
+        if(showSaveMenu) {
+            handleSaveMenuAction(action);
+        } else {
+            handleMainMenuAction(action);
+        }
     }
 
     @Override
     public void handleKeyPress(int ket, int action) {
         
+    }
+
+    /**
+     * Main Menu Actions
+     */
+    private void handleMainMenuAction(String action) {
+        switch (action) {
+            case "contine":
+                //loadLastSave(); //Implement Later
+            case "start":
+                titleScreenAction.start();
+                break;
+            case "load":
+                titleScreenAction.load();
+                break;
+            case "settings":
+                //showSettings(); //Implement later
+            case "exit":
+                System.exit(0);
+                break;
+        }
+    }
+
+    /**
+     * Handle Save Menu Actions
+     */
+    private void handleSaveMenuAction(String action) {
+        if(action.startsWith("load_")) {
+            String saveId = action.substring(5);
+            titleScreenAction.load(saveId);
+        } else if(action.startsWith("delete_")) {
+            String saveId = action.substring(7);
+            titleScreenAction.delete(saveId);
+        } else if(action.equals("back")) {
+            showSaveMenu = false;
+            refreshScreen();
+        }
     }
 
     /**
@@ -65,5 +104,26 @@ public class TitleScreen extends Screen {
         } catch (Exception err) {
             System.err.println("Failed to re-parse screen on resize: " + err.getMessage());
         }
+    }
+
+    /**
+     * Refresh Save List
+     */
+    public void refreshSaveList() {
+        availableSaves = saveLoader.listAvailableSaves();
+    }
+
+    /**
+     * Refresh Screem
+     */
+    public void refreshScreen() {
+
+    }
+
+    /**
+     * Render Save Menu
+     */
+    public void renderSaveMenu() {
+
     }
 }

@@ -3,37 +3,37 @@ import main.com.app.root.Window;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveLoader;
 import main.com.app.root._shaders.ShaderProgram;
-import java.util.List;
 import main.com.app.root.Console;
 import main.com.app.root.DataController;
 import main.com.app.root.DocParser;
+import main.com.app.root.Scene;
 import main.com.app.root.StateController;
 import main.com.app.root._text.TextRenderer;
+import java.util.*;
 
 public class Screen implements ScreenInputHandler {
-    private static final String DIR = "main/com/app/root/screen/";
-    private Window window;
-    private ShaderProgram shaderProgram;
-    private TextRenderer textRenderer;
-    public ScreenData screenData;
-    private boolean active = false;
-    private String screenName;
+    public static final String DIR = "main/com/app/root/screen_controller/";
 
-    private SaveGenerator saveGenerator;
-    private SaveLoader saveLoader;
-    private DataController dataController;
-    private StateController stateController;
+    public Window window;
+    public ShaderProgram shaderProgram;
+    public ScreenController screenController;
+    public TextRenderer textRenderer;
+    public ScreenData screenData;
+    public boolean active = false;
+    public String screenName;
+
+    public SaveGenerator saveGenerator;
+    public SaveLoader saveLoader;
+    public DataController dataController;
+    public StateController stateController;
+    public Scene scene;
 
     public Screen(
-        Window window,
-        ShaderProgram shaderProgram,
         String filePath, 
         String screenName, 
         String fontPath, 
         float fontSize
     ) {
-        this.shaderProgram = shaderProgram;
-        this.window = window;
         this.screenName = screenName;
         try {
             System.out.println("Loading font from: " + fontPath);
@@ -65,11 +65,17 @@ public class Screen implements ScreenInputHandler {
         }
     }
     public Screen(
+        Window window,
+        ShaderProgram shaderProgram, 
+        ScreenController screenController,
         SaveGenerator saveGenerator,
         SaveLoader saveLoader,
         DataController dataController,
         StateController stateController
     ) {
+        this.window = window;
+        this.shaderProgram = shaderProgram;
+        this.screenController = screenController;
         this.saveGenerator = saveGenerator;
         this.saveLoader = saveLoader;
         this.dataController = dataController;
@@ -90,6 +96,17 @@ public class Screen implements ScreenInputHandler {
     
     public String getScreenName() {
         return screenName;
+    }
+
+    /**
+     * Scene
+     */
+    public void setScene(Scene scene) {
+        this.scene = scene;
+    }
+
+    public Scene getScene() {
+        return scene;
     }
 
     public String checkClick(int mouseX, int mouseY) {
