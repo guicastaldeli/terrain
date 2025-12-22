@@ -34,8 +34,8 @@ public class MainScreen extends Screen {
             saveNameDialog.handleAction(action);
             return;
         }
-        if(loadSaveMenu.showSaveMenu) {
-            handleSaveMenuAction(action);
+        if(loadSaveMenu.isActive()) {
+           loadSaveMenu.handleAction(action);
         } else {
             handleMainMenuAction(action);
         }
@@ -54,7 +54,7 @@ public class MainScreen extends Screen {
      */
     private void handleMainMenuAction(String action) {
         switch (action) {
-            case "contine":
+            case "continue":
                 mainScreenAction.loadLastSave();
                 break;
             case "start":
@@ -76,22 +76,8 @@ public class MainScreen extends Screen {
      * Save Menu
      */
     public void showSaveMenu() {
-        loadSaveMenu.showSaveMenu = true;
+        loadSaveMenu.show();
         refreshSaveList();
-        loadSaveMenu.render();
-    }
-
-    private void handleSaveMenuAction(String action) {
-        if(action.startsWith("load_")) {
-            String saveId = action.substring(5);
-            mainScreenAction.load(saveId);
-        } else if(action.startsWith("delete_")) {
-            String saveId = action.substring(7);
-            mainScreenAction.deleteSave(saveId);
-        } else if(action.equals("back")) {
-            loadSaveMenu.showSaveMenu = false;
-            refreshScreen();
-        }
     }
 
     /**
@@ -112,8 +98,8 @@ public class MainScreen extends Screen {
     public void render() {
         if(saveNameDialog.isActive()) {
             saveNameDialog.render();
-        } else if(loadSaveMenu.showSaveMenu) {
-
+        } else if(loadSaveMenu.isActive()) {
+            loadSaveMenu.render();
         } else {
             super.render();
         }
@@ -129,9 +115,9 @@ public class MainScreen extends Screen {
         }
 
         try {
-            if(loadSaveMenu.showSaveMenu) {
+            if(loadSaveMenu.isActive()) {
                 loadSaveMenu.onWindowResize(width, height);
-            } else if(saveNameDialog.active) {
+            } else if(saveNameDialog.isActive()) {
                 saveNameDialog.onWindowResize(width, height);
             } else {
                 this.screenData = DocParser.parseScreen(

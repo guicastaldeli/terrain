@@ -19,7 +19,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class SaveFile {
-    private static final String SAVE_BASE_PATH = "root/src/main/com/app/root/_resources/saves";
+    private static final String SAVE_BASE_PATH = "root/src/main/com/app/root/_resources/saves/";
     private static final String FILE_EXTENSION = ".dat";
     private static final String SAVE_INFO = "save.info";
     private static final String INFO_COMMENT = "SAVE INFORMATION";
@@ -41,8 +41,9 @@ public class SaveFile {
     public static List<String> listAllSaves() {
         List<String> saves = new ArrayList<>();
         File baseDir = new File(SAVE_BASE_PATH);
-        if(baseDir.exists() || !baseDir.isDirectory()) {
+        if(!baseDir.exists() || !baseDir.isDirectory()) {
             System.out.println("Save directory does not exist: " + SAVE_BASE_PATH);
+            baseDir.mkdirs();
             return saves;
         }
 

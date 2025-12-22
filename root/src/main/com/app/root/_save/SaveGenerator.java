@@ -1,10 +1,10 @@
 package main.com.app.root._save;
+import main.com.app.root.DataController;
+import main.com.app.root.StateController;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
-import java.text.SimpleDateFormat;
-import main.com.app.root.DataController;
-import main.com.app.root.StateController;
+import java.text.DateFormat;
 
 public class SaveGenerator {
     private final DataController dataController;
@@ -29,17 +29,17 @@ public class SaveGenerator {
         SaveFile saveFile = new SaveFile(saveId);
         saveFile.createSaveDir();
 
-        /*
-        Object instance = envController.getEnv(EnvData.MAP).getInstance();
-        EnvCall.call(instance, "getGenerator", "generateNewMap");
-        */
-
         stateController.setCurrentSaveId(saveId);
         stateController.setLoadInProgress(true);
 
-        String creationDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        Date currentDate = new Date();
+        String creationDate = DateFormat.getDateTimeInstance(
+            DateFormat.DEFAULT,
+            DateFormat.DEFAULT,
+            Locale.getDefault()
+        ).format(currentDate);
         saveFile.setSaveInfo("save_name", saveName);
-        saveFile.setSaveInfo("creation_date", saveId);
+        saveFile.setSaveInfo("creation_date", creationDate);
         saveFile.setSaveInfo("version", "beta_1.0.0"); //Change this
         saveFile.setSaveInfo("last_played", saveFile.getSaveInfo("creation_date"));
         saveFile.setSaveInfo("play_time", "00:00:00");
@@ -56,9 +56,7 @@ public class SaveGenerator {
             .replaceAll("[^a-z0-9]", "_")
             .replaceAll("_+", "_")
             .replaceAll("^_|_$", "");
-
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        return baseId + "_" + timestamp;
+        return baseId;
     }
 
     /**
@@ -102,7 +100,12 @@ public class SaveGenerator {
             throw new IOException("Save file does not exist: " + saveId);
         }
 
-        String lastPlayed = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        Date currentDate = new Date();
+        String lastPlayed = DateFormat.getDateTimeInstance(
+            DateFormat.DEFAULT,
+            DateFormat.DEFAULT,
+            Locale.getDefault()
+        ).format(currentDate);
         saveFile.setSaveInfo("last_played", lastPlayed);
         saveFile.setSaveInfo("play_time", dataController.getFormattedPlayTime());
 

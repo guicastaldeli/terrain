@@ -2,9 +2,11 @@ package main.com.app.root.screen_controller.main;
 import main.com.app.root.DocParser;
 import main.com.app.root._save.SaveInfo;
 import main.com.app.root.screen_controller.Screen;
+import main.com.app.root.screen_controller.ScreenController;
 import main.com.app.root.screen_controller.ScreenElement;
 import java.util.*;
-
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class LoadSaveMenu extends Screen {
     public static final String MENU_PATH = DIR + "main/load_save_menu.xml";
@@ -16,16 +18,23 @@ public class LoadSaveMenu extends Screen {
     public LoadSaveMenu(MainScreen mainScreen) {
         super(MENU_PATH, "load_save_menu");
         this.mainScreen = mainScreen;
+        this.active = false;
     }
-    
-    @Override
-    public void render() {
+
+    public void show() {
+        this.active = true;
+        screenController.switchTo(ScreenController.SCREENS.LOAD_SAVE_MENU);
         updateSaveSlots();
-        super.render();
+    }
+
+    public void hide() {
+        this.active = false;
+        screenController.switchTo(ScreenController.SCREENS.MAIN);
     }
     
-    private void updateSaveSlots() {
+    public void updateSaveSlots() {
         if(screenData == null) return;
+        saveMenuEl.clear();
         
         for(ScreenElement el : screenData.elements) {
             if(!el.id.startsWith("save_label_") && 
@@ -34,58 +43,109 @@ public class LoadSaveMenu extends Screen {
                 saveMenuEl.add(el);
             }
         }
-        screenData.elements = saveMenuEl;
+        screenData.elements = new ArrayList<>(saveMenuEl);
         
         ScreenElement noSavesLabel = getElementById("noSavesLabel");
         if(noSavesLabel != null) {
             noSavesLabel.visible = mainScreen.availableSaves.isEmpty();
         }
         
-        int startY = 150;
-        int slotHeight = 60;
+        int startY = 300;
+        int slotHeight = 100;
+        int infoSpacing = 60;
         for(int i = 0; i < mainScreen.availableSaves.size(); i++) {
             SaveInfo save = mainScreen.availableSaves.get(i);
-            int yPos = startY + (i * slotHeight);
+            int baseY = startY + (i * slotHeight);
             
-            /* Save Info */
-            ScreenElement saveLabel = new ScreenElement(
+            /* Save Name */
+            ScreenElement saveNameLabel = new ScreenElement(
                 "label",
-                "save_label_" + save.saveId,
-                String.format("%s - %s - %s", 
-                    save.saveName, 
-                    save.playTime, 
-                    save.lastPlayed),
-                100, yPos,
-                0.9f,
+                "save_name_" + save.saveId,
+                save.saveName,
+                50, baseY,
+                1.0f,
                 new float[]{1.0f, 1.0f, 1.0f},
                 ""
             );
-            screenData.elements.add(saveLabel);
+            screenData.elements.add(saveNameLabel);
             
-            /* Load Save */
+            /* Play Time */
+            ScreenElement playTimeLabel = new ScreenElement(
+                "label",
+                "play_time_" + save.saveId,
+                "Play Time: " + save.playTime,
+                50, baseY + infoSpacing,
+                1.0f,
+                new float[]{0.8f, 0.8f, 0.8f},
+                ""
+            );
+            screenData.elements.add(playTimeLabel);
+            
+            /* Last Played */
+            ScreenElement lastPlayedLabel = new ScreenElement(
+                "label",
+                "last_played_" + save.saveId,
+                "Last Played: " + save.lastPlayed,
+                50, baseY + (infoSpacing * 2),
+                1.0f,
+                new float[]{0.7f, 0.7f, 0.7f},
+                ""
+            );
+            screenData.elements.add(lastPlayedLabel);
+            
+            /* Load Button */
             ScreenElement loadButton = new ScreenElement(
                 "button",
                 "load_" + save.saveId,
                 "Load",
-                600, yPos,
+                800, baseY + 60,
                 1.0f,
                 new float[]{0.2f, 0.8f, 0.2f},
                 "load_" + save.saveId
             );
             screenData.elements.add(loadButton);
             
-            /* Load Save */
+            /* Delete Button */
             ScreenElement deleteButton = new ScreenElement(
                 "button",
                 "delete_" + save.saveId,
                 "Delete",
-                700, yPos,
+                950, baseY + 60,
                 1.0f,
                 new float[]{0.8f, 0.2f, 0.2f},
                 "delete_" + save.saveId
             );
             screenData.elements.add(deleteButton);
         }
+    }
+
+    @Override
+    public void handleAction(String action) {
+        String saveId = stateController.getCurrentSaveId();
+        switch (action) {
+            case "load":
+                mainScreen.mainScreenAction.load(saveId);
+            case "delete":
+                mainScreen.mainScreenAction.deleteSave(saveId);
+                mainScreen.refreshSaveList();
+                updateSaveSlots();
+                break;
+            case "back":
+                hide();
+                break;
+        }
+    }
+
+    @Override
+    public void handleKeyPress(int key, int action) {
+        if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+            hide();
+        }
+    }
+
+    @Override
+    public void render() {
+        super.render();
     }
 
     @Override
@@ -101,7 +161,7 @@ public class LoadSaveMenu extends Screen {
                 height
             );
             
-            updateSaveSlots();
+            if(active) updateSaveSlots();
         } catch (Exception err) {
             System.err.println("Failed to re-parse save menu on resize: " + err.getMessage());
         }

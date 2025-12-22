@@ -114,7 +114,7 @@ public class TextRenderer {
         float[] color
     ) {
         if(text == null || text.isEmpty()) {
-            System.out.println("TextRenderer: Empty text, skipping");
+            //System.out.println("TextRenderer: Empty text, skipping");
             return;
         }
         

@@ -1,8 +1,8 @@
 package main.com.app.root._save;
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
-
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -64,7 +64,12 @@ public class SaveLoader {
                 dataGetter.applyPlayerData(playerData);
             }
 
-            String lastPlayed = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            Date currentDate = new Date();
+            String lastPlayed = DateFormat.getDateTimeInstance(
+                DateFormat.DEFAULT,
+                DateFormat.DEFAULT,
+                Locale.getDefault()
+            ).format(currentDate);
             saveFile.setSaveInfo("last_played", lastPlayed);
 
             stateController.setLoadInProgress(false);
@@ -106,11 +111,23 @@ public class SaveLoader {
             saves.add(info);
         }
 
+        SimpleDateFormat[] formats = {
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"),
+            new SimpleDateFormat("MM/dd/yyyy HH:mm:ss"),
+            new SimpleDateFormat("yyyy-MM-dd"),
+            new SimpleDateFormat("MM/dd/yyyy"),
+            new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"),
+            new SimpleDateFormat("dd/MM/yyyy")
+        };
         saves.sort((a, b) -> {
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                Date dA = sdf.parse(a.lastPlayed);
-                Date dB = sdf.parse(b.lastPlayed);
+                Date dA = parseDate(a.lastPlayed, formats);
+                Date dB = parseDate(b.lastPlayed, formats);
+            
+                if(dA == null && dB == null) return 0;
+                if(dA == null) return 1;
+                if(dB == null) return -1;
+                
                 return dB.compareTo(dA);
             } catch(Exception e) {
                 return 0;
@@ -159,5 +176,31 @@ public class SaveLoader {
         info.version = saveFile.getSaveInfo("version");
         info.lastModified = saveFile.getFormattedLastModified();
         return info;
+    }
+
+    private Date parseDate(String dateString, SimpleDateFormat[] formats) {
+        if(dateString == null || dateString.trim().isEmpty() || dateString.equals("Unknown")) {
+            return null;
+        }
+        
+        for(SimpleDateFormat format : formats) {
+            try {
+                format.setLenient(false);
+                return format.parse(dateString);
+            } catch (Exception e) {
+                continue;
+            }
+        }
+        
+        try {
+            DateFormat defaultFormatter = DateFormat.getDateTimeInstance(
+                DateFormat.DEFAULT,
+                DateFormat.DEFAULT,
+                Locale.getDefault()
+            );
+            return defaultFormatter.parse(dateString);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
