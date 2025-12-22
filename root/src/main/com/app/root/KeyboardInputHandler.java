@@ -15,7 +15,7 @@ public class KeyboardInputHandler {
      * Handle Key
      */
     public boolean handleKey(int key, int action) {
-        if (key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT) {
+        if(key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT) {
             shiftPressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
             return false;
         }
@@ -25,6 +25,9 @@ public class KeyboardInputHandler {
         }
         if(action != GLFW_PRESS && action != GLFW_REPEAT) {
             return false;
+        }
+        if(key == GLFW_KEY_BACKSPACE) {
+            return handleBackspace();
         }
         if(key == GLFW_KEY_ENTER || key == GLFW_KEY_ESCAPE) {
             return false;
@@ -70,7 +73,7 @@ public class KeyboardInputHandler {
             return makeUppercase ? Character.toUpperCase(baseChar) : baseChar;
         }
         if(key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
-            if (shiftPressed) {
+            if(shiftPressed) {
                 char[] symbols = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')'};
                 return symbols[key - GLFW_KEY_0];
             }

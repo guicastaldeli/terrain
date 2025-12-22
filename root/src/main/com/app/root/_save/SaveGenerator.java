@@ -5,67 +5,37 @@ import java.util.*;
 import java.text.SimpleDateFormat;
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
-import main.com.app.root.env.EnvCall;
-import main.com.app.root.env.EnvController;
-import main.com.app.root.env.EnvData;
 
 public class SaveGenerator {
     private final DataController dataController;
     private final StateController stateController;
     private final DataGetter dataGetter;
-    private final EnvController envController;
 
     public SaveGenerator(
         DataController dataController,
         StateController stateController,
-        DataGetter dataGetter,
-        EnvController envController
+        DataGetter dataGetter
     ) {
         this.dataController = dataController;
         this.stateController = stateController;
         this.dataGetter = dataGetter;
-        this.envController = envController;
     }
 
     /**
      * Generate New Save
      */
-    public boolean generateData() {
-        try {
-            String currentSaveId = stateController.getCurrentSaveId();
-            SaveFile saveFile;
-
-            if(currentSaveId != null && !currentSaveId.isEmpty()) {
-                saveFile = new SaveFile(currentSaveId);
-            } else {
-                currentSaveId = "New World" + "_" + System.currentTimeMillis();
-                saveFile = new SaveFile(currentSaveId);
-            }
-            if(!saveFile.exists()) {
-                saveFile.createSaveDir();
-            }
-
-            Object instance = envController.getEnv(EnvData.MAP).getInstance();
-            Object result = EnvCall.callReturn(instance, saveFile, "getGenerator", "setData");
-            if(result instanceof Boolean) {
-                boolean success = (Boolean) result;
-                return success;
-            } else {
-                return false;
-            }
-        } catch (IOException e) {
-            System.err.println("Failed to generate map data: " + e.getMessage());
-            return false;
-        }
-    }
-
     public String generateNewSave(String saveName) throws IOException {
         String saveId = generateSaveId(saveName);
         SaveFile saveFile = new SaveFile(saveId);
         saveFile.createSaveDir();
 
+        /*
         Object instance = envController.getEnv(EnvData.MAP).getInstance();
         EnvCall.call(instance, "getGenerator", "generateNewMap");
+        */
+
+        stateController.setCurrentSaveId(saveId);
+        stateController.setLoadInProgress(true);
 
         String creationDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         saveFile.setSaveInfo("save_name", saveName);

@@ -4,7 +4,6 @@ import main.com.app.root.StateController;
 import main.com.app.root.Tick;
 import main.com.app.root._resources.TextureLoader;
 import main.com.app.root._save.SaveFile;
-import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
@@ -35,7 +34,6 @@ public class MapGenerator {
 
     private final DataController dataController;
     private final StateController stateController;
-    private final SaveGenerator saveGenerator;
 
     public MapGenerator(
         Tick tick, 
@@ -43,8 +41,7 @@ public class MapGenerator {
         MeshRenderer meshRenderer, 
         ShaderProgram shaderProgram,
         DataController dataController,
-        StateController stateController,
-        SaveGenerator saveGenerator
+        StateController stateController
     ) {
         this.tick = tick;
         this.shaderProgram = shaderProgram;
@@ -53,7 +50,6 @@ public class MapGenerator {
         this.mapGeneratorWrapper = new MapGeneratorWrapper();
         this.dataController = dataController;
         this.stateController = stateController;
-        this.saveGenerator = saveGenerator;
     }
 
     private void loadTex() {
@@ -137,6 +133,29 @@ public class MapGenerator {
      * Map Data
      * 
      */
+    public boolean generateData() {
+        try {
+            String currentSaveId = stateController.getCurrentSaveId();
+            SaveFile saveFile;
+
+            if(currentSaveId != null && !currentSaveId.isEmpty()) {
+                saveFile = new SaveFile(currentSaveId);
+            } else {
+                System.out.println(currentSaveId);
+                currentSaveId = "New World" + "_" + System.currentTimeMillis();
+                saveFile = new SaveFile(currentSaveId);
+            }
+            if(!saveFile.exists()) {
+                saveFile.createSaveDir();
+            }
+
+            return setData(saveFile);
+        } catch (IOException e) {
+            System.err.println("Failed to generate map data: " + e.getMessage());
+            return false;
+        }
+    }
+
     private boolean setData(SaveFile saveFile) throws IOException {
         String currentSaveId = stateController.getCurrentSaveId();
         if(currentSaveId != null && stateController.isLoadInProgress()) {
@@ -181,7 +200,7 @@ public class MapGenerator {
      * Create Mesh
      */
     public void createMesh() {
-        if(!saveGenerator.generateData()) {
+        if(!generateData()) {
             System.err.println("Failed to generate terrain data");
             return;
         }

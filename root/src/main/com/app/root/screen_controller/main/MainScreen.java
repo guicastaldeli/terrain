@@ -8,9 +8,10 @@ public class MainScreen extends Screen {
     private static final String SCREEN_PATH = DIR + "main/main_screen.xml";
 
     public MainScreenAction mainScreenAction;
-    public LoadSaveMenu loadSaveMenu;
     public List<SaveInfo> availableSaves;
+    
     public SaveNameDialog saveNameDialog;
+    public LoadSaveMenu loadSaveMenu;
 
     public MainScreen() {
         super(SCREEN_PATH, "main");

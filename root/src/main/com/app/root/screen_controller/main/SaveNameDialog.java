@@ -2,7 +2,10 @@ package main.com.app.root.screen_controller.main;
 import main.com.app.root.DocParser;
 import main.com.app.root.KeyboardInputHandler;
 import main.com.app.root.screen_controller.Screen;
+import main.com.app.root.screen_controller.ScreenController;
 import main.com.app.root.screen_controller.ScreenElement;
+import main.com.app.root.screen_controller.ScreenController.SCREENS;
+
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
@@ -16,8 +19,6 @@ public class SaveNameDialog extends Screen {
     private long lastCursorTime = 0;
     private boolean cursorVisible = false;
     private static final long CURSOR_BLINK_INTERVAL = 500;
-
-    public boolean active = false;
     
     public SaveNameDialog(MainScreenAction mainScreenAction) {
         super(DIALOG_PATH, "save_name_dialog");
@@ -49,6 +50,7 @@ public class SaveNameDialog extends Screen {
                 window.getHeight()
             );
             updateNameDisplay();
+            screenController.switchTo(ScreenController.SCREENS.SAVE_NAME_DIALOG);
         } catch (Exception e) {
             System.err.println("Failed to parse save name dialog: " + e.getMessage());
         }
@@ -70,6 +72,7 @@ public class SaveNameDialog extends Screen {
         active = false;
         keyboardInputHandler.clear();
         clearEl();
+        screenController.switchTo(SCREENS.MAIN);
     }
 
     /**
@@ -107,6 +110,14 @@ public class SaveNameDialog extends Screen {
             cursorVisible = !cursorVisible;
             lastCursorTime = currentTime;
             updateNameDisplay();
+        }
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        super.setActive(active);
+        if(!active) {
+            keyboardInputHandler.clear();
         }
     }
 

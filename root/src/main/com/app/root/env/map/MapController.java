@@ -3,7 +3,6 @@ import main.com.app.root.DataController;
 import main.com.app.root.DependencyValue;
 import main.com.app.root.StateController;
 import main.com.app.root.Tick;
-import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.env.EnvInstance;
 import main.com.app.root.mesh.Mesh;
@@ -16,7 +15,6 @@ public class MapController implements EnvInstance<MapController> {
     @DependencyValue private MeshRenderer meshRenderer;
     @DependencyValue private DataController dataController;
     @DependencyValue private StateController stateController;
-    @DependencyValue private SaveGenerator saveGenerator;
 
     private MapGenerator mapGenerator;
 
@@ -28,8 +26,7 @@ public class MapController implements EnvInstance<MapController> {
             meshRenderer, 
             shaderProgram,
             dataController,
-            stateController,
-            saveGenerator
+            stateController
         );
         return this;
     }

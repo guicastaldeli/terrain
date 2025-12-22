@@ -73,16 +73,15 @@ public class Main {
         saveGenerator = new SaveGenerator(
             dataController, 
             stateController, 
-            dataGetter, 
-            scene.getEnvController()
+            dataGetter
         );
-        scene.setSaveGenerator(saveGenerator);
         saveLoader = new SaveLoader(
             dataController, 
             stateController, 
             dataGetter
         );
 
+        Screen.setScene(scene);
         screenController = new ScreenController(
             window, 
             shaderProgram,
@@ -91,7 +90,6 @@ public class Main {
             dataController,
             stateController
         );
-        Screen.setScene(scene);
 
         console.init(this, window, screenController);
         console.setScene(scene);

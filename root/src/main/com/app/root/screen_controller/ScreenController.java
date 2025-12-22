@@ -16,7 +16,9 @@ import static org.lwjgl.glfw.GLFW.*;
 public class ScreenController {
     public enum SCREENS {
         MAIN,
-        PAUSE
+        PAUSE,
+        SAVE_NAME_DIALOG,
+        LOAD_SAVE_MENU
     }
 
     public final Window window;
@@ -91,8 +93,10 @@ public class ScreenController {
 
     public void switchTo(SCREENS screenType) {
         if(screenType == null) {
-            if(currentScreen != null) {
-                currentScreen.setActive(false);
+            for(Screen screen : screens.values()) {
+                if(screen != null) {
+                    screen.setActive(false);
+                }
             }
             currentScreen = null;
             activeScreen = null;
@@ -100,8 +104,8 @@ public class ScreenController {
 
         Screen screen = screens.get(screenType);
         if(screen != null) {
-            if(currentScreen != null) {
-                currentScreen.setActive(false);
+            for(Screen s : screens.values()) {
+                s.setActive(false);
             }
             currentScreen = screen;
             activeScreen = screenType;
@@ -158,18 +162,13 @@ public class ScreenController {
                 switchTo(SCREENS.PAUSE);
             }
         }
-        
-        @Override
-        public void handleAction(String action) {
-            
-        }
     };
 
     public ScreenInputHandler getCurrentInputHandler() {
         if(currentScreen != null) {
             return currentScreen;
         }
-        return screenHandler;
+        return null;
     }
 
     /**
@@ -183,6 +182,12 @@ public class ScreenController {
         /* Pauase */
         pauseScreen = new PauseScreen();
         screens.put(SCREENS.PAUSE, pauseScreen);
+
+        /* Save Name Dialog */
+        screens.put(SCREENS.SAVE_NAME_DIALOG, mainScreen.saveNameDialog);
+
+        /* Load Save Menu */
+        screens.put(SCREENS.LOAD_SAVE_MENU, mainScreen.loadSaveMenu);
     }
 
     /**
