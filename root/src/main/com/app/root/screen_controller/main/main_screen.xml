@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<title_screen>
+<main_screen>
     <label 
         id="title" 
         x="50" y="100" 
@@ -54,4 +54,4 @@
     >
         Exit
     </button>
-</title_screen>
+</main_screen>

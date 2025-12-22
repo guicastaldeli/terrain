@@ -176,7 +176,7 @@ public class ScreenController {
      * Init Screens
      */
     public void initScreens() {
-        /* Title */
+        /* Main */
         mainScreen = new MainScreen();
         screens.put(SCREENS.MAIN, mainScreen);
 
@@ -186,7 +186,7 @@ public class ScreenController {
     }
 
     /**
-     * Title Screen
+     * Main Screen
      */
     public MainScreen getMainScreen() {
         return mainScreen;

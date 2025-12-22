@@ -4,14 +4,14 @@ import main.com.app.root.screen_controller.Screen;
 import main.com.app.root.screen_controller.ScreenElement;
 
 public class SaveNameDialog extends Screen {
-    public static final String DIALOG_PATH = DIR + "title/save_name_dialog.xml";
-    private final MainScreenAction titleScreenAction;
+    public static final String DIALOG_PATH = DIR + "main/save_name_dialog.xml";
+    private final MainScreenAction mainScreenAction;
     public boolean active = false;
     private String enteredName = "";
     
-    public SaveNameDialog(MainScreenAction titleScreenAction) {
+    public SaveNameDialog(MainScreenAction mainScreenAction) {
         super(DIALOG_PATH, "save_name_dialog");
-        this.titleScreenAction = titleScreenAction;
+        this.mainScreenAction = mainScreenAction;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class SaveNameDialog extends Screen {
      */
     private void confirmName() {
         if(!enteredName.trim().isEmpty()) {
-            titleScreenAction.start(enteredName.trim());
+            mainScreenAction.start(enteredName.trim());
         }
         setActive(false);
         clearEl();

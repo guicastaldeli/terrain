@@ -45,7 +45,7 @@ public class Console {
         sessionStartTime = System.currentTimeMillis();
         
         initializationComplete = true;
-        switchToTitleScreen();
+        switchToMainScreen();
     }
 
     /**
@@ -207,17 +207,17 @@ public class Console {
     }
 
     /**
-     * Switch to Title Screen
+     * Switch to Main Screen
      */
-    public void switchToTitleScreen() {
+    public void switchToMainScreen() {
         info("Initialized!");
-        info("Initializing title screen...");
+        info("Initializing main screen...");
         if(!standalone && screenController != null) {
             screenController.switchTo(SCREENS.MAIN);
             screenController.enableCursor();
         }
         running = false;
-        info("Title screen initialized!");
+        info("Main screen initialized!");
     }
 
     /**

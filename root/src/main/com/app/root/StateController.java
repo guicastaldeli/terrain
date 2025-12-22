@@ -24,7 +24,7 @@ public class StateController implements Serializable {
     public StateController() {
         isPaused = false;
         isInMenu = true;
-        currentLevel = "title_screen";
+        currentLevel = "main_screen";
         activeEvents = new ArrayList<>();
         tempState = new HashMap<>();
 
