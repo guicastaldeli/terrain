@@ -1,8 +1,6 @@
 package main.com.app.root.player_controller;
 import org.joml.Vector3f;
 
-import main.com.app.root.player_controller.Camera;
-
 public class AimController {
     private final Camera camera;
 
@@ -49,5 +47,9 @@ public class AimController {
 
     public float getYaw() {
         return yaw;
+    }
+
+    public float getPitch() {
+        return pitch;
     }
 }

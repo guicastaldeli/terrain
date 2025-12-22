@@ -30,6 +30,8 @@ public class Camera {
     private float maxDistance = 5000.0f;
     private Vector3f targetOffset = new Vector3f(0.0f, 1.0f, 0.0f);
 
+    private AimController aimController;
+
     public Camera() {
         this.position = new Vector3f(0.0f, 0.0f, 0.0f);
         this.worldUp = new Vector3f(0.0f, 1.0f, 0.0f);
@@ -54,6 +56,8 @@ public class Camera {
         this.modelMatrixNeedsUpdate = true;
 
         updateVectors();
+
+        this.aimController = new AimController(this);
     }
 
     /**
@@ -116,7 +120,11 @@ public class Camera {
      */
     public void handleMouse(float xOffset, float yOffset) {
         //System.out.println("Mouse: " + xOffset + ", " + yOffset);
-        processRotation(xOffset, yOffset, true);
+        if(aimController.mode) {
+            aimController.handleMouse(xOffset, yOffset);
+        } else {
+            processRotation(xOffset, yOffset, true);
+        }
     }
 
     public void setPosition(float x, float y, float z) {
@@ -290,6 +298,10 @@ public class Camera {
 
     public float getPitch() {
         return pitch;
+    }
+
+    public AimController getAimController() {
+        return aimController;
     }
 
     @Override

@@ -3,7 +3,9 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class PlayerInputMap {
     private final PlayerController playerController;
+
     private boolean[] keyPressed = new boolean[GLFW_KEY_LAST + 1];
+    private boolean rightMousePressed = false;
 
     public PlayerInputMap(PlayerController playerController) {
         this.playerController = playerController;
@@ -21,6 +23,19 @@ public class PlayerInputMap {
     public void handleMouse(float xOffset, float yOffset) {
         if (playerController != null && playerController.getCamera() != null) {
             playerController.getCamera().handleMouse(xOffset, yOffset);
+        }
+    }
+
+    public void setMouseButtonState(int button, boolean pressed) {
+        if(button == GLFW_MOUSE_BUTTON_RIGHT) {
+            rightMousePressed = pressed;
+            playerController
+                .getCamera()
+                .getAimController()
+                .setMode(pressed);
+
+            PlayerMesh playerMesh = playerController.getPlayerMesh();
+            if(playerMesh != null) playerMesh.setAiming(pressed);
         }
     }
 
