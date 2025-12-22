@@ -3,6 +3,7 @@ import main.com.app.root.DataController;
 import main.com.app.root.DependencyValue;
 import main.com.app.root.StateController;
 import main.com.app.root.Tick;
+import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshRenderer;
@@ -25,4 +26,7 @@ public class EnvDependencyList {
 
     @DependencyValue(required = true)
     public static final Class<?> STATE_CONTROLLER = StateController.class;
+
+    @DependencyValue(required = true)
+    public static final Class<?> SAVE_GENERATOR = SaveGenerator.class;
 }

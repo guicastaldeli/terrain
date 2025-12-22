@@ -1,6 +1,7 @@
 package main.com.app.root;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player_controller.PlayerController;
+import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
@@ -11,6 +12,7 @@ public class Scene {
     private final Tick tick;
     private final DataController dataController;
     private final StateController stateController;
+    private SaveGenerator saveGenerator;
 
     private Mesh mesh;
     private ShaderProgram shaderProgram;
@@ -46,6 +48,10 @@ public class Scene {
         return playerController;
     }
 
+    public void setSaveGenerator(SaveGenerator saveGenerator) {
+        this.saveGenerator = saveGenerator;
+    }
+
     /**
      * Setup
      */
@@ -69,7 +75,8 @@ public class Scene {
                 mesh,
                 mesh.getMeshRenderer(),
                 dataController,
-                stateController
+                stateController,
+                saveGenerator
             );
     
             this.envController = new EnvController(dependencyContainer);

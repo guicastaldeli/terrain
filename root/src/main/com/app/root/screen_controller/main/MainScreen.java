@@ -104,8 +104,10 @@ public class MainScreen extends Screen {
 
     @Override 
     public void render() {
-        if(loadSaveMenu.showSaveMenu) {
-            loadSaveMenu.render();
+        if(saveNameDialog.isActive()) {
+            saveNameDialog.render();
+        } else if(loadSaveMenu.showSaveMenu) {
+
         } else {
             super.render();
         }
@@ -121,11 +123,17 @@ public class MainScreen extends Screen {
         }
 
         try {
-            this.screenData = DocParser.parseScreen(
-                SCREEN_PATH,
-                width,
-                height
-            );
+            if(loadSaveMenu.showSaveMenu) {
+                loadSaveMenu.onWindowResize(width, height);
+            } else if(saveNameDialog.active) {
+                saveNameDialog.onWindowResize(width, height);
+            } else {
+                this.screenData = DocParser.parseScreen(
+                    SCREEN_PATH,
+                    width,
+                    height
+                );
+            }
         } catch (Exception err) {
             System.err.println("Failed to re-parse screen on resize: " + err.getMessage());
         }

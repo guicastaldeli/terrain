@@ -76,6 +76,7 @@ public class Main {
             dataGetter, 
             scene.getEnvController()
         );
+        scene.setSaveGenerator(saveGenerator);
         saveLoader = new SaveLoader(
             dataController, 
             stateController, 

@@ -4,10 +4,10 @@ import main.com.app.root.screen_controller.Screen;
 import main.com.app.root.screen_controller.ScreenElement;
 
 public class SaveNameDialog extends Screen {
-    private static final String DIALOG_PATH = DIR + "title/save_name_dialog.xml";
+    public static final String DIALOG_PATH = DIR + "title/save_name_dialog.xml";
     private final MainScreenAction titleScreenAction;
+    public boolean active = false;
     private String enteredName = "";
-    private boolean active = false;
     
     public SaveNameDialog(MainScreenAction titleScreenAction) {
         super(DIALOG_PATH, "save_name_dialog");
@@ -94,6 +94,23 @@ public class SaveNameDialog extends Screen {
     public void render() {
         if(active) {
             super.render();
+        }
+    }
+
+    @Override
+    public void onWindowResize(int width, int height) {
+        if(getTextRenderer() != null) {
+            getTextRenderer().updateScreenSize(width, height);
+        }
+        
+        try {
+            this.screenData = DocParser.parseScreen(
+                DIALOG_PATH,
+                width,
+                height
+            );
+        } catch (Exception err) {
+            System.err.println("Failed to re-parse save menu on resize: " + err.getMessage());
         }
     }
 }

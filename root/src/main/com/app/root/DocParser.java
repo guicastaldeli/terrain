@@ -85,7 +85,7 @@ public class DocParser {
         float scale = element.hasAttribute("scale") ? 
             Float.parseFloat(element.getAttribute("scale")) : 1.0f;
         
-        float[] color = new float[]{1.0f, 1.0f, 1.0f};
+        float[] color = new float[]{ 1.0f, 1.0f, 1.0f };
         if(element.hasAttribute("color")) {
             String colorStr = element.getAttribute("color");
             String[] colorParts = colorStr.split(",");

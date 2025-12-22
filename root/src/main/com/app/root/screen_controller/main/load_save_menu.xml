@@ -19,7 +19,11 @@
         ← Back to Menu
     </button>
     
-    <container id="saveSlots" x="50" y="150">
+    <container 
+        id="saveSlots" 
+        x="50" 
+        y="150"
+    >
     </container>
     
     <label 
@@ -31,4 +35,39 @@
     >
         No save games found
     </label>
+    
+    <label 
+        id="saveLabelTemplate" 
+        x="0" y="0" 
+        scale="0.9" 
+        color="1.0,1.0,1.0"
+        visible="false"
+        template="true"
+    >
+        SAVE_TEMPLATE
+    </label>
+    
+    <button 
+        id="loadButtonTemplate" 
+        x="0" y="0" 
+        scale="1.0" 
+        color="0.2,0.8,0.2" 
+        action="load_template"
+        visible="false"
+        template="true"
+    >
+        Load
+    </button>
+    
+    <button 
+        id="deleteButtonTemplate" 
+        x="0" y="0" 
+        scale="1.0" 
+        color="0.8,0.2,0.2" 
+        action="delete_template"
+        visible="false"
+        template="true"
+    >
+        Delete
+    </button>
 </load_save_menu>

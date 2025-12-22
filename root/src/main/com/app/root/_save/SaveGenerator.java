@@ -30,6 +30,35 @@ public class SaveGenerator {
     /**
      * Generate New Save
      */
+    public boolean generateData() {
+        try {
+            String currentSaveId = stateController.getCurrentSaveId();
+            SaveFile saveFile;
+
+            if(currentSaveId != null && !currentSaveId.isEmpty()) {
+                saveFile = new SaveFile(currentSaveId);
+            } else {
+                currentSaveId = "New World" + "_" + System.currentTimeMillis();
+                saveFile = new SaveFile(currentSaveId);
+            }
+            if(!saveFile.exists()) {
+                saveFile.createSaveDir();
+            }
+
+            Object instance = envController.getEnv(EnvData.MAP).getInstance();
+            Object result = EnvCall.callReturn(instance, saveFile, "getGenerator", "setData");
+            if(result instanceof Boolean) {
+                boolean success = (Boolean) result;
+                return success;
+            } else {
+                return false;
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to generate map data: " + e.getMessage());
+            return false;
+        }
+    }
+
     public String generateNewSave(String saveName) throws IOException {
         String saveId = generateSaveId(saveName);
         SaveFile saveFile = new SaveFile(saveId);
