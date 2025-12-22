@@ -18,6 +18,16 @@ float generateHeightMap(
     float worldZ,
     PointCollection* collection
 ) {
+    /**
+     * 
+     * 
+     *  - IMPORTANT!!!: This is only a temporary noise
+     *               i will set the real map noise later
+     *               for now this is the mountain noise to test
+     *               things on the game.
+     * 
+     * 
+     */
     float centerX = WORLD_SIZE / 2.0f;
     float centerZ = WORLD_SIZE / 2.0f;
     

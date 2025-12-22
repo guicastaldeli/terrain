@@ -52,6 +52,16 @@ void generateMapMeshData(
     
     printf("DEBUG: Height range for colors: min=%.2f, max=%.2f\n", minHeight, maxHeight);
 
+    /**
+     * 
+     * 
+     *  - IMPORTANT!!!: This is only temporary colors for the
+     *               temporary noise, i will set the real map noise later
+     *               for now this is the mountain noise colors to test
+     *               things on the game.
+     * 
+     * 
+     */
     for(int z = 0; z < height; z++) {
         for(int x = 0; x < width; x++) {
             int colorIdx = (z * width + x) * 4;
