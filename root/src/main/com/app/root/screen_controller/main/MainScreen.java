@@ -1,31 +1,37 @@
-package main.com.app.root.screen_controller.title;
+package main.com.app.root.screen_controller.main;
 import main.com.app.root.DocParser;
 import main.com.app.root._save.SaveInfo;
 import main.com.app.root.screen_controller.Screen;
 import java.util.*;
 
-public class TitleScreen extends Screen {
-    private static final String SCREEN_PATH = DIR + "title/title_screen.xml";
+public class MainScreen extends Screen {
+    private static final String SCREEN_PATH = DIR + "main/main_screen.xml";
 
-    private TitleScreenAction titleScreenAction;
+    private MainScreenAction mainScreenAction;
     private boolean showSaveMenu = false;
     private List<SaveInfo> availableSaves;
+    private SaveNameDialog saveNameDialog;
 
-    public TitleScreen() {
-        super(SCREEN_PATH, "title");
-        this.titleScreenAction = new TitleScreenAction(
+    public MainScreen() {
+        super(SCREEN_PATH, "Main");
+        this.mainScreenAction = new MainScreenAction(
             this,
             getScene(), 
             screenController,
             saveLoader,
-            stateController
+            stateController,
+            saveGenerator
         );
-
+        this.saveNameDialog = new SaveNameDialog(mainScreenAction);
         refreshSaveList();
     }
 
     @Override
     public void handleAction(String action) {
+        if(saveNameDialog.isActive()) {
+            saveNameDialog.handleAction(action);
+            return;
+        }
         if(showSaveMenu) {
             handleSaveMenuAction(action);
         } else {
@@ -44,15 +50,15 @@ public class TitleScreen extends Screen {
     private void handleMainMenuAction(String action) {
         switch (action) {
             case "contine":
-                //loadLastSave(); //Implement Later
+                mainScreenAction.loadLastSave();
             case "start":
-                titleScreenAction.start(getScene());
+                saveNameDialog.show();
                 break;
             case "load":
-                titleScreenAction.load();
+                showSaveMenu();
                 break;
             case "settings":
-                titleScreenAction.openSettings(); //Implement later
+                mainScreenAction.openSettings(); //Implement later
             case "exit":
                 System.exit(0);
                 break;
@@ -60,18 +66,54 @@ public class TitleScreen extends Screen {
     }
 
     /**
-     * Handle Save Menu Actions
+     * Save Menu
      */
+    public void showSaveMenu() {
+        showSaveMenu = true;
+        refreshSaveList();
+        renderSaveMenu();
+    }
+
     private void handleSaveMenuAction(String action) {
         if(action.startsWith("load_")) {
             String saveId = action.substring(5);
-            titleScreenAction.load();
+            mainScreenAction.load(saveId);
         } else if(action.startsWith("delete_")) {
             String saveId = action.substring(7);
-            titleScreenAction.deleteSave(saveId);
+            mainScreenAction.deleteSave(saveId);
         } else if(action.equals("back")) {
             showSaveMenu = false;
             refreshScreen();
+        }
+    }
+
+    /**
+     * Refresh Save List
+     */
+    public void refreshSaveList() {
+        availableSaves = saveLoader.listAvailableSaves();
+    }
+
+    /**
+     * Refresh Screem
+     */
+    public void refreshScreen() {
+        
+    }
+
+    /**
+     * Render Save Menu
+     */
+    public void renderSaveMenu() {
+        
+    }
+
+    @Override 
+    public void render() {
+        if(showSaveMenu) {
+            renderSaveMenu();
+        } else {
+            super.render();
         }
     }
 
@@ -92,36 +134,6 @@ public class TitleScreen extends Screen {
             );
         } catch (Exception err) {
             System.err.println("Failed to re-parse screen on resize: " + err.getMessage());
-        }
-    }
-
-    /**
-     * Refresh Save List
-     */
-    public void refreshSaveList() {
-        availableSaves = saveLoader.listAvailableSaves();
-    }
-
-    /**
-     * Refresh Screem
-     */
-    public void refreshScreen() {
-
-    }
-
-    /**
-     * Render Save Menu
-     */
-    public void renderSaveMenu() {
-
-    }
-
-    @Override 
-    public void render() {
-        if(showSaveMenu) {
-            renderSaveMenu();
-        } else {
-            super.render();
         }
     }
 }

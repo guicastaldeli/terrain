@@ -1,15 +1,15 @@
-package main.com.app.root.screen_controller.title;
+package main.com.app.root.screen_controller.main;
 import main.com.app.root.DocParser;
 import main.com.app.root.screen_controller.Screen;
 import main.com.app.root.screen_controller.ScreenElement;
 
 public class SaveNameDialog extends Screen {
     private static final String DIALOG_PATH = DIR + "title/save_name_dialog.xml";
-    private final TitleScreenAction titleScreenAction;
+    private final MainScreenAction titleScreenAction;
     private String enteredName = "";
     private boolean active = false;
     
-    public SaveNameDialog(TitleScreenAction titleScreenAction) {
+    public SaveNameDialog(MainScreenAction titleScreenAction) {
         super(DIALOG_PATH, "save_name_dialog");
         this.titleScreenAction = titleScreenAction;
     }

@@ -1,6 +1,6 @@
 package main.com.app.root.screen_controller;
+import main.com.app.root.screen_controller.main.MainScreen;
 import main.com.app.root.screen_controller.pause.PauseScreen;
-import main.com.app.root.screen_controller.title.TitleScreen;
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
 import main.com.app.root.Window;
@@ -15,7 +15,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class ScreenController {
     public enum SCREENS {
-        TITLE,
+        MAIN,
         PAUSE
     }
 
@@ -29,7 +29,7 @@ public class ScreenController {
     public Screen screen;
 
     public Map<SCREENS, Screen> screens;
-    public TitleScreen titleScreen;
+    public MainScreen mainScreen;
     public PauseScreen pauseScreen;
 
     public SCREENS activeScreen = null;
@@ -177,8 +177,8 @@ public class ScreenController {
      */
     public void initScreens() {
         /* Title */
-        titleScreen = new TitleScreen();
-        screens.put(SCREENS.TITLE, titleScreen);
+        mainScreen = new MainScreen();
+        screens.put(SCREENS.MAIN, mainScreen);
 
         /* Pauase */
         pauseScreen = new PauseScreen();
@@ -188,8 +188,8 @@ public class ScreenController {
     /**
      * Title Screen
      */
-    public TitleScreen getTitleScreen() {
-        return titleScreen;
+    public MainScreen getMainScreen() {
+        return mainScreen;
     }
 
     /**

@@ -74,7 +74,7 @@ public class PauseScreenAction {
     public void exitToMenu() {
         togglePause();
         save();
-        screenController.switchTo(ScreenController.SCREENS.TITLE);
+        screenController.switchTo(ScreenController.SCREENS.MAIN);
         stateController.setInMenu(true);
     }
 }

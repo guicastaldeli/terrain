@@ -213,7 +213,7 @@ public class Console {
         info("Initialized!");
         info("Initializing title screen...");
         if(!standalone && screenController != null) {
-            screenController.switchTo(SCREENS.TITLE);
+            screenController.switchTo(SCREENS.MAIN);
             screenController.enableCursor();
         }
         running = false;
