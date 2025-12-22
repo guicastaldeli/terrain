@@ -1,18 +1,21 @@
 package main.com.app.root.screen_controller.main;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-
 import main.com.app.root.DocParser;
 import main.com.app.root.KeyboardInputHandler;
 import main.com.app.root.screen_controller.Screen;
 import main.com.app.root.screen_controller.ScreenElement;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class SaveNameDialog extends Screen {
     public static final String DIALOG_PATH = DIR + "main/save_name_dialog.xml";
     
     private final MainScreenAction mainScreenAction;
     private KeyboardInputHandler keyboardInputHandler;
+    
+    private long lastCursorTime = 0;
+    private boolean cursorVisible = false;
+    private static final long CURSOR_BLINK_INTERVAL = 500;
 
     public boolean active = false;
     
@@ -22,22 +25,6 @@ public class SaveNameDialog extends Screen {
         this.keyboardInputHandler = new KeyboardInputHandler(15);
     }
 
-    @Override
-    public void handleAction(String action) {
-        switch(action) {
-            case "confirm":
-                confirmName();
-                break;
-            case "cancel":
-                cancel();
-                break;
-            case "clear":
-                keyboardInputHandler.clear();
-                updateNameDisplay();
-                break;
-        }
-    }
-
     /**
      * Confirm Save Name
      */
@@ -45,21 +32,6 @@ public class SaveNameDialog extends Screen {
         String saveName = keyboardInputHandler.getText().trim();
         if(!saveName.isEmpty()) mainScreenAction.start(saveName);
         hide();
-    }
-
-    /**
-     * Update Name Display
-     */
-    private void updateNameDisplay() {
-        ScreenElement nameDisplay = DocParser.getElementById(screenData, "nameDisplay");
-        if(nameDisplay != null) {
-            String currentText = keyboardInputHandler.getText();
-            if(currentText.isEmpty() && nameDisplay.attr.containsKey("placeholder")) {
-                nameDisplay.text = nameDisplay.attr.get("placeholder");
-            } else {
-                nameDisplay.text = currentText;
-            }
-        }
     }
 
     /**
@@ -105,6 +77,54 @@ public class SaveNameDialog extends Screen {
      */
     private void cancel() {
         hide();
+    }
+
+    /**
+     * Update Name Display
+     */
+    private void updateNameDisplay() {
+        ScreenElement nameDisplay = DocParser.getElementById(screenData, "nameDisplay");
+        if(nameDisplay != null) {
+            String currentText = keyboardInputHandler.getText();
+            if(currentText.isEmpty() && nameDisplay.attr.containsKey("placeholder")) {
+                nameDisplay.text = nameDisplay.attr.get("placeholder");
+            } else {
+                if(active && cursorVisible) {
+                    nameDisplay.text = currentText + "|";
+                } else {
+                    nameDisplay.text = currentText;
+                }
+            }
+        }
+    }
+
+    /**
+     * Update Cursor
+     */
+    private void updateCursor() {
+        long currentTime = System.currentTimeMillis();
+        if(currentTime - lastCursorTime > CURSOR_BLINK_INTERVAL) {
+            cursorVisible = !cursorVisible;
+            lastCursorTime = currentTime;
+            updateNameDisplay();
+        }
+    }
+
+    @Override
+    public void handleAction(String action) {
+        if(!active) return;
+        switch(action) {
+            case "confirm":
+                confirmName();
+                break;
+            case "cancel":
+                cancel();
+                break;
+            case "clear":
+                keyboardInputHandler.clear();
+                updateNameDisplay();
+                break;
+        }
     }
 
     @Override

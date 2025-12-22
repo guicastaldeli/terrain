@@ -41,8 +41,11 @@ public class MainScreen extends Screen {
     }
 
     @Override
-    public void handleKeyPress(int ket, int action) {
-        
+    public void handleKeyPress(int key, int action) {
+        if(saveNameDialog.isActive()) {
+            saveNameDialog.handleKeyPress(key, action);
+            return;
+        }
     }
 
     /**
@@ -52,6 +55,7 @@ public class MainScreen extends Screen {
         switch (action) {
             case "contine":
                 mainScreenAction.loadLastSave();
+                break;
             case "start":
                 saveNameDialog.show();
                 break;
@@ -60,6 +64,7 @@ public class MainScreen extends Screen {
                 break;
             case "settings":
                 mainScreenAction.openSettings(); //Implement later
+                break;
             case "exit":
                 System.exit(0);
                 break;
