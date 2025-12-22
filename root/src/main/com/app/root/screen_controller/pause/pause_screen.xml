@@ -19,6 +19,15 @@
         Continue
     </button>
     <button 
+        id="saveBtn" 
+        x="300" y="200" 
+        scale="1.0" 
+        color="1.0,1.0,1.0" 
+        action="save"
+    >
+        Save
+    </button>
+    <button 
         id="settingsBtn" 
         x="300" y="280" 
         scale="1.0" 
