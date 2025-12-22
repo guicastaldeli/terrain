@@ -55,8 +55,8 @@ public class SaveNameDialog extends Screen {
      */
     private void updateNameDisplay() {
         for(ScreenElement el : screenData.elements) {
-            if(el.id.equals("name_display")) {
-                el.text = enteredName.isEmpty() ? "Enter save name..." : enteredName;
+            if(el.id.equals("nameDisplay")) {
+                el.text = enteredName;
                 break;
             }
         }
