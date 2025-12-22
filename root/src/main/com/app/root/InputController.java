@@ -50,6 +50,9 @@ public class InputController {
         });
 
         glfwSetCursorPosCallback(windowHandle, (w, xPos, yPos) -> {
+            boolean inAimMode = false;
+            if(playerInputMap != null) inAimMode = playerInputMap.isRightMousePressed();
+
             if(!screenController.shouldCursorBeEnabled()) {
                 if(firstMouse) {
                     lastMouseX = xPos;
@@ -66,6 +69,9 @@ public class InputController {
                     playerInputMap.handleMouse(xOffset, yOffset);
                 }
             }
+
+            lastMouseX = xPos;
+            lastMouseY = yPos;
         });
 
         glfwSetMouseButtonCallback(windowHandle, (w, button, action, mods) -> {
@@ -102,7 +108,18 @@ public class InputController {
             if(inAimMode) showCursor = true;
         }
 
-        if(screenController.shouldCursorBeEnabled() || inAimMode) {
+        /**
+         * 
+         * System cursor showing its only a placeholder!!!!
+         * 
+         */
+        if(screenController.shouldCursorBeEnabled()) {
+            glfwSetInputMode(
+                window.getWindow(), 
+                GLFW_CURSOR, 
+                GLFW_CURSOR_NORMAL
+            );
+        } else if(inAimMode) {
             glfwSetInputMode(
                 window.getWindow(), 
                 GLFW_CURSOR, 

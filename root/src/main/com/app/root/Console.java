@@ -62,7 +62,7 @@ public class Console {
         
         System.out.println("=============================================================");
         System.out.println("                                                             "); 
-        System.out.println("                  Console --- Terrain Alpha                  "); 
+        System.out.println("                 Console --- Terrain  Beta                   "); 
         System.out.println("                                                             "); 
         System.out.println("=============================================================");
         System.out.println(" ");
