@@ -7,13 +7,13 @@ import java.util.*;
 public class MainScreen extends Screen {
     private static final String SCREEN_PATH = DIR + "main/main_screen.xml";
 
-    private MainScreenAction mainScreenAction;
-    private boolean showSaveMenu = false;
-    private List<SaveInfo> availableSaves;
-    private SaveNameDialog saveNameDialog;
+    public MainScreenAction mainScreenAction;
+    public LoadSaveMenu loadSaveMenu;
+    public List<SaveInfo> availableSaves;
+    public SaveNameDialog saveNameDialog;
 
     public MainScreen() {
-        super(SCREEN_PATH, "Main");
+        super(SCREEN_PATH, "main");
         this.mainScreenAction = new MainScreenAction(
             this,
             getScene(), 
@@ -22,6 +22,7 @@ public class MainScreen extends Screen {
             stateController,
             saveGenerator
         );
+        this.loadSaveMenu = new LoadSaveMenu(this);
         this.saveNameDialog = new SaveNameDialog(mainScreenAction);
         refreshSaveList();
     }
@@ -32,7 +33,7 @@ public class MainScreen extends Screen {
             saveNameDialog.handleAction(action);
             return;
         }
-        if(showSaveMenu) {
+        if(loadSaveMenu.showSaveMenu) {
             handleSaveMenuAction(action);
         } else {
             handleMainMenuAction(action);
@@ -69,9 +70,9 @@ public class MainScreen extends Screen {
      * Save Menu
      */
     public void showSaveMenu() {
-        showSaveMenu = true;
+        loadSaveMenu.showSaveMenu = true;
         refreshSaveList();
-        renderSaveMenu();
+        loadSaveMenu.render();
     }
 
     private void handleSaveMenuAction(String action) {
@@ -82,7 +83,7 @@ public class MainScreen extends Screen {
             String saveId = action.substring(7);
             mainScreenAction.deleteSave(saveId);
         } else if(action.equals("back")) {
-            showSaveMenu = false;
+            loadSaveMenu.showSaveMenu = false;
             refreshScreen();
         }
     }
@@ -101,17 +102,10 @@ public class MainScreen extends Screen {
         
     }
 
-    /**
-     * Render Save Menu
-     */
-    public void renderSaveMenu() {
-        
-    }
-
     @Override 
     public void render() {
-        if(showSaveMenu) {
-            renderSaveMenu();
+        if(loadSaveMenu.showSaveMenu) {
+            loadSaveMenu.render();
         } else {
             super.render();
         }

@@ -12,6 +12,7 @@ public class ScreenElement {
     public float[] color;
     public String action;
     public Map<String, String> attr;
+    public boolean visible;
 
     public ScreenElement(
         String type,

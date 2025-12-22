@@ -92,7 +92,7 @@ public class MainScreenAction {
     public void deleteSave(String saveId) {
         if(saveLoader.deleteSave(saveId)) {
             mainScreen.refreshSaveList();
-            mainScreen.renderSaveMenu();
+            mainScreen.loadSaveMenu.render();
         }
     }
 
