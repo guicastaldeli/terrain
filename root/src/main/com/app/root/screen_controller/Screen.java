@@ -1,9 +1,13 @@
 package main.com.app.root.screen_controller;
 import main.com.app.root.Window;
+import main.com.app.root._save.SaveGenerator;
+import main.com.app.root._save.SaveLoader;
 import main.com.app.root._shaders.ShaderProgram;
 import java.util.List;
 import main.com.app.root.Console;
+import main.com.app.root.DataController;
 import main.com.app.root.DocParser;
+import main.com.app.root.StateController;
 import main.com.app.root._text.TextRenderer;
 
 public class Screen implements ScreenInputHandler {
@@ -14,6 +18,11 @@ public class Screen implements ScreenInputHandler {
     public ScreenData screenData;
     private boolean active = false;
     private String screenName;
+
+    private SaveGenerator saveGenerator;
+    private SaveLoader saveLoader;
+    private DataController dataController;
+    private StateController stateController;
 
     public Screen(
         Window window,
@@ -54,6 +63,17 @@ public class Screen implements ScreenInputHandler {
             System.err.println("Error: " + err.getMessage());
             err.printStackTrace();
         }
+    }
+    public Screen(
+        SaveGenerator saveGenerator,
+        SaveLoader saveLoader,
+        DataController dataController,
+        StateController stateController
+    ) {
+        this.saveGenerator = saveGenerator;
+        this.saveLoader = saveLoader;
+        this.dataController = dataController;
+        this.stateController = stateController;
     }
 
     public void setActive(boolean active) {

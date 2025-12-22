@@ -1,9 +1,11 @@
 package main.com.app.root.screen_controller.title;
 import main.com.app.root.DocParser;
 import main.com.app.root.Window;
+import main.com.app.root._save.SaveInfo;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.screen_controller.Screen;
 import main.com.app.root.screen_controller.ScreenController;
+import java.util.*;
 
 public class TitleScreen extends Screen {
     private final Window window;
@@ -13,6 +15,9 @@ public class TitleScreen extends Screen {
 
     private static final String FONT_PATH = "C:/Users/casta/OneDrive/Desktop/vscode/terrain/root/src/main/com/app/root/_text/font/arial.ttf";
     private static float fontSize = 24.0f;
+
+    private boolean showSaveMenu = false;
+    private List<SaveInfo> availableSaves;
 
     public TitleScreen(
         Window window,
