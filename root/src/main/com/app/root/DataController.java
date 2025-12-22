@@ -70,6 +70,13 @@ public class DataController implements Serializable {
         return playerPos;
     }
 
+    public void setPlayerRotation(Vector3f rotation) {
+        this.playerRotation = rotation;
+    }
+    public Vector3f getPlayerRotation() {
+        return playerRotation;
+    }
+
     /* Stats */
     public void addItem(String item) {
         if(!items.contains(item)) {
