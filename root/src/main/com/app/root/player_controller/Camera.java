@@ -288,6 +288,10 @@ public class Camera {
         return yaw;
     }
 
+    public float getPitch() {
+        return pitch;
+    }
+
     @Override
     public String toString() {
         return String.format("Camera[Pos: (%.2f, %.2f, %.2f), Yaw: %.2f, Pitch: %.2f, FOV: %.2f]",
