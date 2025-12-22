@@ -1,8 +1,13 @@
 package main.com.app.root;
+import main.com.app.root._save.DataGetter;
+import main.com.app.root._save.SaveGenerator;
+import main.com.app.root._save.SaveLoader;
 import main.com.app.root._shaders.ShaderModuleData;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.screen_controller.ScreenController;
 import org.lwjgl.opengl.GL;
+import java.util.Arrays;
+import java.util.List;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
@@ -13,13 +18,16 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class Main {
     private final Window window;
-    private Console console;
-    private Tick tick;
+    private final Console console;
+    private final Tick tick;
+    private final DataController dataController;
+    private final StateController stateController;
+    private DataGetter dataGetter;
+    private SaveGenerator saveGenerator;
+    private SaveLoader saveLoader;
+
     private Scene scene;
     private ScreenController screenController;
     private InputController inputController;
@@ -30,6 +38,9 @@ public class Main {
         window.init();
         tick = new Tick(window);
         console = Console.getInstance();
+
+        dataController = new DataController();
+        stateController = new StateController();
 
         GL.createCapabilities();
         glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
@@ -44,7 +55,32 @@ public class Main {
     private void init() {
         loadShaders();
 
-        scene = new Scene(window, tick, shaderProgram);
+        scene = new Scene(
+            window, 
+            tick,
+            dataController,
+            stateController, 
+            shaderProgram
+        );
+        
+        dataGetter = new DataGetter(
+            dataController, 
+            stateController, 
+            scene.getEnvController(), 
+            scene.getPlayerController()
+        );
+        saveGenerator = new SaveGenerator(
+            dataController, 
+            stateController, 
+            dataGetter, 
+            scene.getEnvController()
+        );
+        saveLoader = new SaveLoader(
+            dataController, 
+            stateController, 
+            dataGetter
+        );
+
         screenController = new ScreenController(window, shaderProgram);
 
         console.init(this, window, screenController);
@@ -55,6 +91,34 @@ public class Main {
 
         inputController = new InputController(window);
         inputController.init(screenController);
+    }
+
+    private void startAutoSaveThread() {
+        Thread autoSaveThread = new Thread(() -> {
+            while(!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(1000);
+                    if(stateController.shouldAutoSave() &&
+                        stateController.getCurrentSaveId() != null &&
+                        !stateController.isSaveInProgress() &&
+                        !stateController.isLoadInProgress()
+                    ) {
+                        stateController.setSaveInProgress(true);
+                        saveGenerator.save(stateController.getCurrentSaveId());
+                        stateController.resetAutoSaveTimer();
+                        stateController.setSaveInProgress(false);
+                        System.out.println("Auto-save completed");
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                    System.err.println("Auto-save failed: " + e.getMessage());
+                    stateController.setSaveInProgress(false);
+                }
+            }
+        });
+        autoSaveThread.setDaemon(true);
+        autoSaveThread.start();
     }
 
     /**
@@ -79,6 +143,10 @@ public class Main {
      */
     private void update() {
         tick.update();
+
+        if(!stateController.isPaused() && !stateController.isInMenu()) {
+            dataController.incrementPlayTime(1);
+        }
         
         boolean screenActive = screenController.isScreenActive(ScreenController.SCREENS.PAUSE);
         if(console.isRunning()) {

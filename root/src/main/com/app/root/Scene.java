@@ -38,6 +38,10 @@ public class Scene {
         return init;
     }
 
+    public EnvController getEnvController() {
+        return envController;
+    }
+
     public PlayerController getPlayerController() {
         return playerController;
     }
