@@ -11,10 +11,10 @@ import main.com.app.root.env.EnvController;
 import main.com.app.root.player_controller.PlayerController;
 
 public class DataGetter {
-    private final DataController dataController;
-    private final StateController stateController;
-    private final EnvController envController;
-    private final PlayerController playerController;
+    public final DataController dataController;
+    public final StateController stateController;
+    public final EnvController envController;
+    public final PlayerController playerController;
 
     public DataGetter(
         DataController dataController,
@@ -43,7 +43,7 @@ public class DataGetter {
     /**
      * World Data
      */
-    private Map<String, Object> getWorldData() {
+    public Map<String, Object> getWorldData() {
         Map<String, Object> data = new HashMap<>();
         data.put("seed", dataController.getWorldSeed());
         data.put("time", dataController.getWorldTime());
@@ -54,7 +54,7 @@ public class DataGetter {
     /**
      * Player Data
      */
-    private Map<String, Object> getPlayerData() {
+    public Map<String, Object> getPlayerData() {
         Map<String, Object> data = new HashMap<>();
         if(playerController != null) {
             Vector3f pos = playerController.getPosition();
@@ -74,7 +74,7 @@ public class DataGetter {
     /**
      * State Data
      */
-    private Map<String, Object> getStateData() {
+    public Map<String, Object> getStateData() {
         Map<String, Object> data = new HashMap<>();
         //data.put("items", dataController.getItems()); //implement this right later
         return data;
@@ -83,7 +83,7 @@ public class DataGetter {
     /**
      * Stats Data
      */
-    private Map<String, Object> getStatsData() {
+    public Map<String, Object> getStatsData() {
         Map<String, Object> data = new HashMap<>();
         data.put("play_time", dataController.getPlayTimeSecs());
         //data.put("items_collected", dataController.getItems()); //implement this right later
@@ -104,7 +104,7 @@ public class DataGetter {
         }
     }
 
-    private void applyWorldData(Map<String, Object> data) {
+    public void applyWorldData(Map<String, Object> data) {
         if(data.containsKey("seed")) {
             dataController.setWorldSeed(((Number) data.get("seed")).longValue());
         }
@@ -116,7 +116,7 @@ public class DataGetter {
         }
     }
 
-    private void applyPlayerData(Map<String, Object> data) {
+    public void applyPlayerData(Map<String, Object> data) {
         if(data.containsKey("position_x") && playerController != null) {
             float x = ((Number) data.get("position_x")).floatValue();
             float y = ((Number) data.get("position_y")).floatValue();
