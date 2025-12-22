@@ -50,6 +50,14 @@ public class StateController implements Serializable {
         return isInMenu;
     }
 
+    /* Current Save Id */
+    public void setCurrentSaveId(String saveId) { 
+        currentSaveId = saveId; 
+    }
+    public String getCurrentSaveId() { 
+        return currentSaveId; 
+    }
+
     /* Current Level */
     public void setCurrentLevel(String level) {
         currentLevel = level;

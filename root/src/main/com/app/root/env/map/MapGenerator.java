@@ -81,10 +81,10 @@ public class MapGenerator {
     /**
      * Generate Map Data
      */
-    private boolean generateMap(SaveFile saveFile) throws IOException {
+    private boolean generateMapData(SaveFile saveFile) throws IOException {
         String currentSaveId = stateController.getCurrentSaveId();
         if(currentSaveId != null && stateController.isLoadInProgress()) {
-            return loadMap(currentSaveId);
+            return loadMapData(currentSaveId);
         } else {
             String noiseDir = "C:/Users/casta/OneDrive/Desktop/vscode/terrain/root/src/main/com/app/root/env/map/noise/data";
             File dir = new File(noiseDir);
@@ -124,7 +124,7 @@ public class MapGenerator {
     /**
      * Load Map
      */
-    public boolean loadMap(String saveId) {
+    public boolean loadMapData(String saveId) {
 
     }
 
@@ -132,11 +132,6 @@ public class MapGenerator {
      * Create Mesh
      */
     public void createMesh() {
-        if(!generateMapData()) {
-            System.err.println("Failed to generate terrain data");
-            return;
-        }
-
         meshData = MeshLoader.load(MeshData.MeshType.MAP, MAP_ID);
         if(meshData == null) {
             System.err.println("Failed to load terrain mesh template");
