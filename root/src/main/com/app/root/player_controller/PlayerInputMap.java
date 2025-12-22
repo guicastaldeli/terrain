@@ -39,6 +39,10 @@ public class PlayerInputMap {
         }
     }
 
+    public boolean isRightMousePressed() {
+        return rightMousePressed;
+    }
+
     /**
      * Keyboard Callback
      */

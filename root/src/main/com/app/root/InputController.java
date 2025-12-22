@@ -69,6 +69,13 @@ public class InputController {
         });
 
         glfwSetMouseButtonCallback(windowHandle, (w, button, action, mods) -> {
+            /* Right Button */
+            if(button == GLFW_MOUSE_BUTTON_RIGHT) {
+                boolean pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
+                if(playerInputMap != null) playerInputMap.setMouseButtonState(button, pressed);
+                if(pressed) return;
+            }
+            /* Left Button */
             if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
                 double[] xPos = new double[1];
                 double[] yPos = new double[1];
@@ -88,7 +95,12 @@ public class InputController {
     }
 
     private void updateCursorState() {
-        if(screenController.shouldCursorBeEnabled()) {
+        boolean inAimMode = false;
+        if(playerInputMap != null) {
+            inAimMode = playerInputMap.isRightMousePressed();
+        }
+
+        if(screenController.shouldCursorBeEnabled() && !inAimMode) {
             glfwSetInputMode(
                 window.getWindow(), 
                 GLFW_CURSOR, 
