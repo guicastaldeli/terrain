@@ -1,4 +1,4 @@
-package main.com.app.root._text;
+package main.com.app.root._text_renderer;
 
 public class GlyphMetrics {
     public final int glyphIndex;

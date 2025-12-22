@@ -1,4 +1,4 @@
-package main.com.app.root._text;
+package main.com.app.root._text_renderer;
 import org.lwjgl.BufferUtils;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
