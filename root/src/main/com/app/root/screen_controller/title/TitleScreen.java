@@ -11,8 +11,6 @@ public class TitleScreen extends Screen {
     private boolean showSaveMenu = false;
     private List<SaveInfo> availableSaves;
 
-    private static float fontSize = 24.0f;
-
     public TitleScreen() {
         super(SCREEN_PATH, "title");
         this.titleScreenAction = new TitleScreenAction(

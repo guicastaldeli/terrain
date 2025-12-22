@@ -11,7 +11,7 @@
 
     <button 
         id="continueBtn" 
-        x="50" y="280" 
+        x="50" y="200" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="continue"
@@ -20,7 +20,7 @@
     </button>
     <button 
         id="startBtn" 
-        x="50" y="200" 
+        x="50" y="280" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="start"
@@ -29,7 +29,7 @@
     </button>
     <button 
         id="loadBtn" 
-        x="50" y="280" 
+        x="50" y="360" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="load"
@@ -38,7 +38,7 @@
     </button>
     <button 
         id="settingsBtn" 
-        x="50" y="360" 
+        x="50" y="450" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="settings"
@@ -47,7 +47,7 @@
     </button>
     <button 
         id="exitBtn" 
-        x="50" y="450" 
+        x="50" y="540" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="exit"

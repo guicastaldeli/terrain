@@ -29,7 +29,7 @@ public class TitleScreenAction {
      * Start
      */
     public void start() {
-        scene.init = true;
+        Scene.init = true;
 
         screenController.switchTo(null);
         screenController.disableCursor();

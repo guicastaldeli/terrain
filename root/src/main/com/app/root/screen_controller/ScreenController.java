@@ -26,7 +26,7 @@ public class ScreenController {
     private final DataController dataController;
     private final StateController stateController;
     public TextRenderer textRenderer;
-    private Screen screen;
+    public Screen screen;
 
     public Map<SCREENS, Screen> screens;
     public TitleScreen titleScreen;
@@ -52,13 +52,13 @@ public class ScreenController {
         this.dataController = dataController;
         this.stateController = stateController;
 
-        this.screen = new Screen(
-            window,
+        Screen.init(
+            window, 
             shaderProgram, 
-            this,
-            saveGenerator,
-            saveLoader,
-            dataController,
+            this, 
+            saveGenerator, 
+            saveLoader, 
+            dataController, 
             stateController
         );
         this.screens = new HashMap<>();

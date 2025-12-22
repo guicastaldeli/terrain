@@ -38,7 +38,7 @@ public class Console {
         this.standalone = false;
 
         this.running = false;
-        scene.init = false;
+        Scene.init = false;
         this.initializationComplete = false;
         this.sessionDetected = false;
         
@@ -257,7 +257,7 @@ public class Console {
      * Resume
      */
     public void resume() {
-        if(scene.init && !running) {
+        if(Scene.init && !running) {
             info("Resuming...");            
             if(!standalone) {
                 System.out.println("resumed");
@@ -270,7 +270,7 @@ public class Console {
     }
 
     public boolean isSceneInitialized() {
-        return scene.init;
+        return Scene.init;
     }
 
     public void setScene(Scene scene) {

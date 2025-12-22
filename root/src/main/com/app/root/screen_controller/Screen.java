@@ -9,7 +9,6 @@ import main.com.app.root.DataController;
 import main.com.app.root.DocParser;
 import main.com.app.root.Scene;
 import main.com.app.root.StateController;
-
 import java.util.*;
 
 public class Screen implements ScreenInputHandler {
@@ -17,20 +16,38 @@ public class Screen implements ScreenInputHandler {
     public static final String FONT_PATH = "root/src/main/com/app/root/_font/fonts/arial.ttf";
     private static float fontSize = 24.0f;
 
-    public Window window;
-    public ShaderProgram shaderProgram;
-    public ScreenController screenController;
+    public static Window window;
+    public static ShaderProgram shaderProgram;
+    public static ScreenController screenController;
+    
+    public static SaveGenerator saveGenerator;
+    public static SaveLoader saveLoader;
+    public static DataController dataController;
+    public static StateController stateController;
+    public static Scene scene;
+    
     public TextRenderer textRenderer;
-    public ScreenData screenData;
     public boolean active = false;
     public String screenName;
+    public ScreenData screenData;
 
-    public SaveGenerator saveGenerator;
-    public SaveLoader saveLoader;
-    public DataController dataController;
-    public StateController stateController;
-    public Scene scene;
-
+    public static void init(
+        Window window,
+        ShaderProgram shaderProgram, 
+        ScreenController screenController,
+        SaveGenerator saveGenerator,
+        SaveLoader saveLoader,
+        DataController dataController,
+        StateController stateController
+    ) {
+        Screen.window = window;
+        Screen.shaderProgram = shaderProgram;
+        Screen.screenController = screenController;
+        Screen.saveGenerator = saveGenerator;
+        Screen.saveLoader = saveLoader;
+        Screen.dataController = dataController;
+        Screen.stateController = stateController;
+    }
     public Screen(String filePath, String screenName) {
         this.screenName = screenName;
         try {
@@ -38,18 +55,18 @@ public class Screen implements ScreenInputHandler {
             System.out.println("Loading screen XML from: " + DIR + filePath);
             
             this.textRenderer = new TextRenderer(
-                window,
-                shaderProgram,
+                Screen.window,
+                Screen.shaderProgram,
                 FONT_PATH,
                 fontSize,
-                window.getWidth(),
-                window.getHeight()
+                Screen.window.getWidth(),
+                Screen.window.getHeight()
             );
             
             this.screenData = DocParser.parseScreen(
                 filePath, 
-                window.getWidth(), 
-                window.getHeight()
+                Screen.window.getWidth(), 
+                Screen.window.getHeight()
             );
             
             System.out.println("Screen initialized successfully");
@@ -61,23 +78,6 @@ public class Screen implements ScreenInputHandler {
             System.err.println("Error: " + err.getMessage());
             err.printStackTrace();
         }
-    }
-    public Screen(
-        Window window,
-        ShaderProgram shaderProgram, 
-        ScreenController screenController,
-        SaveGenerator saveGenerator,
-        SaveLoader saveLoader,
-        DataController dataController,
-        StateController stateController
-    ) {
-        this.window = window;
-        this.shaderProgram = shaderProgram;
-        this.screenController = screenController;
-        this.saveGenerator = saveGenerator;
-        this.saveLoader = saveLoader;
-        this.dataController = dataController;
-        this.stateController = stateController;
     }
 
     public void setActive(boolean active) {
@@ -99,11 +99,11 @@ public class Screen implements ScreenInputHandler {
     /**
      * Scene
      */
-    public void setScene(Scene scene) {
-        this.scene = scene;
+    public static void setScene(Scene scene) {
+        Screen.scene = scene;
     }
 
-    public Scene getScene() {
+    public static Scene getScene() {
         return scene;
     }
 

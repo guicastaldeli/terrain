@@ -4,6 +4,7 @@ import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveLoader;
 import main.com.app.root._shaders.ShaderModuleData;
 import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.screen_controller.Screen;
 import main.com.app.root.screen_controller.ScreenController;
 import org.lwjgl.opengl.GL;
 import java.util.Arrays;
@@ -89,6 +90,7 @@ public class Main {
             dataController,
             stateController
         );
+        Screen.setScene(scene);
 
         console.init(this, window, screenController);
         console.setScene(scene);
