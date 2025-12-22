@@ -81,7 +81,14 @@ public class Main {
             dataGetter
         );
 
-        screenController = new ScreenController(window, shaderProgram);
+        screenController = new ScreenController(
+            window, 
+            shaderProgram,
+            saveGenerator,
+            saveLoader,
+            dataController,
+            stateController
+        );
 
         console.init(this, window, screenController);
         console.setScene(scene);

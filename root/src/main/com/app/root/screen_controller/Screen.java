@@ -12,7 +12,9 @@ import main.com.app.root._text.TextRenderer;
 import java.util.*;
 
 public class Screen implements ScreenInputHandler {
-    public static final String DIR = "main/com/app/root/screen_controller/";
+    public static final String DIR = "root/src/main/com/app/root/screen_controller/";
+    public static final String FONT_PATH = "root/src/main/com/app/root/_text/font/arial.ttf";
+    private static float fontSize = 24.0f;
 
     public Window window;
     public ShaderProgram shaderProgram;
@@ -28,21 +30,16 @@ public class Screen implements ScreenInputHandler {
     public StateController stateController;
     public Scene scene;
 
-    public Screen(
-        String filePath, 
-        String screenName, 
-        String fontPath, 
-        float fontSize
-    ) {
+    public Screen(String filePath, String screenName) {
         this.screenName = screenName;
         try {
-            System.out.println("Loading font from: " + fontPath);
+            System.out.println("Loading font from: " + FONT_PATH);
             System.out.println("Loading screen XML from: " + DIR + filePath);
             
             this.textRenderer = new TextRenderer(
                 window,
                 shaderProgram,
-                fontPath,
+                FONT_PATH,
                 fontSize,
                 window.getWidth(),
                 window.getHeight()

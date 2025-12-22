@@ -2,7 +2,11 @@ package main.com.app.root.screen_controller;
 import main.com.app.root._text.TextRenderer;
 import main.com.app.root.screen_controller.pause.PauseScreen;
 import main.com.app.root.screen_controller.title.TitleScreen;
+import main.com.app.root.DataController;
+import main.com.app.root.StateController;
 import main.com.app.root.Window;
+import main.com.app.root._save.SaveGenerator;
+import main.com.app.root._save.SaveLoader;
 import main.com.app.root._shaders.ShaderProgram;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,9 +18,14 @@ public class ScreenController {
         PAUSE
     }
 
-    public Window window;
-    public ShaderProgram shaderProgram;
+    public final Window window;
+    public final ShaderProgram shaderProgram;
+    private final SaveGenerator saveGenerator;
+    private final SaveLoader saveLoader;
+    private final DataController dataController;
+    private final StateController stateController;
     public TextRenderer textRenderer;
+    private Screen screen;
 
     public Map<SCREENS, Screen> screens;
     public TitleScreen titleScreen;
@@ -27,9 +36,30 @@ public class ScreenController {
 
     private boolean[] keyPressed = new boolean[GLFW_KEY_LAST + 1];
 
-    public ScreenController(Window window, ShaderProgram shaderProgram) {
+    public ScreenController(
+        Window window, 
+        ShaderProgram shaderProgram,
+        SaveGenerator saveGenerator,
+        SaveLoader saveLoader,
+        DataController dataController,
+        StateController stateController
+    ) {
         this.window = window;
         this.shaderProgram = shaderProgram;
+        this.saveGenerator = saveGenerator;
+        this.saveLoader = saveLoader;
+        this.dataController = dataController;
+        this.stateController = stateController;
+
+        this.screen = new Screen(
+            window,
+            shaderProgram, 
+            this,
+            saveGenerator,
+            saveLoader,
+            dataController,
+            stateController
+        );
         this.screens = new HashMap<>();
         this.currentScreen = null;
 
@@ -146,11 +176,11 @@ public class ScreenController {
      */
     public void initScreens() {
         /* Title */
-        titleScreen = new TitleScreen(window, shaderProgram, this);
+        titleScreen = new TitleScreen();
         screens.put(SCREENS.TITLE, titleScreen);
 
         /* Pauase */
-        pauseScreen = new PauseScreen(window, shaderProgram, this);
+        pauseScreen = new PauseScreen();
         screens.put(SCREENS.PAUSE, pauseScreen);
     }
 

@@ -1,15 +1,11 @@
 package main.com.app.root.screen_controller.title;
 import main.com.app.root.DocParser;
-import main.com.app.root.Window;
 import main.com.app.root._save.SaveInfo;
-import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.screen_controller.Screen;
-import main.com.app.root.screen_controller.ScreenController;
 import java.util.*;
 
 public class TitleScreen extends Screen {
-    private static final String SCREEN_PATH = DIR + "/title/title_screen.xml";
-    private static final String FONT_PATH = "main/com/app/root/_text/font/arial.ttf";
+    private static final String SCREEN_PATH = DIR + "title/title_screen.xml";
 
     private TitleScreenAction titleScreenAction;
     private boolean showSaveMenu = false;
@@ -18,12 +14,7 @@ public class TitleScreen extends Screen {
     private static float fontSize = 24.0f;
 
     public TitleScreen() {
-        super(
-            SCREEN_PATH,
-            "title",
-            FONT_PATH,
-            fontSize
-        );
+        super(SCREEN_PATH, "title");
         this.titleScreenAction = new TitleScreenAction(
             this,
             getScene(), 
@@ -60,7 +51,7 @@ public class TitleScreen extends Screen {
                 titleScreenAction.start();
                 break;
             case "load":
-                titleScreenAction.load();
+                //titleScreenAction.load();
                 break;
             case "settings":
                 //showSettings(); //Implement later
@@ -79,7 +70,7 @@ public class TitleScreen extends Screen {
             titleScreenAction.load(saveId);
         } else if(action.startsWith("delete_")) {
             String saveId = action.substring(7);
-            titleScreenAction.delete(saveId);
+            titleScreenAction.deleteSave(saveId);
         } else if(action.equals("back")) {
             showSaveMenu = false;
             refreshScreen();
@@ -125,5 +116,14 @@ public class TitleScreen extends Screen {
      */
     public void renderSaveMenu() {
 
+    }
+
+    @Override 
+    public void render() {
+        if(showSaveMenu) {
+            renderSaveMenu();
+        } else {
+            super.render();
+        }
     }
 }

@@ -50,7 +50,7 @@ public class TitleScreenAction {
     /**
      * Delete Save
      */
-    private void deleteSave(String saveId) {
+    public void deleteSave(String saveId) {
         if(saveLoader.deleteSave(saveId)) {
             titleScreen.refreshSaveList();
             titleScreen.renderSaveMenu();
