@@ -130,11 +130,17 @@ public class PlayerMesh {
 
         Vector3f rotation = getMeshRotation();
         if(isAiming() && camera.getAimController().isMode()) {
-            updateAimRotation(
-                camera.getAimController().getYaw(),
-                camera.getAimController().getPitch()
+            AimController aimController = camera.getAimController();
+            rotation = new Vector3f(
+                -90.0f - aimController.getPitch() * 0.3f,
+                90.0f + aimController.getYaw() * 0.5f,
+                -180.0f
             );
-            rotation = getMeshRotation();
+            setMeshRotation(
+                rotation.x, 
+                rotation.y, 
+                rotation.z
+            );
         }
 
         Matrix4f model = new Matrix4f()
@@ -154,6 +160,14 @@ public class PlayerMesh {
         playerController
             .getCamera()
             .getAimController().isAiming = aiming;
+        
+        if(!aiming) {
+            setMeshRotation(
+                -90.0f,
+                90.0f,
+                -180.0f
+            );
+        }
     }
 
     public boolean isAiming() {
@@ -167,35 +181,19 @@ public class PlayerMesh {
 
     public void updateAimRotation(float yaw, float pitch) {
         AimController aimController = playerController.getCamera().getAimController();
-
-        aimController.rotation.x = yaw;
-        aimController.rotation.y = -pitch;
-
         Vector3f currentRotation = getMeshRotation();
-        Vector3f targetRotation = new Vector3f(
-            meshRotation.x + aimController.rotation.x,
-            meshRotation.y + aimController.rotation.y,
-            meshRotation.z
-        );
 
-        float deltaTime = tick.getDeltaTime();
-        currentRotation.x += 
-            (targetRotation.x - currentRotation.x) * 
-            aimController.rotationSpeed * deltaTime;
-        currentRotation.y +=
-            (targetRotation.y - currentRotation.y) *
-            aimController.rotationSpeed * deltaTime;
-            
+        float targetYaw = meshRotation.y + yaw * 0.5f;
+        float targetPitch = meshRotation.x - pitch * 0.5f;
         setMeshRotation(
-            currentRotation.x,
-            currentRotation.y,
-            currentRotation.z
+            targetPitch, 
+            targetYaw, 
+            meshRotation.z
         );
     }
 
     public void update() {
         if(mesh.getMeshRenderer() != null) {
-            //mesh.getMeshRenderer().updateRotation();
             updateMeshModelMatrix();
         }
     }

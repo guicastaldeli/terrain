@@ -30,6 +30,7 @@ public class Camera {
     private float maxDistance = 5000.0f;
     private Vector3f targetOffset = new Vector3f(0.0f, 1.0f, 0.0f);
 
+    private boolean showCursor = false;
     private AimController aimController;
 
     public Camera() {
@@ -57,7 +58,7 @@ public class Camera {
 
         updateVectors();
 
-        this.aimController = new AimController(this);
+        this.aimController = new AimController();
     }
 
     /**
@@ -120,11 +121,8 @@ public class Camera {
      */
     public void handleMouse(float xOffset, float yOffset) {
         //System.out.println("Mouse: " + xOffset + ", " + yOffset);
-        if(aimController.mode) {
-            aimController.handleMouse(xOffset, yOffset);
-        } else {
-            processRotation(xOffset, yOffset, true);
-        }
+        if(aimController.mode) return;
+        processRotation(xOffset, yOffset, true);
     }
 
     public void setPosition(float x, float y, float z) {
@@ -300,8 +298,22 @@ public class Camera {
         return pitch;
     }
 
+    /**
+     * Aim Controller
+     */
     public AimController getAimController() {
         return aimController;
+    }
+
+    /**
+     * Show Cursor
+     */
+    public void setShowCursor(boolean show) {
+        this.showCursor = show;
+    }
+
+    public boolean shouldShowCursor() {
+        return showCursor;
     }
 
     @Override

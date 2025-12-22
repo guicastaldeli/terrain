@@ -95,12 +95,14 @@ public class InputController {
     }
 
     private void updateCursorState() {
+        boolean showCursor = false;
         boolean inAimMode = false;
         if(playerInputMap != null) {
             inAimMode = playerInputMap.isRightMousePressed();
+            if(inAimMode) showCursor = true;
         }
 
-        if(screenController.shouldCursorBeEnabled() && !inAimMode) {
+        if(screenController.shouldCursorBeEnabled() || inAimMode) {
             glfwSetInputMode(
                 window.getWindow(), 
                 GLFW_CURSOR, 
