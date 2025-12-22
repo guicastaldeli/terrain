@@ -17,7 +17,7 @@ public class MapGeneratorWrapper {
             if (!Files.exists(directory)) {
                 throw new RuntimeException("dll directory does not exist: " + directory.toAbsolutePath());
             }
-            System.out.println("Files in dll directory:");
+            //System.out.println("Files in dll directory:");
             try {
                 Files.list(directory)
                     .filter(path -> path.toString().toLowerCase().endsWith(".dll"))
@@ -38,13 +38,13 @@ public class MapGeneratorWrapper {
                     System.err.println("Missing required DLL: " + libPath.toAbsolutePath());
                     throw new RuntimeException("Required DLL not found: " + lib);
                 }
-                System.out.println("Found: " + libPath.toAbsolutePath());
+                //System.out.println("Found: " + libPath.toAbsolutePath());
             }
             for(String lib : libraries) {
                 Path libPath = directory.resolve(lib);
                 try {
                     System.load(libPath.toAbsolutePath().toString());
-                    System.out.println("Successfully loaded: " + lib);
+                    //System.out.println("Successfully loaded: " + lib);
                 } catch (UnsatisfiedLinkError e) {
                     System.err.println("Failed to load: " + lib);
                     System.err.println("Error: " + e.getMessage());

@@ -63,63 +63,18 @@ public class MapGenerator {
     }
 
     private float[] createVertices(float[] heightData) {
-    float[] vertices = new float[mapWidth * mapHeight * 3];
-    for(int x = 0; x < mapWidth; x++) {
-        for(int z = 0; z < mapHeight; z++) {
-            int heightIndex = x * mapHeight + z;
-            int vertexIndex = heightIndex * 3;
+        float[] vertices = new float[mapWidth * mapHeight * 3];
+        for(int x = 0; x < mapWidth; x++) {
+            for(int z = 0; z < mapHeight; z++) {
+                int heightIndex = x * mapHeight + z;
+                int vertexIndex = heightIndex * 3;
 
-            vertices[vertexIndex] = (x - mapWidth / 2.0f);
-            vertices[vertexIndex+1] = heightData[heightIndex];
-            vertices[vertexIndex+2] = (z - mapHeight / 2.0f);
-        }
-    }
-    return vertices;
-}
-
-    /**
-     * 
-     * Generate Map Data
-     * 
-     */
-    private boolean generateMapData(SaveFile saveFile) throws IOException {
-        String currentSaveId = stateController.getCurrentSaveId();
-        if(currentSaveId != null && stateController.isLoadInProgress()) {
-            return loadMapData(currentSaveId);
-        } else {
-            String noiseDir = "C:/Users/casta/OneDrive/Desktop/vscode/terrain/root/src/main/com/app/root/env/map/noise/data";
-            File dir = new File(noiseDir);
-            if(!dir.exists()) dir.mkdirs();
-    
-            Random r = new Random();
-            int r1 = r.nextInt(9);
-            int r2 = r.nextInt(9);
-            String fileName = String.format(
-                "m.%03d.%03d.%d.dat",
-                r1,
-                r2,
-                System.currentTimeMillis()
-            );
-            String path = Paths.get(noiseDir, fileName).toString();
-    
-            long seed = dataController.getWorldSeed();
-            boolean success = mapGeneratorWrapper.generateMap(path, seed);
-            if(success) {
-                heightMapData = mapGeneratorWrapper.getHeightMapData();
-                mapWidth = mapGeneratorWrapper.getMapWidth();
-                mapHeight = mapGeneratorWrapper.getMapHeight();
-                System.out.println("Map generated successfully: " + path);
-                System.out.println("Map dimensions: " + mapWidth + "x" + mapHeight);
-                
-                Path source = Paths.get(path);
-                Path target = saveFile.getSavePath().resolve("world").resolve("d.m.0.dat");
-                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("World map generated and saved to: " + target);
-                return true;
-            } else {
-                throw new IOException("Failed to generate world map");
+                vertices[vertexIndex] = (x - mapWidth / 2.0f);
+                vertices[vertexIndex+1] = heightData[heightIndex];
+                vertices[vertexIndex+2] = (z - mapHeight / 2.0f);
             }
         }
+        return vertices;
     }
 
     /**
@@ -173,9 +128,80 @@ public class MapGenerator {
     }
 
     /**
+     * 
+     * Map Data
+     * 
+     */
+    private boolean generateData() {
+        try {
+            String currentSaveId = stateController.getCurrentSaveId();
+            SaveFile saveFile;
+
+            if(currentSaveId != null && !currentSaveId.isEmpty()) {
+                saveFile = new SaveFile(currentSaveId);
+            } else {
+                currentSaveId = "sv_" + System.currentTimeMillis();
+                saveFile = new SaveFile(currentSaveId);
+            }
+            if(!saveFile.exists()) {
+                saveFile.createSaveDir();
+            }
+            return setData(saveFile);
+        } catch (IOException e) {
+            System.err.println("Failed to generate map data: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean setData(SaveFile saveFile) throws IOException {
+        String currentSaveId = stateController.getCurrentSaveId();
+        if(currentSaveId != null && stateController.isLoadInProgress()) {
+            return loadMapData(currentSaveId);
+        } else {
+            String noiseDir = "root/src/main/com/app/root/env/map/noise/data";
+            File dir = new File(noiseDir);
+            if(!dir.exists()) dir.mkdirs();
+    
+            Random r = new Random();
+            int r1 = r.nextInt(9);
+            int r2 = r.nextInt(9);
+            String fileName = String.format(
+                "m.%03d.%03d.%d.dat",
+                r1,
+                r2,
+                System.currentTimeMillis()
+            );
+            String path = Paths.get(noiseDir, fileName).toString();
+    
+            long seed = dataController.getWorldSeed();
+            boolean success = mapGeneratorWrapper.generateMap(path, seed);
+            if(success) {
+                heightMapData = mapGeneratorWrapper.getHeightMapData();
+                mapWidth = mapGeneratorWrapper.getMapWidth();
+                mapHeight = mapGeneratorWrapper.getMapHeight();
+                System.out.println("Map generated successfully: " + path);
+                System.out.println("Map dimensions: " + mapWidth + "x" + mapHeight);
+                
+                Path source = Paths.get(path);
+                Path target = saveFile.getSavePath().resolve("world").resolve("d.m.0.dat");
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("World map generated and saved to: " + target);
+                return true;
+            } else {
+                throw new IOException("Failed to generate world map");
+            }
+        }
+    }
+
+    /**
      * Create Mesh
      */
     public void createMesh() {
+        if(!generateData()) {
+            System.err.println("Failed to generate terrain data");
+            return;
+        }
+        
         meshData = MeshLoader.load(MeshData.MeshType.MAP, MAP_ID);
         if(meshData == null) {
             System.err.println("Failed to load terrain mesh template");

@@ -28,12 +28,11 @@ public class TitleScreenAction {
     /**
      * Start
      */
-    public void start() {
-        Scene.init = true;
-
+    public void start(Scene scene) {
         screenController.switchTo(null);
         screenController.disableCursor();
         scene.init();
+        scene.init = true;
     }
 
     /**

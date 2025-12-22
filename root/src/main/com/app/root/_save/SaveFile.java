@@ -64,7 +64,7 @@ public class SaveFile {
      * Create Save Directory
      */
     public void createSaveDir() throws IOException {
-        if(Files.exists(savePath)) {
+        if(!Files.exists(savePath)) {
             Files.createDirectories(savePath);
             Files.createDirectories(savePath.resolve("data"));
             Files.createDirectories(savePath.resolve("world"));

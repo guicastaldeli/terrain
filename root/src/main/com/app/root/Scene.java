@@ -18,7 +18,7 @@ public class Scene {
     private PlayerController playerController;
     private DependencyContainer dependencyContainer;
 
-    public static boolean init = false;
+    public boolean init = false;
 
     public Scene(
         Window window, 
@@ -35,7 +35,7 @@ public class Scene {
     }
 
     public boolean isInit() {
-        return Scene.init;
+        return init;
     }
 
     public EnvController getEnvController() {
@@ -50,7 +50,7 @@ public class Scene {
      * Setup
      */
     public void init() {
-        if(!Scene.init) {
+        if(!init) {
             System.out.println("------- Scene Started!!! -------");
 
             this.mesh = new Mesh(tick, shaderProgram);
@@ -75,7 +75,7 @@ public class Scene {
             this.envController = new EnvController(dependencyContainer);
             start();
             
-            Scene.init = true;
+            this.init = true;
         }
     }
 
@@ -91,7 +91,7 @@ public class Scene {
      * Update
      */
     public void update() {
-        if(!Scene.init) return;
+        if(!init) return;
         playerController.update();
         mesh.update();
     }
@@ -100,7 +100,7 @@ public class Scene {
      * Render
      */
     public void render() {
-        if(!Scene.init) return;
+        if(!init) return;
 
         playerController.render();
         mesh.renderAll();

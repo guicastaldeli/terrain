@@ -46,7 +46,7 @@ public class TitleScreen extends Screen {
             case "contine":
                 //loadLastSave(); //Implement Later
             case "start":
-                titleScreenAction.start();
+                titleScreenAction.start(getScene());
                 break;
             case "load":
                 titleScreenAction.load();
