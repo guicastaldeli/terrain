@@ -1,5 +1,131 @@
 package main.com.app.root.player_controller;
+import org.joml.Vector3f;
 
 public class RigidBody {
+    private Vector3f position;
+    private Vector3f velocity;
+    private Vector3f acceleration;
+    private Vector3f size;
+
+    private float mass;
+    private boolean isStatic;
+    private boolean onGround;
+
+    private float gravity = -9.81f;
+    private float gravityScale = 1.0f;
+    private float drag = 0.1f;
+
+    public RigidBody(Vector3f position, Vector3f size) {
+        this.position = new Vector3f(position);
+        this.size = new Vector3f(size);
+        this.velocity = new Vector3f();
+        this.acceleration = new Vector3f();
+        this.mass = 1.0f;
+        this.isStatic = false;
+        this.onGround =
+         false;
+    }
+
+    /**
+     * Apply Force
+     */
+    public void applyForce(Vector3f force) {
+        if(!isStatic) acceleration.add(force.div(mass));
+    }
+
+    /**
+     * Position
+     */
+    public void setPosition(Vector3f position) { 
+        this.position.set(position); 
+    }
+    public Vector3f getPosition() { 
+        return new Vector3f(position); 
+    }
     
+    /**
+     * Velocity
+     */
+    public void setVelocity(Vector3f velocity) { 
+        this.velocity.set(velocity); 
+    }
+    public Vector3f getVelocity() { 
+        return new Vector3f(velocity); 
+    }
+    
+    /**
+     * Size
+     */
+    public void setSize(Vector3f size) { 
+        this.size.set(size); 
+    }
+    public Vector3f getSize() { 
+        return new Vector3f(size); 
+    }
+    
+    /**
+     * On Ground
+     */
+    public void setOnGround(boolean onGround) { 
+        this.onGround = onGround; 
+    }
+    public boolean isOnGround() { 
+        return onGround; 
+    }
+    
+    /**
+     * Static
+     */
+    public void setStatic(boolean isStatic) { 
+        this.isStatic = isStatic; 
+    }
+    public boolean isStatic() { 
+        return isStatic; 
+    }
+    
+    /**
+     * Mass
+     */
+    public float getMass() { 
+        return mass; 
+    }
+    public void setMass(float mass) { 
+        this.mass = mass; 
+    }
+    
+    /**
+     * Gravity Scale
+     */
+    public void setGravityScale(float scale) { 
+        this.gravityScale = scale; 
+    }
+
+    /**
+     * Update
+     */
+    public void update(float deltaTime) {
+        if(isStatic) return;
+
+        if(!onGround) 
+            {
+            applyForce(
+                new Vector3f(
+                    0, 
+                    gravity * mass * gravityScale, 
+                    0
+                )
+            );
+        }
+
+        velocity.mul(1.0f - (drag * deltaTime));
+        velocity.add(acceleration.mul(deltaTime, new Vector3f()));
+        position.add(velocity.mul(deltaTime, new Vector3f()));
+
+        acceleration.set(0, 0, 0);
+
+        float maxSpeed = 50.0f;
+        if(velocity.length() > maxSpeed) {
+            velocity.normalize().mul(maxSpeed);
+        }
+    }
 }
