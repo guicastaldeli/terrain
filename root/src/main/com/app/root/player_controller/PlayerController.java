@@ -161,6 +161,7 @@ public class PlayerController {
                 position.add(horizontalRight.mul(vel));
                 break;
             case UP:
+                jump();
                 position.add(cameraUp.mul(vel));
                 moveForce.sub(horizontalRight.mul(force));
                 break;
