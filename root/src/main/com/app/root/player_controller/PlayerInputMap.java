@@ -63,14 +63,10 @@ public class PlayerInputMap {
         playerController.updatePosition(PlayerController.MovDir.LEFT, keyPressed[GLFW_KEY_A]);
         playerController.updatePosition(PlayerController.MovDir.RIGHT, keyPressed[GLFW_KEY_D]);
         
-        // Handle jump (only when pressed, not when released)
         if(keyPressed[GLFW_KEY_SPACE]) {
             playerController.updatePosition(PlayerController.MovDir.UP, true);
-            // Reset the key state so jump doesn't repeat
             keyPressed[GLFW_KEY_SPACE] = false;
         }
-        
-        // Handle down
         if(keyPressed[GLFW_KEY_LEFT_SHIFT]) {
             playerController.updatePosition(PlayerController.MovDir.DOWN, true);
         }
