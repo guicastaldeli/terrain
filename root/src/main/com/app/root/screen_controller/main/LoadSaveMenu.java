@@ -121,15 +121,27 @@ public class LoadSaveMenu extends Screen {
 
     @Override
     public void handleAction(String action) {
-        String saveId = stateController.getCurrentSaveId();
-        switch (action) {
-            case "load":
-                mainScreen.mainScreenAction.load(saveId);
-            case "delete":
-                mainScreen.mainScreenAction.deleteSave(saveId);
-                mainScreen.refreshSaveList();
-                updateSaveSlots();
-                break;
+        if(action.startsWith("load_") || action.startsWith("delete_")) {
+            String[] parts = action.split("_", 2);
+            if(parts.length < 2) return;
+            
+            String actionType = parts[0];
+            String saveId = parts[1];
+            
+            switch(actionType) {
+                case "load":
+                    mainScreen.mainScreenAction.load(saveId);
+                    hide();
+                    break;
+                case "delete":
+                    mainScreen.mainScreenAction.deleteSave(saveId);
+                    mainScreen.refreshSaveList();
+                    updateSaveSlots();
+                    break;
+            }
+            return;
+        }
+        switch(action) {
             case "back":
                 hide();
                 break;
