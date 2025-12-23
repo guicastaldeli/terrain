@@ -39,9 +39,13 @@ public class MainScreenAction {
         try {
             String saveId = saveGenerator.generateNewSave(saveName);
             if(saveLoader.loadSave(saveId)) {
+                mainScreen.loadSaveMenu.hide();
+                mainScreen.saveNameDialog.hide();
+
                 screenController.switchTo(null);
                 screenController.disableCursor();
                 stateController.setInMenu(false);
+
                 scene.init();
                 scene.init = true;
             }
@@ -56,6 +60,9 @@ public class MainScreenAction {
      */
     public void load(String saveId) {
         if(saveLoader.loadSave(saveId)) {
+            mainScreen.loadSaveMenu.hide();
+            mainScreen.saveNameDialog.hide();
+            
             screenController.switchTo(null);
             screenController.disableCursor();
             stateController.setInMenu(false);

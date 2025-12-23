@@ -78,6 +78,7 @@ public class MainScreen extends Screen {
     public void showSaveMenu() {
         loadSaveMenu.show();
         refreshSaveList();
+        this.active = false;
     }
 
     /**

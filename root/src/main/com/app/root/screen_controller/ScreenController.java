@@ -27,6 +27,7 @@ public class ScreenController {
     private final SaveLoader saveLoader;
     private final DataController dataController;
     private final StateController stateController;
+
     public TextRenderer textRenderer;
     public Screen screen;
 

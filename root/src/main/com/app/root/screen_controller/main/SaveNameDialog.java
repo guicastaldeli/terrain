@@ -67,7 +67,7 @@ public class SaveNameDialog extends Screen {
     /**
      * Hide
      */
-    private void hide() {
+    public void hide() {
         setActive(false);
         active = false;
         keyboardInputHandler.clear();
