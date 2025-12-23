@@ -65,6 +65,10 @@ public class Tick {
         return deltaTime;
     }
 
+    public TimeCycle getTimeCycle() {
+        return timeCycle;
+    }
+
     public void resetTiming() {
         lastFrameTime = System.nanoTime();
         lastFpsUpdateTime = System.currentTimeMillis();

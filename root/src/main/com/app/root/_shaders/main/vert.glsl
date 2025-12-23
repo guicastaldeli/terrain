@@ -19,11 +19,16 @@ uniform int shaderType;
 
 #include "text/text_vert.glsl"
 #include "mesh/mesh_color.glsl"
+#include "../env/skybox/shaders/sb_vert.glsl"
 
 void main() {
     //Mesh
     if(shaderType == 0) {
         setMeshColor();
+    }
+    //Skybox
+    else if(shaderType == 2) {
+        setSkyboxVert();
     }
     //Text
     else if(shaderType == 1) {
