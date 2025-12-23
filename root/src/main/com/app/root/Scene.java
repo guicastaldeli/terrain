@@ -2,9 +2,8 @@ package main.com.app.root;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player_controller.PlayerController;
 import main.com.app.root._shaders.ShaderProgram;
-import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
-import main.com.app.root.env.EnvData;
+import main.com.app.root.env.EnvRenderer;
 
 public class Scene {
     private final Window window;
@@ -14,8 +13,9 @@ public class Scene {
 
     private Mesh mesh;
     private ShaderProgram shaderProgram;
-    private EnvController envController;
     private PlayerController playerController;
+    private EnvController envController;
+    private EnvRenderer envRenderer;
     private DependencyContainer dependencyContainer;
 
     public boolean init = false;
@@ -72,6 +72,7 @@ public class Scene {
             );
     
             this.envController = new EnvController(dependencyContainer);
+            this.envRenderer = new EnvRenderer(envController);
             start();
             
             this.init = true;
@@ -82,11 +83,7 @@ public class Scene {
      * Start
      */
     private void start() {
-        Object skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
-        EnvCall.call(skyboxInstance, "getMesh", "render");
-
-        Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
-        EnvCall.call(mapInstance, "getGenerator", "render");
+        envRenderer.render();
     }
 
     /**
