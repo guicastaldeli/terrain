@@ -31,7 +31,7 @@ public class MapGenerator {
     private MeshData meshData;
     private StaticObject collider;
 
-    private final NoiseGeneratorWrapper mapGeneratorWrapper;
+    private final NoiseGeneratorWrapper noiseGeneratorWrapper;
     private float[] heightMapData;
     private int mapWidth;
     private int mapHeight;
@@ -53,7 +53,7 @@ public class MapGenerator {
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
         this.meshRenderer = meshRenderer;
-        this.mapGeneratorWrapper = new NoiseGeneratorWrapper();
+        this.noiseGeneratorWrapper = new NoiseGeneratorWrapper();
         this.dataController = dataController;
         this.stateController = stateController;
         this.collisionManager = collisionManager;
@@ -94,7 +94,7 @@ public class MapGenerator {
             long seed = dataController.getWorldSeed();
 
             String tempPath = "temp_map_" + System.currentTimeMillis() + ".dat";
-            boolean success = mapGeneratorWrapper.generateMap(tempPath, seed);
+            boolean success = noiseGeneratorWrapper.generateMap(tempPath, seed);
             if(success) {
                 Path source = Paths.get(tempPath);
                 Path target = saveFile.getSavePath().resolve("world").resolve("d.m.0.dat");
@@ -184,11 +184,11 @@ public class MapGenerator {
             String path = Paths.get(noiseDir, fileName).toString();
     
             long seed = dataController.getWorldSeed();
-            boolean success = mapGeneratorWrapper.generateMap(path, seed);
+            boolean success = noiseGeneratorWrapper.generateMap(path, seed);
             if(success) {
-                heightMapData = mapGeneratorWrapper.getHeightMapData();
-                mapWidth = mapGeneratorWrapper.getMapWidth();
-                mapHeight = mapGeneratorWrapper.getMapHeight();
+                heightMapData = noiseGeneratorWrapper.getHeightMapData();
+                mapWidth = noiseGeneratorWrapper.getMapWidth();
+                mapHeight = noiseGeneratorWrapper.getMapHeight();
                 System.out.println("Map generated successfully: " + path);
                 System.out.println("Map dimensions: " + mapWidth + "x" + mapHeight);
                 
@@ -218,14 +218,14 @@ public class MapGenerator {
             return;
         }
 
-        float[] heightData = mapGeneratorWrapper.getHeightMapData();
+        float[] heightData = noiseGeneratorWrapper.getHeightMapData();
         float[] vertices = createVertices(heightData);
-        int[] indices = mapGeneratorWrapper.getIndicesData();
-        float[] normals = mapGeneratorWrapper.getNormalsData();
-        float[] colors = mapGeneratorWrapper.getColorsData();
+        int[] indices = noiseGeneratorWrapper.getIndicesData();
+        float[] normals = noiseGeneratorWrapper.getNormalsData();
+        float[] colors = noiseGeneratorWrapper.getColorsData();
 
-        int vertexCount = mapGeneratorWrapper.getVertexCount();
-        int indexCount = mapGeneratorWrapper.getIndexCount();
+        int vertexCount = noiseGeneratorWrapper.getVertexCount();
+        int indexCount = noiseGeneratorWrapper.getIndexCount();
 
         if(vertices != null && vertices.length > 0) meshData.setVertices(vertices);
         if(indices != null && indices.length > 0) meshData.setIndices(indices);
@@ -241,8 +241,8 @@ public class MapGenerator {
      * Collision
      */
     private void createCollider(float[] heightData) {
-        int width = mapGeneratorWrapper.getMapWidth();
-        int height = mapGeneratorWrapper.getMapHeight();
+        int width = noiseGeneratorWrapper.getMapWidth();
+        int height = noiseGeneratorWrapper.getMapHeight();
         collider = new StaticObject(heightData, width, height, MAP_ID);
     }
 

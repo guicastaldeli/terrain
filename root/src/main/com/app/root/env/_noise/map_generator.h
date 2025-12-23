@@ -30,17 +30,3 @@ void generateChunk(
     PoissonCollection* objLocations
 );
 void generateMap(const char* filename);
-
-typedef struct {
-    float destiny;
-    float scale;
-    float speed;
-    float coverage;
-} CloudSettings;
-
-float** generateCloudMap(
-    int width,
-    int height,
-    unsigned long seed
-);
-void freeCloudMap(float** cloudMap, int height);
