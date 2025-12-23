@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stb_image_write.h"
-#include "noise/map_generator.h"
+#include "_noise/map_generator.h"
 
 static float* heightMapData = NULL;
 static int* indicesData = NULL;
@@ -261,7 +261,7 @@ void saveAsImage(
     free(pixels);
 }
 
-JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_generateMap(
+JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_generateMap(
     JNIEnv *env, 
     jobject obj, 
     jstring outputPath, 
@@ -344,7 +344,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_ge
     return JNI_TRUE;
 }
 
-JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_loadMapData(
+JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_loadMapData(
     JNIEnv *env, 
     jobject obj, 
     jstring filePath
@@ -366,7 +366,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_lo
     return JNI_TRUE;
 }
 
-JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_getHeightMapData(
+JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getHeightMapData(
     JNIEnv *env, 
     jobject obj
 ) {
@@ -383,7 +383,7 @@ JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper
     return result;
 }
 
-JNIEXPORT jintArray JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_getIndicesData(
+JNIEXPORT jintArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getIndicesData(
     JNIEnv *env, 
     jobject obj
 ) {    
@@ -394,7 +394,7 @@ JNIEXPORT jintArray JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_g
     return result;
 }
 
-JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_getNormalsData(
+JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getNormalsData(
     JNIEnv *env, 
     jobject obj
 ) {    
@@ -405,7 +405,7 @@ JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper
     return result;
 }
 
-JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_getColorsData(
+JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getColorsData(
     JNIEnv *env, 
     jobject obj
 ) {    
@@ -416,7 +416,7 @@ JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper
     return result;
 }
 
-JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_getPointData(
+JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getPointData(
     JNIEnv *env, 
     jobject obj
 ) {    
@@ -427,35 +427,35 @@ JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper
     return result;
 }
 
-JNIEXPORT jint JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_getMapWidth(
+JNIEXPORT jint JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getMapWidth(
     JNIEnv *env, 
     jobject obj
 ) { 
     return mapWidth; 
 }
 
-JNIEXPORT jint JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_getMapHeight(
+JNIEXPORT jint JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getMapHeight(
     JNIEnv *env, 
     jobject obj
 ) { 
     return mapHeight; 
 }
 
-JNIEXPORT jint JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_getVertexCount(
+JNIEXPORT jint JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getVertexCount(
     JNIEnv *env, 
     jobject obj
 ) { 
     return vertexCount; 
 }
 
-JNIEXPORT jint JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_getIndexCount(
+JNIEXPORT jint JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getIndexCount(
     JNIEnv *env, 
     jobject obj
 ) { 
     return indexCount; 
 }
 
-JNIEXPORT jint JNICALL Java_main_com_app_root_env_map_MapGeneratorWrapper_getPointCount(
+JNIEXPORT jint JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getPointCount(
     JNIEnv *env, 
     jobject obj
 ) { 
