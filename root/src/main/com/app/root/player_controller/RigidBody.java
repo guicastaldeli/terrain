@@ -1,6 +1,8 @@
 package main.com.app.root.player_controller;
 import org.joml.Vector3f;
 
+import main.com.app.root.collision.BoundingBox;
+
 public class RigidBody {
     private Vector3f position;
     private Vector3f velocity;
@@ -98,6 +100,20 @@ public class RigidBody {
      */
     public void setGravityScale(float scale) { 
         this.gravityScale = scale; 
+    }
+
+    /**
+     * Bounding Box
+     */
+    public BoundingBox getBoundingBox() {
+        return new BoundingBox(
+            position.x - size.x / 2,
+            position.y - size.y / 2,
+            position.z - size.z / 2,
+            position.x + size.x / 2,
+            position.y + size.y / 2,
+            position.z + size.z / 2
+        );
     }
 
     /**

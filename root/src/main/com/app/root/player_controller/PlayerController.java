@@ -1,6 +1,7 @@
 package main.com.app.root.player_controller;
 import main.com.app.root.Tick;
 import main.com.app.root.Window;
+import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.mesh.Mesh;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import org.joml.Vector3f;
@@ -26,25 +27,37 @@ public class PlayerController {
     private Vector3f velocity;
     private float movSpeed; 
 
+    private RigidBody rigidBody;
+    private CollisionManager collisionManager;
+
     private float xPos = 0.0f;
     private float yPos = 10.0f;
     private float zPos = 5.0f;
+
+    private float sizeX = 1.0f;
+    private float sizeY = 2.0f;
+    private float sizeZ = 1.0f;
 
     private float xSpeed = 0.0f;
     private float ySpeed = 0.0f;
     private float zSpeed = 0.0f;
 
+    private float jumpForce = 15.0f;
+    private boolean onJump = false;
+
     public PlayerController(
         Tick tick, 
         Window window,
-        Mesh mesh
+        Mesh mesh,
+        CollisionManager collisionManager
     ) {
         this.tick = tick;
         this.window = window;
         this.mesh = mesh;
         this.camera = new Camera();
         this.playerInputMap = new PlayerInputMap(this);
-        
+        this.collisionManager = collisionManager;
+
         this.set();
 
         this.camera.setAspectRatio(window.getAspectRatio());
@@ -59,6 +72,12 @@ public class PlayerController {
         this.position = new Vector3f(xPos, yPos, zPos);
         this.velocity = new Vector3f(xSpeed, ySpeed, zSpeed);
         this.movSpeed = 50.0f;
+
+        this.rigidBody = new RigidBody(
+            new Vector3f(xPos, yPos, zPos),
+            new Vector3f(sizeX, sizeY, sizeZ)
+        );
+        rigidBody.setGravityScale(2.0f);
         updateCameraPosition(); 
     }
 
@@ -92,6 +111,23 @@ public class PlayerController {
      * Update
      */
     public void update() {
+        float deltaTime = tick.getDeltaTime();
+
+        applyMovForces();
+        if(onJump && rigidBody.isOnGround()) {
+            rigidBody.applyForce(
+                new Vector3f(
+                    0,
+                    jumpForce * rigidBody.getMass(),
+                    0
+                )
+            );
+            onJump = false;
+        }
+
+        rigidBody.update(movSpeed);
+        position.set(rigidBody.getPosition());
+
         updateCameraPosition();
         if(playerMesh != null) playerMesh.update();
     }
@@ -102,6 +138,9 @@ public class PlayerController {
         Vector3f cameraFront = camera.getFront();
         Vector3f cameraRight = camera.getRight();
         Vector3f cameraUp = camera.getUp();
+
+        float force = movSpeed * rigidBody.getMass();
+        Vector3f moveForce = new Vector3f();
         
         Vector3f horizontalFront = new Vector3f(cameraFront.x, 0.0f, cameraFront.z).normalize();
         Vector3f horizontalRight = new Vector3f(cameraRight.x, 0.0f, cameraRight.z).normalize();
@@ -109,9 +148,11 @@ public class PlayerController {
         switch(dir) {
             case FORWARD:
                 position.add(horizontalFront.mul(vel));
+                moveForce.add(horizontalFront.mul(force));
                 break;
             case BACKWARD:
                 position.sub(horizontalFront.mul(vel));
+                moveForce.sub(horizontalFront.mul(force));
                 break;
             case LEFT:
                 position.sub(horizontalRight.mul(vel));
@@ -121,13 +162,16 @@ public class PlayerController {
                 break;
             case UP:
                 position.add(cameraUp.mul(vel));
+                moveForce.sub(horizontalRight.mul(force));
                 break;
             case DOWN:
                 position.sub(cameraUp.mul(vel));
+                moveForce.add(horizontalRight.mul(force));
                 break;
         }
         
         //System.out.println("Player moved to: " + position);
+        if(moveForce.length() > 0) rigidBody.applyForce(moveForce);
         updatePlayerMeshRotation(dir);
     }
 
@@ -182,6 +226,34 @@ public class PlayerController {
                 updateAspectRatio();
             });
         }
+    }
+
+    public void jump() {
+        onJump = true;
+    }
+
+    public RigidBody getRigidBody() {
+        return rigidBody;
+    }
+
+    /**
+     * Apply Movement Forces
+     */
+    private void applyMovForces() {
+        Vector3f cameraFront = camera.getFront();
+        Vector3f cameraRight = camera.getRight();
+        Vector3f cameraUp = camera.getUp();
+
+        Vector3f horizontalFront = new Vector3f(
+            cameraFront.x,
+            0.0f,
+            cameraFront.z
+        ).normalize();
+        Vector3f horizontalRight = new Vector3f(
+            cameraRight.x,
+            0.0f,
+            cameraRight.z
+        ).normalize();
     }
 
     public PlayerMesh getPlayerMesh() {
