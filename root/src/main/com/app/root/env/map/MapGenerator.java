@@ -5,6 +5,7 @@ import main.com.app.root.Tick;
 import main.com.app.root._resources.TextureLoader;
 import main.com.app.root._save.SaveFile;
 import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.env.NoiseGeneratorWrapper;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
@@ -27,7 +28,7 @@ public class MapGenerator {
     private final MeshRenderer meshRenderer;
     private MeshData meshData;
 
-    private final MapGeneratorWrapper mapGeneratorWrapper;
+    private final NoiseGeneratorWrapper mapGeneratorWrapper;
     private float[] heightMapData;
     private int mapWidth;
     private int mapHeight;
@@ -47,7 +48,7 @@ public class MapGenerator {
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
         this.meshRenderer = meshRenderer;
-        this.mapGeneratorWrapper = new MapGeneratorWrapper();
+        this.mapGeneratorWrapper = new NoiseGeneratorWrapper();
         this.dataController = dataController;
         this.stateController = stateController;
     }
@@ -161,7 +162,7 @@ public class MapGenerator {
         if(currentSaveId != null && stateController.isLoadInProgress()) {
             return loadMapData(currentSaveId);
         } else {
-            String noiseDir = "root/src/main/com/app/root/env/map/noise/data";
+            String noiseDir = "root/src/main/com/app/root/env/_noise/data";
             File dir = new File(noiseDir);
             if(!dir.exists()) dir.mkdirs();
     

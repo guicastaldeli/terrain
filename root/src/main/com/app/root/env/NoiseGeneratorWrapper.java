@@ -1,11 +1,11 @@
-package main.com.app.root.env.map;
+package main.com.app.root.env;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class MapGeneratorWrapper {
-    private static final String DLL_PATH = "root/src/main/com/app/root/env/map/noise/.build/";
+public class NoiseGeneratorWrapper {
+    private static final String DLL_PATH = "root/src/main/com/app/root/env/_noise/.build/";
     
     static {
         loadNativeLibraries();
