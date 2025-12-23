@@ -7,6 +7,9 @@ public class EnvRenderer {
         this.envController = envController;
     }
 
+    /**
+     * Render
+     */
     public void render() {
         /* Skybox */
         Object skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
@@ -15,5 +18,14 @@ public class EnvRenderer {
         /* Map */
         Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
         EnvCall.call(mapInstance, "getGenerator", "render");
+    }
+    
+    /**
+     * Update
+     */
+    public void update() {
+        /* Skybox */
+        Object skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
+        EnvCall.call(skyboxInstance, "getMesh", "update");
     }
 }

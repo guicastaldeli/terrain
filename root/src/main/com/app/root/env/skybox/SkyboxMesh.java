@@ -1,25 +1,28 @@
 package main.com.app.root.env.skybox;
 import main.com.app.root.Tick;
+import main.com.app.root.TimeCycle;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
+import main.com.app.root.utils.ColorConverter;
+
 import org.lwjgl.opengl.GL11;
 
 public class SkyboxMesh {
-    private final float[][][] timeColors = {
-        //Night (0:00 - 4:00)
-        {{0.0f, 0.0f, 0.1f, 1.0f}, {0.05f, 0.05f, 0.15f, 1.0f}},
-        //Dawn (4:00 - 6:00)
-        {{0.1f, 0.05f, 0.2f, 1.0f}, {0.2f, 0.1f, 0.3f, 1.0f}},
-        //Morning (6:00 - 12:00)
-        {{0.2f, 0.3f, 0.6f, 1.0f}, {0.4f, 0.6f, 0.9f, 1.0f}},
-        //Afternoon (12:00 - 17:00)
-        {{0.3f, 0.5f, 0.8f, 1.0f}, {0.5f, 0.7f, 1.0f, 1.0f}},
-        //Dusk (17:00 - 19:00)
-        {{0.6f, 0.3f, 0.2f, 1.0f}, {0.8f, 0.4f, 0.3f, 1.0f}},
-        //Night (19:00 - 0:00)
-        {{0.0f, 0.0f, 0.05f, 1.0f}, {0.1f, 0.1f, 0.2f, 1.0f}}
+    private static final String[][] PERIOD_COLORS_HEX = {
+        //Midnight
+        {"#00001A", "#0D0D26"},
+        //Dawn
+        {"#1A0D33", "#331A4D"},
+        //Morning
+        {"#334D99", "#6699E6"},
+        //Afternoon
+        {"#4D80CC", "#80B3FF"},
+        //Dusk
+        {"#994D33", "#CC664D"},
+        //Night
+        {"#0D0D1A", "#1A1A33"}
     };
 
     private static final String SKYBOX_ID = "skybox";
@@ -37,62 +40,60 @@ public class SkyboxMesh {
     /**
      * Get Time Based Color
      */
+    private float[][] getColorsForPeriod(TimeCycle.TimePeriod period) {
+        int periodIndex = getPeriodIndex(period);
+        String[] hexColors = PERIOD_COLORS_HEX[periodIndex];
+
+        return new float[][] {
+            ColorConverter.hexToFloat(hexColors[0]),
+            ColorConverter.hexToFloat(hexColors[1])
+        };
+    }
+
+    private int getPeriodIndex(TimeCycle.TimePeriod period) {
+        switch(period) {
+            case MIDNIGHT: return 0;
+            case DAWN: return 1;
+            case MORNING: return 2;
+            case AFTERNOON: return 3;
+            case DUSK: return 4;
+            case NIGHT: return 5;
+            default: return 5;
+        }
+    }
+
     private float[] getTimeBasedColor(float timePercent) {
+        TimeCycle.TimePeriod currentPeriod = tick.getTimeCycle().getCurrentTimePeriod();
         float hour = timePercent * 24.0f;
 
-        int periodIndex;
-        if (hour < 4.0f) {
-            periodIndex = 0; //Night
-        } else if (hour < 6.0f) {
-            periodIndex = 1; //Dawn
-        } else if (hour < 12.0f) {
-            periodIndex = 2; //Morning
-        } else if (hour < 17.0f) {
-            periodIndex = 3; //Afternoon
-        } else if (hour < 19.0f) {
-            periodIndex = 4; //Dusk
-        } else {
-            periodIndex = 5; //Night
-        }
+        float[][] periodColors = getColorsForPeriod(currentPeriod);
+        float[] startColor = periodColors[0];
+        float[] endColor = periodColors[1];
 
-        float[] startColor = timeColors[periodIndex][0];
-        float[] endColor = timeColors[periodIndex][1];
-
-        float periodStartHour = getPeriodStartHour(periodIndex);
-        float periodEndHour = getPeriodEndHour(periodIndex);
-        float periodProgress = 
-            (hour - periodStartHour) / 
-            (periodEndHour - periodStartHour);
-        periodProgress = Math.max(0.0f, Math.min(1.0f, periodProgress));
-
+        float progress = calcProgressInPeriod(currentPeriod, hour);
         return interpolateColor(
             startColor, 
             endColor, 
-            periodProgress
+            progress
         );
     }
 
-    private float getPeriodStartHour(int periodIndex) {
-        switch(periodIndex) {
-            case 0: return 0.0f;    // Night
-            case 1: return 4.0f;    // Dawn
-            case 2: return 6.0f;    // Morning
-            case 3: return 12.0f;   // Afternoon
-            case 4: return 17.0f;   // Dusk
-            case 5: return 19.0f;   // Night
-            default: return 0.0f;
-        }
-    }
-    
-    private float getPeriodEndHour(int periodIndex) {
-        switch(periodIndex) {
-            case 0: return 4.0f;    // Night
-            case 1: return 6.0f;    // Dawn
-            case 2: return 12.0f;   // Morning
-            case 3: return 17.0f;   // Afternoon
-            case 4: return 19.0f;   // Dusk
-            case 5: return 24.0f;   // Night (wraps around)
-            default: return 24.0f;
+    private float calcProgressInPeriod(TimeCycle.TimePeriod period, float hour) {
+        int startHour = period.startHour;
+        int endHour = period.endHour;
+        if(!period.isActive(hour)) return 0.0f;
+
+        if(startHour < endHour) {
+            hour = Math.max(startHour, Math.min(hour, endHour - 0.00001f));
+            return (hour - startHour) / (endHour - startHour);
+        } else if(startHour > endHour) {
+            if(hour >= startHour) {
+                return (hour - startHour) / (24.0f - startHour);
+            } else {
+                return (hour + (24.0f - startHour)) / (endHour + (24.0f - startHour));
+            }
+        } else {
+            return 0.5f;
         }
     }
 
@@ -140,7 +141,7 @@ public class SkyboxMesh {
         int b = (int)(skyColor[2] * 255);
         int a = (int)(skyColor[3] * 255);
 
-        data.setColorRgb(r, b, g, a);
+        data.setColorRgb(r, g, b, a);
         if (tick.getTickCount() % 300 == 0) {
             System.out.println("Skybox color updated: " + 
                 r + "," + g + "," + b + " at " + tick.getTimeCycle().getFormattedTime());

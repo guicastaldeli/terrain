@@ -127,7 +127,7 @@ public class TimeCycle {
     /**
      * Set Pause
      */
-    public void setPaue(boolean paused) {
+    public void setPause(boolean paused) {
         if(paused) {
             timeSpeed = 0.0f;
         } else {
