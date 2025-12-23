@@ -5,6 +5,8 @@ import main.com.app.root.Tick;
 import main.com.app.root._resources.TextureLoader;
 import main.com.app.root._save.SaveFile;
 import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.collision.CollisionManager;
+import main.com.app.root.collision.types.StaticObject;
 import main.com.app.root.env.NoiseGeneratorWrapper;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
@@ -27,6 +29,7 @@ public class MapGenerator {
     private final Mesh mesh;
     private final MeshRenderer meshRenderer;
     private MeshData meshData;
+    private StaticObject collider;
 
     private final NoiseGeneratorWrapper mapGeneratorWrapper;
     private float[] heightMapData;
@@ -35,6 +38,7 @@ public class MapGenerator {
 
     private final DataController dataController;
     private final StateController stateController;
+    private final CollisionManager collisionManager;
 
     public MapGenerator(
         Tick tick, 
@@ -42,7 +46,8 @@ public class MapGenerator {
         MeshRenderer meshRenderer, 
         ShaderProgram shaderProgram,
         DataController dataController,
-        StateController stateController
+        StateController stateController,
+        CollisionManager collisionManager
     ) {
         this.tick = tick;
         this.shaderProgram = shaderProgram;
@@ -51,6 +56,7 @@ public class MapGenerator {
         this.mapGeneratorWrapper = new NoiseGeneratorWrapper();
         this.dataController = dataController;
         this.stateController = stateController;
+        this.collisionManager = collisionManager;
     }
 
     private void loadTex() {
@@ -227,7 +233,33 @@ public class MapGenerator {
         if(colors != null && colors.length > 0) meshData.setColors(colors);
 
         mesh.add(MAP_ID, meshData);
+        createCollider(heightData);
         //loadTex();
+    }
+
+    /**
+     * Collision
+     */
+    private void createCollider(float[] heightData) {
+        int width = mapGeneratorWrapper.getMapWidth();
+        int height = mapGeneratorWrapper.getMapHeight();
+        collider = new StaticObject(heightData, width, height, MAP_ID);
+    }
+
+    public StaticObject getCollider() {
+        return collider;
+    }
+
+    public void addMapCollider() {
+        try {
+            StaticObject coll = (StaticObject) collider;
+            if(coll != null) {
+                collisionManager.addStaticCollider(coll);
+                System.out.println("Map collider added to collision system");
+            }
+        } catch (Exception err) {
+            System.err.println("Failed to add map collider: " + err.getMessage());
+        }
     }
 
     /**

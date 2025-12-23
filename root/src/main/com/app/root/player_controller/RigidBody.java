@@ -1,31 +1,33 @@
 package main.com.app.root.player_controller;
+import main.com.app.root.Tick;
+import main.com.app.root.collision.BoundingBox;
 import org.joml.Vector3f;
 
-import main.com.app.root.collision.BoundingBox;
-
 public class RigidBody {
-    private Vector3f position;
+    private final Tick tick;
+
+    private final Vector3f position;
     private Vector3f velocity;
     private Vector3f acceleration;
-    private Vector3f size;
+    private final Vector3f size;
 
     private float mass;
     private boolean isStatic;
     private boolean onGround;
 
     private float gravity = -9.81f;
-    private float gravityScale = 1.0f;
+    private float gravityScale = 3.0f;
     private float drag = 0.1f;
 
-    public RigidBody(Vector3f position, Vector3f size) {
+    public RigidBody(Tick tick, Vector3f position, Vector3f size) {
+        this.tick = tick;
         this.position = new Vector3f(position);
         this.size = new Vector3f(size);
         this.velocity = new Vector3f();
         this.acceleration = new Vector3f();
         this.mass = 1.0f;
         this.isStatic = false;
-        this.onGround =
-         false;
+        this.onGround = false;
     }
 
     /**
@@ -119,7 +121,8 @@ public class RigidBody {
     /**
      * Update
      */
-    public void update(float deltaTime) {
+    public void update() {
+        float deltaTime = tick.getDeltaTime();
         if(isStatic) return;
 
         if(!onGround) 

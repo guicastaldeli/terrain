@@ -1,10 +1,9 @@
 package main.com.app.root.collision.types;
-import org.joml.Vector3f;
-
 import main.com.app.root.collision.BoundingBox;
 import main.com.app.root.collision.Collider;
 import main.com.app.root.collision.CollisionResult;
 import main.com.app.root.player_controller.RigidBody;
+import org.joml.Vector3f;
 
 public class DynamicObject implements Collider {
     private RigidBody rigidBody;
@@ -51,7 +50,7 @@ public class DynamicObject implements Collider {
 
     public void update(float deltaTime) {
         if(rigidBody != null && !rigidBody.isStatic()) {
-            rigidBody.update(deltaTime);
+            rigidBody.update();
         }
     }
 

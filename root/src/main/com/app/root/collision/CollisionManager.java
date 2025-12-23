@@ -165,7 +165,7 @@ public class CollisionManager {
         for(Collider coll : dynamicColliders) {
             RigidBody body = coll.getRigidBody();
             if(body != null && !body.isStatic()) {
-                body.update(deltaTime);
+                body.update();
 
                 CollisionResult collision = checkCollision(body);
                 if(collision.collided) {

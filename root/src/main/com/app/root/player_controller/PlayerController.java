@@ -30,10 +30,6 @@ public class PlayerController {
     private RigidBody rigidBody;
     private CollisionManager collisionManager;
 
-    private float xPos = 0.0f;
-    private float yPos = 10.0f;
-    private float zPos = 5.0f;
-
     private float sizeX = 1.0f;
     private float sizeY = 2.0f;
     private float sizeZ = 1.0f;
@@ -69,12 +65,21 @@ public class PlayerController {
     }
 
     private void set() {
-        this.position = new Vector3f(xPos, yPos, zPos);
+        this.position = new Vector3f(
+            camera.getPosition().x,
+            camera.getPosition().y, 
+            camera.getPosition().z
+        );
         this.velocity = new Vector3f(xSpeed, ySpeed, zSpeed);
-        this.movSpeed = 50.0f;
+        this.movSpeed = 10.0f;
 
         this.rigidBody = new RigidBody(
-            new Vector3f(xPos, yPos, zPos),
+            tick,
+            new Vector3f(
+                camera.getPosition().x,
+                camera.getPosition().y, 
+                camera.getPosition().z
+            ),
             new Vector3f(sizeX, sizeY, sizeZ)
         );
         rigidBody.setGravityScale(2.0f);
@@ -125,7 +130,7 @@ public class PlayerController {
             onJump = false;
         }
 
-        rigidBody.update(movSpeed);
+        rigidBody.update();
         position.set(rigidBody.getPosition());
 
         updateCameraPosition();
@@ -161,9 +166,9 @@ public class PlayerController {
                 position.add(horizontalRight.mul(vel));
                 break;
             case UP:
-                jump();
+                //jump();
                 position.add(cameraUp.mul(vel));
-                moveForce.sub(horizontalRight.mul(force));
+                //moveForce.sub(horizontalRight.mul(force));
                 break;
             case DOWN:
                 position.sub(cameraUp.mul(vel));

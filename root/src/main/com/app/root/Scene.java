@@ -2,6 +2,7 @@ package main.com.app.root;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player_controller.PlayerController;
 import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvRenderer;
 
@@ -17,6 +18,7 @@ public class Scene {
     private EnvController envController;
     private EnvRenderer envRenderer;
     private DependencyContainer dependencyContainer;
+    private CollisionManager collisionManager;
 
     public boolean init = false;
 
@@ -53,11 +55,14 @@ public class Scene {
         if(!init) {
             System.out.println("------- Scene Started!!! -------");
 
+            this.collisionManager = new CollisionManager();
+
             this.mesh = new Mesh(tick, shaderProgram);
             this.playerController = new PlayerController(
                 tick, 
                 window,
-                mesh
+                mesh,
+                collisionManager
             );
             mesh.setPlayerController(playerController);
 
@@ -68,11 +73,12 @@ public class Scene {
                 mesh,
                 mesh.getMeshRenderer(),
                 dataController,
-                stateController
+                stateController,
+                collisionManager
             );
     
             this.envController = new EnvController(dependencyContainer);
-            this.envRenderer = new EnvRenderer(envController);
+            this.envRenderer = new EnvRenderer(envController, collisionManager);
             start();
             
             this.init = true;

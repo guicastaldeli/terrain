@@ -33,8 +33,12 @@ public class Camera {
     private boolean showCursor = false;
     private AimController aimController;
 
+    public float posX = 0.0f;
+    public float posY = 800.0f;
+    public float posZ = 0.0f;
+
     public Camera() {
-        this.position = new Vector3f(0.0f, 0.0f, 0.0f);
+        this.position = new Vector3f(posX, posY, posZ);
         this.worldUp = new Vector3f(0.0f, 1.0f, 0.0f);
         this.yaw = 0.0f;
         this.pitch = 0.0f;

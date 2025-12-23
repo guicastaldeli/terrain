@@ -1,10 +1,13 @@
 package main.com.app.root.env;
+import main.com.app.root.collision.CollisionManager;
 
 public class EnvRenderer {
     private EnvController envController;
+    private CollisionManager collisionManager;
     
-    public EnvRenderer(EnvController envController) {
+    public EnvRenderer(EnvController envController, CollisionManager collisionManager) {
         this.envController = envController;
+        this.collisionManager = collisionManager;
     }
 
     /**
@@ -18,6 +21,7 @@ public class EnvRenderer {
         /* Map */
         Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
         EnvCall.call(mapInstance, "getGenerator", "render");
+        EnvCall.call(mapInstance, "getGenerator", "addMapCollider");
     }
     
     /**
