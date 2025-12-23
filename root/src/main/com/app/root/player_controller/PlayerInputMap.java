@@ -71,12 +71,17 @@ public class PlayerInputMap {
         playerController.updatePosition(PlayerController.MovDir.LEFT, keyPressed[GLFW_KEY_A]);
         playerController.updatePosition(PlayerController.MovDir.RIGHT, keyPressed[GLFW_KEY_D]);
         
-        if(!playerController.isInFlyMode() && keyPressed[GLFW_KEY_SPACE]) {
-            playerController.updatePosition(PlayerController.MovDir.UP, true);
-            keyPressed[GLFW_KEY_SPACE] = false;
-        }
-        if(!playerController.isInFlyMode() && keyPressed[GLFW_KEY_LEFT_SHIFT]) {
-            playerController.updatePosition(PlayerController.MovDir.DOWN, true);
+        if(playerController.isInFlyMode()) {
+            playerController.updatePosition(PlayerController.MovDir.UP, keyPressed[GLFW_KEY_SPACE]);
+            playerController.updatePosition(PlayerController.MovDir.DOWN, keyPressed[GLFW_KEY_LEFT_SHIFT]);
+        } else {
+            if(keyPressed[GLFW_KEY_SPACE]) {
+                playerController.updatePosition(PlayerController.MovDir.UP, true);
+                keyPressed[GLFW_KEY_SPACE] = false;
+            }
+            if(keyPressed[GLFW_KEY_LEFT_SHIFT]) {
+                playerController.updatePosition(PlayerController.MovDir.DOWN, true);
+            }
         }
     }
 

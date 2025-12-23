@@ -120,7 +120,7 @@ public class StaticObject implements Collider {
                 box.minZ + (box.maxZ - box.minZ) / 2
             );
 
-        float groundMargin = 10.0f;
+        float groundMargin = 20.0f;
 
         if(playerBottom <= mapHeight + groundMargin &&
             playerBottom >= mapHeight - groundMargin

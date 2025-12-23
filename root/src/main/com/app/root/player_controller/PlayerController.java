@@ -39,7 +39,7 @@ public class PlayerController {
     private float ySpeed = 0.0f;
     private float zSpeed = 0.0f;
 
-    private float jumpForce = 15.0f;
+    private float jumpForce = 25.0f;
     private boolean onJump = false;
 
     private boolean movingForward = false;
@@ -134,18 +134,25 @@ public class PlayerController {
         
         Vector3f horizontalFront = new Vector3f(cameraFront.x, 0.0f, cameraFront.z).normalize();
         Vector3f horizontalRight = new Vector3f(cameraRight.x, 0.0f, cameraRight.z).normalize();
-        Vector3f cameraUp = camera.getUp();
-
+        
         if(flyMode) {
             horizontalFront = new Vector3f(cameraFront).normalize();
             horizontalRight = new Vector3f(cameraRight).normalize();
         }
+        
         if(movingForward) moveForce.add(horizontalFront.mul(force));
         if(movingBackward) moveForce.sub(horizontalFront.mul(force));
         if(movingLeft) moveForce.sub(horizontalRight.mul(force));
         if(movingRight) moveForce.add(horizontalRight.mul(force));
-        if(movingUp) moveForce.add(cameraUp.mul(force));
-        if(movingDown) moveForce.sub(cameraUp.mul(force));
+        if(flyMode) {
+            if(movingUp) moveForce.add(new Vector3f(0, 1, 0).mul(force));
+            if(movingDown) moveForce.add(new Vector3f(0, -1, 0).mul(force));
+            if(!movingUp && !movingDown) {
+                Vector3f currentVel = rigidBody.getVelocity();
+                currentVel.y = 0;
+                rigidBody.setVelocity(currentVel);
+            }
+        }
 
         if(moveForce.length() > 0) {
             moveForce.normalize().mul(force);
@@ -213,12 +220,17 @@ public class PlayerController {
         flyMode = !flyMode;
         if(flyMode ){
             rigidBody.setGravityEnabled(false);
+
             Vector3f vel = rigidBody.getVelocity();
             vel.y = 0;
+
             rigidBody.setVelocity(vel);
+            rigidBody.setOnGround(false);
             System.out.println("Fly mode: ON");
         } else {
             rigidBody.setGravityEnabled(true);
+            movingUp = false;
+            movingDown = false;
             System.out.println("Fly mode: OFF");
         }
     }
@@ -236,19 +248,14 @@ public class PlayerController {
         applyMov();
         
         if(onJump && rigidBody.isOnGround()) {
-            rigidBody.applyForce(
-                new Vector3f(
-                    0,
-                    jumpForce * rigidBody.getMass(),
-                    0
-                )
-            );
+            Vector3f currVel = rigidBody.getVelocity();
+            currVel.y = jumpForce;
+            rigidBody.setVelocity(currVel);
             onJump = false;
         }
 
         rigidBody.update();
         position.set(rigidBody.getPosition());
-
         updateCameraPosition();
         if(playerMesh != null) playerMesh.update();
     }

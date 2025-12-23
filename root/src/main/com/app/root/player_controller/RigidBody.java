@@ -145,7 +145,7 @@ public class RigidBody {
         velocity.add(acceleration.mul(deltaTime, new Vector3f()));
         velocity.mul(1.0f - (drag * deltaTime));
         
-        if(onGround) {
+        if(onGround && gravityEnabled) {
             float groundFriction = 10.0f * deltaTime;
             Vector3f horizontalVel = new Vector3f(velocity.x, 0, velocity.z);
             if(horizontalVel.length() > groundFriction) {
