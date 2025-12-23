@@ -2,8 +2,10 @@ package main.com.app.root.mesh;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.jse.*;
 
+import main.com.app.root.ObjLoader;
+
 public class MeshLoader {
-    private static final String DATA_TYPES_DIR = "main/com/app/root/mesh/types/";
+    private static final String DATA_TYPES_DIR = "root/src/main/com/app/root/mesh/types/";
 
     public static MeshData load(MeshData.MeshType type, String id) {
         String fileName = type.name().toLowerCase() + ".lua";
@@ -105,5 +107,22 @@ public class MeshLoader {
             arr[i-1] = table.get(i).checkint();
         }
         return arr;
+    }
+
+    /**
+     * Load Model
+     */
+    public static MeshData loadModel(String modelName, String meshId) {
+        String filePath = DATA_TYPES_DIR + modelName + ".obj";
+        return ObjLoader.load(filePath, meshId);
+    }
+    public static MeshData loadModel(String filePath) {
+        String meshId = extractMeshIdFromPath(filePath);
+        return ObjLoader.load(filePath, meshId);
+    }
+    
+    private static String extractMeshIdFromPath(String filePath) {
+        String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+        return fileName.replace(".obj", "");
     }
 }

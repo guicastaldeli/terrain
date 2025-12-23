@@ -39,6 +39,11 @@ public class Mesh {
         addToMap(id, meshData);
     }
 
+    public void addModel(String id, String modelPath) {
+        MeshData meshData = MeshLoader.loadModel(modelPath, id);
+        addToMap(id, meshData);
+    }
+
     public void setTex(String id, int textureId) {
         MeshRenderer renderer = meshRendererMap.get(id);
         if(renderer != null) {
