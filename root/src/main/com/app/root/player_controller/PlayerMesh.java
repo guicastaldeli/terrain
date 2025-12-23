@@ -4,14 +4,12 @@ import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.Tick;
 import main.com.app.root._resources.TextureLoader;
-import main.com.app.root._shaders.ShaderProgram;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class PlayerMesh {
     private final Tick tick;
     private final PlayerController playerController;
-    private final ShaderProgram shaderProgram;
 
     private static final String PLAYER_MESH_ID = "PLAYER_MESH";
     private final Mesh mesh;
@@ -23,12 +21,10 @@ public class PlayerMesh {
     public PlayerMesh(
         Tick tick, 
         PlayerController playerController,
-        ShaderProgram shaderProgram,
         Mesh mesh
     ) {
         this.tick = tick;
         this.playerController = playerController;
-        this.shaderProgram = shaderProgram;
         this.mesh = mesh;
 
         setMesh();

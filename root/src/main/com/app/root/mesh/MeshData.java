@@ -14,7 +14,8 @@ public class MeshData {
         CUBE,
         SPHERE,
         RECTANGLE,
-        MAP
+        MAP,
+        SKYBOX
     }
 
     /**

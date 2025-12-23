@@ -1,7 +1,6 @@
 package main.com.app.root.player_controller;
 import main.com.app.root.Tick;
 import main.com.app.root.Window;
-import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.mesh.Mesh;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import org.joml.Vector3f;
@@ -20,7 +19,6 @@ public class PlayerController {
     private final Window window;
     private final Camera camera;
     private final PlayerInputMap playerInputMap;
-    private final ShaderProgram shaderProgram;
     private final Mesh mesh;
     private PlayerMesh playerMesh;
 
@@ -39,12 +37,10 @@ public class PlayerController {
     public PlayerController(
         Tick tick, 
         Window window,
-        ShaderProgram shaderProgram,
         Mesh mesh
     ) {
         this.tick = tick;
         this.window = window;
-        this.shaderProgram = shaderProgram;
         this.mesh = mesh;
         this.camera = new Camera();
         this.playerInputMap = new PlayerInputMap(this);
@@ -54,8 +50,7 @@ public class PlayerController {
         this.camera.setAspectRatio(window.getAspectRatio());
         this.playerMesh = new PlayerMesh(
             tick, 
-            this, 
-            shaderProgram,
+            this,
             mesh
         );
     }

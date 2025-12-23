@@ -56,8 +56,7 @@ public class Scene {
             this.mesh = new Mesh(tick, shaderProgram);
             this.playerController = new PlayerController(
                 tick, 
-                window, 
-                shaderProgram,
+                window,
                 mesh
             );
             mesh.setPlayerController(playerController);
