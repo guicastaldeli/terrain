@@ -2,6 +2,7 @@ package main.com.app.root;
 
 public class Tick {
     private final Window window;
+    private final TimeCycle timeCycle;
 
     private int TICKS_PER_SECOND = 50;
     private float TICK_RATE = 1.0f / TICKS_PER_SECOND;
@@ -20,10 +21,15 @@ public class Tick {
 
     public Tick(Window window) {
         this.window = window;
+        this.timeCycle = new TimeCycle();
     }
 
     private void tick() {
-        //System.out.println("Tick: " + tickCount);
+        timeCycle.update(TICK_RATE * timeCycle.getTimeSpeed());
+        if(tickCount % 100 == 0) {
+            System.out.println("Game Time: " + timeCycle.getFormattedTime() + 
+                             " (" + timeCycle.getCurrentTimePeriod() + ")");
+        }
     }
 
     public int getTickCount() {
