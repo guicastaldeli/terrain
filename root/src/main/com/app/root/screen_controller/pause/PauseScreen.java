@@ -7,7 +7,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 public class PauseScreen extends Screen {
     private static final String SCREEN_PATH = DIR + "pause/pause_screen.xml";
 
-    private PauseScreenAction pauseScreenAction;
+    public PauseScreenAction pauseScreenAction;
 
     public PauseScreen() {
         super(SCREEN_PATH, "pause");

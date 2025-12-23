@@ -17,7 +17,7 @@ public class MainScreen extends Screen {
         super(SCREEN_PATH, "main");
         this.mainScreenAction = new MainScreenAction(
             this,
-            getScene(), 
+            scene, 
             screenController,
             saveLoader,
             stateController,

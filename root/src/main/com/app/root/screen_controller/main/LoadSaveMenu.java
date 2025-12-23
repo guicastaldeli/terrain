@@ -21,15 +21,27 @@ public class LoadSaveMenu extends Screen {
         this.active = false;
     }
 
+    /**
+     * Show
+     */
     public void show() {
         this.active = true;
         screenController.switchTo(ScreenController.SCREENS.LOAD_SAVE_MENU);
         updateSaveSlots();
     }
 
+    /**
+     * Hide
+     */
     public void hide() {
+        hide(true);
+    }
+
+    public void hide(boolean returnToMain) {
         this.active = false;
-        screenController.switchTo(ScreenController.SCREENS.MAIN);
+        if(returnToMain) {
+            screenController.switchTo(ScreenController.SCREENS.MAIN);
+        }
     }
     
     public void updateSaveSlots() {
@@ -146,7 +158,7 @@ public class LoadSaveMenu extends Screen {
             switch(actionType) {
                 case "load":
                     mainScreen.mainScreenAction.load(saveId);
-                    hide();
+                    hide(false);
                     break;
                 case "delete":
                     mainScreen.mainScreenAction.deleteSave(saveId);

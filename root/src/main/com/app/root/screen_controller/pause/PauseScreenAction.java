@@ -2,6 +2,7 @@ package main.com.app.root.screen_controller.pause;
 import main.com.app.root.Console;
 import main.com.app.root.StateController;
 import main.com.app.root._save.SaveGenerator;
+import main.com.app.root.screen_controller.Screen;
 import main.com.app.root.screen_controller.ScreenController;
 import main.com.app.root.screen_controller.ScreenController.SCREENS;
 
@@ -72,9 +73,19 @@ public class PauseScreenAction {
      * Exit to Menu
      */
     public void exitToMenu() {
-        togglePause();
         save();
+        
+        pauseScreen.setActive(false);
+        
         screenController.switchTo(ScreenController.SCREENS.MAIN);
+        screenController.enableCursor();
+        
         stateController.setInMenu(true);
+        stateController.setPaused(false);
+        
+        if(Screen.scene != null) {
+            Screen.scene.init = false;
+        }
+        Console.getInstance().switchToMainScreen();
     }
 }

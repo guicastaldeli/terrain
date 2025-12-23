@@ -1,8 +1,6 @@
 package main.com.app.root._save;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
 import org.joml.Vector3f;
 
 import main.com.app.root.DataController;
@@ -122,9 +120,12 @@ public class DataGetter {
             float y = ((Number) data.get("position_y")).floatValue();
             float z = ((Number) data.get("position_z")).floatValue();
             playerController.setPosition(x, y, z);
-
-            if(data.containsKey("items")) {
-                List<String> items = (List<String>) data.get("items");
+            
+            if(data.containsKey("rotation_x")) {
+                float rx = ((Number) data.get("rotation_x")).floatValue();
+                float ry = ((Number) data.get("rotation_y")).floatValue();
+                float rz = ((Number) data.get("rotation_z")).floatValue();
+                playerController.getPlayerMesh().setMeshRotation(rx, ry, rz);
             }
         }
     }

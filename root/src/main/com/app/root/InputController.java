@@ -1,6 +1,8 @@
 package main.com.app.root;
 import main.com.app.root.player_controller.PlayerInputMap;
 import main.com.app.root.screen_controller.ScreenController;
+import main.com.app.root.screen_controller.ScreenInputHandler;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class InputController {
@@ -37,7 +39,10 @@ public class InputController {
             /**
              * Screen Input
              */
-            screenController.getCurrentInputHandler().handleKeyPress(key, action);
+            ScreenInputHandler inputHandler = screenController.getCurrentInputHandler();
+            if(inputHandler != null) {
+                inputHandler.handleKeyPress(key, action);
+            }
 
             updateCursorState();
             

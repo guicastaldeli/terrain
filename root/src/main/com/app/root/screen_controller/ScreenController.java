@@ -92,7 +92,7 @@ public class ScreenController {
         }
     }
 
-    public void switchTo(SCREENS screenType) {
+        public void switchTo(SCREENS screenType) {
         if(screenType == null) {
             for(Screen screen : screens.values()) {
                 if(screen != null) {
@@ -114,8 +114,9 @@ public class ScreenController {
         } 
     }
 
-    public Screen getCurrentScreen() {
-        return currentScreen;
+    public ScreenInputHandler getCurrentScreen() {
+        if(currentScreen != null) return currentScreen;
+        return screenHandler;
     }
 
     public boolean isScreenActive(SCREENS screenType) {
@@ -160,7 +161,13 @@ public class ScreenController {
         @Override
         public void handleKeyPress(int key, int action) {
             if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-                switchTo(SCREENS.PAUSE);
+                if(pauseScreen != null) {
+                    pauseScreen.setActive(true);
+                    pauseScreen.pauseScreenAction.togglePause();
+                    switchTo(SCREENS.PAUSE);
+                    enableCursor();
+                    stateController.setPaused(true);
+                }
             }
         }
     };
@@ -169,7 +176,7 @@ public class ScreenController {
         if(currentScreen != null) {
             return currentScreen;
         }
-        return null;
+        return screenHandler;
     }
 
     /**
@@ -209,7 +216,7 @@ public class ScreenController {
      * Render
      */
     public void render() {
-        if(currentScreen != null) {
+        if(currentScreen != null && currentScreen.isActive()) {
             currentScreen.render();
         }
     }

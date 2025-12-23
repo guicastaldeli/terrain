@@ -4,8 +4,6 @@ import main.com.app.root.KeyboardInputHandler;
 import main.com.app.root.screen_controller.Screen;
 import main.com.app.root.screen_controller.ScreenController;
 import main.com.app.root.screen_controller.ScreenElement;
-import main.com.app.root.screen_controller.ScreenController.SCREENS;
-
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
@@ -72,7 +70,6 @@ public class SaveNameDialog extends Screen {
         active = false;
         keyboardInputHandler.clear();
         clearEl();
-        screenController.switchTo(SCREENS.MAIN);
     }
 
     /**

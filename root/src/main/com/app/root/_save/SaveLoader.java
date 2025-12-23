@@ -32,6 +32,7 @@ public class SaveLoader {
                 return false;
             }
 
+            stateController.setCurrentSaveId(saveId);
             stateController.setCurrentLevel(saveId);
             stateController.setLoadInProgress(true);
 

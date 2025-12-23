@@ -41,10 +41,13 @@ public class MainScreenAction {
             if(saveLoader.loadSave(saveId)) {
                 mainScreen.loadSaveMenu.hide();
                 mainScreen.saveNameDialog.hide();
+                mainScreen.setActive(false);
 
                 screenController.switchTo(null);
                 screenController.disableCursor();
+                
                 stateController.setInMenu(false);
+                stateController.setPaused(false);
 
                 scene.init();
                 scene.init = true;
@@ -62,12 +65,15 @@ public class MainScreenAction {
         if(saveLoader.loadSave(saveId)) {
             mainScreen.loadSaveMenu.hide();
             mainScreen.saveNameDialog.hide();
+            mainScreen.setActive(false);
             
             screenController.switchTo(null);
             screenController.disableCursor();
-            stateController.setInMenu(false);
 
-            scene.init();
+            stateController.setInMenu(false);
+            stateController.setPaused(false);
+
+            if(!scene.init) scene.init();
             scene.init = true;
         }
     }
