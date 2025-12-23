@@ -1,18 +1,18 @@
 package main.com.app.root.env.skybox;
-
-import org.lwjgl.opengl.GL11;
-
 import main.com.app.root.Tick;
-import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
+import org.lwjgl.opengl.GL11;
 
 public class SkyboxMesh {
     private static final String SKYBOX_ID = "skybox";
-    private Mesh mesh;
+    private final Tick tick;
+    private final Mesh mesh;
 
-    public SkyboxMesh(Tick tick, ShaderProgram shaderProgram) {
+    public SkyboxMesh(Tick tick, Mesh mesh) {
+        this.tick = tick;
+        this.mesh = mesh;
         setMesh();
     }
 

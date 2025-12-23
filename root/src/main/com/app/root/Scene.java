@@ -82,8 +82,11 @@ public class Scene {
      * Start
      */
     private void start() {
-        Object instance = envController.getEnv(EnvData.MAP).getInstance();
-        EnvCall.call(instance, "getGenerator", "render");
+        Object skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
+        EnvCall.call(skyboxInstance, "getMesh", "render");
+
+        Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
+        EnvCall.call(mapInstance, "getGenerator", "render");
     }
 
     /**
