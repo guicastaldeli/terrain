@@ -56,7 +56,16 @@ public class SaveGenerator {
             .replaceAll("[^a-z0-9]", "_")
             .replaceAll("_+", "_")
             .replaceAll("^_|_$", "");
-        return baseId;
+
+        String finalSaveId = baseId;
+        int counter = 1;
+        List<String> existingSaves = SaveFile.listAllSaves();
+        while(existingSaves.contains(finalSaveId)) {
+            finalSaveId = baseId + counter;
+            counter++;
+        }
+
+        return finalSaveId;
     }
 
     /**

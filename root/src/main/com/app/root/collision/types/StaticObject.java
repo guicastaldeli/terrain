@@ -113,15 +113,13 @@ public class StaticObject implements Collider {
             return new CollisionResult();
         }
 
+        float groundMargin = 20.0f;
         float playerBottom = box.minY;
         float mapHeight = 
             getHeightAtWorld(
                 box.minX + (box.maxX - box.minX) / 2, 
                 box.minZ + (box.maxZ - box.minZ) / 2
             );
-
-        float groundMargin = 20.0f;
-
         if(playerBottom <= mapHeight + groundMargin &&
             playerBottom >= mapHeight - groundMargin
         ) {

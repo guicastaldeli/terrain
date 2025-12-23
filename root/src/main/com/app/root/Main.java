@@ -178,12 +178,13 @@ public class Main {
             tick.getTimeCycle().getFormattedTime(),
             tick.getTimeCycle().getCurrentTimePeriod()
         );
-        screenController.render();
 
         if(console.isRunning() && scene.isInit()) {
             inputController.setPlayerInputMap(scene.getPlayerController().getInputMap());
             scene.render();  
         }
+
+        screenController.render();
     }
 
     private void loop() {
