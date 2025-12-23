@@ -277,5 +277,6 @@ public class MapGenerator {
     public void render() {
         generate();
         System.out.println("Map generated...");
+        addMapCollider();
     }
 }

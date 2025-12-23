@@ -21,7 +21,6 @@ public class EnvRenderer {
         /* Map */
         Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
         EnvCall.call(mapInstance, "getGenerator", "render");
-        EnvCall.call(mapInstance, "getGenerator", "addMapCollider");
     }
     
     /**

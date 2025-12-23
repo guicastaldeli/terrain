@@ -2,6 +2,7 @@ package main.com.app.root.player_controller;
 import main.com.app.root.Tick;
 import main.com.app.root.Window;
 import main.com.app.root.collision.CollisionManager;
+import main.com.app.root.collision.types.DynamicObject;
 import main.com.app.root.mesh.Mesh;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import org.joml.Vector3f;
@@ -41,6 +42,11 @@ public class PlayerController {
     private float jumpForce = 15.0f;
     private boolean onJump = false;
 
+    private boolean movingForward = false;
+    private boolean movingBackward = false;
+    private boolean movingLeft = false;
+    private boolean movingRight = false;
+
     public PlayerController(
         Tick tick, 
         Window window,
@@ -62,6 +68,7 @@ public class PlayerController {
             this,
             mesh
         );
+        addCollider();
     }
 
     private void set() {
@@ -71,7 +78,7 @@ public class PlayerController {
             camera.getPosition().z
         );
         this.velocity = new Vector3f(xSpeed, ySpeed, zSpeed);
-        this.movSpeed = 10.0f;
+        this.movSpeed = 40.0f;
 
         this.rigidBody = new RigidBody(
             tick,
@@ -112,13 +119,35 @@ public class PlayerController {
         return playerInputMap;
     }
 
+    private void applyMov() {
+        Vector3f moveForce = new Vector3f();
+        float force = movSpeed * rigidBody.getMass();
+        
+        Vector3f cameraFront = camera.getFront();
+        Vector3f cameraRight = camera.getRight();
+        
+        Vector3f horizontalFront = new Vector3f(cameraFront.x, 0.0f, cameraFront.z).normalize();
+        Vector3f horizontalRight = new Vector3f(cameraRight.x, 0.0f, cameraRight.z).normalize();
+        
+        if(movingForward) moveForce.add(horizontalFront.mul(force));
+        if(movingBackward) moveForce.sub(horizontalFront.mul(force));
+        if(movingLeft) moveForce.sub(horizontalRight.mul(force));
+        if(movingRight) moveForce.add(horizontalRight.mul(force));
+        if(moveForce.length() > 0) {
+            moveForce.normalize().mul(force);
+            rigidBody.applyForce(moveForce);
+            updateMeshRotation();
+        }
+    }
+
     /**
      * Update
      */
     public void update() {
         float deltaTime = tick.getDeltaTime();
 
-        applyMovForces();
+        applyMov();
+        
         if(onJump && rigidBody.isOnGround()) {
             rigidBody.applyForce(
                 new Vector3f(
@@ -137,48 +166,43 @@ public class PlayerController {
         if(playerMesh != null) playerMesh.update();
     }
 
-    public void updatePosition(MovDir dir) {
-        float vel = movSpeed * tick.getDeltaTime();
+    private void updateMeshRotation() {
+        if(playerMesh == null) return;
         
-        Vector3f cameraFront = camera.getFront();
-        Vector3f cameraRight = camera.getRight();
-        Vector3f cameraUp = camera.getUp();
+        if(movingForward && !movingBackward && !movingLeft && !movingRight) {
+            updatePlayerMeshRotation(MovDir.FORWARD);
+        } else if(movingBackward && !movingForward && !movingLeft && !movingRight) {
+            updatePlayerMeshRotation(MovDir.BACKWARD);
+        } else if(movingLeft && !movingRight && !movingForward && !movingBackward) {
+            updatePlayerMeshRotation(MovDir.LEFT);
+        } else if(movingRight && !movingLeft && !movingForward && !movingBackward) {
+            updatePlayerMeshRotation(MovDir.RIGHT);
+        }
+        else if(movingForward) {
+            updatePlayerMeshRotation(MovDir.FORWARD);
+        }
+    }
 
-        float force = movSpeed * rigidBody.getMass();
-        Vector3f moveForce = new Vector3f();
-        
-        Vector3f horizontalFront = new Vector3f(cameraFront.x, 0.0f, cameraFront.z).normalize();
-        Vector3f horizontalRight = new Vector3f(cameraRight.x, 0.0f, cameraRight.z).normalize();
-        
+    public void updatePosition(MovDir dir, boolean isPressed) {
         switch(dir) {
             case FORWARD:
-                position.add(horizontalFront.mul(vel));
-                moveForce.add(horizontalFront.mul(force));
+                movingForward = isPressed;
                 break;
             case BACKWARD:
-                position.sub(horizontalFront.mul(vel));
-                moveForce.sub(horizontalFront.mul(force));
+                movingBackward = isPressed;
                 break;
             case LEFT:
-                position.sub(horizontalRight.mul(vel));
+                movingLeft = isPressed;
                 break;
             case RIGHT:
-                position.add(horizontalRight.mul(vel));
+                movingRight = isPressed;
                 break;
             case UP:
-                //jump();
-                position.add(cameraUp.mul(vel));
-                //moveForce.sub(horizontalRight.mul(force));
+                if(isPressed) jump();
                 break;
             case DOWN:
-                position.sub(cameraUp.mul(vel));
-                moveForce.add(horizontalRight.mul(force));
                 break;
         }
-        
-        //System.out.println("Player moved to: " + position);
-        if(moveForce.length() > 0) rigidBody.applyForce(moveForce);
-        updatePlayerMeshRotation(dir);
     }
 
     private void updatePlayerMeshRotation(MovDir dir) {
@@ -260,6 +284,20 @@ public class PlayerController {
             0.0f,
             cameraRight.z
         ).normalize();
+    }
+
+    /**
+     * Add Collider
+     */
+    private void addCollider() {
+        if(collisionManager != null && rigidBody != null) {
+            DynamicObject collider = new DynamicObject(rigidBody, "PLAYER");
+            collisionManager.addDynamicCollider(collider);
+        } else {
+            System.err.println("Cannot create player collider!");
+            if(collisionManager == null) System.err.println("collisionManager is null");
+            if(rigidBody == null) System.err.println("rigidBody is null");
+        }
     }
 
     public PlayerMesh getPlayerMesh() {

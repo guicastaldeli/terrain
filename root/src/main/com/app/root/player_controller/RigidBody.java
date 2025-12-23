@@ -125,26 +125,27 @@ public class RigidBody {
         float deltaTime = tick.getDeltaTime();
         if(isStatic) return;
 
-        if(!onGround) 
-            {
-            applyForce(
-                new Vector3f(
-                    0, 
-                    gravity * mass * gravityScale, 
-                    0
-                )
-            );
+        if(!onGround) {
+            applyForce(new Vector3f(0, gravity * mass * gravityScale, 0));
         }
 
-        velocity.mul(1.0f - (drag * deltaTime));
         velocity.add(acceleration.mul(deltaTime, new Vector3f()));
-        position.add(velocity.mul(deltaTime, new Vector3f()));
-
-        acceleration.set(0, 0, 0);
-
-        float maxSpeed = 50.0f;
-        if(velocity.length() > maxSpeed) {
-            velocity.normalize().mul(maxSpeed);
+        velocity.mul(1.0f - (drag * deltaTime));
+        
+        if(onGround) {
+            float groundFriction = 10.0f * deltaTime;
+            Vector3f horizontalVel = new Vector3f(velocity.x, 0, velocity.z);
+            if(horizontalVel.length() > groundFriction) {
+                horizontalVel.normalize().mul(groundFriction);
+                velocity.x -= horizontalVel.x;
+                velocity.z -= horizontalVel.z;
+            } else {
+                velocity.x = 0;
+                velocity.z = 0;
+            }
         }
+        
+        position.add(velocity.mul(deltaTime, new Vector3f()));
+        acceleration.set(0, 0, 0);
     }
 }

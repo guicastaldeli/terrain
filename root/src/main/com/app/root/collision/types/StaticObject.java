@@ -15,7 +15,7 @@ public class StaticObject implements Collider {
     private float[] heightMapData;
     private int mapWidth;
     private int mapHeight;
-    private float maxHeight = 100.0f;
+    private float maxHeight = 1.0f;
 
     public StaticObject(BoundingBox bBox, String type) {
         this.bBox = bBox;
@@ -105,7 +105,7 @@ public class StaticObject implements Collider {
     /**
      * Check Map Collison
      */
-    public CollisionResult checkMapCollsion(BoundingBox box) {
+    public CollisionResult checkMapCollision(BoundingBox box) {
         if(!isMap) {
             if(box.intersects(bBox)) {
                 return calcBoxCollision(box, bBox);
@@ -120,7 +120,7 @@ public class StaticObject implements Collider {
                 box.minZ + (box.maxZ - box.minZ) / 2
             );
 
-        float groundMargin = 0.1f;
+        float groundMargin = 10.0f;
 
         if(playerBottom <= mapHeight + groundMargin &&
             playerBottom >= mapHeight - groundMargin

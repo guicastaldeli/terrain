@@ -58,29 +58,21 @@ public class PlayerInputMap {
      * Keyboard Callback
      */
     public void keyboardCallback() {
-        /* Forward */
-        if(keyPressed[GLFW_KEY_W]) {
-            playerController.updatePosition(PlayerController.MovDir.FORWARD);
-        }
-        /* backward */
-        if(keyPressed[GLFW_KEY_S]) {
-            playerController.updatePosition(PlayerController.MovDir.BACKWARD);
-        }
-        /* Left */
-        if(keyPressed[GLFW_KEY_A]) {
-            playerController.updatePosition(PlayerController.MovDir.LEFT);
-        }
-        /* Right */
-        if(keyPressed[GLFW_KEY_D]) {
-            playerController.updatePosition(PlayerController.MovDir.RIGHT);
-        }
-        /* Up */
+        playerController.updatePosition(PlayerController.MovDir.FORWARD, keyPressed[GLFW_KEY_W]);
+        playerController.updatePosition(PlayerController.MovDir.BACKWARD, keyPressed[GLFW_KEY_S]);
+        playerController.updatePosition(PlayerController.MovDir.LEFT, keyPressed[GLFW_KEY_A]);
+        playerController.updatePosition(PlayerController.MovDir.RIGHT, keyPressed[GLFW_KEY_D]);
+        
+        // Handle jump (only when pressed, not when released)
         if(keyPressed[GLFW_KEY_SPACE]) {
-            playerController.updatePosition(PlayerController.MovDir.UP);
+            playerController.updatePosition(PlayerController.MovDir.UP, true);
+            // Reset the key state so jump doesn't repeat
+            keyPressed[GLFW_KEY_SPACE] = false;
         }
-        /* Down */
+        
+        // Handle down
         if(keyPressed[GLFW_KEY_LEFT_SHIFT]) {
-            playerController.updatePosition(PlayerController.MovDir.DOWN);
+            playerController.updatePosition(PlayerController.MovDir.DOWN, true);
         }
     }
 

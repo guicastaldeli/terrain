@@ -50,7 +50,7 @@ public class CollisionManager {
             if(collider instanceof StaticObject) {
                 StaticObject staticObj = (StaticObject) collider;
                 if(staticObj.isMap()) {
-                    CollisionResult mapCollision = staticObj.checkMapCollsion(bodyBounds);
+                    CollisionResult mapCollision = staticObj.checkMapCollision(bodyBounds);
                     if(mapCollision.collided) return mapCollision;
                 }
             }

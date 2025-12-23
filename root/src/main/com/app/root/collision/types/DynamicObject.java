@@ -1,4 +1,5 @@
 package main.com.app.root.collision.types;
+
 import main.com.app.root.collision.BoundingBox;
 import main.com.app.root.collision.Collider;
 import main.com.app.root.collision.CollisionResult;
@@ -8,10 +9,16 @@ import org.joml.Vector3f;
 public class DynamicObject implements Collider {
     private RigidBody rigidBody;
     private BoundingBox bBox;
-
-    public DynamicObject(RigidBody rigidBody) {
+    private String objectType;
+    
+    public DynamicObject(RigidBody rigidBody, String objectType) {
         this.rigidBody = rigidBody;
+        this.objectType = objectType;
         updateBounds();
+    }
+    
+    public DynamicObject(RigidBody rigidBody) {
+        this(rigidBody, "");
     }
 
     /**
@@ -35,17 +42,20 @@ public class DynamicObject implements Collider {
      * Handle Collision
      */
     private void handleCollision(CollisionResult coll) {
-        rigidBody.applyForce(
-            new Vector3f(
-                0,
-                5.0f * rigidBody.getMass(),
-                0
-            )
-        );
-
-        Vector3f vel = rigidBody.getVelocity();
-        vel.mul(0.8f);
-        rigidBody.setVelocity(vel);
+        switch (objectType) {
+            case "WATER":
+                rigidBody.applyForce(new Vector3f(0, 5.0f * rigidBody.getMass(), 0));
+                Vector3f vel = rigidBody.getVelocity();
+                vel.mul(0.8f);
+                rigidBody.setVelocity(vel);
+                break;
+            case "PLAYER":
+                System.out.println("Player collided with something");
+                break;
+                
+            default:
+                break;
+        }
     }
 
     public void update(float deltaTime) {
@@ -68,5 +78,9 @@ public class DynamicObject implements Collider {
     @Override
     public void onCollision(CollisionResult coll) {
         handleCollision(coll);
+    }
+    
+    public String getObjectType() {
+        return objectType;
     }
 }

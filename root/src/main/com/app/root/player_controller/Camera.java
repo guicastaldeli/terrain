@@ -33,8 +33,8 @@ public class Camera {
     private boolean showCursor = false;
     private AimController aimController;
 
-    public float posX = 0.0f;
-    public float posY = 800.0f;
+    public float posX = 200.0f;
+    public float posY = 500.0f;
     public float posZ = 0.0f;
 
     public Camera() {

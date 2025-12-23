@@ -98,6 +98,7 @@ public class Scene {
     public void update() {
         if(!init) return;
         playerController.update();
+        collisionManager.updateDynamicColliders(tick.getDeltaTime());
         mesh.update();
         envRenderer.update();
     }
@@ -109,8 +110,6 @@ public class Scene {
         if(!init) return;
 
         playerController.render();
-
-        //mesh.render("skybox", 2);
         mesh.renderAll();
     }
 }
