@@ -170,4 +170,8 @@ public class StaticObject implements Collider {
     public String getType() {
         return type;
     }
+
+    public boolean isMap() {
+        return isMap;
+    }
 }

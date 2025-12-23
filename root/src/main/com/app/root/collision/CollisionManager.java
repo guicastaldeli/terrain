@@ -10,7 +10,8 @@ import main.com.app.root.player_controller.RigidBody;
 public class CollisionManager {
     public enum CollisionType {
         STATIC_OBJECT,
-        DYNAMIC_OBJECT
+        DYNAMIC_OBJECT,
+        MAP
     }
 
     private List<Collider> staticColliders = new ArrayList<>();
@@ -43,36 +44,46 @@ public class CollisionManager {
      */
     public CollisionResult checkCollision(RigidBody body) {
         BoundingBox bodyBounds = body.getBoundingBox();
-        CollisionResult result = new CollisionResult();
-
+        
+        /* Map */
+        for(Collider collider : staticColliders) {
+            if(collider instanceof StaticObject) {
+                StaticObject staticObj = (StaticObject) collider;
+                if(staticObj.isMap()) {
+                    CollisionResult mapCollision = staticObj.checkMapCollsion(bodyBounds);
+                    if(mapCollision.collided) return mapCollision;
+                }
+            }
+        }
         /* Static */
         for(Collider collider : staticColliders) {
-            BoundingBox colliderBounds = collider.getBoundingBox();
-            if(bodyBounds.intersects(colliderBounds)) {
-                result = calcCollisionResponse(bodyBounds, colliderBounds);
-                result.otherCollider = collider;
-                result.type = 
-                    collider instanceof StaticObject ?
-                    CollisionType.STATIC_OBJECT : 
-                    CollisionType.DYNAMIC_OBJECT;
+            if(collider instanceof StaticObject) {
+                StaticObject staticObj = (StaticObject) collider;
+                if(!staticObj.isMap()) {
+                    BoundingBox collBounds = collider.getBoundingBox();
+                    if(bodyBounds.intersects(collBounds)) {
+                        CollisionResult result = calcCollisionResponse(bodyBounds, collBounds);
+                        result.otherCollider = collider;
+                        result.type = CollisionType.STATIC_OBJECT;
+                        return result;
+                    }
+                }
             }
         }
         /* Dynamic */
         for(Collider collider : dynamicColliders) {
             if(collider.getRigidBody() == body) continue;
 
-            BoundingBox colliderBounds = collider.getBoundingBox();
-            if(bodyBounds.intersects(colliderBounds)) {
-                result = calcCollisionResponse(bodyBounds, colliderBounds);
+            BoundingBox collBounds = collider.getBoundingBox();
+            if(bodyBounds.intersects(collBounds)) {
+                CollisionResult result = calcCollisionResponse(bodyBounds, collBounds);
                 result.otherCollider = collider;
-                result.type = 
-                    collider instanceof DynamicObject ?
-                    CollisionType.DYNAMIC_OBJECT : 
-                    CollisionType.STATIC_OBJECT;
+                result.type = CollisionType.DYNAMIC_OBJECT;
+                return result;
             }
         }
 
-        return result;
+        return new CollisionResult();
     }
 
     /**
@@ -108,18 +119,43 @@ public class CollisionManager {
     public void resolveCollision(RigidBody body, CollisionResult collision) {
         if(!collision.collided) return;
 
+        if(collision.otherCollider instanceof StaticObject) {
+            StaticObject staticObj = (StaticObject) collision.otherCollider;
+            if(staticObj.isMap()) {
+                if(collision.normal.y > 0.5f) {
+                    body.setOnGround(true);
+
+                    Vector3f pos = body.getPosition();
+                    Vector3f size = body.getSize();
+                    float groundHeight = staticObj.getHeightAtWorld(pos.x, pos.z);
+                    if(Math.abs(pos.y - size.y/2 - groundHeight) < 0.5f) {
+                        body.setPosition(new Vector3f(pos.x, groundHeight + size.y/2, pos.z));
+                    }
+                    
+                    Vector3f velocity = body.getVelocity();
+                    if(velocity.y < 0) {
+                        velocity.y = 0;
+                        body.setVelocity(velocity);
+                    }
+                }
+                return;
+            }
+        }
+
         Vector3f correction = new Vector3f(collision.normal).mul(collision.depth);
         body.setPosition(body.getPosition().add(correction));
 
         Vector3f velocity = body.getVelocity();
         float dot = velocity.dot(collision.normal);
-        if(dot < 0) {
+        if (dot < 0) {
             velocity.sub(collision.normal.mul(dot, new Vector3f()));
-            if(collision.normal.y > 0.5f) {
+            if (collision.normal.y > 0.5f) {
                 body.setOnGround(true);
             }
         }
         body.setVelocity(velocity);
+
+        if(collision.otherCollider != null) collision.otherCollider.onCollision(collision);
     }
 
     /**
@@ -136,6 +172,9 @@ public class CollisionManager {
                     resolveCollision(body, collision);
                 } else {
                     body.setOnGround(false);
+                }
+                if(coll instanceof DynamicObject) {
+                    ((DynamicObject) coll).update(deltaTime);
                 }
             }
         }
