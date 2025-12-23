@@ -71,4 +71,9 @@ public class NoiseGeneratorWrapper {
 
     public native float[] getPointData();
     public native int getPointCount();
+
+    public native boolean generateClouds(int width, int height, long seed);
+    public native float[] getCloudMapData();
+    public native int getCloudWidth();
+    public native int getCloudHeight();
 }

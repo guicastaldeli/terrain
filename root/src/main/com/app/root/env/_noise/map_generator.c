@@ -224,3 +224,52 @@ void generateMap(const char* fileName) {
     free(objLocations->points);
     free(objLocations);
 }
+
+/**
+ * Generate Cloud Map
+ */
+float** generateCloudMap(int width, int height, unsigned seed) {
+    float** cloudMap = malloc(height* sizeof(float*));
+
+    for(int i = 0; i < height; i++) {
+        cloudMap[i] = malloc(width * sizeof(float));
+    }
+
+    unsigned long cloudSeed = seed ^ 0x12345678;
+    initSystems(cloudSeed);
+
+    for(int y = 0; y < height; y++) {
+        for(int x = 0; x < width; x++) {
+            float baseCloud = fractualSimplexNoise(
+                x * 0.002f,
+                y * 0.002f,
+                6,
+                0.6f,
+                2.0f
+            );
+
+            float detail = fractualSimplexNoise(
+                x * 0.01f,
+                y * 0.01f,
+                3,
+                0.4f,
+                2.0f
+            ) * 0.3f;
+
+            float cloudValue = baseCloud + detail;
+            cloudValue = fmax(0.0f, cloudValue - 0.2f);
+            cloudValue = fminf(1.0f, cloudValue * 2.0f);
+            cloudMap[x][y] = cloudValue;
+        }
+    }
+}
+
+/**
+ * Free Cloud
+ */
+void freeCloudMap(float** cloudMap, int height) {
+    for(int i = 0; i < height; i++) {
+        free(cloudMap[i]);
+    }
+    free(cloudMap);
+}

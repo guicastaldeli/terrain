@@ -18,6 +18,10 @@ static int vertexCount = 0;
 static int indexCount = 0;
 static int pointCount = 0;
 
+static float* cloudMapData = NULL;
+static int cloudWidth = 0;
+static int cloudHeight = 0;
+
 /**
  * Generate Map Mesh Data
  */
@@ -460,4 +464,54 @@ JNIEXPORT jint JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getPoint
     jobject obj
 ) { 
     return pointCount; 
+}
+
+JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_generateClouds(
+    JNIEnv *env, 
+    jobject obj, 
+    jint width, 
+    jint height, 
+    jlong seed
+) {
+    if(cloudMapData) free(cloudMapData);
+    
+    float** cloudMap = generateCloudMap(width, height, (unsigned long)seed);
+    cloudWidth = width;
+    cloudHeight = height;
+    
+    cloudMapData = malloc(width * height * sizeof(float));
+    for(int i = 0; i < width; i++) {
+        for(int j = 0; j < height; j++) {
+            cloudMapData[i * width + j] = cloudMap[i][j];
+        }
+        free(cloudMap[i]);
+    }
+    free(cloudMap);
+    
+    return JNI_TRUE;
+}
+
+JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getCloudMapData(
+    JNIEnv *env, 
+    jobject obj
+) {
+    if(!cloudMapData) return NULL;
+    
+    jfloatArray result = (*env)->NewFloatArray(env, cloudWidth * cloudHeight);
+    (*env)->SetFloatArrayRegion(env, result, 0, cloudWidth * cloudHeight, cloudMapData);
+    return result;
+}
+
+JNIEXPORT jint JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getCloudWidth(
+    JNIEnv *env, 
+    jobject obj
+) {
+    return cloudWidth;
+}
+
+JNIEXPORT jint JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getCloudHeight(
+    JNIEnv *env, 
+    jobject obj
+) {
+    return cloudHeight;
 }
