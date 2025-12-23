@@ -9,6 +9,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec2 screenSize;
+out vec3 worldPos;
 
 out vec4 uColor;
 out vec2 texCoord;
@@ -36,7 +37,6 @@ void main() {
     }
     else {
         gl_Position  = projection * view * model * vec4(inPos, 1.0);
-        
         texCoord = aTexCoord;
     }
 }

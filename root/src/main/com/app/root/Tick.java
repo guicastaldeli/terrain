@@ -22,14 +22,17 @@ public class Tick {
     public Tick(Window window) {
         this.window = window;
         this.timeCycle = new TimeCycle();
+        this.timeCycle.setTimeSpeed(2.0f);
     }
 
     private void tick() {
         timeCycle.update(TICK_RATE * timeCycle.getTimeSpeed());
+        /*
         if(tickCount % 100 == 0) {
-            System.out.println("Game Time: " + timeCycle.getFormattedTime() + 
+            System.out.println("Time: " + timeCycle.getFormattedTime() + 
                              " (" + timeCycle.getCurrentTimePeriod() + ")");
         }
+                             */
     }
 
     public int getTickCount() {

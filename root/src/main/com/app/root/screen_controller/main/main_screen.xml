@@ -54,44 +54,4 @@
     >
         Exit
     </button>
-
-    <!-- Testing select element -->
-    <select 
-        id="difficultySelect" 
-        x="400" y="200" 
-        scale="1.0" 
-        color="0.8,0.8,0.8"
-        options="Easy,Medium,Hard"
-        default="Medium"
-        enabled="true"
-    >
-        Select Difficulty
-    </select>
-
-    <!-- Testing range element -->
-    <range 
-        id="volumeSlider" 
-        x="400" y="280" 
-        scale="1.0" 
-        color="0.5,0.7,1.0"
-        min="0" 
-        max="100" 
-        step="10"
-        value="50"
-        enabled="true"
-    >
-        Volume Control
-    </range>
-
-    <!-- Testing input element (already supported in parser) -->
-    <input 
-        id="usernameInput" 
-        x="400" y="360" 
-        scale="1.0" 
-        color="1.0,1.0,1.0"
-        placeholder="Enter username"
-        maxLength="20"
-        enabled="true"
-    >
-    </input>
 </main_screen>

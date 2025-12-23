@@ -93,32 +93,34 @@ public class ShaderProgram {
             glUniformMatrix4fv(loc, false, matrixArr);
         }
     }
-
     public void setUniform(String name, float x, float y) {
         int loc = getUniformLocation(name);
         if(loc != -1) {
             glUniform2f(loc, x, y);
         }
     }
-
     public void setUniform(String name, float x, float y, float z) {
         int loc = getUniformLocation(name);
         if(loc != -1) {
             glUniform3f(loc, x, y, z);
         }
     }
-
     public void setUniform(String name, float[] matrix) {
         int loc = getUniformLocation(name);
         if(loc != -1) {
             glUniformMatrix4fv(loc, false, matrix);
         }
     }
-
     public void setUniform(String name, int value) {
         int loc = getUniformLocation(name);
         if(loc != -1) {
             glUniform1i(loc, value);
+        }
+    }
+    public void setUniform(String name, float value) {
+        int loc = getUniformLocation(name);
+        if(loc != -1) {
+            glUniform1f(loc, value);
         }
     }
 

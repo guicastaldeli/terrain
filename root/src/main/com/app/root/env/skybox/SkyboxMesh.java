@@ -12,17 +12,17 @@ import org.lwjgl.opengl.GL11;
 public class SkyboxMesh {
     private static final String[][] PERIOD_COLORS_HEX = {
         //Midnight
-        {"#00001A", "#0D0D26"},
+        { "#00001A", "#0D0D26" },
         //Dawn
-        {"#1A0D33", "#331A4D"},
+        { "#1A0D33", "#331A4D" },
         //Morning
-        {"#334D99", "#6699E6"},
+        { "#334D99", "#6699E6" },
         //Afternoon
-        {"#4D80CC", "#80B3FF"},
+         {"#4D80CC", "#80B3FF" },
         //Dusk
-        {"#994D33", "#CC664D"},
+        { "#994D33", "#CC664D" },
         //Night
-        {"#0D0D1A", "#1A1A33"}
+        { "#0D0D1A", "#1A1A33" }
     };
 
     private static final String SKYBOX_ID = "skybox";
@@ -71,17 +71,30 @@ public class SkyboxMesh {
         float[] endColor = periodColors[1];
 
         float progress = calcProgressInPeriod(currentPeriod, hour);
-        return interpolateColor(
-            startColor, 
-            endColor, 
-            progress
-        );
+        TimeCycle.TimePeriod nextPeriod = getNextPeriod(currentPeriod);
+        if(progress > 0.95 && nextPeriod != currentPeriod) {
+            float[][] nextColors = getColorsForPeriod(nextPeriod);
+            float transitionProgress = (progress - 0.95f) / 0.05f;
+            endColor = interpolateColor(endColor, nextColors[0], transitionProgress);
+        }
+        return interpolateColor(startColor, endColor, progress);
+    }
+
+    private TimeCycle.TimePeriod getNextPeriod(TimeCycle.TimePeriod current) {
+        switch(current) {
+            case MIDNIGHT: return TimeCycle.TimePeriod.DAWN;
+            case DAWN: return TimeCycle.TimePeriod.MORNING;
+            case MORNING: return TimeCycle.TimePeriod.AFTERNOON;
+            case AFTERNOON: return TimeCycle.TimePeriod.DUSK;
+            case DUSK: return TimeCycle.TimePeriod.NIGHT;
+            case NIGHT: return TimeCycle.TimePeriod.MIDNIGHT;
+            default: return current;
+        }
     }
 
     private float calcProgressInPeriod(TimeCycle.TimePeriod period, float hour) {
         int startHour = period.startHour;
         int endHour = period.endHour;
-        if(!period.isActive(hour)) return 0.0f;
 
         if(startHour < endHour) {
             hour = Math.max(startHour, Math.min(hour, endHour - 0.00001f));
@@ -112,6 +125,32 @@ public class SkyboxMesh {
         return res;
     }
 
+    private float calcStarBrightness() {
+    if(tick == null || tick.getTimeCycle() == null) {
+        return 0.0f;
+    }
+
+    float timePercent = tick.getTimeCycle().getCurrentTime() / tick.getTimeCycle().DAY_DURATION;
+    float hour = timePercent * 24.0f;
+    
+    // Enhanced star brightness calculation
+    if (hour >= 20.0f || hour < 4.0f) {
+        // Full night - adjust based on moonlight/clouds
+        float midnight = (hour >= 22.0f || hour < 2.0f) ? 1.0f : 0.8f;
+        return midnight;
+    } else if (hour >= 4.0f && hour < 6.0f) {
+        // Dawn - smooth fade out
+        float progress = (hour - 4.0f) / 2.0f;
+        return 1.0f - progress * progress; // Quadratic fade for smoother transition
+    } else if (hour >= 18.0f && hour < 20.0f) {
+        // Dusk - smooth fade in
+        float progress = (hour - 18.0f) / 2.0f;
+        return progress * progress; // Quadratic fade
+    } else {
+        return 0.0f;
+    }
+}
+
     /**
      * Set Mesh
      */
@@ -121,6 +160,7 @@ public class SkyboxMesh {
             System.err.println("Failed to load terrain mesh template");
             return;
         }
+        data.setShaderType(2);
         mesh.add(SKYBOX_ID, data);
         if(data != null) updateSkyColor(data);
     }
@@ -143,33 +183,41 @@ public class SkyboxMesh {
 
         data.setColorRgb(r, g, b, a);
         if (tick.getTickCount() % 300 == 0) {
+            /*
             System.out.println("Skybox color updated: " + 
                 r + "," + g + "," + b + " at " + tick.getTimeCycle().getFormattedTime());
+                */
         }
     }
-    private void updateSkyColor() {
+
+    public void update() {
         if(tick == null || tick.getTimeCycle() == null) return;
 
         float currentTime = tick.getTimeCycle().getCurrentTime();
         float dayDuration = tick.getTimeCycle().DAY_DURATION;
         float timePercent = currentTime / dayDuration;
-        
+
         float[] skyColor = getTimeBasedColor(timePercent);
         int r = (int)(skyColor[0] * 255);
         int g = (int)(skyColor[1] * 255);
         int b = (int)(skyColor[2] * 255);
         int a = (int)(skyColor[3] * 255);
-    }
 
-    public void update() {
-        updateSkyColor();
+        MeshData data = mesh.getData(SKYBOX_ID);
+        if(data != null) {
+            data.setColorRgb(r, g, b, a);
+            mesh.updateColors(SKYBOX_ID, data.getColors());
+        }
     }
 
     public void render() {
         try {
             GL11.glDepthMask(false);
-            shaderProgram.setUniform("shaderType", 2);
-            mesh.render(SKYBOX_ID);
+            float starBrightness = calcStarBrightness();
+
+            shaderProgram.setUniform("uStarBrightness", starBrightness);
+            
+            mesh.render(SKYBOX_ID, 2);
             GL11.glDepthMask(true);
         } catch(Exception err) {
             System.err.println("Skybox error!" + err.getMessage());

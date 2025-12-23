@@ -9,6 +9,13 @@ uniform int hasTex;
 uniform int shaderType;
 uniform vec3 textColor;
 
+uniform vec3 uSkyColorStart;
+uniform vec3 uSkyColorEnd;
+uniform vec3 uNextColorStart;
+uniform float uBlendFactor;
+uniform float uStarBrightness;
+in vec3 worldPos;
+
 #include "text/text_frag.glsl"
 #include "mesh/mesh_tex.glsl"
 #include "../env/skybox/shaders/sb_frag.glsl"
@@ -19,7 +26,7 @@ void main() {
         setMeshTex();
     }
     //Skybox
-    else if(shaderType == 2) {
+    if(shaderType == 2) {
         setSkyboxFrag();
     }
     //Text

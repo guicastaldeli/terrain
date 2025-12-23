@@ -1,8 +1,7 @@
 package main.com.app.root.mesh;
+import main.com.app.root.utils.ColorConverter;
 import java.util.HashMap;
 import java.util.Map;
-
-import main.com.app.root.utils.ColorConverter;
 
 public class MeshData {
     /**
@@ -35,6 +34,7 @@ public class MeshData {
     private final MeshType type;
     private final String id;
     private float[] colors;
+    private int shaderType = 0;
 
     public MeshData(String id, MeshType type) {
         this.id = id;
@@ -80,6 +80,7 @@ public class MeshData {
      */
     public void setColors(float[] c) {
         this.colors = c;
+        if(c != null) addData(DataType.COLORS, c);
     }
     
     public void setColor(
@@ -99,10 +100,16 @@ public class MeshData {
     }
 
     public float[] getColors() {
-        float[] res = colors != null ?
-            colors : 
-            (float[]) data.get(DataType.COLORS);
-        return res;
+        if(colors != null) {
+            return colors;
+        }
+        
+        Object colorsData = data.get(DataType.COLORS);
+        if(colorsData instanceof float[]) {
+            return (float[]) colorsData;
+        }
+        
+        return null;
     }
 
     public void setColorRgb(
@@ -161,6 +168,17 @@ public class MeshData {
      */
     public MeshType getType() {
         return type;
+    }
+
+    /**
+     * Shader Type
+     */
+    public void setShaderType(int type) {
+        this.shaderType = type;
+    }
+    
+    public int getShaderType() {
+        return this.shaderType;
     }
 
     /**

@@ -2,10 +2,8 @@ package main.com.app.root.mesh;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.player_controller.PlayerController;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import org.joml.Matrix4f;
 
 public class Mesh {
@@ -89,17 +87,26 @@ public class Mesh {
         }
     }
 
+    public void updateColors(String id, float[] colors) {
+        MeshRenderer renderer = meshRendererMap.get(id);
+        if(renderer != null) {
+            renderer.updateColors(colors);
+        }
+    }
+
     /**
      * Render
      */
-    public void render(String id) {
+    public void render(String id, int shaderType) {
         MeshRenderer meshRenderer = meshRendererMap.get(id);
-        if(meshRenderer != null) meshRenderer.render();
+        if(meshRenderer != null) meshRenderer.render(shaderType);
     }
 
     public void renderAll() {
-        for(MeshRenderer meshRenderer : meshRendererMap.values()) {
-            meshRenderer.render();
+        for(Map.Entry<String, MeshRenderer> entry : meshRendererMap.entrySet()) {
+            String id = entry.getKey();
+            MeshData data = meshDataMap.get(id);
+            if(data != null) entry.getValue().render(data.getShaderType());
         }
     }
 

@@ -94,7 +94,7 @@ public class MeshRenderer {
             
             FloatBuffer colorBuffer = memAllocFloat(colors.length);
             colorBuffer.put(colors).flip();
-            glBufferData(GL_ARRAY_BUFFER, colorBuffer, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, colorBuffer, GL_DYNAMIC_DRAW);
             memFree(colorBuffer);
             
             glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, 0);
@@ -215,17 +215,32 @@ public class MeshRenderer {
         return playerController;
     }
 
+    public void updateColors(float[] colors) {
+        if(colorVbo == 0) return;
+
+        glBindBuffer(GL_ARRAY_BUFFER, colorVbo);
+
+        FloatBuffer colorBuffer = memAllocFloat(colors.length);
+        colorBuffer.put(colors).flip();
+
+        glBufferData(GL_ARRAY_BUFFER, colorBuffer, GL_DYNAMIC_DRAW);
+        memFree(colorBuffer);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
     /**
      * Render
      */
-    public void render() {
+    public void render(int shaderType) {
         try {
             Camera camera = playerController.getCamera();
     
             shaderProgram.bind();
-            shaderProgram.setUniform("shaderType", 0);
+            shaderProgram.setUniform("shaderType", shaderType);
     
             //setRotation();
+            shaderProgram.bind();
             shaderProgram.setUniform("model", modelMatrix);
             shaderProgram.setUniform("view", camera.getViewMatrix());
             shaderProgram.setUniform("projection", camera.getProjectionMatrix());

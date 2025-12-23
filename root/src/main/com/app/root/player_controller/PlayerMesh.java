@@ -197,7 +197,7 @@ public class PlayerMesh {
     public void render() {
         if(mesh.getMeshRenderer() != null) {
             updateMeshModelMatrix();
-            mesh.render(PLAYER_MESH_ID);
+            mesh.render(PLAYER_MESH_ID, 0);
         }
     }
 }

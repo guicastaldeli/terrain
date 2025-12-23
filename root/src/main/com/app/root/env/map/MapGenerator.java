@@ -234,7 +234,7 @@ public class MapGenerator {
      */
     private void generate() {
         createMesh();
-        mesh.render(MAP_ID);
+        mesh.render(MAP_ID, 0);
     }
 
 

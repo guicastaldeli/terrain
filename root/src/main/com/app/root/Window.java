@@ -60,13 +60,20 @@ public class Window {
         }
     }
 
-    public void updateTitle(int fps, int tickCount) {
+    public void updateTitle(
+        int fps, 
+        int tickCount, 
+        String time,
+        TimeCycle.TimePeriod period
+    ) {
         String title = 
             WINDOW_TITLE + 
             " / " 
             + "FPS: " + fps + 
             " / " + 
-            "Tick: " + tickCount;
+            "Tick: " + tickCount +
+            " / " +
+            "Time: " + time + " (" + period + ")";
         glfwSetWindowTitle(window, title);
     }
 
