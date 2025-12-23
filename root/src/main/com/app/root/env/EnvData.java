@@ -1,12 +1,13 @@
 package main.com.app.root.env;
 import main.com.app.root.DependencyContainer;
 import main.com.app.root.env.map.MapController;
+import main.com.app.root.env.skybox.SkyboxController;
 
 public enum EnvData {
+    SKYBOX(SkyboxController.class),
     MAP(MapController.class);
     //TREE(TreeController.class),
-    //ITEM(ItemController.class),
-    //NPC(NpcController.class);
+    //ITEM(ItemController.class)
 
     private final Class<? extends EnvInstance<?>> instance;
 
