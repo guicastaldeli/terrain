@@ -1,5 +1,7 @@
 package main.com.app.root.screen_controller;
 import main.com.app.root.Window;
+import main.com.app.root._font.FontConfig;
+import main.com.app.root._font.FontMap;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveLoader;
 import main.com.app.root._shaders.ShaderProgram;
@@ -13,8 +15,6 @@ import java.util.*;
 
 public class Screen implements ScreenInputHandler {
     public static final String DIR = "root/src/main/com/app/root/screen_controller/";
-    public static final String FONT_PATH = "root/src/main/com/app/root/_font/fonts/arial.ttf";
-    private static float fontSize = 24.0f;
 
     public static Window window;
     public static ShaderProgram shaderProgram;
@@ -51,14 +51,15 @@ public class Screen implements ScreenInputHandler {
     public Screen(String filePath, String screenName) {
         this.screenName = screenName;
         try {
-            System.out.println("Loading font from: " + FONT_PATH);
+            FontConfig fontConfig = FontMap.getFont("arial");
+            System.out.println("Loading font: " + fontConfig.name + " from: " + fontConfig.path);
             System.out.println("Loading screen XML from: " + DIR + filePath);
             
             this.textRenderer = new TextRenderer(
                 Screen.window,
                 Screen.shaderProgram,
-                FONT_PATH,
-                fontSize,
+                fontConfig.path,
+                fontConfig.size,
                 Screen.window.getWidth(),
                 Screen.window.getHeight()
             );
