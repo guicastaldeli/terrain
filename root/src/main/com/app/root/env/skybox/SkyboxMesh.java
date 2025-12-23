@@ -127,26 +127,39 @@ public class SkyboxMesh {
 
     private float calcStarBrightness() {
     if(tick == null || tick.getTimeCycle() == null) {
+        System.out.println("WARNING: TimeCycle is null!");
         return 0.0f;
     }
 
+    // Simple hour-based calculation
     float timePercent = tick.getTimeCycle().getCurrentTime() / tick.getTimeCycle().DAY_DURATION;
     float hour = timePercent * 24.0f;
     
-    // Enhanced star brightness calculation
+    System.out.println("calcStarBrightness - Hour: " + String.format("%.2f", hour));
+    
+    // Simple logic:
+    // Night: 20:00 to 4:00 = stars
+    // Dawn: 4:00 to 6:00 = fade out
+    // Dusk: 18:00 to 20:00 = fade in
+    // Day: 6:00 to 18:00 = no stars
+    
     if (hour >= 20.0f || hour < 4.0f) {
-        // Full night - adjust based on moonlight/clouds
-        float midnight = (hour >= 22.0f || hour < 2.0f) ? 1.0f : 0.8f;
-        return midnight;
+        // Full night (8 hours)
+        System.out.println("NIGHT - full stars");
+        return 1.0f;
     } else if (hour >= 4.0f && hour < 6.0f) {
-        // Dawn - smooth fade out
+        // Dawn (2 hours) - fade out
         float progress = (hour - 4.0f) / 2.0f;
-        return 1.0f - progress * progress; // Quadratic fade for smoother transition
+        System.out.println("DAWN - fading out: " + (1.0f - progress));
+        return 1.0f - progress;
     } else if (hour >= 18.0f && hour < 20.0f) {
-        // Dusk - smooth fade in
+        // Dusk (2 hours) - fade in
         float progress = (hour - 18.0f) / 2.0f;
-        return progress * progress; // Quadratic fade
+        System.out.println("DUSK - fading in: " + progress);
+        return progress;
     } else {
+        // Daytime
+        System.out.println("DAY - no stars");
         return 0.0f;
     }
 }
@@ -183,10 +196,8 @@ public class SkyboxMesh {
 
         data.setColorRgb(r, g, b, a);
         if (tick.getTickCount() % 300 == 0) {
-            /*
             System.out.println("Skybox color updated: " + 
                 r + "," + g + "," + b + " at " + tick.getTimeCycle().getFormattedTime());
-                */
         }
     }
 
@@ -206,6 +217,8 @@ public class SkyboxMesh {
         MeshData data = mesh.getData(SKYBOX_ID);
         if(data != null) {
             data.setColorRgb(r, g, b, a);
+            float starBrightness = calcStarBrightness();
+            data.setStarBrightness(starBrightness);
             mesh.updateColors(SKYBOX_ID, data.getColors());
         }
     }
@@ -215,7 +228,7 @@ public class SkyboxMesh {
             GL11.glDepthMask(false);
             float starBrightness = calcStarBrightness();
 
-            shaderProgram.setUniform("uStarBrightness", starBrightness);
+            shaderProgram.setUniform("uStarBrightness", 1.0f);
             
             mesh.render(SKYBOX_ID, 2);
             GL11.glDepthMask(true);

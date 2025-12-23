@@ -18,6 +18,7 @@ import static org.lwjgl.opengl.GL11.glGetError;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_DYNAMIC_DRAW;
 import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
@@ -238,9 +239,11 @@ public class MeshRenderer {
     
             shaderProgram.bind();
             shaderProgram.setUniform("shaderType", shaderType);
+
+            float starBrightness = meshData.getStarBrightness();
+            shaderProgram.setUniform("uStarBrightness", starBrightness);
     
             //setRotation();
-            shaderProgram.bind();
             shaderProgram.setUniform("model", modelMatrix);
             shaderProgram.setUniform("view", camera.getViewMatrix());
             shaderProgram.setUniform("projection", camera.getProjectionMatrix());

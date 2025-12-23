@@ -35,6 +35,7 @@ public class MeshData {
     private final String id;
     private float[] colors;
     private int shaderType = 0;
+    private float starBrightness = 0.0f;
 
     public MeshData(String id, MeshType type) {
         this.id = id;
@@ -203,6 +204,17 @@ public class MeshData {
 
     public boolean hasRotation() {
         return getRotationAxis() != null && getRotationSpeed() > 0.0f;
+    }
+
+    /**
+     * Star Brightness
+     */
+    public void setStarBrightness(float brightness) {
+        this.starBrightness = brightness;
+    }
+    
+    public float getStarBrightness() {
+        return this.starBrightness;
     }
 
     /**

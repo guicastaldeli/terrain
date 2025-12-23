@@ -31,3 +31,27 @@ void setSkyboxFrag() {
         fragColor = timeColor;
     }
 }
+
+/* TEST
+void setSkyboxFrag() {
+    if(shaderType == 2) {
+        vec3 starCoord = normalize(worldPos);
+        
+        if(abs(starCoord.y) > 0.9) {
+            vec3 grid = floor(starCoord * 20.0);
+            if(mod(grid.x, 2.0) == 0.0 && mod(grid.z, 2.0) == 0.0) {
+                fragColor = vec4(1.0, 1.0, 1.0, 1.0);
+                return;
+            }
+        }
+        
+        float heightFactor = texCoord.y;
+        float gradientStrength = 0.4;
+        float gradientPower = 1.5;
+        float gradient = mix(1.0 - gradientStrength, 1.0, pow(heightFactor, gradientPower));
+        
+        fragColor = uColor;
+        fragColor.rgb *= gradient;
+    }
+}
+*/
