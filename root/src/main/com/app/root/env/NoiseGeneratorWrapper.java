@@ -28,7 +28,7 @@ public class NoiseGeneratorWrapper {
             String[] libraries = {
                 "libcrypto-3-x64.dll",
                 "libssl-3-x64.dll", 
-                "map_generator.dll"
+                "noise_generator.dll"
             };
             
             for(String lib : libraries) {

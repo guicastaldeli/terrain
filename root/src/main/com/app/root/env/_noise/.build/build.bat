@@ -10,8 +10,9 @@ set OPENSSL_INCLUDE=%VCPKG_ROOT%\installed\x64-windows\include
 set OPENSSL_LIB=%VCPKG_ROOT%\installed\x64-windows\lib
 set STB_INCLUDE=C:\Users\casta\OneDrive\Documentos\stb-master
 
-set SRC_DIR=C:\Users\casta\OneDrive\Desktop\vscode\terrain\root\src\main\com\app\root\env\map\noise
+set SRC_DIR=C:\Users\casta\OneDrive\Desktop\vscode\terrain\root\src\main\com\app\root\env\_noise
 set MAP_DIR=C:\Users\casta\OneDrive\Desktop\vscode\terrain\root\src\main\com\app\root\env\map
+set ENV_DIR=C:\Users\casta\OneDrive\Desktop\vscode\terrain\root\src\main\com\app\root\env
 
 echo.
 set VS_PATH=C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
@@ -28,7 +29,7 @@ if exist "%VS_PATH%\vcvars64.bat" (
 echo.
 echo Cleaning previous builds...
 del *.obj 2>nul
-del map_generator.dll 2>nul
+del noise_generator.dll 2>nul
 del libcrypto-3-x64.dll 2>nul
 del libssl-3-x64.dll 2>nul
 
@@ -53,10 +54,10 @@ cl /nologo /c /O2 /EHsc /std:c17 ^
     /I"%OPENSSL_INCLUDE%" ^
     /I"%MAP_DIR%" ^
     /I"%STB_INCLUDE%" ^
-    "%MAP_DIR%\map_generator_jni.c"
+    "%ENV_DIR%\noise_generator_jni.c"
 
 if %errorlevel% neq 0 (
-    echo ERROR: Failed to compile map_generator_jni.c
+    echo ERROR: Failed to compile noise_generator_jni.c
     pause
     exit /b 1
 )
@@ -147,9 +148,9 @@ if %errorlevel% neq 0 (
 
 echo.
 echo Linking DLL with link.exe...
-link /nologo /DLL /OUT:map_generator.dll ^
+link /nologo /DLL /OUT:noise_generator.dll ^
     main.obj ^
-    map_generator_jni.obj ^
+    noise_generator_jni.obj ^
     noise.obj ^
     map_generator.obj ^
     poisson_disk.obj ^
@@ -197,8 +198,8 @@ dir *.dll /B
 echo.
 echo Checking for required files...
 set MISSING=0
-if not exist map_generator.dll (
-    echo ERROR: map_generator.dll not created!
+if not exist noise_generator.dll (
+    echo ERROR: noise_generator.dll not created!
     set MISSING=1
 )
 
@@ -227,7 +228,7 @@ if %MISSING% equ 0 (
     echo BUILD SUCCESSFUL!
     echo.
     echo Files created in: %CD%
-    echo 1. map_generator.dll
+    echo 1. noise_generator.dll
     echo 2. libcrypto-3-x64.dll
     echo 3. libssl-3-x64.dll
     echo.
