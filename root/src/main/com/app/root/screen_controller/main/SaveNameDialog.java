@@ -70,7 +70,6 @@ public class SaveNameDialog extends Screen {
         active = false;
         keyboardInputHandler.clear();
         clearEl();
-        screenController.switchTo(ScreenController.SCREENS.MAIN);
     }
 
     /**
@@ -78,6 +77,7 @@ public class SaveNameDialog extends Screen {
      */
     private void cancel() {
         hide();
+        screenController.switchTo(ScreenController.SCREENS.MAIN);
     }
 
     /**

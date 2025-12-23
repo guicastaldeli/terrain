@@ -47,6 +47,11 @@ public class PlayerController {
     private boolean movingLeft = false;
     private boolean movingRight = false;
 
+    public boolean flyMode = false;
+    private float flySpeed = 20.0f;
+    private boolean movingUp = false;
+    private boolean movingDown = false;
+
     public PlayerController(
         Tick tick, 
         Window window,
@@ -122,17 +127,26 @@ public class PlayerController {
     private void applyMov() {
         Vector3f moveForce = new Vector3f();
         float force = movSpeed * rigidBody.getMass();
+        if(flyMode) force = flySpeed * rigidBody.getMass();
         
         Vector3f cameraFront = camera.getFront();
         Vector3f cameraRight = camera.getRight();
         
         Vector3f horizontalFront = new Vector3f(cameraFront.x, 0.0f, cameraFront.z).normalize();
         Vector3f horizontalRight = new Vector3f(cameraRight.x, 0.0f, cameraRight.z).normalize();
-        
+        Vector3f cameraUp = camera.getUp();
+
+        if(flyMode) {
+            horizontalFront = new Vector3f(cameraFront).normalize();
+            horizontalRight = new Vector3f(cameraRight).normalize();
+        }
         if(movingForward) moveForce.add(horizontalFront.mul(force));
         if(movingBackward) moveForce.sub(horizontalFront.mul(force));
         if(movingLeft) moveForce.sub(horizontalRight.mul(force));
         if(movingRight) moveForce.add(horizontalRight.mul(force));
+        if(movingUp) moveForce.add(cameraUp.mul(force));
+        if(movingDown) moveForce.sub(cameraUp.mul(force));
+
         if(moveForce.length() > 0) {
             moveForce.normalize().mul(force);
             rigidBody.applyForce(moveForce);
@@ -140,6 +154,79 @@ public class PlayerController {
         }
     }
 
+    public void jump() {
+        onJump = true;
+    }
+
+    /**
+     * Apply Movement Forces
+     */
+    private void applyMovForces() {
+        Vector3f cameraFront = camera.getFront();
+        Vector3f cameraRight = camera.getRight();
+        Vector3f cameraUp = camera.getUp();
+
+        Vector3f horizontalFront = new Vector3f(
+            cameraFront.x,
+            0.0f,
+            cameraFront.z
+        ).normalize();
+        Vector3f horizontalRight = new Vector3f(
+            cameraRight.x,
+            0.0f,
+            cameraRight.z
+        ).normalize();
+    }
+
+    /**
+     * Add Collider
+     */
+    private void addCollider() {
+        if(collisionManager != null && rigidBody != null) {
+            DynamicObject collider = new DynamicObject(rigidBody, "PLAYER");
+            collisionManager.addDynamicCollider(collider);
+        } else {
+            System.err.println("Cannot create player collider!");
+            if(collisionManager == null) System.err.println("collisionManager is null");
+            if(rigidBody == null) System.err.println("rigidBody is null");
+        }
+    }
+
+    /**
+     * Get Player Mesh
+     */
+    public PlayerMesh getPlayerMesh() {
+        return playerMesh;
+    }
+
+    /**
+     * Get Rigid Body
+     */
+    public RigidBody getRigidBody() {
+        return rigidBody;
+    }
+
+    /**
+     * Fly Mode
+     */
+    public void toggleFlyMode() {
+        flyMode = !flyMode;
+        if(flyMode ){
+            rigidBody.setGravityEnabled(false);
+            Vector3f vel = rigidBody.getVelocity();
+            vel.y = 0;
+            rigidBody.setVelocity(vel);
+            System.out.println("Fly mode: ON");
+        } else {
+            rigidBody.setGravityEnabled(true);
+            System.out.println("Fly mode: OFF");
+        }
+    }
+
+    public boolean isInFlyMode() {
+        return flyMode;
+    }
+ 
     /**
      * Update
      */
@@ -198,9 +285,11 @@ public class PlayerController {
                 movingRight = isPressed;
                 break;
             case UP:
-                if(isPressed) jump();
+                if(isPressed && !flyMode) jump();
+                if(flyMode) movingUp = isPressed;
                 break;
             case DOWN:
+                if(flyMode) movingDown = isPressed;
                 break;
         }
     }
@@ -256,52 +345,6 @@ public class PlayerController {
                 updateAspectRatio();
             });
         }
-    }
-
-    public void jump() {
-        onJump = true;
-    }
-
-    public RigidBody getRigidBody() {
-        return rigidBody;
-    }
-
-    /**
-     * Apply Movement Forces
-     */
-    private void applyMovForces() {
-        Vector3f cameraFront = camera.getFront();
-        Vector3f cameraRight = camera.getRight();
-        Vector3f cameraUp = camera.getUp();
-
-        Vector3f horizontalFront = new Vector3f(
-            cameraFront.x,
-            0.0f,
-            cameraFront.z
-        ).normalize();
-        Vector3f horizontalRight = new Vector3f(
-            cameraRight.x,
-            0.0f,
-            cameraRight.z
-        ).normalize();
-    }
-
-    /**
-     * Add Collider
-     */
-    private void addCollider() {
-        if(collisionManager != null && rigidBody != null) {
-            DynamicObject collider = new DynamicObject(rigidBody, "PLAYER");
-            collisionManager.addDynamicCollider(collider);
-        } else {
-            System.err.println("Cannot create player collider!");
-            if(collisionManager == null) System.err.println("collisionManager is null");
-            if(rigidBody == null) System.err.println("rigidBody is null");
-        }
-    }
-
-    public PlayerMesh getPlayerMesh() {
-        return playerMesh;
     }
 
     public void render() {

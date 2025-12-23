@@ -15,6 +15,7 @@ public class RigidBody {
     private boolean isStatic;
     private boolean onGround;
 
+    private boolean gravityEnabled = true;
     private float gravity = -9.81f;
     private float gravityScale = 3.0f;
     private float drag = 0.1f;
@@ -105,6 +106,17 @@ public class RigidBody {
     }
 
     /**
+     * Gravity
+     */
+    public void setGravityEnabled(boolean enabled) {
+        this.gravityEnabled = enabled;
+    }
+
+    public boolean isGravityEnabled() {
+        return gravityEnabled;
+    }
+
+    /**
      * Bounding Box
      */
     public BoundingBox getBoundingBox() {
@@ -125,10 +137,11 @@ public class RigidBody {
         float deltaTime = tick.getDeltaTime();
         if(isStatic) return;
 
-        if(!onGround) {
-            applyForce(new Vector3f(0, gravity * mass * gravityScale, 0));
+        if(!onGround && gravityEnabled) {
+            applyForce(
+                new Vector3f(0, gravity * mass * gravityScale, 0)
+            );
         }
-
         velocity.add(acceleration.mul(deltaTime, new Vector3f()));
         velocity.mul(1.0f - (drag * deltaTime));
         
@@ -149,3 +162,8 @@ public class RigidBody {
         acceleration.set(0, 0, 0);
     }
 }
+
+
+
+
+

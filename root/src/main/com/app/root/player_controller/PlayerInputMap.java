@@ -5,6 +5,7 @@ public class PlayerInputMap {
     private final PlayerController playerController;
 
     private boolean[] keyPressed = new boolean[GLFW_KEY_LAST + 1];
+    private boolean fKeyPressed = false;
     private boolean rightMousePressed = false;
 
     public PlayerInputMap(PlayerController playerController) {
@@ -58,16 +59,23 @@ public class PlayerInputMap {
      * Keyboard Callback
      */
     public void keyboardCallback() {
+        if(keyPressed[GLFW_KEY_F] && !fKeyPressed) {
+            playerController.toggleFlyMode();
+            fKeyPressed = true;
+        } else if(!keyPressed[GLFW_KEY_F]) {
+            fKeyPressed = false;
+        }
+
         playerController.updatePosition(PlayerController.MovDir.FORWARD, keyPressed[GLFW_KEY_W]);
         playerController.updatePosition(PlayerController.MovDir.BACKWARD, keyPressed[GLFW_KEY_S]);
         playerController.updatePosition(PlayerController.MovDir.LEFT, keyPressed[GLFW_KEY_A]);
         playerController.updatePosition(PlayerController.MovDir.RIGHT, keyPressed[GLFW_KEY_D]);
         
-        if(keyPressed[GLFW_KEY_SPACE]) {
+        if(!playerController.isInFlyMode() && keyPressed[GLFW_KEY_SPACE]) {
             playerController.updatePosition(PlayerController.MovDir.UP, true);
             keyPressed[GLFW_KEY_SPACE] = false;
         }
-        if(keyPressed[GLFW_KEY_LEFT_SHIFT]) {
+        if(!playerController.isInFlyMode() && keyPressed[GLFW_KEY_LEFT_SHIFT]) {
             playerController.updatePosition(PlayerController.MovDir.DOWN, true);
         }
     }
