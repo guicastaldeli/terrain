@@ -13,10 +13,10 @@ public class AxeData {
     private static final String OBJ_PATH = "root/src/main/com/app/root/mesh/obj_list.lua";
 
     public String name;
-    public final String indexTo;
+    public String indexTo;
     public int level;
-    public final float damage;
-    public final float speed;
+    public float damage;
+    public float speed;
     public float woodMultiplier;
     public String currModel;
     public String texturePath;
@@ -104,19 +104,19 @@ public class AxeData {
      * Default Configs
      */
     public void createDefaultConfigs() {
-        System.out.println("Creating default tree configurations...");
+        System.out.println("Creating default axe configurations...");
         for(int l = 0; l <= 10; l++) {
             AxeData data = new AxeData(
                 "axe" + l,
                 OBJ_PATH + l,
                 l,
-                damage,
-                speed,
-                (int) woodMultiplier,
+                10.0f + (l * 5),
+                1.0f + (l * 0.1f),
+                1 + l,
                 OBJ_PATH + l + ".obj",
                 OBJ_PATH + l + ".png",
-                upgradeCost,
-                scale
+                100 + (l * 50),
+                new Vector3f(1.0f, 1.0f, 1.0f)
             );
             configs.put(l, data);
         }

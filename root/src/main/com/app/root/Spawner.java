@@ -58,11 +58,15 @@ public class Spawner {
         this.levelDistribution = new HashMap<>();
         initLevelDistribution();
 
+        this.treeData = new TreeData();
+        this.treeData.createDefaultConfigs();
+        this.isActive = true;
+
         initialSpawn();
     }
 
     private void initLevelDistribution() {
-         levelDistribution.put(0, 0.7f);
+        levelDistribution.put(0, 0.7f);
         levelDistribution.put(1, 0.15f);
         levelDistribution.put(2, 0.07f);
         levelDistribution.put(3, 0.04f);
@@ -102,9 +106,6 @@ public class Spawner {
 
         Object treeInstance = envController.getEnv(EnvData.TREE).getInstance();
         Object treeGenerator = EnvCall.callReturn(treeInstance, "getGenerator");
-        
-        Object[] params = new Object[]{data, position, mesh};
-        EnvCall.callWithParams(treeGenerator, params, "createGenerator");
 
         EnvCall.call(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
         treeData.trees.add((TreeController) treeInstance);
@@ -187,9 +188,6 @@ public class Spawner {
         if(data != null) {
             Object treeInstance = envController.getEnv(EnvData.TREE).getInstance();
             Object treeGenerator = EnvCall.callReturn(treeInstance, "getGenerator");
-            
-            Object[] params = new Object[]{data, position, mesh};
-            EnvCall.callWithParams(treeGenerator, params, "createGenerator");
             
             EnvCall.callReturn(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
             treeData.trees.add((TreeController) treeInstance);

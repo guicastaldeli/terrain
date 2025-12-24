@@ -15,20 +15,21 @@ public class TreeData {
     private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/tree/tree";
 
     private String name;
-    private final String indexTo;
-    private final int level;
-    private final float health;
-    private final int woodMin;
-    private final int woodMax;
-    private final float respawnTime;
+    private String indexTo;
+    private int level;
+    private float health;
+    private int woodMin;
+    private int woodMax;
+    private float respawnTime;
     private String modelPath;
     private String texturePath;
     private Vector3f scale;
 
-    public final List<TreeController> trees;
-    public final Map<Integer, TreeData> configs;
+    public List<TreeController> trees;
+    public Map<Integer, TreeData> configs;
     public int currentTreeId;
     
+    public TreeData() {}
     public TreeData(
         String name,
         String indexTo,

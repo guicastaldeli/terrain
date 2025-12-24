@@ -1,6 +1,9 @@
 package main.com.app.root;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player_controller.PlayerController;
+
+import org.joml.Vector3f;
+
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvController;
@@ -19,6 +22,9 @@ public class Scene {
     private EnvRenderer envRenderer;
     private DependencyContainer dependencyContainer;
     private CollisionManager collisionManager;
+
+    private Spawner spawner;
+    private Upgrader upgrader;
 
     public boolean init = false;
 
@@ -78,7 +84,21 @@ public class Scene {
             );
     
             this.envController = new EnvController(dependencyContainer);
-            this.envRenderer = new EnvRenderer(envController, collisionManager);
+            this.envRenderer = new EnvRenderer(
+                envController, 
+                collisionManager,
+                playerController
+            );
+
+            this.spawner = new Spawner(
+                tick, 
+                mesh,
+                new Vector3f(0, 0, 0),
+                100,
+                200.0f,
+                envController 
+            );
+            this.upgrader = new Upgrader(envController);
             start();
             
             this.init = true;
@@ -91,6 +111,9 @@ public class Scene {
     private void start() {
         mesh.addModel("dino", "dino");
         envRenderer.render();
+
+        spawner.setActive(true);
+        spawner.printSpawnerStatus();
     }
 
     /**
@@ -102,6 +125,7 @@ public class Scene {
         collisionManager.updateDynamicColliders(tick.getDeltaTime());
         mesh.update();
         envRenderer.update();
+        spawner.update();
     }
 
     /**
@@ -112,5 +136,6 @@ public class Scene {
 
         playerController.render();
         mesh.renderAll();
+        spawner.render();
     }
 }
