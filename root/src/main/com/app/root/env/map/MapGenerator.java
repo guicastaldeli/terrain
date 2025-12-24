@@ -262,6 +262,23 @@ public class MapGenerator {
         }
     }
 
+    public float getHeightAt(float x, float z) {
+        if(heightMapData == null) return 0.0f;
+    
+        int mapX = (int)(x + mapWidth / 2.0f);
+        int mapZ = (int)(z + mapHeight / 2.0f);
+        
+        mapX = Math.max(0, Math.min(mapWidth - 1, mapX));
+        mapZ = Math.max(0, Math.min(mapHeight - 1, mapZ));
+        
+        int index = mapX * mapHeight + mapZ;
+        if(index >= 0 && index < heightMapData.length) {
+            return heightMapData[index];
+        }
+        
+        return 0.0f;
+    }
+
     /**
      * Generate
      */

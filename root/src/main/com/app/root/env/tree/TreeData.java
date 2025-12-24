@@ -3,60 +3,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.joml.Vector3f;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
 public class TreeData {
     private static final String DATA_PATH = "root/src/main/com/app/root/_data/tree_data.lua";
-    private static final String OBJ_LIST_PATH = "root/src/main/com/app/root/_data/obj_list";
-    private static final String OBJ_PATH = "root/src/main/com/app/root/_resources/obj/tree/tree";
-    private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/tree/tree";
 
-    private String name;
     private String indexTo;
     private int level;
     private float health;
     private int woodMin;
     private int woodMax;
     private float respawnTime;
-    private String modelPath;
-    private String texturePath;
-    private Vector3f scale;
 
     public List<TreeController> trees;
     public Map<Integer, TreeData> configs;
     public int currentTreeId;
     
     public TreeData() {}
-    public TreeData(
-        String name,
-        String indexTo,
-        int level,
-        float health,
-        int woodMin,
-        int woodMax,
-        float respawnTime,
-        String modelPath,
-        String texturePath,
-        Vector3f scale
-    ) {
-        this.name = name;
-        this.indexTo = indexTo;
-        this.level = level;
-        this.health = health;
-        this.woodMin = woodMin;
-        this.woodMax = woodMax;
-        this.respawnTime = respawnTime;
-        this.modelPath = modelPath;
-        this.texturePath = texturePath;
-        this.scale = scale;
-
-        this.trees = new ArrayList<>();
-        this.configs = new HashMap<>();
-        this.currentTreeId = 0;
-    }
     public TreeData(
         String indexTo,
         int level,
@@ -74,6 +39,7 @@ public class TreeData {
 
         this.trees = new ArrayList<>();
         this.configs = new HashMap<>();
+        this.currentTreeId = 0;
     }
 
     /**
@@ -96,7 +62,7 @@ public class TreeData {
                         data.get("wood_max").toint(),
                         (float)data.get("respawn_time").todouble()
                     );
-                    configs.put(getLevel(), dataInstance);
+                    configs.put(dataInstance.getLevel(), dataInstance);
                 } 
             }
         } catch(Exception err) {
@@ -110,24 +76,18 @@ public class TreeData {
     public void createDefaultConfigs() {
         System.out.println("Creating default tree configurations...");
         for(int l = 0; l <= 10; l++) {
+            String indexTo = "tree" + l;
+            
             TreeData data = new TreeData(
-                "tree" + l,
-                OBJ_LIST_PATH + l,
+                indexTo,
                 l,
                 100 + (l * 50),
                 10 + (l * 2),
                 20 + (l * 2),
-                30.0f + (l * 10),
-                OBJ_PATH + l + ".obj",
-                TEX_PATH + l + ".png",
-                new Vector3f(1.0f + (l * 0.1f), 1.0f + (l * 0.1f), 1.0f + (l * 0.1f))
+                30.0f + (l * 10)
             );
             configs.put(l, data);
         }
-    }
-
-    public String getName() { 
-        return name; 
     }
     
     public String getIndexTo() { 
@@ -151,18 +111,6 @@ public class TreeData {
 
     public float getRespawnTime() { 
         return respawnTime; 
-    }
-
-    public String getModelPath() { 
-        return modelPath; 
-    }
-
-    public String getTexturePath() { 
-        return texturePath; 
-    }
-
-    public Vector3f getScale() { 
-        return scale; 
     }
 
     @Override

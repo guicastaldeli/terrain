@@ -1,10 +1,8 @@
 package main.com.app.root.env.axe;
-import org.joml.Vector3f;
-
 import main.com.app.root.DependencyValue;
 import main.com.app.root.env.EnvInstance;
 import main.com.app.root.mesh.Mesh;
-import main.com.app.root.mesh.MeshLoader;
+import org.joml.Vector3f;
 
 public class AxeController implements EnvInstance<AxeController> {
     @DependencyValue private Mesh mesh;
@@ -26,10 +24,10 @@ public class AxeController implements EnvInstance<AxeController> {
 
     private void createMesh() {
         try {
-            MeshLoader.loadModel(AXE_ID, axeData.getCurrentModel());
-            mesh.addModel(AXE_ID, axeData.getCurrentModel());
-        } catch(Exception e) {
-            System.err.println("Failed to load axe model: " + axeData.getCurrentModel());
+            String axeName = "axe" + axeData.getLevel();
+            mesh.addModel(AXE_ID, axeName);
+        } catch(Exception err) {
+            System.err.println("Failed to load axe model: " + axeData + ": " + err.getMessage());
         }
     }
 
@@ -87,9 +85,6 @@ public class AxeController implements EnvInstance<AxeController> {
                 axeData.speed = newConfig.speed;
                 axeData.woodMultiplier = newConfig.woodMultiplier;
                 axeData.upgradeCost = newConfig.upgradeCost;
-                axeData.currModel = newConfig.currModel;
-                axeData.texturePath = newConfig.texturePath;
-                axeData.scale = newConfig.scale;
             }
             updateMesh();
             System.out.println("Axe upgraded to level " + axeData.level);

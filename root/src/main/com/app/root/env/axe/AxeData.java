@@ -3,7 +3,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.joml.Vector3f;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
@@ -11,18 +10,14 @@ import org.luaj.vm2.lib.jse.JsePlatform;
 public class AxeData {
     private static final String DATA_PATH = "root/src/main/com/app/root/_data/axe_data.lua";
     private static final String OBJ_LIST_PATH = "root/src/main/com/app/root/_data/obj_list.lua";
-    private static final String OBJ_PATH = "root/src/main/com/app/root/_resources/item";
-    private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/item";
+    private static final String OBJ_PATH = "root/src/main/com/app/root/_resources/item/";
+    private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/item/";
 
-    public String name;
     public String indexTo;
     public int level;
     public float damage;
     public float speed;
     public float woodMultiplier;
-    public String currModel;
-    public String texturePath;
-    public Vector3f scale;
     public int upgradeCost;
 
     public final List<AxeController> axes;
@@ -30,37 +25,11 @@ public class AxeData {
     public int currentAxeId;
     
     public AxeData(
-        String name,
         String indexTo,
         int level,
         float damage,
         float speed,
-        int woodMultiplier,
-        String currModel,
-        String texturePath,
-        int upgradeCost,
-        Vector3f scale
-    ) {
-        this.name = name;
-        this.indexTo = indexTo;
-        this.level = level;
-        this.damage = damage;
-        this.speed = speed;
-        this.woodMultiplier = woodMultiplier;
-        this.currModel = currModel;
-        this.texturePath = texturePath;
-        this.scale = scale;
-
-        this.axes = new ArrayList<>();
-        this.configs = new HashMap<>();
-        this.currentAxeId = 0;
-    }
-    public AxeData(
-        String indexTo,
-        int level,
-        float damage,
-        float speed,
-        int woodMultiplier,
+        float woodMultiplier,
         int upgradeCost
     ) {
         this.indexTo = indexTo;
@@ -72,6 +41,7 @@ public class AxeData {
 
         this.axes = new ArrayList<>();
         this.configs = new HashMap<>();
+        this.currentAxeId = 0;
     }
 
     /**
@@ -89,12 +59,12 @@ public class AxeData {
                     AxeData dataInstance = new AxeData(
                         data.get("indexTo").tojstring(),
                         data.get("level").toint(),
-                        (float) data.get("damage").toint(),
-                        (float) data.get("speed").toint(),
-                        data.get("wood_multiplier").toint(),
+                        (float)data.get("damage").todouble(),
+                        (float)data.get("speed").todouble(),
+                        (float)data.get("wood_multiplier").todouble(),
                         data.get("upgrade_cost").toint()
                     );
-                    configs.put(getLevel(), dataInstance);
+                    configs.put(dataInstance.getLevel(), dataInstance);
                 } 
             }
         } catch(Exception err) {
@@ -108,17 +78,15 @@ public class AxeData {
     public void createDefaultConfigs() {
         System.out.println("Creating default axe configurations...");
         for(int l = 0; l <= 10; l++) {
+            String indexTo = "axe" + l;
+
             AxeData data = new AxeData(
-                "axe" + l,
-                OBJ_PATH + l,
+                indexTo,
                 l,
                 10.0f + (l * 5),
                 1.0f + (l * 0.1f),
                 1 + l,
-                OBJ_PATH + l + ".obj",
-                OBJ_PATH + l + ".png",
-                100 + (l * 50),
-                new Vector3f(1.0f, 1.0f, 1.0f)
+                100 + (l * 50)
             );
             configs.put(l, data);
         }
@@ -128,28 +96,12 @@ public class AxeData {
         return indexTo; 
     }
 
-    public String getName() { 
-        return name; 
-    }
-
     public int getLevel() { 
         return level; 
     }
 
     public float getDamage() { 
         return damage; 
-    }
-
-    public String getCurrentModel() { 
-        return currModel; 
-    }
-
-    public String getTexturePath() { 
-        return texturePath; 
-    }
-
-    public Vector3f getScale() { 
-        return scale; 
     }
 
     @Override

@@ -110,7 +110,7 @@ public class Spawner {
         EnvCall.call(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
         treeData.trees.add((TreeController) treeInstance);
 
-        System.out.println("Spawned " + data.getName() + " (Level " + level + 
+        System.out.println("Spawned " + data.getIndexTo() + " (Level " + level + 
                           ") at [" + position.x + ", " + position.z + "]");
     }
 
@@ -120,10 +120,11 @@ public class Spawner {
     private Vector3f genRandomPos() {
         float angle = random.nextFloat() * (float) Math.PI * 2;
         float distance = minSpawnDistance + random.nextFloat() * (maxSpawnDistance - minSpawnDistance);
+        Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
+        Object mapGenerator = EnvCall.callReturn(mapInstance, "getGenerator", "getHeightAt");
 
         float x = centerPosition.x + (float) Math.cos(angle) * distance;
-        //Get the terrain height
-        float y = 0.0f; //terrain height
+        float y = (float) mapGenerator;
         float z = centerPosition.z + (float) Math.sin(angle) * distance;
 
         return new Vector3f(x, y, z);
