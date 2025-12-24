@@ -10,7 +10,9 @@ import org.luaj.vm2.lib.jse.JsePlatform;
 
 public class TreeData {
     private static final String DATA_PATH = "root/src/main/com/app/root/_data/tree_data.lua";
-    private static final String OBJ_PATH = "root/src/main/com/app/root/mesh/obj_list";
+    private static final String OBJ_LIST_PATH = "root/src/main/com/app/root/mesh/obj_list";
+    private static final String OBJ_PATH = "root/src/main/com/app/root/_resources/obj/tree/tree";
+    private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/tree/tree";
 
     private String name;
     private final String indexTo;
@@ -108,18 +110,18 @@ public class TreeData {
         System.out.println("Creating default tree configurations...");
         for(int l = 0; l <= 10; l++) {
             TreeData data = new TreeData(
-                "tree" + level,
-                OBJ_PATH + level,
-                level,
-                100 + (level * 50),
-                10 + (level * 2),
-                20 + (level * 2),
-                30.0f + (level * 10),
-                OBJ_PATH + level + ".obj",
-                OBJ_PATH + level + ".png",
-                new Vector3f(1.0f + (level * 0.1f), 1.0f + (level * 0.1f), 1.0f + (level * 0.1f))
+                "tree" + l,
+                OBJ_LIST_PATH + l,
+                l,
+                100 + (l * 50),
+                10 + (l * 2),
+                20 + (l * 2),
+                30.0f + (l * 10),
+                OBJ_PATH + l + ".obj",
+                TEX_PATH + l + ".png",
+                new Vector3f(1.0f + (l * 0.1f), 1.0f + (l * 0.1f), 1.0f + (l * 0.1f))
             );
-            configs.put(getLevel(), data);
+            configs.put(l, data);
         }
     }
 

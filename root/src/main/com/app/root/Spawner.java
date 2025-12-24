@@ -189,7 +189,7 @@ public class Spawner {
             Object treeGenerator = EnvCall.callReturn(treeInstance, "getGenerator");
             
             Object[] params = new Object[]{data, position, mesh};
-            EnvCall.callWithParams(treeGenerator, params, "create");
+            EnvCall.callWithParams(treeGenerator, params, "createGenerator");
             
             EnvCall.callReturn(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
             treeData.trees.add((TreeController) treeInstance);
@@ -207,7 +207,7 @@ public class Spawner {
             Object treeGenerator = EnvCall.callReturn(treeInstance, "getGenerator");
             
             Object[] params = new Object[]{data, position, mesh};
-            EnvCall.callWithParams(treeGenerator, params, "create");
+            EnvCall.callWithParams(treeGenerator, params, "createGenerator");
             
             EnvCall.callReturn(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
             treeData.trees.add((TreeController) treeInstance);

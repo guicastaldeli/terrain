@@ -1,7 +1,5 @@
 package main.com.app.root.env.tree;
 import main.com.app.root.mesh.Mesh;
-import main.com.app.root.mesh.MeshLoader;
-
 import java.util.Random;
 import org.joml.Vector3f;
 
@@ -36,18 +34,22 @@ public class TreeGenerator {
      */
     private void createMesh() {
         try {
-            MeshLoader.loadModel(MESH_ID, treeData.getModelPath());
             mesh.addModel(MESH_ID, treeData.getModelPath());
-            //Render latewr in the spawner
+            mesh.setPosition(MESH_ID, position);
+            
             System.out.println("Created mesh for " + treeData.getName() + " at [" + 
-                              position.x + ", " + position.z + "]");
+                              position.x + ", " + position.z + "] with scale " + treeData.getScale());
         } catch(Exception e) {
             System.err.println("Failed to create mesh for " + treeData.getName() + ": " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private void destroyMesh() {
-        System.out.println("Mesh destroyed for " + treeData.getName());
+        if(mesh.hasMesh(MESH_ID)) {
+            mesh.removeMesh(MESH_ID);
+            System.out.println("Mesh destroyed for " + treeData.getName());
+        }
     }
 
     public int takeDamage(int damage, int axeLevel) {

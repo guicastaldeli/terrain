@@ -5,6 +5,7 @@ import main.com.app.root.player_controller.PlayerController;
 import java.util.HashMap;
 import java.util.Map;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 public class Mesh {
     private final Tick tick;
@@ -117,6 +118,29 @@ public class Mesh {
             MeshData data = meshDataMap.get(id);
             if(data != null) entry.getValue().render(data.getShaderType());
         }
+    }
+
+    public boolean hasMesh(String id) {
+        return meshRendererMap.containsKey(id);
+    }
+
+    public void setPosition(String id, Vector3f position) {
+        MeshRenderer renderer = meshRendererMap.get(id);
+        if(renderer != null) {
+            renderer.setPosition(position);
+        }
+    }
+    
+    /**
+     * Remove Mesh
+     */
+    public void removeMesh(String id) {
+        MeshRenderer renderer = meshRendererMap.remove(id);
+        MeshData data = meshDataMap.remove(id);
+        if(renderer != null) {
+            renderer.cleanup();
+        }
+        System.out.println("Removed mesh: " + id);
     }
 
     public void cleanup() {

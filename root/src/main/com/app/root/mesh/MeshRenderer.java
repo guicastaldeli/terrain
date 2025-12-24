@@ -6,6 +6,8 @@ import main.com.app.root.player_controller.PlayerController;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
@@ -173,6 +175,17 @@ public class MeshRenderer {
     }
 
     /**
+     * Set Position
+     */
+    public void setPosition(Vector3f position) {
+        modelMatrix.translation(position.x, position.y, position.z);
+    }
+
+    public void setPosition(float x, float y, float z) {
+        modelMatrix.translation(x, y, z);
+    }
+
+    /**
      * Set Scale
      */
     public void setScale() {
@@ -181,7 +194,16 @@ public class MeshRenderer {
             modelMatrix.scale(scale[0], scale[1], scale[2]);
         }
     }
+    public void setScale(Vector3f scale) {
+        modelMatrix.scale(scale.x, scale.y, scale.z);
+    }
+    public void setScale(float x, float y, float z) {
+        modelMatrix.scale(x, y, z);
+    }
 
+    /**
+     * Set Model Matrix
+     */
     public void setModelMatrix(Matrix4f matrix) {
         this.modelMatrix.set(matrix);
     }
