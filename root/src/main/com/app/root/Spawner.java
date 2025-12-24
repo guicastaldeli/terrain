@@ -18,7 +18,7 @@ import org.joml.Vector3f;
 public class Spawner {
     private final Tick tick;
     private final Mesh mesh;
-    private final EnvController envController;
+    private EnvController envController;
 
     private Vector3f centerPosition;
     private int maxObjs;
@@ -44,12 +44,10 @@ public class Spawner {
         Mesh mesh,
         Vector3f centerPosition,
         int maxObjs,
-        float spawnRadius,
-        EnvController envController
+        float spawnRadius
     ) {
         this.tick = tick;
         this.mesh = mesh;
-        this.envController = envController;
 
         this.centerPosition = centerPosition;
         this.maxObjs = maxObjs;
@@ -111,7 +109,7 @@ public class Spawner {
          * 
          */
         TreeController treeController = new TreeController();
-        treeController.createGenerator(data, position, mesh);
+        treeController.createGenerator(data, position, mesh, this);
         
         TreeGenerator treeGenerator = treeController.getGenerator();
         if(treeGenerator == null) {
@@ -347,6 +345,77 @@ public class Spawner {
                           treeData.trees.size() + " total (max: " + maxObjs + ")");
         System.out.println("Radius: " + spawnRadius);
         System.out.println("======================");
+    }
+
+    /**
+     * Spawn Tree At Level
+     */
+    private void spawnTreeAtLevel(Vector3f position, int level) {
+        if(!isActive || treeData.trees.size() >= maxObjs) return;
+
+        TreeData data = treeData.configs.get(level);
+        if(data == null) {
+            data = treeData.configs.get(0);
+            System.err.println("No config for level " + level + ", using level 0");
+        }
+
+        TreeController treeController = new TreeController();
+        treeController.createGenerator(data, position, mesh, this);
+        
+        TreeGenerator treeGenerator = treeController.getGenerator();
+        if(treeGenerator == null) {
+            System.err.println("Failed to create tree generator for level " + level);
+            return;
+        }
+        treeGenerator.mesh = this.mesh;
+        
+        String treeId = "tree" + treeData.currentTreeId++;
+        treeGenerator.setId(treeId);
+        
+        treeData.trees.add(treeController);
+        System.out.println("Spawned Level " + level + " tree at [" + 
+                          position.x + ", " + position.z + "]");
+    }
+
+    /**
+     * Handle Tree Break
+     */
+    public void handleTreeBreak(Vector3f position, int currLevel) {
+        cleanupTreeAtPos(position);
+        
+        int nextLevel = currLevel + 1;
+        if(!treeData.configs.containsKey(nextLevel)) {
+            System.out.println("No config for level " + nextLevel + ", spawning base level instead");
+            nextLevel = 0;
+        }
+        
+        spawnTreeAtLevel(position, nextLevel);
+    }
+
+    /**
+     * Cleanup Tree At Pos
+     */
+    private void cleanupTreeAtPos(Vector3f position) {
+        float cleanupRadius = 1.0f;
+        for(Iterator<TreeController> iterator = treeData.trees.iterator(); iterator.hasNext();) {
+            TreeController tree = iterator.next();
+            Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
+            if(treeGenerator == null) continue;
+            
+            Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
+            float distance = treePos.distance(position);
+            
+            if(distance <= cleanupRadius) {
+                EnvCall.call(treeGenerator, "cleanup");
+                iterator.remove();
+                System.out.println("Cleaned up tree at position [" + position.x + ", " + position.z + "]");
+                break;
+            }
+        }
+    }
+
+    public void setEnvController(EnvController envController) {
+        this.envController = envController;
     }
 
     /**

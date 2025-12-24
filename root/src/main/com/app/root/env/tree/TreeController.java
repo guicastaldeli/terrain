@@ -1,11 +1,13 @@
 package main.com.app.root.env.tree;
 import main.com.app.root.DependencyValue;
+import main.com.app.root.Spawner;
 import main.com.app.root.env.EnvInstance;
 import main.com.app.root.mesh.Mesh;
 import org.joml.Vector3f;
 
 public class TreeController implements EnvInstance<TreeController> {
     @DependencyValue private Mesh mesh;
+    @DependencyValue private Spawner spawner;
 
     private TreeGenerator treeGenerator;
 
@@ -18,8 +20,8 @@ public class TreeController implements EnvInstance<TreeController> {
         return treeGenerator;
     }
 
-    public void createGenerator(TreeData treeData, Vector3f position, Mesh mesh) {
-        this.treeGenerator = new TreeGenerator(treeData, position, mesh);
+    public void createGenerator(TreeData treeData, Vector3f position, Mesh mesh, Spawner spawner) {
+        this.treeGenerator = new TreeGenerator(treeData, position, mesh, spawner);
     }
     
     public void cleanup() {

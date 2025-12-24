@@ -63,6 +63,14 @@ public class Scene {
 
             this.mesh = new Mesh(tick, shaderProgram);
 
+            this.spawner = new Spawner(
+                tick, 
+                mesh,
+                new Vector3f(0, 0, 0),
+                100,
+                200.0f
+            );
+
             this.dependencyContainer = new DependencyContainer();
             dependencyContainer.registerAll(
                 tick,
@@ -71,19 +79,13 @@ public class Scene {
                 mesh.getMeshRenderer(),
                 dataController,
                 stateController,
-                collisionManager
+                collisionManager,
+                spawner
             );
     
             this.envController = new EnvController(dependencyContainer);
+            spawner.setEnvController(envController);
             
-            this.spawner = new Spawner(
-                tick, 
-                mesh,
-                new Vector3f(0, 0, 0),
-                100,
-                200.0f,
-                envController 
-            );
             this.upgrader = new Upgrader(envController);
 
             this.playerController = new PlayerController(

@@ -1,4 +1,5 @@
 package main.com.app.root.env.tree;
+import main.com.app.root.Spawner;
 import main.com.app.root._resources.TextureLoader;
 import main.com.app.root.mesh.Mesh;
 import java.util.Random;
@@ -7,6 +8,7 @@ import org.joml.Vector3f;
 public class TreeGenerator {
     private final TreeData treeData;
     private final Vector3f position;
+    private Spawner spawner;
 
     public Mesh mesh;
     private final String MESH_ID;
@@ -18,10 +20,11 @@ public class TreeGenerator {
     private float respawnTimer;
     private Random random;
 
-    public TreeGenerator(TreeData treeData, Vector3f position, Mesh mesh) {
+    public TreeGenerator(TreeData treeData, Vector3f position, Mesh mesh, Spawner spawner) {
         this.treeData = treeData;
         this.position = position;
         this.mesh = mesh;
+        this.spawner = spawner;
         this.MESH_ID = "tree_" + System.currentTimeMillis() + "_" + treeData.getLevel();
 
         this.currHealth = treeData.getHealth();
@@ -90,6 +93,9 @@ public class TreeGenerator {
                 );
 
             System.out.println(treeData.getIndexTo() + " destroyed! Dropping " + woodDrop + " wood.");
+            if(spawner != null) {
+                spawner.handleTreeBreak(new Vector3f(position), treeData.getLevel());
+            }
             return woodDrop;
         }
 
