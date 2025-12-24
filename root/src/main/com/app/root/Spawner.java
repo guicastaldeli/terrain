@@ -123,9 +123,11 @@ public class Spawner {
 
         treeData.trees.add(treeController);
         
+        /*
         System.out.println("Successfully spawned " + data.getIndexTo() + 
                         " (Level " + level + ") at [" + 
                         position.x + ", " + position.z + "]");
+                        */
     }
 
     /**
@@ -338,6 +340,7 @@ public class Spawner {
     }
 
     public void printSpawnerStatus() {
+        /*
         System.out.println("=== SPAWNER STATUS ===");
         System.out.println("Active: " + isActive);
         System.out.println("Center: [" + centerPosition.x + ", " + centerPosition.z + "]");
@@ -345,6 +348,7 @@ public class Spawner {
                           treeData.trees.size() + " total (max: " + maxObjs + ")");
         System.out.println("Radius: " + spawnRadius);
         System.out.println("======================");
+        */
     }
 
     /**

@@ -1,5 +1,6 @@
 package main.com.app.root.env.axe;
 import main.com.app.root.DependencyValue;
+import main.com.app.root._resources.TextureLoader;
 import main.com.app.root.env.EnvInstance;
 import main.com.app.root.mesh.Mesh;
 import org.joml.Vector3f;
@@ -8,6 +9,7 @@ public class AxeController implements EnvInstance<AxeController> {
     @DependencyValue private Mesh mesh;
 
     private final String AXE_ID = "AXE"; 
+    private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/item/";
     private AxeData axeData;
 
     @Override
@@ -18,10 +20,23 @@ public class AxeController implements EnvInstance<AxeController> {
         return this;
     }
 
+    /**
+     * Load Texure
+     */
+    private void loadTex(String name) {
+        int id = TextureLoader.load(TEX_PATH + name + ".png");
+        if(id <= 0) {
+            System.err.println("FAILED to load texture!");
+            return;
+        }
+        mesh.setTex(AXE_ID, id);
+    }
+
     private void createMesh() {
         try {
             String axeName = "axe" + axeData.getLevel();
             mesh.addModel(AXE_ID, axeName);
+            loadTex(axeName);
         } catch(Exception err) {
             System.err.println("Failed to load axe model: " + axeData + ": " + err.getMessage());
         }

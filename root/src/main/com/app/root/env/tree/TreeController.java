@@ -20,8 +20,18 @@ public class TreeController implements EnvInstance<TreeController> {
         return treeGenerator;
     }
 
-    public void createGenerator(TreeData treeData, Vector3f position, Mesh mesh, Spawner spawner) {
-        this.treeGenerator = new TreeGenerator(treeData, position, mesh, spawner);
+    public void createGenerator(
+        TreeData treeData, 
+        Vector3f position, 
+        Mesh mesh, 
+        Spawner spawner
+    ) {
+        this.treeGenerator = new TreeGenerator(
+            treeData, 
+            position, 
+            mesh, 
+            spawner
+        );
     }
     
     public void cleanup() {
