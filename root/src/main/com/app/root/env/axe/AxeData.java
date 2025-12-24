@@ -76,7 +76,7 @@ public class AxeData {
      * Default Configs
      */
     public void createDefaultConfigs() {
-        System.out.println("Creating default axe configurations...");
+        //System.out.println("Creating default axe configurations...");
         for(int l = 0; l <= 10; l++) {
             String indexTo = "axe" + l;
 

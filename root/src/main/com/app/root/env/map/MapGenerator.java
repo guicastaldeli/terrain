@@ -2,7 +2,6 @@ package main.com.app.root.env.map;
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
 import main.com.app.root.Tick;
-import main.com.app.root._resources.TextureLoader;
 import main.com.app.root._save.SaveFile;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;
@@ -60,17 +59,6 @@ public class MapGenerator {
         this.dataController = dataController;
         this.stateController = stateController;
         this.collisionManager = collisionManager;
-    }
-
-    private void loadTex() {
-        String path = "C:/Users/casta/OneDrive/Desktop/vscode/terrain/root/src/main/com/app/root/_resources/texture/joe.png";
-        int id = TextureLoader.load(path);
-        if(id <= 0) {
-            System.err.println("FAILED to load texture!");
-            return;
-        }
-        
-        mesh.setTex(MAP_ID, id);
     }
 
     private float[] createVertices(float[] heightData) {

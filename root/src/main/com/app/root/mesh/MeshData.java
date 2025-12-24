@@ -28,7 +28,8 @@ public class MeshData {
         RECTANGLE,
         MAP,
         SKYBOX,
-        CLOUDS
+        CLOUDS,
+        OBJ
     }
 
     private final Map<DataType, Object> data;

@@ -12,6 +12,7 @@ public class PlayerMesh {
     private final PlayerController playerController;
 
     private static final String PLAYER_MESH_ID = "PLAYER_MESH";
+    private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/misc/dino.png";
     private final Mesh mesh;
     private MeshData meshData;
     private Vector3f meshOffset;
@@ -38,8 +39,7 @@ public class PlayerMesh {
      * Load Texure
      */
     private void loadTex() {
-        String path = "C:/Users/casta/OneDrive/Desktop/vscode/terrain/root/src/main/com/app/root/_resources/texture/dino.png";
-        int id = TextureLoader.load(path);
+        int id = TextureLoader.load(TEX_PATH);
         if(id <= 0) {
             System.err.println("FAILED to load texture!");
             return;

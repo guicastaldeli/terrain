@@ -1,4 +1,5 @@
 package main.com.app.root.env.tree;
+import main.com.app.root._resources.TextureLoader;
 import main.com.app.root.mesh.Mesh;
 import java.util.Random;
 import org.joml.Vector3f;
@@ -6,8 +7,10 @@ import org.joml.Vector3f;
 public class TreeGenerator {
     private final TreeData treeData;
     private final Vector3f position;
+
     public Mesh mesh;
     private final String MESH_ID;
+    private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/env/";
     
     private String id;
     private float currHealth;
@@ -30,6 +33,18 @@ public class TreeGenerator {
     }
 
     /**
+     * Load Texure
+     */
+    private void loadTex(String name) {
+        int id = TextureLoader.load(TEX_PATH + name + ".png");
+        if(id <= 0) {
+            System.err.println("FAILED to load texture!");
+            return;
+        }
+        mesh.setTex(MESH_ID, id);
+    }
+
+    /**
      * Mesh
      */
     private void createMesh() {
@@ -37,6 +52,7 @@ public class TreeGenerator {
             String treeName = "tree" + treeData.getLevel();
             mesh.addModel(MESH_ID, treeName);
             mesh.setPosition(MESH_ID, position);
+            loadTex(treeName);
             
             System.out.println("Created mesh for " + treeName);
         } catch(Exception err) {
