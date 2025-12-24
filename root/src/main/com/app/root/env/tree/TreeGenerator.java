@@ -108,6 +108,11 @@ public class TreeGenerator {
         return (currHealth / treeData.getHealth()) * 100.0f;
     }
 
+    public void cleanup() {
+        destroyMesh();
+        isAlive = false;
+    }
+
     /**
      * Respawn
      */
@@ -127,6 +132,16 @@ public class TreeGenerator {
             if(respawnTimer <= 0) {
                 respawn();
             }
+        }
+    }
+
+    /**
+     * Render
+     */
+    public void render() {
+        if(isAlive) {
+            mesh.render(MESH_ID, getLevel());
+            System.out.println("Rendering tree " + id);
         }
     }
 }

@@ -107,18 +107,18 @@ public class AxeData {
         System.out.println("Creating default tree configurations...");
         for(int l = 0; l <= 10; l++) {
             AxeData data = new AxeData(
-                "axe" + level,
-                OBJ_PATH + level,
-                level,
+                "axe" + l,
+                OBJ_PATH + l,
+                l,
                 damage,
                 speed,
-                woodMultiplier,
-                OBJ_PATH + level + ".obj",
-                OBJ_PATH + level + ".png",
+                (int) woodMultiplier,
+                OBJ_PATH + l + ".obj",
+                OBJ_PATH + l + ".png",
                 upgradeCost,
                 scale
             );
-            configs.put(getLevel(), data);
+            configs.put(l, data);
         }
     }
 

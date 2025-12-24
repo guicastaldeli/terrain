@@ -17,8 +17,8 @@ public class Upgrader {
      */
     public boolean canUpgrade() {
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
-        int currLevel = EnvCall.call(axeInstance, "getLevel");
-        int upgradeCost = EnvCall.call(axeInstance, "getUpgradeCost");
+        int currLevel = (int) EnvCall.callReturn(axeInstance, "getLevel");
+        int upgradeCost = (int) EnvCall.callReturn(axeInstance, "getUpgradeCost");
 
         return data.getWood() >= upgradeCost;
     }
@@ -27,7 +27,7 @@ public class Upgrader {
         if(!canUpgrade()) return false;
 
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
-        int upgradeCost = EnvCall.call(axeInstance, "getUpgradeCost");
+        int upgradeCost = (int) EnvCall.callReturn(axeInstance, "getUpgradeCost");
         EnvCall.call(axeInstance, "upgrade");
 
         saveData();
@@ -43,11 +43,13 @@ public class Upgrader {
     }
     
     public int getAxeLevel() {
-        return axeController.getLevel();
+        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+        return (int) EnvCall.callReturn(axeInstance, "getLevel");
     }
     
     public int getNextUpgradeCost() {
-        return axeController.getUpgradeCost();
+        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+        return (int) EnvCall.callReturn(axeInstance, "getUpgradeCost");
     }
 
     private void saveData() {

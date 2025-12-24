@@ -101,10 +101,13 @@ public class Spawner {
         }
 
         Object treeInstance = envController.getEnv(EnvData.TREE).getInstance();
-        Object treeGenerator = EnvCall.call(treeInstance, "getGenerator");
-        EnvCall.call(treeGenerator, "render");
+        Object treeGenerator = EnvCall.callReturn(treeInstance, "getGenerator");
+        
+        Object[] params = new Object[]{data, position, mesh};
+        EnvCall.callWithParams(treeGenerator, params, "createGenerator");
+
         EnvCall.call(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
-        EnvCall.call(treeGenerator, "add");
+        treeData.trees.add((TreeController) treeInstance);
 
         System.out.println("Spawned " + data.getName() + " (Level " + level + 
                           ") at [" + position.x + ", " + position.z + "]");
@@ -128,7 +131,7 @@ public class Spawner {
     /**
      * Get Random Level
      */
-    private int getRandomLevel() {
+    private int genRandomLevel() {
         float totalWeight = 0;
         for(float weight : levelDistribution.values()) {
             totalWeight += weight;
@@ -154,9 +157,13 @@ public class Spawner {
         TreeController nearest = null;
         float nearestDistance = Float.MAX_VALUE;
         for(TreeController tree : treeData.trees) {
-            if(!tree.isAlive()) continue;
+            Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
+            
+            boolean isAlive = (Boolean) EnvCall.callReturn(treeGenerator, "isAlive");
+            if(!isAlive) continue;
 
-            float distance = tree.getPosition().distance(position);
+            Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
+            float distance = treePos.distance(position);
             if(distance <= maxDistance && distance < nearestDistance) {
                 nearestDistance = distance;
                 nearest = tree;
@@ -172,19 +179,23 @@ public class Spawner {
         if(!treeData.trees.contains(oldTree)) return;
 
         treeData.trees.remove(oldTree);
-        oldTree.cleanup();
+        Object oldGenerator = EnvCall.callReturn(oldTree, "getGenerator");
+        EnvCall.call(oldGenerator, "cleanup");
 
-        Vector3f position = oldTree.getPosition();
+        Vector3f position = (Vector3f) EnvCall.callReturn(oldGenerator, "getPosition");
         TreeData data = treeData.configs.get(newLevel);
         if(data != null) {
             Object treeInstance = envController.getEnv(EnvData.TREE).getInstance();
-            Object treeGenerator = EnvCall.call(treeInstance, "getGenerator");
-            EnvCall.call(treeGenerator, "render");
-            EnvCall.call(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
-            EnvCall.call(treeGenerator, "add");
+            Object treeGenerator = EnvCall.callReturn(treeInstance, "getGenerator");
+            
+            Object[] params = new Object[]{data, position, mesh};
+            EnvCall.callWithParams(treeGenerator, params, "create");
+            
+            EnvCall.callReturn(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
+            treeData.trees.add((TreeController) treeInstance);
 
-            System.out.println("Respawned tree " + oldTree.getId() + 
-                              " from level " + oldTree.getLevel() + 
+            System.out.println("Respawned tree from level " + 
+                              EnvCall.callReturn(oldGenerator, "getLevel") + 
                               " to level " + newLevel);
         }
     }
@@ -193,10 +204,13 @@ public class Spawner {
         TreeData data = treeData.configs.get(level);
         if(data != null) {
             Object treeInstance = envController.getEnv(EnvData.TREE).getInstance();
-            Object treeGenerator = EnvCall.call(treeInstance, "getGenerator");
-            EnvCall.call(treeGenerator, "render");
-            EnvCall.call(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
-            EnvCall.call(treeGenerator, "add");
+            Object treeGenerator = EnvCall.callReturn(treeInstance, "getGenerator");
+            
+            Object[] params = new Object[]{data, position, mesh};
+            EnvCall.callWithParams(treeGenerator, params, "create");
+            
+            EnvCall.callReturn(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
+            treeData.trees.add((TreeController) treeInstance);
 
             System.out.println("Respawned tree at position [" + position.x + 
                               ", " + position.z + "] at level " + level);
@@ -235,7 +249,9 @@ public class Spawner {
     public int getActiveTreeCount() {
         int count = 0;
         for(TreeController tree : treeData.trees) {
-            if(tree.isAlive()) count++;
+            Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
+            boolean isAlive = (Boolean) EnvCall.callReturn(treeGenerator, "isAlive");
+            if(isAlive) count++;
         }
         return count;
     }
@@ -245,7 +261,7 @@ public class Spawner {
     }
 
     public Map<Integer, TreeData> getTreeData() {
-        return Collections.unmodifiableMap(treeData);
+        return Collections.unmodifiableMap(treeData.configs);
     }
 
     public TreeData getConfigForLevel(int level) {
@@ -275,12 +291,13 @@ public class Spawner {
             
             for(int i = 0; i < toRemove && !treeData.trees.isEmpty(); i++) {
                 TreeController tree = treeData.trees.remove(0);
-                tree.cleanup();
+                Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
+                EnvCall.call(treeGenerator, "cleanup");
             }
         }
     }
 
-     public void printSpawnerStatus() {
+    public void printSpawnerStatus() {
         System.out.println("=== SPAWNER STATUS ===");
         System.out.println("Active: " + isActive);
         System.out.println("Center: [" + centerPosition.x + ", " + centerPosition.z + "]");
@@ -305,17 +322,26 @@ public class Spawner {
         Iterator<TreeController> iterator = treeData.trees.iterator();
         while(iterator.hasNext()) {
             TreeController tree = iterator.next();
+            Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
 
-            float distance = tree.getPosition().distance(centerPosition);
+            boolean isAlive = (Boolean) EnvCall.callReturn(treeGenerator, "isAlive");
+            if(!isAlive) {
+                iterator.remove();
+                continue;
+            }
+
+            Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
+            float distance = treePos.distance(centerPosition);
             if(distance > spawnRadius * 1.5f) {
-                tree.cleanup();
+                EnvCall.call(treeGenerator, "cleanup");
                 iterator.remove();
                 System.out.println("Removed distant tree at distance: " + distance);
                 continue;
             }
+            
+            Object[] updateParams = new Object[]{tick.getDeltaTime()};
+            EnvCall.callWithParams(treeGenerator, updateParams, "update");
         }
-
-        tree.update(tick.getDeltaTime()); //Env Call
     }
 
     /**
@@ -324,8 +350,10 @@ public class Spawner {
     public void render() {
         if(!isActive) return;
         for(TreeController tree : treeData.trees) {
-            if(tree.isAlive()) {
-                //Render
+            Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
+            boolean isAlive = (Boolean) EnvCall.callReturn(treeGenerator, "isAlive");
+            if(isAlive) {
+                EnvCall.call(treeGenerator, "render");
             }
         }
     }

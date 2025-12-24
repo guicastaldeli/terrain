@@ -40,4 +40,20 @@ public class EnvCall {
             );
         }
     }
+
+    public static void callWithParams(Object instance, Object[] params, String methodName) {
+        try {
+            Class<?>[] paramTypes = new Class<?>[params.length];
+            for(int i = 0; i < params.length; i++) {
+                paramTypes[i] = params[i].getClass();
+            }
+            
+            Method method = instance.getClass().getMethod(methodName, paramTypes);
+            method.invoke(instance, params);
+        } catch(Exception err) {
+            throw new RuntimeException(
+                "Failed to call method: " + methodName, err
+            );
+        }
+    }
 }
