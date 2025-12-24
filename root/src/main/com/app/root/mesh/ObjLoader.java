@@ -1,12 +1,10 @@
-package main.com.app.root;
+package main.com.app.root.mesh;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import main.com.app.root.mesh.MeshData;
 
 public class ObjLoader {
     public static MeshData load(String filePath, String meshId) {
@@ -71,7 +69,7 @@ public class ObjLoader {
         for(int i = 0; i < vertices.size(); i++) {
             vertexArray[i*3] = vertices.get(i)[0];
             vertexArray[i*3+1] = vertices.get(i)[1];
-            vertexArray[i*3+2] = vertices.get(i)[1];
+            vertexArray[i*3+2] = vertices.get(i)[2];
         }
         meshData.setVertices(vertexArray);
 

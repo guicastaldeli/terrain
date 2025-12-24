@@ -110,7 +110,7 @@ public class Scene {
         if(!init) return;
 
         playerController.render();
-        mesh.addModel("char", "404");
+        mesh.addModel("char", "dino-0");
         mesh.renderAll();
     }
 }

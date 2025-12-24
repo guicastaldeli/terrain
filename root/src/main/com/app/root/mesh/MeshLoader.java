@@ -2,8 +2,6 @@ package main.com.app.root.mesh;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.jse.*;
 
-import main.com.app.root.ObjLoader;
-
 public class MeshLoader {
     private static final String DATA_TYPES_DIR = "root/src/main/com/app/root/mesh/types/";
 
