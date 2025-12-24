@@ -22,7 +22,7 @@ public class Tick {
     public Tick(Window window) {
         this.window = window;
         this.timeCycle = new TimeCycle();
-        this.timeCycle.setTimeSpeed(2.0f);
+        this.timeCycle.setTimeSpeed(0.5f);
     }
 
     private void tick() {

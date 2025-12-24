@@ -1,59 +1,54 @@
 meshType = "skybox"
 
--- Vertics
-vertices = {
-    -1000.0,  1000.0, -1000.0,
-    -1000.0, -1000.0, -1000.0,
-    1000.0, -1000.0, -1000.0,
-    1000.0, -1000.0, -1000.0,
-    1000.0,  1000.0, -1000.0,
-    -1000.0,  1000.0, -1000.0,
-    
-    -1000.0, -1000.0,  1000.0,
-    -1000.0, -1000.0, -1000.0,
-    -1000.0,  1000.0, -1000.0,
-    -1000.0,  1000.0, -1000.0,
-    -1000.0,  1000.0,  1000.0,
-    -1000.0, -1000.0,  1000.0,
-    
-    1000.0, -1000.0, -1000.0,
-    1000.0, -1000.0,  1000.0,
-    1000.0,  1000.0,  1000.0,
-    1000.0,  1000.0,  1000.0,
-    1000.0,  1000.0, -1000.0,
-    1000.0, -1000.0, -1000.0,
-    
-    -1000.0, -1000.0,  1000.0,
-    -1000.0,  1000.0,  1000.0,
-    1000.0,  1000.0,  1000.0,
-    1000.0,  1000.0,  1000.0,
-    1000.0, -1000.0,  1000.0,
-    -1000.0, -1000.0,  1000.0,
-    
-    -1000.0,  1000.0, -1000.0,
-    1000.0,  1000.0, -1000.0,
-    1000.0,  1000.0,  1000.0,
-    1000.0,  1000.0,  1000.0,
-    -1000.0,  1000.0,  1000.0,
-    -1000.0,  1000.0, -1000.0,
-    
-    -1000.0, -1000.0, -1000.0,
-    -1000.0, -1000.0,  1000.0,
-    1000.0, -1000.0, -1000.0,
-    1000.0, -1000.0, -1000.0,
-    -1000.0, -1000.0,  1000.0,
-    1000.0, -1000.0,  1000.0
-}
---Colors
-colors = {}
-for i = 1, 36 * 4 do
-    colors[i] = 0.0
+function gen(radius, sectors, stacks)
+    local vertices = {}
+    local indices = {}
+    local colors = {}
+
+    local PI = math.pi
+    local sectorStep = 2 * PI / sectors;
+    local stackStep = PI / stacks;
+
+    -- Vertices
+    for i = 0, stacks do
+        local stackAngle = PI / 2 - i * stackStep
+        local xy = radius * math.cos(stackAngle)
+        local z = radius * math.sin(stackAngle)
+
+        for j = 0, sectors do
+            local sectorAngle = j * sectorStep
+
+            local x = xy * math.cos(sectorAngle)
+            local y = xy * math.sin(sectorAngle)
+
+            table.insert(vertices, x)
+            table.insert(vertices, y)
+            table.insert(vertices, z)
+        end
+    end
+    -- Indices
+    for i = 0, stacks - 1 do
+        local k1 = i * (sectors + 1)
+        local k2 = k1 + sectors + 1
+
+        for j = 0, sectors - 1 do
+            table.insert(indices, k1+j)
+            table.insert(indices, k2+j)
+            table.insert(indices, k1+j+1)
+
+            table.insert(indices, k1+j+1)
+            table.insert(indices, k2+j)
+            table.insert(indices, k2+j+1)
+        end
+    end
+    -- Colors
+    for i = 1, #vertices / 3 * 4 do
+        colors[i] = 0.0
+    end
+
+    return vertices, indices, colors
 end
---Indices
-indices = {
-    0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,
-    18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35
-}
+vertices, indices, colors = gen(1000.0, 36, 18)
 -- Rotation
 rotation = {
     axis = "Y",
