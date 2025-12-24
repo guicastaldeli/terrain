@@ -1,8 +1,11 @@
 package main.com.app.root.player_controller;
+import main.com.app.root.Spawner;
 import main.com.app.root.Tick;
+import main.com.app.root.Upgrader;
 import main.com.app.root.Window;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.types.DynamicObject;
+import main.com.app.root.env.EnvController;
 import main.com.app.root.mesh.Mesh;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import org.joml.Vector3f;
@@ -22,6 +25,9 @@ public class PlayerController {
     private final Camera camera;
     private final PlayerInputMap playerInputMap;
     private final Mesh mesh;
+    private final Spawner spawner;
+    private final Upgrader upgrader;
+    private final EnvController envController;
     private PlayerMesh playerMesh;
 
     private Vector3f position;
@@ -56,13 +62,25 @@ public class PlayerController {
         Tick tick, 
         Window window,
         Mesh mesh,
-        CollisionManager collisionManager
+        CollisionManager collisionManager,
+        Spawner spawner,
+        Upgrader upgrader,
+        EnvController envController
     ) {
         this.tick = tick;
         this.window = window;
         this.mesh = mesh;
         this.camera = new Camera();
-        this.playerInputMap = new PlayerInputMap(this);
+        this.spawner = spawner;
+        this.upgrader = upgrader;
+        this.envController = envController;
+        this.playerInputMap = new PlayerInputMap(
+            tick,
+            this,
+            spawner,
+            upgrader,
+            envController
+        );
         this.collisionManager = collisionManager;
 
         this.set();

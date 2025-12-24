@@ -1,7 +1,4 @@
 package main.com.app.root.env.tree;
-
-import org.joml.Vector3f;
-
 import main.com.app.root.Spawner;
 import main.com.app.root.Tick;
 import main.com.app.root.Upgrader;
@@ -10,8 +7,9 @@ import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.axe.AxeController;
 import main.com.app.root.player_controller.PlayerController;
+import org.joml.Vector3f;
 
-public class TreeInteraction {
+public class TreeInteractor {
     private final Tick tick;
     private final PlayerController playerController;
     private final Spawner spawner;
@@ -23,7 +21,7 @@ public class TreeInteraction {
     private float swingCooldown = 0.5f;
     private float interactionRange = 5.0f;
 
-    public TreeInteraction(
+    public TreeInteractor(
         Tick tick,
         PlayerController playerController,
         Spawner spawner,

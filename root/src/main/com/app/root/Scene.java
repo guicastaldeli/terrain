@@ -62,13 +62,6 @@ public class Scene {
             this.collisionManager = new CollisionManager();
 
             this.mesh = new Mesh(tick, shaderProgram);
-            this.playerController = new PlayerController(
-                tick, 
-                window,
-                mesh,
-                collisionManager
-            );
-            mesh.setPlayerController(playerController);
 
             this.dependencyContainer = new DependencyContainer();
             dependencyContainer.registerAll(
@@ -82,12 +75,7 @@ public class Scene {
             );
     
             this.envController = new EnvController(dependencyContainer);
-            this.envRenderer = new EnvRenderer(
-                envController, 
-                collisionManager,
-                playerController
-            );
-
+            
             this.spawner = new Spawner(
                 tick, 
                 mesh,
@@ -97,6 +85,24 @@ public class Scene {
                 envController 
             );
             this.upgrader = new Upgrader(envController);
+
+            this.playerController = new PlayerController(
+                tick, 
+                window,
+                mesh,
+                collisionManager,
+                spawner,
+                upgrader,
+                envController
+            );
+            mesh.setPlayerController(playerController);
+            
+            this.envRenderer = new EnvRenderer(
+                envController, 
+                collisionManager,
+                playerController
+            );
+
             start();
             
             this.init = true;
