@@ -152,17 +152,17 @@ public class Main {
      */
     private void update() {
         tick.update();
-
         if(!stateController.isPaused() && !stateController.isInMenu()) {
             dataController.incrementPlayTime(1);
         }
         
-        boolean screenActive = screenController.isScreenActive(ScreenController.SCREENS.PAUSE);
-        if(console.isRunning()) {
-            if(!screenActive && scene.isInit()) {
-                scene.update();
-                inputController.update();
-            }
+        inputController.update();
+        
+        if(scene.isInit() && 
+            !stateController.isPaused() && 
+            !stateController.isInMenu()
+        ) {
+            scene.update();
         }
     }
     
@@ -180,12 +180,14 @@ public class Main {
             tick.getTimeCycle().getCurrentTimePeriod()
         );
 
-        if(console.isRunning() && scene.isInit()) {
-            inputController.setPlayerInputMap(scene.getPlayerController().getInputMap());
-            scene.render();  
+        if(scene.isInit()) {
+            if(!stateController.isInMenu() && !stateController.isPaused()) {
+                scene.render();  
+            }
+            screenController.render();
+        } else {
+            screenController.render();
         }
-
-        screenController.render();
     }
 
     private void loop() {

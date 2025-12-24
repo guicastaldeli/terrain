@@ -1,13 +1,11 @@
 package main.com.app.root;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player_controller.PlayerController;
-
-import org.joml.Vector3f;
-
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvRenderer;
+import org.joml.Vector3f;
 
 public class Scene {
     private final Window window;

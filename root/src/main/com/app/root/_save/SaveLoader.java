@@ -35,33 +35,23 @@ public class SaveLoader {
             stateController.setCurrentSaveId(saveId);
             stateController.setCurrentLevel(saveId);
             stateController.setLoadInProgress(true);
+            stateController.setInMenu(false);
 
             /* Load Data */
-            DataController loadedData = (DataController) saveFile.loadObject(
-                "data",
-                "s.data"
-            );
+            DataController loadedData = (DataController) saveFile.loadObject("data", "s.data");
             if(loadedData != null) {
                 copyDataController(loadedData, dataController);
             }
+            
             /* Load World Data */
             if(saveFile.hasData("world", "w.data")) {
-                Map<String, Object> worldData = 
-                    (Map<String, Object>) 
-                    saveFile.loadObject(
-                        "world",
-                        "w.data"
-                    );
+                Map<String, Object> worldData = (Map<String, Object>) saveFile.loadObject("world", "w.data");
                 dataGetter.applyWorldData(worldData);
             }
+            
             /* Load Player Data */
             if(saveFile.hasData("player", "p.data")) {
-                Map<String, Object> playerData = 
-                    (Map<String, Object>) 
-                    saveFile.loadObject(
-                        "player",
-                        "p.data"
-                    );
+                Map<String, Object> playerData = (Map<String, Object>) saveFile.loadObject("player", "p.data");
                 dataGetter.applyPlayerData(playerData);
             }
 
@@ -74,6 +64,7 @@ public class SaveLoader {
             saveFile.setSaveInfo("last_played", lastPlayed);
 
             stateController.setLoadInProgress(false);
+            
             System.out.println("Save loaded successfully: " + saveId);
             return true;
         } catch (Exception e) {

@@ -73,7 +73,7 @@ public class MainScreenAction {
             stateController.setInMenu(false);
             stateController.setPaused(false);
 
-            if(!scene.init) scene.init();
+            scene.init();
             scene.init = true;
         }
     }

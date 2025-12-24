@@ -198,7 +198,7 @@ public class Camera {
         return new Vector3f(targetPoint).sub(offset);
     }
 
-    private void updateViewMatrix() {
+    public void updateViewMatrix() {
         Vector3f cameraPos = calculateCameraPos();
         Vector3f lookTarget = new Vector3f(position).add(targetOffset);
         viewMatrix
