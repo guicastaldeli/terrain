@@ -6,7 +6,7 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
 public class ObjMap {
-    private static final String OBJ_MAP_PATH =  "root/src/main/com/app/root/mesh/obj_list.lua";
+    private static final String OBJ_MAP_PATH =  "root/src/main/com/app/root/_data/obj_list.lua";
     private final Map<String, ObjInfo> objMap;
     private final Map<String, List<String>> categories;
 

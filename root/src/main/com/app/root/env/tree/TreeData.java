@@ -10,7 +10,7 @@ import org.luaj.vm2.lib.jse.JsePlatform;
 
 public class TreeData {
     private static final String DATA_PATH = "root/src/main/com/app/root/_data/tree_data.lua";
-    private static final String OBJ_LIST_PATH = "root/src/main/com/app/root/mesh/obj_list";
+    private static final String OBJ_LIST_PATH = "root/src/main/com/app/root/_data/obj_list";
     private static final String OBJ_PATH = "root/src/main/com/app/root/_resources/obj/tree/tree";
     private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/tree/tree";
 
