@@ -1,6 +1,6 @@
 package main.com.app.root.screen_controller;
 
-public interface ScreenInputHandler {
+public interface ScreenHandler {
     default void render() {};
     default void handleAction(String action) {};
     default void handleKeyPress(int key, int action) {};

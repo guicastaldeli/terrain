@@ -114,7 +114,7 @@ public class ScreenController {
         } 
     }
 
-    public ScreenInputHandler getCurrentScreen() {
+    public ScreenHandler getCurrentScreen() {
         if(currentScreen != null) return currentScreen;
         return screenHandler;
     }
@@ -157,7 +157,7 @@ public class ScreenController {
     /**
      * Screen Handler
      */
-    private ScreenInputHandler screenHandler = new ScreenInputHandler() {
+    private ScreenHandler screenHandler = new ScreenHandler() {
         @Override
         public void handleKeyPress(int key, int action) {
             if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
@@ -172,7 +172,7 @@ public class ScreenController {
         }
     };
 
-    public ScreenInputHandler getCurrentInputHandler() {
+    public ScreenHandler getCurrentInputHandler() {
         if(currentScreen != null) {
             return currentScreen;
         }

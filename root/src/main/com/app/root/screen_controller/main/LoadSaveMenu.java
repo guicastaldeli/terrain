@@ -68,8 +68,9 @@ public class LoadSaveMenu extends Screen {
                 "noSavesLabel",
                 "No save games found",
                 50, 300,
+                200, 30,
                 1.0f,
-                new float[]{0.8f, 0.8f, 0.8f},
+                new float[]{0.8f, 0.8f, 0.8f, 1.0f},
                 ""
             );
             noSavesLabel.visible = true;
@@ -78,6 +79,10 @@ public class LoadSaveMenu extends Screen {
             int startY = 300;
             int slotHeight = 100;
             int infoSpacing = 60;
+            int labelWidth = 400;
+            int labelHeight = 30;
+            int buttonWidth = 100;
+            int buttonHeight = 40;
             
             for(int i = 0; i < mainScreen.availableSaves.size(); i++) {
                 SaveInfo save = mainScreen.availableSaves.get(i);
@@ -89,8 +94,9 @@ public class LoadSaveMenu extends Screen {
                     "save_name_" + save.saveId,
                     save.saveName,
                     50, baseY,
+                    labelWidth, labelHeight,
                     1.0f,
-                    new float[]{1.0f, 1.0f, 1.0f},
+                    new float[]{1.0f, 1.0f, 1.0f, 1.0f},
                     ""
                 );
                 screenData.elements.add(saveNameLabel);
@@ -101,8 +107,9 @@ public class LoadSaveMenu extends Screen {
                     "play_time_" + save.saveId,
                     "Play Time: " + save.playTime,
                     50, baseY + infoSpacing,
+                    labelWidth, labelHeight,
                     1.0f,
-                    new float[]{0.8f, 0.8f, 0.8f},
+                    new float[]{0.8f, 0.8f, 0.8f, 1.0f},
                     ""
                 );
                 screenData.elements.add(playTimeLabel);
@@ -113,8 +120,9 @@ public class LoadSaveMenu extends Screen {
                     "last_played_" + save.saveId,
                     "Last Played: " + save.lastPlayed,
                     50, baseY + (infoSpacing * 2),
+                    labelWidth, labelHeight,
                     1.0f,
-                    new float[]{0.7f, 0.7f, 0.7f},
+                    new float[]{0.7f, 0.7f, 0.7f, 1.0f},
                     ""
                 );
                 screenData.elements.add(lastPlayedLabel);
@@ -125,8 +133,9 @@ public class LoadSaveMenu extends Screen {
                     "load_" + save.saveId,
                     "Load",
                     800, baseY + 60,
+                    buttonWidth, buttonHeight,
                     1.0f,
-                    new float[]{0.2f, 0.8f, 0.2f},
+                    new float[]{0.2f, 0.8f, 0.2f, 1.0f},
                     "load_" + save.saveId
                 );
                 screenData.elements.add(loadButton);
@@ -137,8 +146,9 @@ public class LoadSaveMenu extends Screen {
                     "delete_" + save.saveId,
                     "Delete",
                     950, baseY + 60,
+                    buttonWidth, buttonHeight,
                     1.0f,
-                    new float[]{0.8f, 0.2f, 0.2f},
+                    new float[]{0.8f, 0.2f, 0.2f, 1.0f},
                     "delete_" + save.saveId
                 );
                 screenData.elements.add(deleteButton);

@@ -4,7 +4,6 @@ import java.util.*;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import java.nio.IntBuffer;
-
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.glGetError;

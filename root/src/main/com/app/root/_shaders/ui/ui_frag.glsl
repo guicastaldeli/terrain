@@ -1,0 +1,3 @@
+void setUIFrag() {
+    fragColor = uColor;
+}

@@ -19,6 +19,7 @@ in vec3 worldPos;
 #include "text/text_frag.glsl"
 #include "mesh/mesh_tex.glsl"
 #include "../env/skybox/shaders/sb_frag.glsl"
+#include "ui/ui_frag.glsl"
 
 void main() {
     //Mesh
@@ -32,5 +33,9 @@ void main() {
     //Text
     else if(shaderType == 1) {
         setTextFrag();
+    }
+    //UI
+    else if(shaderType == 3) {
+        setUIFrag();
     }
 }

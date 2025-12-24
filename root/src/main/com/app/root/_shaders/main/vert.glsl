@@ -21,6 +21,7 @@ uniform int shaderType;
 #include "text/text_vert.glsl"
 #include "mesh/mesh_color.glsl"
 #include "../env/skybox/shaders/sb_vert.glsl"
+#include "ui/ui_vert.glsl"
 
 void main() {
     //Mesh
@@ -34,6 +35,9 @@ void main() {
     //Text
     else if(shaderType == 1) {
         setTextVert();
+    }
+    else if(shaderType == 3) {
+        setUIVert();
     }
     else {
         gl_Position  = projection * view * model * vec4(inPos, 1.0);

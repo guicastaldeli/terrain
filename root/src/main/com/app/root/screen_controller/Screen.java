@@ -13,7 +13,7 @@ import main.com.app.root.Scene;
 import main.com.app.root.StateController;
 import java.util.*;
 
-public class Screen implements ScreenInputHandler {
+public class Screen implements ScreenHandler {
     public static final String DIR = "root/src/main/com/app/root/screen_controller/";
 
     public static Window window;

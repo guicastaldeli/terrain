@@ -102,6 +102,7 @@ public class MainScreen extends Screen {
         } else if(loadSaveMenu.isActive()) {
             loadSaveMenu.render();
         } else {
+            //DocParser.renderScreen(screenData, 1280, 720, shaderProgram, textRenderer);
             super.render();
         }
     }

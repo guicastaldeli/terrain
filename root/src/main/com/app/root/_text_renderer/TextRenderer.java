@@ -1,9 +1,8 @@
 package main.com.app.root._text_renderer;
-import org.lwjgl.BufferUtils;
-
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
 import java.nio.FloatBuffer;
+import org.lwjgl.BufferUtils;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;

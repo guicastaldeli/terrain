@@ -46,6 +46,7 @@ public class Main {
         GL.createCapabilities();
         glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
         glEnable(GL_DEPTH_TEST);
+        DocParser.initUIRendering();
 
         init();
     }
@@ -202,6 +203,7 @@ public class Main {
     private void run() {
         loop();
         window.cleanup();
+        DocParser.cleanup();
     }
 
     public static void main(String[] args) throws Exception {
