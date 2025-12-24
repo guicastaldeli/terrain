@@ -31,10 +31,8 @@ public class EnvRenderer {
         EnvCall.call(mapInstance, "getGenerator", "render");
 
         /* Axe */
-        /*
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
         EnvCall.call(axeInstance, "render");
-        */
     }
     
     /**

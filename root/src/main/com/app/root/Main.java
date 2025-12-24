@@ -162,13 +162,14 @@ public class Main {
             !stateController.isPaused() && 
             !stateController.isInMenu()
         ) {
-            scene.update();
         }
+        scene.update();
     }
     
     /**
      * Render
      */
+
     private void render() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
@@ -181,9 +182,8 @@ public class Main {
         );
 
         if(scene.isInit()) {
-            if(!stateController.isInMenu() && !stateController.isPaused()) {
-                scene.render();  
-            }
+            inputController.setPlayerInputMap(scene.getPlayerController().getInputMap());
+            scene.render();  
             screenController.render();
         } else {
             screenController.render();
