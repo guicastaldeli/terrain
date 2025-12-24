@@ -1,5 +1,4 @@
 package main.com.app.root;
-
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
@@ -51,7 +50,7 @@ public class Upgrader {
         return axeController.getUpgradeCost();
     }
 
-    private void saveGameData() {
+    private void saveData() {
         //todo this later... :P
     }
 }
