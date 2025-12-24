@@ -64,11 +64,10 @@ public class PlayerInputMap {
     public void setMouseButtonState(int button, boolean pressed) {
         /* Button Left */
         if(button == GLFW_MOUSE_BUTTON_LEFT) {
-            System.out.print("BUTOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOON!");
             leftMousePressed = pressed;
             leftMouseDown = pressed;
             if(pressed && treeInteractor != null) {
-                //treeInteractor.attemptBreak();
+                treeInteractor.attemptBreak();
             }
         }
         /* Button Right */

@@ -377,7 +377,7 @@ public class Spawner {
             if(distance > spawnRadius * 1.5f) {
                 EnvCall.call(treeGenerator, "cleanup");
                 iterator.remove();
-                System.out.println("Removed distant tree at distance: " + distance);
+                //System.out.println("Removed distant tree at distance: " + distance);
                 continue;
             }
             

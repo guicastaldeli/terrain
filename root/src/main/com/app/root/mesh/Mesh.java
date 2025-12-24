@@ -140,7 +140,7 @@ public class Mesh {
         if(renderer != null) {
             renderer.cleanup();
         }
-        System.out.println("Removed mesh: " + id);
+        //System.out.println("Removed mesh: " + id);
     }
 
     public void cleanup() {

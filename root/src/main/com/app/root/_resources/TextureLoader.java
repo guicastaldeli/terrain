@@ -48,7 +48,7 @@ public class TextureLoader {
             STBImage.stbi_image_free(img);
             glBindTexture(GL_TEXTURE_2D, 0);
             
-            System.out.println("Texture created with ID: " + texId);
+            //System.out.println("Texture created with ID: " + texId);
             return texId;
         } catch(Exception err) {
             err.printStackTrace();

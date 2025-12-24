@@ -54,7 +54,7 @@ public class TreeGenerator {
             mesh.setPosition(MESH_ID, position);
             loadTex(treeName);
             
-            System.out.println("Created mesh for " + treeName);
+            //System.out.println("Created mesh for " + treeName);
         } catch(Exception err) {
             System.err.println("Failed to create mesh for " + treeData.getIndexTo() + ": " + err.getMessage());
             err.printStackTrace();
@@ -64,7 +64,7 @@ public class TreeGenerator {
     private void destroyMesh() {
         if(mesh.hasMesh(MESH_ID)) {
             mesh.removeMesh(MESH_ID);
-            System.out.println("Mesh destroyed for " + MESH_ID);
+            //System.out.println("Mesh destroyed for " + MESH_ID);
         }
     }
 

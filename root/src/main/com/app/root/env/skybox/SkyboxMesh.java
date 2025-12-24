@@ -178,8 +178,10 @@ public class SkyboxMesh {
 
         data.setColorRgb(r, g, b, a);
         if(tick.getTickCount() % 300 == 0) {
+            /*
             System.out.println("Skybox color updated: " + 
                 r + "," + g + "," + b + " at " + tick.getTimeCycle().getFormattedTime());
+                */
         }
     }
 

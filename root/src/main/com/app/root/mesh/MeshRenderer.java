@@ -165,7 +165,7 @@ public class MeshRenderer {
         if(id > 0) {
             texId = id;
             hasTex = true;
-            System.out.println("Texture set with ID: " + id);
+            //System.out.println("Texture set with ID: " + id);
         } else {
             texId = -1;
             hasTex = false;
