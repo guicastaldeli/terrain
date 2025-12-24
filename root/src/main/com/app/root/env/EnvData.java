@@ -1,10 +1,10 @@
 package main.com.app.root.env;
 import main.com.app.root.DependencyContainer;
-import main.com.app.root.env.axes.AxeController;
+import main.com.app.root.env.axe.AxeController;
 import main.com.app.root.env.clouds.CloudController;
 import main.com.app.root.env.map.MapController;
 import main.com.app.root.env.skybox.SkyboxController;
-import main.com.app.root.env.tress.TreeController;
+import main.com.app.root.env.tree.TreeController;
 
 public enum EnvData {
     SKYBOX(SkyboxController.class),

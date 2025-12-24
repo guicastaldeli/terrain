@@ -1,5 +1,7 @@
-package main.com.app.root.env.tress;
+package main.com.app.root.env.tree;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.mesh.MeshLoader;
+
 import java.util.Random;
 import org.joml.Vector3f;
 
@@ -34,7 +36,9 @@ public class TreeGenerator {
      */
     private void createMesh() {
         try {
+            MeshLoader.loadModel(MESH_ID, treeData.getModelPath());
             mesh.addModel(MESH_ID, treeData.getModelPath());
+            //Render latewr in the spawner
             System.out.println("Created mesh for " + treeData.getName() + " at [" + 
                               position.x + ", " + position.z + "]");
         } catch(Exception e) {
