@@ -5,6 +5,19 @@ import java.util.Map;
 
 public class MeshData {
     /**
+     * Data Type
+    */
+    public enum DataType {
+        VERTICES,
+        INDICES,
+        COLORS,
+        NORMALS,
+        TEX_COORDS,
+        ROTATION_AXIS,
+        ROTATION_SPEED,
+        SCALE
+    }
+    /**
      * Mesh Type
     */
     public enum MeshType {
@@ -18,22 +31,11 @@ public class MeshData {
         CLOUDS
     }
 
-    /**
-     * Data Type
-    */
-    public enum DataType {
-        VERTICES,
-        INDICES,
-        COLORS,
-        NORMALS,
-        TEX_COORDS,
-        ROTATION_AXIS,
-        ROTATION_SPEED
-    }
-
     private final Map<DataType, Object> data;
     private final MeshType type;
     private final String id;
+    private boolean isDynamic = false;
+
     private float[] colors;
     private int shaderType = 0;
     private float starBrightness = 0.0f;
@@ -216,6 +218,36 @@ public class MeshData {
     
     public float getStarBrightness() {
         return this.starBrightness;
+    }
+
+    /**
+     * Scale
+     */
+    public void setScale(float[] scale) {
+        addData(DataType.SCALE, scale);
+    }
+
+    public float[] getScale() {
+        Object scaleData = data.get(DataType.SCALE);
+        if(scaleData instanceof float[]) {
+            return (float[]) scaleData;
+        }
+        return new float[]{ 1.0f, 1.0f, 1.0f };
+    }
+
+    public boolean hasScale() {
+        return data.containsKey(DataType.SCALE);
+    }
+
+    /**
+     * Dynamic
+     */
+    public void setIsDynamic(boolean isDynamic) {
+        this.isDynamic = isDynamic;
+    }
+
+    public boolean isDynamic() {
+        return isDynamic;
     }
 
     /**

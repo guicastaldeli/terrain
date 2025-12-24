@@ -6,7 +6,7 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
 public class ObjMap {
-    private static final String OBJ_MAP_PATH =  "root/src/main/com/app/root/_resources/";
+    private static final String OBJ_MAP_PATH =  "root/src/main/com/app/root/mesh/obj_list.lua";
     private final Map<String, ObjInfo> objMap;
     private final Map<String, List<String>> categories;
 
@@ -21,28 +21,43 @@ public class ObjMap {
             Globals globals = JsePlatform.standardGlobals();
             LuaValue chunk = globals.loadfile(OBJ_MAP_PATH);
             LuaValue result = chunk.call();
+            
             if(result.istable()) {
-                LuaValue objTable = result.get("objects");
-                if(objTable.istable()) {
-                    String name = objTable.get("name").checkjstring();
-                    String path = objTable.get("path").checkjstring();
-                    String texture = objTable.get("texture").checkjstring();
-                    LuaValue sizeTable = objTable.get("size");
-                    float[] size = new float[]{ 1.0f, 1.0f, 1.0f };
-                    if(sizeTable.istable()) {
-                        for(int j = 1; j <= 3 && j <= sizeTable.length(); j++) {
-                            size[j-1] = (float) sizeTable.get(j).checkdouble();
+                LuaValue objectsTable = result.get("objects");
+                if(objectsTable.istable()) {
+                    for(int i = 1; i <= objectsTable.length(); i++) {
+                        LuaValue objTable = objectsTable.get(i);
+                        if(objTable.istable()) {
+                            String name = objTable.get("name").checkjstring();
+                            String path = objTable.get("path").checkjstring();
+                            
+                            String texture = "";
+                            LuaValue textureVal = objTable.get("texture");
+                            if(!textureVal.isnil() && textureVal.isstring()) {
+                                texture = textureVal.checkjstring();
+                            }
+                            
+                            LuaValue sizeTable = objTable.get("scale");
+                            float[] size = new float[]{ 1.0f, 1.0f, 1.0f };
+                            if(sizeTable.istable()) {
+                                for(int j = 1; j <= 3 && j <= sizeTable.length(); j++) {
+                                    size[j-1] = (float) sizeTable.get(j).checkdouble();
+                                }
+                            }
+
+                            objMap.put(
+                                name.toLowerCase(), 
+                                new ObjInfo(name, path, texture, size)
+                            );
+                            
+                            System.out.println("Loaded object: " + name + " from " + path);
                         }
                     }
-
-                    objMap.put(
-                        name.toLowerCase(), 
-                        new ObjInfo(name, path, texture, size)
-                    );
                 }
             }
         } catch (Exception e) {
             System.err.println("Failed to load object map!: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

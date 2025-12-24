@@ -44,6 +44,10 @@ public class Mesh {
         addToMap(id, meshData);
     }
 
+    public float[] getModelSize(String modelName) {
+        return MeshLoader.getModelSize(modelName);
+    }
+
     public void setTex(String id, int textureId) {
         MeshRenderer renderer = meshRendererMap.get(id);
         if(renderer != null) {

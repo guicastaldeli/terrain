@@ -89,6 +89,7 @@ public class Scene {
      * Start
      */
     private void start() {
+        mesh.addModel("dino", "dino");
         envRenderer.render();
     }
 
@@ -110,7 +111,6 @@ public class Scene {
         if(!init) return;
 
         playerController.render();
-        mesh.addModel("char", "dino-0");
         mesh.renderAll();
     }
 }

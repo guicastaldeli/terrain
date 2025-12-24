@@ -43,6 +43,7 @@ public class MeshRenderer {
     private int vertexCount;
     private float currentRotation = 0.0f;
     private Matrix4f modelMatrix = new Matrix4f();
+    public boolean isDynamic = false;
 
     private int colorVbo;
     private int texCoordsVbo;
@@ -60,6 +61,7 @@ public class MeshRenderer {
      */
     public void setData(MeshData data) {
         this.meshData = data;
+        this.isDynamic = data.isDynamic();
         createBuffers();
     }
 
@@ -170,33 +172,21 @@ public class MeshRenderer {
     }
 
     /**
-     * Rotation
+     * Set Scale
      */
-    private void setRotation() {
-       modelMatrix.identity();
-
-        if(meshData.hasRotation()) {
-            String axis = meshData.getRotationAxis();
-            float angle = currentRotation;
-
-            switch(axis.toUpperCase()) {
-                case "X":
-                    modelMatrix.rotateX((float) Math.toRadians(angle));
-                    break;
-                case "Y":
-                    modelMatrix.rotateY((float) Math.toRadians(angle));
-                    break;
-                case "Z":
-                    modelMatrix.rotateZ((float) Math.toRadians(angle));
-                    break;
-                default:
-                    break;
-            }
+    public void setScale() {
+        if(meshData.hasScale()) {
+            float[] scale = meshData.getScale();
+            modelMatrix.scale(scale[0], scale[1], scale[2]);
         }
     }
 
     public void setModelMatrix(Matrix4f matrix) {
         this.modelMatrix.set(matrix);
+    }
+
+    public void setIsDynamic(boolean isDynamic) {
+        this.isDynamic = isDynamic;
     }
 
     public void updateRotation() {
@@ -234,16 +224,20 @@ public class MeshRenderer {
      * Render
      */
     public void render(int shaderType) {
-        try {
+        try {            
             Camera camera = playerController.getCamera();
-    
+            
+            if(!isDynamic) {
+                modelMatrix.identity();
+                if(meshData.hasScale()) setScale();
+            }
+            
             shaderProgram.bind();
             shaderProgram.setUniform("shaderType", shaderType);
 
             float starBrightness = meshData.getStarBrightness();
             shaderProgram.setUniform("uStarBrightness", starBrightness);
-    
-            //setRotation();
+            
             shaderProgram.setUniform("model", modelMatrix);
             shaderProgram.setUniform("view", camera.getViewMatrix());
             shaderProgram.setUniform("projection", camera.getProjectionMatrix());
@@ -254,17 +248,19 @@ public class MeshRenderer {
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, texId);
             }
+            
             glBindVertexArray(vao);
-    
+            
             int[] indices = meshData.getIndices();
             if(indices != null) {
                 glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
             } else {
                 glDrawArrays(GL_TRIANGLES, 0, vertexCount);
             }
-    
+            
             glBindVertexArray(0);
             if(hasTex) glBindTexture(GL_TEXTURE_2D, 0);
+            
         } catch(Exception err) {
             err.printStackTrace();
         }

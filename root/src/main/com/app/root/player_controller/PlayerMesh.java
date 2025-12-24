@@ -52,9 +52,11 @@ public class PlayerMesh {
      * Set Mesh
      */
     public void setMesh() {
+        System.out.println("is dyna" + mesh.getMeshRenderer().isDynamic);
         MeshData data = MeshLoader.load(MeshData.MeshType.RECTANGLE, PLAYER_MESH_ID);
         if(data != null) {
             //data.setColorHex("#b45353ff");
+            data.setIsDynamic(true);
             mesh.add(PLAYER_MESH_ID, data);
             meshData = data;
             loadTex();
