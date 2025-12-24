@@ -83,7 +83,7 @@ public class PlayerController {
             camera.getPosition().z
         );
         this.velocity = new Vector3f(xSpeed, ySpeed, zSpeed);
-        this.movSpeed = 40.0f;
+        this.movSpeed = 80.0f;
 
         this.rigidBody = new RigidBody(
             tick,

@@ -21,7 +21,11 @@ public class TreeData {
     public Map<Integer, TreeData> configs;
     public int currentTreeId;
     
-    public TreeData() {}
+    public TreeData() {
+        this.configs = new HashMap<>();
+        this.trees = new ArrayList<>();
+        this.currentTreeId = 0;
+    }
     public TreeData(
         String indexTo,
         int level,

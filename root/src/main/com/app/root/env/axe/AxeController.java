@@ -10,15 +10,11 @@ public class AxeController implements EnvInstance<AxeController> {
     private final String AXE_ID = "AXE"; 
     private AxeData axeData;
 
-    public AxeController(Mesh mesh) {
-        this.mesh = mesh;
+    @Override
+    public AxeController getInstance() {
         this.axeData = new AxeData("axe0", 0, 10.0f, 1.0f, 1, 100);
         this.axeData.createDefaultConfigs();
         createMesh();
-    }
-
-    @Override
-    public AxeController getInstance() {
         return this;
     }
 

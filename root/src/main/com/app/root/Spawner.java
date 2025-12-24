@@ -4,6 +4,7 @@ import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.tree.TreeController;
 import main.com.app.root.env.tree.TreeData;
+import main.com.app.root.env.tree.TreeGenerator;
 import main.com.app.root.mesh.Mesh;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,14 +105,31 @@ public class Spawner {
             System.err.println("No config for level " + level + ", using level 0");
         }
 
-        Object treeInstance = envController.getEnv(EnvData.TREE).getInstance();
-        Object treeGenerator = EnvCall.callReturn(treeInstance, "getGenerator");
+        /**
+         * 
+         * 
+         * TEMPORARY SOLUTION... SWITCH LATER
+         * 
+         * 
+         */
+        TreeController treeController = new TreeController();
+        treeController.createGenerator(data, position, mesh);
+        
+        TreeGenerator treeGenerator = treeController.getGenerator();
+        if(treeGenerator == null) {
+            System.err.println("Failed to create tree generator for " + data.getIndexTo());
+            return;
+        }
+        treeGenerator.mesh = this.mesh;
+        
+        String treeId = "tree" + treeData.currentTreeId++;
+        treeGenerator.setId(treeId);
 
-        EnvCall.call(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
-        treeData.trees.add((TreeController) treeInstance);
-
-        System.out.println("Spawned " + data.getIndexTo() + " (Level " + level + 
-                          ") at [" + position.x + ", " + position.z + "]");
+        treeData.trees.add(treeController);
+        
+        System.out.println("Successfully spawned " + data.getIndexTo() + 
+                        " (Level " + level + ") at [" + 
+                        position.x + ", " + position.z + "]");
     }
 
     /**
@@ -120,14 +138,17 @@ public class Spawner {
     private Vector3f genRandomPos() {
         float angle = random.nextFloat() * (float) Math.PI * 2;
         float distance = minSpawnDistance + random.nextFloat() * (maxSpawnDistance - minSpawnDistance);
-        Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
-        Object mapGenerator = EnvCall.callReturn(mapInstance, "getGenerator", "getHeightAt");
-
+        
         float x = centerPosition.x + (float) Math.cos(angle) * distance;
-        float y = (float) mapGenerator;
         float z = centerPosition.z + (float) Math.sin(angle) * distance;
-
-        return new Vector3f(x, y, z);
+        
+        Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
+        Object mapGenerator = EnvCall.callReturn(mapInstance, "getGenerator");
+        
+        Object[] heightParams = new Object[]{x, z};
+        Float height = (Float) EnvCall.callReturnWithParams(mapGenerator, heightParams, "getHeightAt");
+        
+        return new Vector3f(x, height, z);
     }
 
     /**

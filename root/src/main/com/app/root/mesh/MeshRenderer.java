@@ -46,6 +46,9 @@ public class MeshRenderer {
     private float currentRotation = 0.0f;
     private Matrix4f modelMatrix = new Matrix4f();
     public boolean isDynamic = false;
+    private Vector3f position = new Vector3f();
+    private Vector3f scale = new Vector3f(1, 1, 1);
+    private boolean hasCustomScale = false;
 
     private int colorVbo;
     private int texCoordsVbo;
@@ -178,9 +181,8 @@ public class MeshRenderer {
      * Set Position
      */
     public void setPosition(Vector3f position) {
-        modelMatrix.translation(position.x, position.y, position.z);
+        this.position.set(position);
     }
-
     public void setPosition(float x, float y, float z) {
         modelMatrix.translation(x, y, z);
     }
@@ -195,7 +197,8 @@ public class MeshRenderer {
         }
     }
     public void setScale(Vector3f scale) {
-        modelMatrix.scale(scale.x, scale.y, scale.z);
+        this.scale.set(scale);
+        hasCustomScale = true;
     }
     public void setScale(float x, float y, float z) {
         modelMatrix.scale(x, y, z);
@@ -251,8 +254,19 @@ public class MeshRenderer {
             Camera camera = playerController.getCamera();
             
             if(!isDynamic) {
-                modelMatrix.identity();
-                if(meshData.hasScale()) setScale();
+                modelMatrix
+                    .identity()
+                    .translate(position);
+                if(hasCustomScale) {
+                    modelMatrix.scale(scale);
+                } else if(meshData.hasScale()) {
+                    float[] dataScale = meshData.getScale();
+                    modelMatrix.scale(
+                        dataScale[0],
+                        dataScale[1],
+                        dataScale[2]
+                    );
+                }
             }
             
             shaderProgram.bind();
