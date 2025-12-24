@@ -22,6 +22,11 @@ public class MapController implements EnvInstance<MapController> {
 
     @Override
     public MapController getInstance() {
+        if(mapGenerator == null) createGenerator();
+        return this;
+    }
+
+    private void createGenerator() {
         this.mapGenerator = new MapGenerator(
             tick, 
             mesh, 
@@ -31,7 +36,6 @@ public class MapController implements EnvInstance<MapController> {
             stateController,
             collisionManager
         );
-        return this;
     }
 
     /**

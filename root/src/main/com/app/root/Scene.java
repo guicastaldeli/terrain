@@ -109,9 +109,9 @@ public class Scene {
      * Start
      */
     private void start() {
-        //mesh.addModel("dino", "dino");
         envRenderer.render();
 
+        spawner.initialSpawn();
         spawner.setActive(true);
         spawner.printSpawnerStatus();
     }

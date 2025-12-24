@@ -1,8 +1,5 @@
 package main.com.app.root.env.tree;
 import main.com.app.root.mesh.Mesh;
-import main.com.app.root.mesh.MeshData;
-import main.com.app.root.mesh.MeshLoader;
-
 import java.util.Random;
 import org.joml.Vector3f;
 
@@ -38,10 +35,8 @@ public class TreeGenerator {
     private void createMesh() {
         try {
             String treeName = "tree" + treeData.getLevel();
-            //MeshData data = MeshLoader.load(MeshData.MeshType.RECTANGLE, treeName);
             mesh.addModel(MESH_ID, treeName);
             mesh.setPosition(MESH_ID, position);
-            //data.setIsDynamic(false);
             
             System.out.println("Created mesh for " + treeName);
         } catch(Exception err) {
@@ -150,7 +145,7 @@ public class TreeGenerator {
     public void render() {
         if(isAlive) {
             //mesh.render(MESH_ID, getLevel());
-            System.out.println("Rendering tree " + id);
+            //System.out.println("Rendering tree " + id);
         }
     }
 }

@@ -353,16 +353,106 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_load
     FILE* file = fopen(path, "rb");
     
     if(!file) {
+        printf("Failed to open map file: %s\n", path);
         (*env)->ReleaseStringUTFChars(env, filePath, path);
         return JNI_FALSE;
     }
 
-    // implement the full file loader (file header and data)
-    // HERE... later
+    unsigned long fileSeed;
+    int chunksX, chunksZ;
+    int storedPointCount;
+    
+    fread(&fileSeed, sizeof(unsigned long), 1, file);
+    fread(&chunksX, sizeof(int), 1, file);
+    fread(&chunksZ, sizeof(int), 1, file);
+    fread(&storedPointCount, sizeof(int), 1, file);
+    
+    printf("Loading map: seed=%lu, chunks=%dx%d, points=%d\n", 
+           fileSeed, chunksX, chunksZ, storedPointCount);
+    
+    fseek(file, storedPointCount * sizeof(Point), SEEK_CUR);
+    
+    int poissonCount;
+    fread(&poissonCount, sizeof(int), 1, file);
+    fseek(file, poissonCount * sizeof(PoissonPoint), SEEK_CUR);
+    
+    int width = chunksX * CHUNK_SIZE;
+    int height = chunksZ * CHUNK_SIZE;
+    
+    if(heightMapData) free(heightMapData);
+    if(indicesData) free(indicesData);
+    if(normalsData) free(normalsData);
+    if(colorsData) free(colorsData);
+    if(pointData) free(pointData);
+    heightMapData = malloc(width * height * sizeof(float));
+    
+    for(int cx = 0; cx < chunksX; cx++) {
+        for(int cz = 0; cz < chunksZ; cz++) {
+            float chunkHeights[CHUNK_SIZE][CHUNK_SIZE];
+            fread(chunkHeights, sizeof(float), CHUNK_SIZE * CHUNK_SIZE, file);
+            
+            fseek(file, CHUNK_SIZE * CHUNK_SIZE * sizeof(unsigned char), SEEK_CUR);
+            fseek(file, CHUNK_SIZE * CHUNK_SIZE * sizeof(int), SEEK_CUR);
+            fseek(file, CHUNK_SIZE * CHUNK_SIZE * sizeof(unsigned char), SEEK_CUR);
+            
+            for(int x = 0; x < CHUNK_SIZE; x++) {
+                for(int z = 0; z < CHUNK_SIZE; z++) {
+                    int worldX = cx * CHUNK_SIZE + x;
+                    int worldZ = cz * CHUNK_SIZE + z;
+                    int index = worldX * height + worldZ;
+                    heightMapData[index] = chunkHeights[x][z];
+                }
+            }
+        }
+    }
+    
+    mapWidth = width;
+    mapHeight = height;
+    vertexCount = width * height;
+    indexCount = (width - 1) * (height - 1) * 6;
+    
+    printf("Loaded heightmap: %dx%d\n", mapWidth, mapHeight);
+    
+    float** heightMap = malloc(width * sizeof(float*));
+    for(int i = 0; i < width; i++) {
+        heightMap[i] = malloc(height * sizeof(float));
+        for(int j = 0; j < height; j++) {
+            heightMap[i][j] = heightMapData[i * width + j];
+        }
+    }
+    
+    float* vertices;
+    int* indices;
+    float* normals;
+    float* colors;
+    int vCount;
+    int iCount;
+    
+    generateMapMeshData(
+        heightMap, 
+        width, 
+        height, 
+        &vertices, 
+        &indices, 
+        &normals, 
+        &colors, 
+        &vCount, 
+        &iCount
+    );
+    
+    indicesData = indices;
+    normalsData = normals;
+    colorsData = colors;
+    
+    for(int i = 0; i < width; i++) {
+        free(heightMap[i]);
+    }
+    free(heightMap);
     
     fclose(file);
     (*env)->ReleaseStringUTFChars(env, filePath, path);
     
+    printf("Successfully loaded map from file\n");
     return JNI_TRUE;
 }
 

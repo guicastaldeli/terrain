@@ -30,8 +30,8 @@ public class Spawner {
 
     private float spawnTimer;
     private float spawnRate = 2.0f;
-    private float minSpawnDistance = 5.0f;
-    private float maxSpawnDistance = 100.0f;
+    private float minSpawnDistance = 80.0f;
+    private float maxSpawnDistance = 500.0f;
 
     private enum SpawnType {
         TREE
@@ -62,8 +62,6 @@ public class Spawner {
         this.treeData = new TreeData();
         this.treeData.createDefaultConfigs();
         this.isActive = true;
-
-        initialSpawn();
     }
 
     private void initLevelDistribution() {
@@ -83,7 +81,7 @@ public class Spawner {
     /**
      * Initial Spawn
      */
-    private void initialSpawn() {
+    public void initialSpawn() {
         int treesToSpawn = Math.min(maxObjs, 50);
         System.out.println("Initial spawn: Creating " + treesToSpawn + " trees...");
         for(int i = 0; i < treesToSpawn; i++) spawnSingleTree();

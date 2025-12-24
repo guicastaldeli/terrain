@@ -40,6 +40,9 @@ public class MapGenerator {
     private final StateController stateController;
     private final CollisionManager collisionManager;
 
+    private boolean isReady = false;
+    private Runnable onReadyCallback;
+    
     public MapGenerator(
         Tick tick, 
         Mesh mesh,
@@ -120,10 +123,25 @@ public class MapGenerator {
         try {
             SaveFile saveFile = new SaveFile(saveId);
             if(saveFile.hasData("world", "d.m.0")) {
-                byte[] mapData = saveFile.loadData("world", "d.m.0");
+                // Get the actual file path
+                Path mapFilePath = saveFile.getSavePath()
+                    .resolve("world")
+                    .resolve("d.m.0.dat");
                 
-                System.out.println("Map loaded from save: " + saveId);
-                return true;
+                boolean success = noiseGeneratorWrapper.loadMapData(mapFilePath.toString());
+                
+                if(success) {
+                    heightMapData = noiseGeneratorWrapper.getHeightMapData();
+                    mapWidth = noiseGeneratorWrapper.getMapWidth();
+                    mapHeight = noiseGeneratorWrapper.getMapHeight();
+                    
+                    System.out.println("Map loaded from save: " + saveId);
+                    System.out.println("Map dimensions: " + mapWidth + "x" + mapHeight);
+                    return true;
+                } else {
+                    System.err.println("Native loader failed, regenerating map");
+                    return generateNewMap(saveId);
+                }
             } else {
                 System.out.println("No map data found in save, generating new map");
                 return generateNewMap(saveId);
@@ -131,7 +149,7 @@ public class MapGenerator {
         } catch (Exception err) {
             System.err.println("Failed to load map from save: " + saveId);
             err.printStackTrace();
-            return false;
+            return generateNewMap(saveId);
         }
     }
 
@@ -218,8 +236,17 @@ public class MapGenerator {
             return;
         }
 
-        float[] heightData = noiseGeneratorWrapper.getHeightMapData();
-        float[] vertices = createVertices(heightData);
+        heightMapData = noiseGeneratorWrapper.getHeightMapData();
+        mapWidth = noiseGeneratorWrapper.getMapWidth();
+        mapHeight = noiseGeneratorWrapper.getMapHeight();
+        
+        if(heightMapData == null || heightMapData.length == 0) {
+            System.err.println("heightMapData is null after generation!");
+            System.err.println("Map width: " + mapWidth + ", height: " + mapHeight);
+            return;
+        }
+    
+        float[] vertices = createVertices(heightMapData);
         int[] indices = noiseGeneratorWrapper.getIndicesData();
         float[] normals = noiseGeneratorWrapper.getNormalsData();
         float[] colors = noiseGeneratorWrapper.getColorsData();
@@ -233,8 +260,7 @@ public class MapGenerator {
         if(colors != null && colors.length > 0) meshData.setColors(colors);
 
         mesh.add(MAP_ID, meshData);
-        createCollider(heightData);
-        //loadTex();
+        createCollider(heightMapData);
     }
 
     /**
@@ -263,8 +289,18 @@ public class MapGenerator {
     }
 
     public float getHeightAt(float x, float z) {
-        if(heightMapData == null) return 0.0f;
-    
+        if(heightMapData == null) {
+            heightMapData = noiseGeneratorWrapper.getHeightMapData();
+            if(heightMapData != null) {
+                mapWidth = noiseGeneratorWrapper.getMapWidth();
+                mapHeight = noiseGeneratorWrapper.getMapHeight();
+                System.out.println("Retrieved from wrapper: " + heightMapData.length + " floats");
+            } else {
+                System.out.println("Still null even from wrapper!");
+                return 0.0f;
+            }
+        }
+        
         int mapX = (int)(x + mapWidth / 2.0f);
         int mapZ = (int)(z + mapHeight / 2.0f);
         
@@ -276,6 +312,7 @@ public class MapGenerator {
             return heightMapData[index];
         }
         
+        System.out.println("Index out of bounds! Index =" + index + ", array length=" + heightMapData.length);
         return 0.0f;
     }
 
@@ -287,13 +324,23 @@ public class MapGenerator {
         mesh.render(MAP_ID, 0);
     }
 
-
     /**
      * Render
      */
+    public void setOnReadyCallback(Runnable callback) {
+        this.onReadyCallback = callback;
+    }
+
     public void render() {
         generate();
         System.out.println("Map generated...");
         addMapCollider();
+
+        isReady = true;
+        if(onReadyCallback != null) onReadyCallback.run();
+    }
+
+    public boolean isReady() {
+        return isReady;
     }
 }
