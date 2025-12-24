@@ -80,24 +80,24 @@ public class InputController {
         });
 
         glfwSetMouseButtonCallback(windowHandle, (w, button, action, mods) -> {
-            /* Right Button */
-            if(button == GLFW_MOUSE_BUTTON_RIGHT) {
-                boolean pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
-                if(playerInputMap != null) playerInputMap.setMouseButtonState(button, pressed);
-                if(pressed) return;
-            }
-            /* Left Button */
+            boolean pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
+            
+            if(playerInputMap != null) playerInputMap.setMouseButtonState(button, pressed);
+            updateCursorState();
+            if(button == GLFW_MOUSE_BUTTON_RIGHT && pressed) return;
             if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-                double[] xPos = new double[1];
-                double[] yPos = new double[1];
-                glfwGetCursorPos(w, xPos, yPos);
-                
-                String clickedAction = screenController.checkClick(
-                    (int)xPos[0], 
-                    (int)yPos[0]
-                );
-                if(clickedAction != null) {
-                    screenController.getCurrentInputHandler().handleAction(clickedAction);
+                if(screenController.shouldCursorBeEnabled()) {
+                    double[] xPos = new double[1];
+                    double[] yPos = new double[1];
+                    glfwGetCursorPos(w, xPos, yPos);
+                    
+                    String clickedAction = screenController.checkClick(
+                        (int)xPos[0], 
+                        (int)yPos[0]
+                    );
+                    if(clickedAction != null) {
+                        screenController.getCurrentInputHandler().handleAction(clickedAction);
+                    }
                 }
             }
         });

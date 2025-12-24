@@ -96,7 +96,7 @@ public class Scene {
                 envController
             );
             mesh.setPlayerController(playerController);
-            
+
             this.envRenderer = new EnvRenderer(
                 envController, 
                 collisionManager,
@@ -130,6 +130,7 @@ public class Scene {
         mesh.update();
         envRenderer.update();
         spawner.update();
+        playerController.getInputMap().getTreeInteractor().update();
     }
 
     /**

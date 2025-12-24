@@ -19,7 +19,7 @@ public class TreeInteractor {
     private float swingTimer = 0f;
     private boolean isSwinging = false;
     private float swingCooldown = 0.5f;
-    private float interactionRange = 5.0f;
+    private float interactionRange = 200.0f;
 
     public TreeInteractor(
         Tick tick,

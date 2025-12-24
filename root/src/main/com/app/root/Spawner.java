@@ -175,23 +175,47 @@ public class Spawner {
      * Nearest Tree
      */
     public TreeController getNearestTree(Vector3f position, float maxDistance) {
-        TreeController nearest = null;
-        float nearestDistance = Float.MAX_VALUE;
-        for(TreeController tree : treeData.trees) {
-            Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
-            
-            boolean isAlive = (Boolean) EnvCall.callReturn(treeGenerator, "isAlive");
-            if(!isAlive) continue;
-
-            Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
-            float distance = treePos.distance(position);
-            if(distance <= maxDistance && distance < nearestDistance) {
-                nearestDistance = distance;
-                nearest = tree;
-            }
+    System.out.println("DEBUG [getNearestTree]: Looking near [" + position.x + ", " + position.z + 
+                      "] within " + maxDistance + " units");
+    
+    TreeController nearest = null;
+    float nearestDistance = Float.MAX_VALUE;
+    int checked = 0;
+    int aliveCount = 0;
+    
+    for(TreeController tree : treeData.trees) {
+        checked++;
+        Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
+        
+        if(treeGenerator == null) {
+            System.out.println("  Tree " + checked + ": generator is NULL");
+            continue;
         }
-        return nearest;
+        
+        boolean isAlive = (Boolean) EnvCall.callReturn(treeGenerator, "isAlive");
+        if(!isAlive) {
+            System.out.println("  Tree " + checked + ": not alive");
+            continue;
+        }
+        
+        aliveCount++;
+        Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
+        float distance = treePos.distance(position);
+        
+        System.out.println("  Tree " + checked + ": at [" + treePos.x + ", " + treePos.z + 
+                          "] distance: " + distance);
+        
+        if(distance <= maxDistance && distance < nearestDistance) {
+            nearestDistance = distance;
+            nearest = tree;
+            System.out.println("    -> New nearest!");
+        }
     }
+    
+    System.out.println("DEBUG [getNearestTree]: Checked " + checked + " trees, " + 
+                      aliveCount + " alive, found: " + (nearest != null ? "YES" : "NO"));
+    return nearest;
+}
 
     /**
      * Respawn Tree
