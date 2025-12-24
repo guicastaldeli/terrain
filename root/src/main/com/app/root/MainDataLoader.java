@@ -1,5 +1,9 @@
 package main.com.app.root;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
@@ -33,7 +37,7 @@ public class MainDataLoader {
             return data;
         } catch(Exception e) {
             System.err.println("Failed to load game data: " + e.getMessage());
-            return createDefaultGameData();
+            return createDefaultData();
         }
     }
 
@@ -42,7 +46,22 @@ public class MainDataLoader {
         data.setWood(0);
         data.setAxeLevel(0);
         data.setCurrentAxe("axe0");
-        data.setUpgradeCosts(new int[]{100, 200, 300, 400, 500, 600, 700, 800, 900, 1000});
+
+        saveData(data);
         return data;
+    }
+
+    public static void saveData(MainData data) {
+        try {
+            String filePath = DATA_PATH;
+            File dir = new File(DATA_PATH);
+    
+            try(FileWriter writer = new FileWriter(filePath)) {
+                writer.write(data.toString());
+            }
+        } catch(IOException err) {
+            System.err.println("Failed to save game data: " + err.getMessage());
+            err.printStackTrace();
+        }
     }
 }

@@ -5,7 +5,7 @@ import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 
 public class Upgrader {
-    MainData data;
+    private MainData data;
     private EnvController envController;
 
     public Upgrader(EnvController envController) {
