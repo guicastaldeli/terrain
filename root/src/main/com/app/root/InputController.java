@@ -84,6 +84,7 @@ public class InputController {
             
             if(playerInputMap != null) playerInputMap.setMouseButtonState(button, pressed);
             updateCursorState();
+            
             if(button == GLFW_MOUSE_BUTTON_RIGHT && pressed) return;
             if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
                 if(screenController.shouldCursorBeEnabled()) {

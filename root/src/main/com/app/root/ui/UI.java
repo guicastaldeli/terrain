@@ -2,12 +2,10 @@ package main.com.app.root.ui;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
-import main.com.app.root.screen_controller.Screen;
 import main.com.app.root._font.FontConfig;
 import main.com.app.root._font.FontMap;
+import main.com.app.root.Console;
 import main.com.app.root.DocParser;
-import org.joml.Vector2f;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UI {
@@ -22,6 +20,7 @@ public class UI {
     public String filePath;
     public UIData uiData;
     public boolean visible;
+    private UIElement uiElement;
 
     public UI(String filePath, String uiName) {
         this.filePath = filePath;
@@ -39,8 +38,8 @@ public class UI {
 
             this.uiData = DocParser.parseUI(
                 filePath, 
-                Screen.window.getWidth(), 
-                Screen.window.getHeight()
+                window.getWidth(), 
+                window.getHeight()
             );
             
             System.out.println("ui initialized successfully");
@@ -66,5 +65,32 @@ public class UI {
             System.err.println("Failed to initialize UI: " + uiName);
             e.printStackTrace();
         }
+    }
+
+    public boolean isClickable() {
+        return 
+            uiElement.type.equals("button") || 
+            uiElement.type.equals("upgrade_button") || 
+            uiElement.type.equals("equip_button");
+    }
+
+    public String checkClick(int mouseX, int mouseY) {
+        if(!visible) return null;
+
+        List<UIElement> buttons = DocParser.getElementsByType(uiData, "button");
+        for(UIElement button : buttons) {
+            float width = textRenderer.getTextWidth(button.text, button.scale);
+            float height = textRenderer.getFontMetrics().lineHeight * button.scale;
+
+            if(mouseX >= button.x && 
+                mouseX <= button.x + width &&
+                mouseY >= button.y && 
+                mouseY <= button.y + height
+            ) {
+                Console.getInstance().handleAction(button.action);
+                return button.action;
+            }
+        }
+        return null;
     }
 }

@@ -8,7 +8,6 @@ import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveLoader;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
-
 import java.util.HashMap;
 import java.util.Map;
 import static org.lwjgl.glfw.GLFW.*;

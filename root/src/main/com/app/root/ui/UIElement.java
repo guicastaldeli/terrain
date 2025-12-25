@@ -64,4 +64,12 @@ public class UIElement {
     public boolean hasBorder() { 
         return borderWidth > 0.0f; 
     }
+
+    public void setText(String newText) {
+        this.text = newText;
+    }
+        
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 }
