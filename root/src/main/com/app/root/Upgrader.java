@@ -90,6 +90,14 @@ public class Upgrader {
         return cachedAxeLevel;
     }
 
+    public int getMaxUnlockedAxeLevel() {
+        return data.getAxeLevel();
+    }
+    
+    public int getEquippedAxeLevel() {
+        return cachedAxeLevel;
+    }
+
     private void saveData() {
         MainDataLoader.saveData(data);
     }
