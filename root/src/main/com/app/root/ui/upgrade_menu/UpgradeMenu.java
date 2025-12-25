@@ -17,7 +17,6 @@ public class UpgradeMenu extends UI {
     private final ShaderProgram shaderProgram;
     private final UIController uiController;
 
-    private Upgrader upgrader;
     private UpgradeMenuActions upgradeMenuActions;
     
     private int currentAxeLevel = 0;
@@ -28,15 +27,17 @@ public class UpgradeMenu extends UI {
         ShaderProgram shaderProgram,
         UIController uiController
     ) {
-        super(UI_PATH, "UPGRADE_MENU");
-
+        super(UI_PATH, "upgrade");
 
         this.window = window;
         this.shaderProgram = shaderProgram;
         this.uiController = uiController;
 
+        this.axeSlots = new ArrayList<>();
         this.currentAxeLevel = upgrader.getAxeLevel();
         refreshAxeSlots();
+        
+        this.upgradeMenuActions = new UpgradeMenuActions(this);
     }
 
     @Override
@@ -208,8 +209,9 @@ public class UpgradeMenu extends UI {
 
     @Override 
     public void render() {
-        DocParser.renderUI(uiData, 1280, 720, shaderProgram, textRenderer);
+        System.out.println("TTETTETTSTSTSTSTTSTS");
         super.render();
+        DocParser.renderUI(uiData, 1280, 720, shaderProgram, textRenderer);
     }
 
     @Override

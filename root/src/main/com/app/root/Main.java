@@ -95,8 +95,6 @@ public class Main {
             stateController
         );
 
-        uiController = new UIController(window, shaderProgram);
-
         console.init(this, window, screenController);
         console.setScene(scene);
 
@@ -104,7 +102,8 @@ public class Main {
         window.setScreenController(screenController);
 
         inputController = new InputController(window);
-        inputController.init(screenController, uiController);
+        inputController.init(screenController);
+        scene.setInputController(inputController);
     }
 
     private void startAutoSaveThread() {
@@ -190,6 +189,7 @@ public class Main {
             inputController.setPlayerInputMap(scene.getPlayerController().getInputMap());
             scene.render();  
             screenController.render();
+            scene.getUIController().render();
         } else {
             screenController.render();
         }

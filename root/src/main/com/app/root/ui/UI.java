@@ -6,6 +6,7 @@ import main.com.app.root._font.FontConfig;
 import main.com.app.root._font.FontMap;
 import main.com.app.root.Console;
 import main.com.app.root.DocParser;
+import main.com.app.root.Upgrader;
 import java.util.List;
 
 public class UI implements UIHandler {
@@ -14,6 +15,7 @@ public class UI implements UIHandler {
     public static Window window;
     public static ShaderProgram shaderProgram;
     public static UIController uiController;
+    public static Upgrader upgrader;
     public TextRenderer textRenderer;
 
     public String uiName;
@@ -22,6 +24,22 @@ public class UI implements UIHandler {
     public boolean visible;
     private UIElement uiElement;
 
+    public static void init(
+        Window window, 
+        ShaderProgram shaderProgram, 
+        UIController uiController,
+        Upgrader upgrader
+    ) {
+        try {
+            UI.window = window;
+            UI.shaderProgram = shaderProgram;
+            UI.uiController = uiController;
+            UI.upgrader = upgrader;
+        } catch (Exception e) {
+            //System.err.println("Failed to initialize UI: " + UI.uinam);
+            e.printStackTrace();
+        }
+    }
     public UI(String filePath, String uiName) {
         this.filePath = filePath;
         this.uiName = uiName;
@@ -50,20 +68,6 @@ public class UI implements UIHandler {
             System.err.println("Failed to init ui: " + uiName);
             System.err.println("Error: " + err.getMessage());
             err.printStackTrace();
-        }
-    }
-    private void init(
-        Window window, 
-        ShaderProgram shaderProgram, 
-        UIController uiController
-    ) {
-        try {
-            UI.window = window;
-            UI.shaderProgram = shaderProgram;
-            UI.uiController = uiController;
-        } catch (Exception e) {
-            System.err.println("Failed to initialize UI: " + uiName);
-            e.printStackTrace();
         }
     }
 

@@ -1,6 +1,7 @@
 package main.com.app.root;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player_controller.PlayerController;
+import main.com.app.root.ui.UIController;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvController;
@@ -20,6 +21,8 @@ public class Scene {
     private EnvRenderer envRenderer;
     private DependencyContainer dependencyContainer;
     private CollisionManager collisionManager;
+    private UIController uiController;
+    private InputController inputController;
 
     private Spawner spawner;
     private Upgrader upgrader;
@@ -50,6 +53,14 @@ public class Scene {
 
     public PlayerController getPlayerController() {
         return playerController;
+    }
+
+    public void setInputController(InputController inputController) {
+        this.inputController = inputController;
+    } 
+
+    public UIController getUIController() {
+        return uiController;
     }
 
     /**
@@ -87,6 +98,13 @@ public class Scene {
             spawner.setEnvController(envController);
             
             this.upgrader = new Upgrader(envController);
+
+            this.uiController = new UIController(
+                window, 
+                shaderProgram, 
+                upgrader
+            );
+            inputController.setUiController(uiController);
 
             this.playerController = new PlayerController(
                 tick, 

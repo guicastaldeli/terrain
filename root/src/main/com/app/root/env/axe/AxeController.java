@@ -109,6 +109,10 @@ public class AxeController implements EnvInstance<AxeController> {
         createMesh();
     }
 
+    public AxeData getAxeData() {
+        return axeData;
+    }
+
     /**
      * Render
      */

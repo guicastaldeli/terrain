@@ -1,4 +1,5 @@
 package main.com.app.root.ui;
+import main.com.app.root.Upgrader;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.ui.upgrade_menu.UpgradeMenu;
@@ -14,6 +15,7 @@ public class UIController {
 
     private final Window window;
     private final ShaderProgram shaderProgram;
+    private final Upgrader upgrader;
 
     private Map<UIType, UI> uis;
     private UIType active;
@@ -22,9 +24,20 @@ public class UIController {
     private boolean isVisible = false;
     private boolean[] keyPresed = new boolean[GLFW_KEY_LAST + 1];
 
-    public UIController(Window window, ShaderProgram shaderProgram) {
+    public UIController(
+        Window window, 
+        ShaderProgram shaderProgram,
+        Upgrader upgrader
+    ) {
         this.window = window;
         this.shaderProgram = shaderProgram;
+        this.upgrader = upgrader;
+        UI.init(
+            window, 
+            shaderProgram, 
+            this,
+            upgrader
+        );
 
         this.uis = new HashMap<>();
         
@@ -32,7 +45,8 @@ public class UIController {
     }
 
     public boolean handleKeyPress(int key, int action) {
-        if(!isVisible || currentUI == null) return false;
+        //if(!isVisible || currentUI == null) return false;
+        System.out.println(currentUI);
 
         if(key == GLFW_KEY_E && action == GLFW_PRESS) {
             toggle(UIType.UPGRADE_MENU);
@@ -50,11 +64,11 @@ public class UIController {
     }
 
     public boolean handleMouseClick(double mouseX, double mouseY, int button, int action) {
-        if (!isVisible || currentUI == null) return false;
+        //if(!isVisible || currentUI == null) return false;
         
-        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
             String clickedElement = currentUI.checkClick((int) mouseX, (int) mouseY);
-            if (clickedElement != null) {
+            if(clickedElement != null) {
                 currentUI.handleAction(clickedElement);
                 return true;
             }
@@ -128,8 +142,14 @@ public class UIController {
     }
 
     public void render() {
+    System.out.println("UIController.render() called - isVisible: " + isVisible + ", currentUI: " + currentUI);
+    if(currentUI != null) {
+        System.out.println("About to call currentUI.render() for: " + currentUI.getClass().getSimpleName());
         currentUI.render();
+    } else {
+        System.out.println("currentUI is null, not rendering");
     }
+}
 
     public void onWindowResize(int width, int height) {
         for(UI ui : uis.values()) {

@@ -42,6 +42,7 @@ public class AxeData {
 
         this.axes = new ArrayList<>();
         this.configs = new HashMap<>();
+        this.upgradeCostsByLevel = new HashMap<>();
         this.currentAxeId = 0;
     }
 

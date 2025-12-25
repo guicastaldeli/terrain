@@ -1,30 +1,25 @@
 package main.com.app.root;
-
 import main.com.app.root.screen_controller.ScreenData;
 import main.com.app.root.screen_controller.ScreenElement;
 import main.com.app.root.ui.UIData;
 import main.com.app.root.ui.UIElement;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import org.lwjgl.BufferUtils;
+import java.nio.FloatBuffer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
-import org.lwjgl.BufferUtils;
-import java.nio.FloatBuffer;
-import java.rmi.server.UID;
 
 public class DocParser {
     private static int uiVao = 0;

@@ -21,15 +21,18 @@ public class InputController {
         this.window = window;
     }
 
-    public void init(ScreenController screenController, UIController uiController) {
+    public void init(ScreenController screenController) {
         this.screenController = screenController;
-        this.uiController = uiController;
         setupCallbacks();
     }
 
     public void setPlayerInputMap(PlayerInputMap playerInputMap) {
         this.playerInputMap = playerInputMap;
     }
+
+    public void setUiController(UIController uiController) {
+        this.uiController = uiController;
+    } 
 
     private void setupCallbacks() {
         long windowHandle = window.getWindow();
@@ -39,6 +42,7 @@ public class InputController {
                 keyPressed[key] = action != GLFW_RELEASE;
             }
 
+            uiController.handleKeyPress(key, action);
             if(uiController != null && uiController.handleKeyPress(key, action)) {
                 updateCursorState();
                 return;
