@@ -5,6 +5,7 @@ import org.joml.Vector3f;
 
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
+import main.com.app.root.Upgrader;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.player_controller.PlayerController;
 
@@ -13,6 +14,7 @@ public class DataGetter {
     public final StateController stateController;
     public final EnvController envController;
     public final PlayerController playerController;
+    private Upgrader upgrader;
 
     public DataGetter(
         DataController dataController,
@@ -24,6 +26,10 @@ public class DataGetter {
         this.stateController = stateController;
         this.envController = envController;
         this.playerController = playerController;
+    }
+
+    public void setUpgrader(Upgrader upgrader) {
+        this.upgrader = upgrader;
     }
 
     /**
@@ -64,6 +70,10 @@ public class DataGetter {
             data.put("rotation_x", rotation.x);
             data.put("rotation_y", rotation.y);
             data.put("rotation_z", rotation.z);
+        }
+        if(upgrader != null) {
+            data.put("wood", upgrader.getWood());
+            data.put("axe_level", upgrader.getAxeLevel());
         }
         data.put("items", dataController.getItems());
         return data;
@@ -126,6 +136,16 @@ public class DataGetter {
                 float ry = ((Number) data.get("rotation_y")).floatValue();
                 float rz = ((Number) data.get("rotation_z")).floatValue();
                 playerController.getPlayerMesh().setMeshRotation(rx, ry, rz);
+            }
+        }
+        if(upgrader != null) {
+            if(data.containsKey("wood")) {
+                int wood = ((Number) data.get("wood")).intValue();
+                upgrader.setWood(wood);
+            }
+            if(data.containsKey("axe_level")) {
+                int axeLevel = ((Number) data.get("axe_level")).intValue();
+                upgrader.setAxeLevel(axeLevel);
             }
         }
     }

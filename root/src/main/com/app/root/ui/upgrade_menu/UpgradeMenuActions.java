@@ -15,7 +15,8 @@ public class UpgradeMenuActions {
 
         int currentLevel = upgradeMenu.getCurrentAxeLevel();
         if(level <= currentLevel) {
-            upgradeMenu.setCurrentAxeLevel(currentLevel);
+            upgradeMenu.getUpgrader().equipAxe(level);
+            upgradeMenu.setCurrentAxeLevel(level);
             upgradeMenu.refreshAxeSlots();
             System.out.println("Equipped axe level " + level);
         }

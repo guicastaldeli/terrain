@@ -6,5 +6,6 @@ public interface UIHandler {
     default void handleKeyPress(int key, int action) {};
     default void onWindowResize(int width, int height) {};
     default void onShow() {};
+    default void onHide() {};
     default void update() {};
 }

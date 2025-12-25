@@ -74,6 +74,7 @@ public class Main {
             scene.getEnvController(), 
             scene.getPlayerController()
         );
+        dataGetter.setUpgrader(scene.getUpgrader());
         saveGenerator = new SaveGenerator(
             dataController, 
             stateController, 

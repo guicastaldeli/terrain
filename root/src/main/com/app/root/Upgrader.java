@@ -6,10 +6,13 @@ import main.com.app.root.env.EnvData;
 public class Upgrader {
     private MainData data;
     private EnvController envController;
+    private int cachedAxeLevel;
 
     public Upgrader(EnvController envController) {
         this.data = MainDataLoader.load();
         this.envController = envController;
+        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+        this.cachedAxeLevel = (int) EnvCall.callReturn(axeInstance, "getLevel");
     }
 
     /**
@@ -28,23 +31,37 @@ public class Upgrader {
 
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
         int upgradeCost = (int) EnvCall.callReturn(axeInstance, "getUpgradeCost");
+        data.setWood(data.getWood() - upgradeCost);
         EnvCall.call(axeInstance, "upgrade");
+        
+        cachedAxeLevel++;
+        data.setAxeLevel(cachedAxeLevel);
+        data.setCurrentAxe("axe" + cachedAxeLevel);
 
         saveData();
+        
+        System.out.println("Upgraded! New level: " + cachedAxeLevel);
         return true;
+    }
+
+    public void equipAxe(int level) {
+        if(level < 0 || level > data.getAxeLevel()) return;
+
+        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+        EnvCall.callWithParams(axeInstance, new Object[]{level}, "setLevel");
+
+        cachedAxeLevel = level;
+        data.setCurrentAxe("axe" + level);
+        saveData();
     }
 
     public void addWood(int amount) {
         data.setWood(data.getWood() + amount);
+        saveData();
     }
     
     public int getWood() {
         return data.getWood();
-    }
-    
-    public int getAxeLevel() {
-        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
-        return (int) EnvCall.callReturn(axeInstance, "getLevel");
     }
     
     public int getUpgradeCost(int targetLevel) {
@@ -58,7 +75,22 @@ public class Upgrader {
         );
     }
 
+    public void setWood(int amount) {
+        data.setWood(amount);
+    }
+
+    public void setAxeLevel(int level) {
+        cachedAxeLevel = level;
+        data.setAxeLevel(level);
+        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+        EnvCall.callWithParams(axeInstance, new Object[]{level}, "setLevel");
+    }
+
+    public int getAxeLevel() {
+        return cachedAxeLevel;
+    }
+
     private void saveData() {
-        //todo this later... :P
+        MainDataLoader.saveData(data);
     }
 }

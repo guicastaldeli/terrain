@@ -96,34 +96,35 @@ public class InputController {
         });
 
         glfwSetMouseButtonCallback(windowHandle, (w, button, action, mods) -> {
-            boolean pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
-            
-            if(playerInputMap != null) playerInputMap.setMouseButtonState(button, pressed);
-            updateCursorState();
-
-            if(button == GLFW_MOUSE_BUTTON_RIGHT && pressed) return;
             if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+                double[] xPos = new double[1];
+                double[] yPos = new double[1];
+                glfwGetCursorPos(w, xPos, yPos);
+                
+                if (uiController != null && uiController.handleMouseClick(xPos[0], yPos[0], button, action)) {
+                    return;
+                }
+                
                 if(screenController.shouldCursorBeEnabled()) {
-                    double[] xPos = new double[1];
-                    double[] yPos = new double[1];
-                    glfwGetCursorPos(w, xPos, yPos);
-                    if (uiController != null && uiController.handleMouseClick(xPos[0], yPos[0], button, action)) {
-                        updateCursorState();
-                        return;
-                    }
-                    
                     String clickedAction = screenController.checkClick(
                         (int)xPos[0], 
                         (int)yPos[0]
                     );
                     if(clickedAction != null) {
                         screenController.getCurrentInputHandler().handleAction(clickedAction);
+                        return;
                     }
                 }
             }
+            if(uiController == null || !uiController.isVisible()) {
+                boolean pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
+                if(playerInputMap != null) {
+                    playerInputMap.setMouseButtonState(button, pressed);
+                }
+            }
+            
+            updateCursorState();
         });
-
-        updateCursorState();
     }
 
     private void updateCursorState() {

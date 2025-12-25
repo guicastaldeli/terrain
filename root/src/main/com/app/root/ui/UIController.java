@@ -106,6 +106,7 @@ public class UIController {
      * Hide UI
      */
     public void hide() {
+        if(currentUI != null) currentUI.onHide();
         active = null;
         currentUI = null;
         isVisible = false;

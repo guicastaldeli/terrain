@@ -63,6 +63,10 @@ public class Scene {
         return uiController;
     }
 
+    public Upgrader getUpgrader() {
+        return upgrader;
+    }
+
     /**
      * Setup
      */

@@ -8,6 +8,10 @@ public class EnvRenderer {
     private final CollisionManager collisionManager;
     private final PlayerController playerController;
     
+    private final Object skyboxInstance;
+    private final Object mapInstance;
+    private final Object axeInstance;
+    
     public EnvRenderer(
         EnvController envController, 
         CollisionManager collisionManager,
@@ -16,6 +20,10 @@ public class EnvRenderer {
         this.envController = envController;
         this.collisionManager = collisionManager;
         this.playerController = playerController;
+        
+        this.skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
+        this.mapInstance = envController.getEnv(EnvData.MAP).getInstance();
+        this.axeInstance = envController.getEnv(EnvData.AXE).getInstance();
     }
 
     /**
@@ -23,15 +31,12 @@ public class EnvRenderer {
      */
     public void render() {
         /* Skybox */
-        Object skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
         EnvCall.call(skyboxInstance, "getMesh", "render");
 
         /* Map */
-        Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
         EnvCall.call(mapInstance, "getGenerator", "render");
 
         /* Axe */
-        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
         EnvCall.call(axeInstance, "render");
     }
     
@@ -40,10 +45,9 @@ public class EnvRenderer {
      */
     public void update() {
         /* Skybox */
-        Object skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
         EnvCall.call(skyboxInstance, "getMesh", "update");
 
-        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+        /* Axe */
         Vector3f playerPos = playerController.getPosition();
         EnvCall.callWithParams(axeInstance, new Object[]{playerPos}, "setPosition");
     }

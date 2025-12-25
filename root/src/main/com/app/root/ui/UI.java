@@ -71,6 +71,16 @@ public class UI implements UIHandler {
         }
     }
 
+    @Override
+    public void onShow() {
+        this.visible = true;
+    }
+
+    @Override
+    public void onHide() {
+        this.visible = false;
+    }
+
     public boolean isClickable() {
         return 
             uiElement.type.equals("button") || 

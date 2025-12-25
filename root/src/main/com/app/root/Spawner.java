@@ -81,9 +81,9 @@ public class Spawner {
      */
     public void initialSpawn() {
         int treesToSpawn = Math.min(maxObjs, 50);
-        System.out.println("Initial spawn: Creating " + treesToSpawn + " trees...");
+        //System.out.println("Initial spawn: Creating " + treesToSpawn + " trees...");
         for(int i = 0; i < treesToSpawn; i++) spawnSingleTree();
-        System.out.println("Spawner initialized with " + treeData.trees.size() + " trees");
+        //System.out.println("Spawner initialized with " + treeData.trees.size() + " trees");
     }
 
     /**
@@ -175,47 +175,53 @@ public class Spawner {
      * Nearest Tree
      */
     public TreeController getNearestTree(Vector3f position, float maxDistance) {
-    System.out.println("DEBUG [getNearestTree]: Looking near [" + position.x + ", " + position.z + 
-                      "] within " + maxDistance + " units");
-    
-    TreeController nearest = null;
-    float nearestDistance = Float.MAX_VALUE;
-    int checked = 0;
-    int aliveCount = 0;
-    
-    for(TreeController tree : treeData.trees) {
-        checked++;
-        Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
+        /*
+        System.out.println("DEBUG [getNearestTree]: Looking near [" + position.x + ", " + position.z + 
+                        "] within " + maxDistance + " units");
+                        */
         
-        if(treeGenerator == null) {
-            System.out.println("  Tree " + checked + ": generator is NULL");
-            continue;
+        TreeController nearest = null;
+        float nearestDistance = Float.MAX_VALUE;
+        int checked = 0;
+        int aliveCount = 0;
+        
+        for(TreeController tree : treeData.trees) {
+            checked++;
+            Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
+            
+            if(treeGenerator == null) {
+                System.out.println("  Tree " + checked + ": generator is NULL");
+                continue;
+            }
+            
+            boolean isAlive = (Boolean) EnvCall.callReturn(treeGenerator, "isAlive");
+            if(!isAlive) {
+                System.out.println("  Tree " + checked + ": not alive");
+                continue;
+            }
+            
+            aliveCount++;
+            Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
+            float distance = treePos.distance(position);
+            
+            /*
+            System.out.println("  Tree " + checked + ": at [" + treePos.x + ", " + treePos.z + 
+                            "] distance: " + distance);
+                            */
+            
+            if(distance <= maxDistance && distance < nearestDistance) {
+                nearestDistance = distance;
+                nearest = tree;
+                //System.out.println("    -> New nearest!");
+            }
         }
         
-        boolean isAlive = (Boolean) EnvCall.callReturn(treeGenerator, "isAlive");
-        if(!isAlive) {
-            System.out.println("  Tree " + checked + ": not alive");
-            continue;
-        }
-        
-        aliveCount++;
-        Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
-        float distance = treePos.distance(position);
-        
-        System.out.println("  Tree " + checked + ": at [" + treePos.x + ", " + treePos.z + 
-                          "] distance: " + distance);
-        
-        if(distance <= maxDistance && distance < nearestDistance) {
-            nearestDistance = distance;
-            nearest = tree;
-            System.out.println("    -> New nearest!");
-        }
+        /*
+        System.out.println("DEBUG [getNearestTree]: Checked " + checked + " trees, " + 
+                        aliveCount + " alive, found: " + (nearest != null ? "YES" : "NO"));
+                        */
+        return nearest;
     }
-    
-    System.out.println("DEBUG [getNearestTree]: Checked " + checked + " trees, " + 
-                      aliveCount + " alive, found: " + (nearest != null ? "YES" : "NO"));
-    return nearest;
-}
 
     /**
      * Respawn Tree
@@ -236,9 +242,11 @@ public class Spawner {
             EnvCall.callReturn(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
             treeData.trees.add((TreeController) treeInstance);
 
+            /*
             System.out.println("Respawned tree from level " + 
                               EnvCall.callReturn(oldGenerator, "getLevel") + 
                               " to level " + newLevel);
+                              */
         }
     }
 
@@ -254,15 +262,19 @@ public class Spawner {
             EnvCall.callReturn(treeGenerator, "tree_" + treeData.currentTreeId++, "setId");
             treeData.trees.add((TreeController) treeInstance);
 
+            /*
             System.out.println("Respawned tree at position [" + position.x + 
                               ", " + position.z + "] at level " + level);
+                              */
         }
     }
 
     public void setCenterPos(Vector3f newCenter) {
         this.centerPosition = newCenter;
+        /*
         System.out.println("Spawner center moved to [" + 
                           newCenter.x + ", " + newCenter.z + "]");
+                          */
     }
 
     public void setActive(boolean active) {
@@ -329,7 +341,7 @@ public class Spawner {
     private void adjustObjCount() {
         if(treeData.trees.size() > maxObjs) {
             int toRemove = treeData.trees.size() - maxObjs;
-            System.out.println("Removing " + toRemove + " excess trees");
+            //System.out.println("Removing " + toRemove + " excess trees");
             
             for(int i = 0; i < toRemove && !treeData.trees.isEmpty(); i++) {
                 TreeController tree = treeData.trees.remove(0);
@@ -377,8 +389,10 @@ public class Spawner {
         treeGenerator.setId(treeId);
         
         treeData.trees.add(treeController);
+        /*
         System.out.println("Spawned Level " + level + " tree at [" + 
                           position.x + ", " + position.z + "]");
+                          */
     }
 
     /**

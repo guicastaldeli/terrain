@@ -45,10 +45,18 @@ public class UpgradeMenu extends UI {
 
     @Override
     public void onShow() {
+        super.onShow();
         if(upgrader != null) {
+            this.visible = true;
             currentAxeLevel = upgrader.getAxeLevel();
             refreshAxeSlots();
         }
+    }
+
+    @Override
+    public void onHide() {
+        super.onHide();
+        this.visible = false;
     }
 
     /**
@@ -73,6 +81,12 @@ public class UpgradeMenu extends UI {
      * Update uiData.elements
      */
     private void updateEl() {
+        int startX = 100;
+        int startY = 250;
+        int slotWidth = 200;
+        int slotHeight = 80;
+        int slotSpacing = 20;
+
         List<UIElement> toRemove = new ArrayList<>();
         for(UIElement el : uiData.elements) {
             if(el.id.startsWith("axe_") || 
@@ -87,12 +101,13 @@ public class UpgradeMenu extends UI {
         }
         uiData.elements.removeAll(toRemove);
 
+        /* Wood */
         int playerWood = upgrader != null ? upgrader.getWood() : 0;
         UIElement woodCountLabel = new UIElement(
             "label",
             "wood_count",
             "Wood: " + playerWood,
-            50, 100,
+            80, 100,
             200, 30,
             1.0f,
             new float[]{0.9f, 0.8f, 0.6f, 1.0f},
@@ -100,24 +115,20 @@ public class UpgradeMenu extends UI {
         );
         uiData.elements.add(woodCountLabel);
         
+        /* Axe Current Level */
         UIElement currentAxeLabel = new UIElement(
             "label",
             "current_axe",
             "Current Axe: Level " + currentAxeLevel,
-            50, 130,
+            80, 150,
             200, 30,
-            0.9f,
+            1.0f,
             new float[]{0.0f, 1.0f, 0.0f, 1.0f},
             ""
         );
         uiData.elements.add(currentAxeLabel);
-
-        int startX = 100;
-        int startY = 150;
-        int slotWidth = 200;
-        int slotHeight = 80;
-        int slotSpacing = 20;
         
+        /* Slots */
         for(int i = 0; i < axeSlots.size(); i++) {
             AxeSlot slot = axeSlots.get(i);
             int slotX = startX + (i % 3) * (slotWidth + slotSpacing);
@@ -216,6 +227,7 @@ public class UpgradeMenu extends UI {
             int level = Integer.parseInt(action.substring(8));
             upgradeMenuActions.upgradeAxe(level);
         } else if(action.equals("close")) {
+            System.out.print(action);
             uiController.hide();
         }
     }

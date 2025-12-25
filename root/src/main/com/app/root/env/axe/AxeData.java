@@ -91,6 +91,7 @@ public class AxeData {
                 100 + (l * 50)
             );
             configs.put(l, data);
+            upgradeCostsByLevel.put(l, data.upgradeCost);
         }
     }
 
@@ -107,7 +108,11 @@ public class AxeData {
     }
 
     public int getUpgradeCostForLevel(int targetLevel) {
-        return upgradeCostsByLevel.getOrDefault(targetLevel, 100 * targetLevel);
+        if(configs.containsKey(targetLevel)) {
+            return configs.get(targetLevel).upgradeCost;
+        }
+        
+        return 100 + (targetLevel * 50);
     }
 
     @Override

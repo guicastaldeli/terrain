@@ -11,13 +11,31 @@ public class AxeController implements EnvInstance<AxeController> {
     private final String AXE_ID = "AXE"; 
     private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/item/";
     private AxeData axeData;
+    private static AxeController instance;
 
     @Override
     public AxeController getInstance() {
-        this.axeData = new AxeData("axe0", 0, 10.0f, 1.0f, 1, 100);
-        this.axeData.createDefaultConfigs();
-        createMesh();
-        return this;
+        if(instance == null) {
+            instance = this;
+            this.axeData = new AxeData("axe0", 0, 10.0f, 1.0f, 1, 100);
+            this.axeData.createDefaultConfigs();
+            createMesh();
+        }
+        return instance;
+    }
+
+    public void setLevel(int level) {
+        if(level < 0 || level > 10) return;
+
+        this.axeData.level = level;
+        AxeData newConfig = axeData.configs.get(level);
+        if(newConfig != null) {
+            axeData.damage = newConfig.damage;
+            axeData.speed = newConfig.speed;
+            axeData.woodMultiplier = newConfig.woodMultiplier;
+            axeData.upgradeCost = newConfig.upgradeCost;
+        }
+        updateMesh();
     }
 
     /**
@@ -34,7 +52,7 @@ public class AxeController implements EnvInstance<AxeController> {
 
     private void createMesh() {
         try {
-            String axeName = "axe" + axeData.getLevel();
+            String axeName = "axe" + axeData.level;
             mesh.addModel(AXE_ID, axeName);
             loadTex(axeName);
         } catch(Exception err) {
@@ -102,7 +120,7 @@ public class AxeController implements EnvInstance<AxeController> {
         }
     }
 
-     private void updateMesh() {
+    public void updateMesh() {
         if(mesh.hasMesh(AXE_ID)) {
             mesh.removeMesh(AXE_ID);
         }

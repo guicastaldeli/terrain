@@ -10,7 +10,7 @@
         <label 
             id="title" 
             text="Axe Upgrade Menu" 
-            x="800" y="70" 
+            x="780" y="70" 
             width="280" height="40" 
             scale="1.0" 
             color="1.0,1.0,1.0,1.0"
@@ -28,10 +28,10 @@
         
         <button 
             id="close_button" 
-            x="1050" y="570" 
-            width="100" height="40" 
-            scale="0.8" 
-            color="0.8,0.2,0.2,1.0" 
+            x="900" y="530" 
+            width="2000" height="60" 
+            scale="1.0" 
+            color="0.8,0.2,0.2,0.2" 
             action="close"
         >
             Close (E)

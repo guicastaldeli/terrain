@@ -1,9 +1,7 @@
 package main.com.app.root;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
