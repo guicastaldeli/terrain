@@ -46,7 +46,6 @@ public class UIController {
 
     public boolean handleKeyPress(int key, int action) {
         //if(!isVisible || currentUI == null) return false;
-        System.out.println(currentUI);
 
         if(key == GLFW_KEY_E && action == GLFW_PRESS) {
             toggle(UIType.UPGRADE_MENU);
@@ -64,7 +63,7 @@ public class UIController {
     }
 
     public boolean handleMouseClick(double mouseX, double mouseY, int button, int action) {
-        //if(!isVisible || currentUI == null) return false;
+        if(!isVisible || currentUI == null) return false;
         
         if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
             String clickedElement = currentUI.checkClick((int) mouseX, (int) mouseY);
@@ -81,7 +80,7 @@ public class UIController {
      * Init UIs
      */
     private void initUI() {
-        UpgradeMenu upgradeMenu = new UpgradeMenu(window, shaderProgram, this);
+        UpgradeMenu upgradeMenu = new UpgradeMenu(window, shaderProgram, this, upgrader);
         uis.put(UIType.UPGRADE_MENU, upgradeMenu);
     }
 
@@ -97,6 +96,7 @@ public class UIController {
         currentUI = uis.get(uiType);
 
         if(currentUI != null) {
+            currentUI.onShow();
             isVisible = true;
             glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }

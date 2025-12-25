@@ -16,6 +16,7 @@ public class UpgradeMenu extends UI {
     private final Window window;
     private final ShaderProgram shaderProgram;
     private final UIController uiController;
+    private final Upgrader upgrader;
 
     private UpgradeMenuActions upgradeMenuActions;
     
@@ -25,13 +26,15 @@ public class UpgradeMenu extends UI {
     public UpgradeMenu(
         Window window,
         ShaderProgram shaderProgram,
-        UIController uiController
+        UIController uiController,
+        Upgrader upgrader
     ) {
         super(UI_PATH, "upgrade");
 
         this.window = window;
         this.shaderProgram = shaderProgram;
         this.uiController = uiController;
+        this.upgrader = upgrader;
 
         this.axeSlots = new ArrayList<>();
         this.currentAxeLevel = upgrader.getAxeLevel();
@@ -52,7 +55,11 @@ public class UpgradeMenu extends UI {
      * Refresh Axe Slots
      */
     public void refreshAxeSlots() {
+        if(upgrader == null) return;
         axeSlots.clear();
+        
+        int playerWood = upgrader.getWood();
+        currentAxeLevel = upgrader.getAxeLevel();
 
         for(int level = 0; level <= 10; level++) {
             AxeSlot slot = new AxeSlot(level, currentAxeLevel);
@@ -67,16 +74,46 @@ public class UpgradeMenu extends UI {
      */
     private void updateEl() {
         List<UIElement> toRemove = new ArrayList<>();
-        for(UIElement el : uiData.elements) {
-            if(el.id.startsWith("axe_") || 
-                el.id.startsWith("upgrade_") ||
-                el.id.startsWith("equip_") ||
-                el.id.startsWith("wood_")
-            ) {
-                toRemove.add(el);
-            }
+    for(UIElement el : uiData.elements) {
+        if(el.id.startsWith("axe_") || 
+            el.id.startsWith("upgrade_") ||
+            el.id.startsWith("equip_") ||
+            el.id.startsWith("wood_") ||
+            el.id.equals("wood_count") ||
+            el.id.equals("current_axe")
+        ) {
+            toRemove.add(el);
         }
-        uiData.elements.removeAll(toRemove);
+    }
+    uiData.elements.removeAll(toRemove);
+
+    // === ADD THESE LINES ===
+    // Recreate wood_count element
+    int playerWood = upgrader != null ? upgrader.getWood() : 0;
+    UIElement woodCountLabel = new UIElement(
+        "label",
+        "wood_count",
+        "Wood: " + playerWood,
+        50, 100,
+        200, 30,
+        0.9f,
+        new float[]{0.9f, 0.8f, 0.6f, 1.0f},
+        ""
+    );
+    uiData.elements.add(woodCountLabel);
+    
+    // Recreate current_axe element
+    UIElement currentAxeLabel = new UIElement(
+        "label",
+        "current_axe",
+        "Current Axe: Level " + currentAxeLevel,
+        50, 130,
+        200, 30,
+        0.9f,
+        new float[]{0.0f, 1.0f, 0.0f, 1.0f},
+        ""
+    );
+    uiData.elements.add(currentAxeLabel);
 
         int startX = 100;
         int startY = 150;
@@ -104,7 +141,6 @@ public class UpgradeMenu extends UI {
             uiData.elements.add(axeLabel);
             
             int upgradeCost = upgrader.getUpgradeCost(slot.level);
-            int playerWood = upgrader != null ? upgrader.getWood() : 0;
             
             UIElement woodLabel = new UIElement(
                 "label",

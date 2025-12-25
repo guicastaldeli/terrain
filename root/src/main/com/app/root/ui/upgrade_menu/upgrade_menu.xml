@@ -10,30 +10,12 @@
         <label 
             id="title" 
             text="Axe Upgrade Menu" 
-            x="500" y="70" 
+            x="800" y="70" 
             width="280" height="40" 
-            scale="1.2" 
+            scale="1.0" 
             color="1.0,1.0,1.0,1.0"
         >
             Axe Upgrade Menu
-        </label>
-        <label 
-            id="wood_count" 
-            x="50" y="100" 
-            width="200" height="30" 
-            scale="0.9" 
-            color="0.9,0.8,0.6,1.0"
-        >
-            Wood: 0
-        </label>
-        <label 
-            id="current_axe" 
-            x="50" y="130" 
-            width="200" height="30" 
-            scale="0.9" 
-            color="0.0,1.0,0.0,1.0"
-        >
-            Current Axe: Level 0
         </label>
 
         <div 
