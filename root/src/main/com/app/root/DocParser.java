@@ -24,6 +24,7 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
+import java.rmi.server.UID;
 
 public class DocParser {
     private static int uiVao = 0;
@@ -493,6 +494,54 @@ public class DocParser {
         if(depthTest) glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
     }
+    public static void renderUIElement(
+        UIElement element,
+        int screenWidth,
+        int screenHeight,
+        ShaderProgram shaderProgram
+    ) {
+        if(!element.visible || !element.hasBackground) return;
+        
+        initUIRendering();
+        
+        float x1 = element.x;
+        float y1 = element.y;
+        float x2 = element.x + element.width;
+        float y2 = element.y + element.height;
+        
+        boolean depthTest = glGetBoolean(GL_DEPTH_TEST);
+        if(depthTest) glDisable(GL_DEPTH_TEST);
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        shaderProgram.bind();
+        shaderProgram.setUniform("shaderType", 3);
+        shaderProgram.setUniform("screenSize", (float) screenWidth, (float) screenHeight);
+        
+        float[] vertices = {
+            x1, y1, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(),
+            x1, y2, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(),
+            x2, y2, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(),
+            x2, y1, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha()
+        };
+        
+        FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length);
+        vertexBuffer.put(vertices);
+        vertexBuffer.flip();
+        
+        glBindVertexArray(uiVao);
+        glBindBuffer(GL_ARRAY_BUFFER, uiVbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBuffer);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    
+        
+        glBindVertexArray(0);
+        shaderProgram.unbind();
+        
+        if(depthTest) glEnable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
+    }
     
     private static void renderBorder(
         float x1, float y1, float x2, float y2,
@@ -552,6 +601,51 @@ public class DocParser {
         }
         
         for(ScreenElement element : screenData.elements) {
+            if(element.visible && element.type.equals("label")) {
+                if(textRenderer != null && element.text != null && !element.text.isEmpty()) {
+                    textRenderer.renderText(
+                        element.text,
+                        element.x,
+                        element.y,
+                        element.scale,
+                        element.color
+                    );
+                }
+            }
+        }
+    }
+    public static void renderUI(
+        UIData uiData,
+        int screenWidth,
+        int screenHeight,
+        ShaderProgram shaderProgram,
+        TextRenderer textRenderer
+    ) {
+        if(uiData == null || uiData.elements.isEmpty()) return;
+        
+        for(UIElement element : uiData.elements) {
+            if(element.visible && element.type.equals("div")) {
+                renderUIElement(element, screenWidth, screenHeight, shaderProgram);
+            }
+        }
+        
+        for(UIElement element : uiData.elements) {
+            if(element.visible && element.type.equals("button")) {
+                renderUIElement(element, screenWidth, screenHeight, shaderProgram);
+                
+                if(textRenderer != null && element.text != null && !element.text.isEmpty()) {
+                    textRenderer.renderText(
+                        element.text,
+                        element.x,
+                        element.y,
+                        element.scale,
+                        element.color
+                    );
+                }
+            }
+        }
+        
+        for(UIElement element : uiData.elements) {
             if(element.visible && element.type.equals("label")) {
                 if(textRenderer != null && element.text != null && !element.text.isEmpty()) {
                     textRenderer.renderText(

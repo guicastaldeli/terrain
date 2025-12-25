@@ -8,13 +8,13 @@ import main.com.app.root.Console;
 import main.com.app.root.DocParser;
 import java.util.List;
 
-public class UI {
+public class UI implements UIHandler {
     public static final String DIR = "root/src/main/com/app/root/ui/";
 
     public static Window window;
     public static ShaderProgram shaderProgram;
-    private static UIController uiController;
-    private TextRenderer textRenderer;
+    public static UIController uiController;
+    public TextRenderer textRenderer;
 
     public String uiName;
     public String filePath;
@@ -92,5 +92,9 @@ public class UI {
             }
         }
         return null;
+    }
+
+    public TextRenderer getTextRenderer() {
+        return textRenderer;
     }
 }

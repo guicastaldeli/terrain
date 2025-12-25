@@ -22,6 +22,7 @@ public class AxeData {
 
     public final List<AxeController> axes;
     public final Map<Integer, AxeData> configs;
+    private Map<Integer, Integer> upgradeCostsByLevel;
     public int currentAxeId;
     
     public AxeData(
@@ -102,6 +103,10 @@ public class AxeData {
 
     public float getDamage() { 
         return damage; 
+    }
+
+    public int getUpgradeCostForLevel(int targetLevel) {
+        return upgradeCostsByLevel.getOrDefault(targetLevel, 100 * targetLevel);
     }
 
     @Override

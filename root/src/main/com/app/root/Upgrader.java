@@ -47,9 +47,15 @@ public class Upgrader {
         return (int) EnvCall.callReturn(axeInstance, "getLevel");
     }
     
-    public int getNextUpgradeCost() {
+    public int getUpgradeCost(int targetLevel) {
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
-        return (int) EnvCall.callReturn(axeInstance, "getUpgradeCost");
+        Object axeData = EnvCall.callReturn(axeInstance, "getAxeData");
+        
+        return (int) EnvCall.callReturnWithParams(
+            axeData, 
+            new Object[]{targetLevel}, 
+            "getUpgradeCostForLevel"
+        );
     }
 
     private void saveData() {

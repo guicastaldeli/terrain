@@ -2,6 +2,7 @@ package main.com.app.root;
 import main.com.app.root.player_controller.PlayerInputMap;
 import main.com.app.root.screen_controller.ScreenController;
 import main.com.app.root.screen_controller.ScreenHandler;
+import main.com.app.root.ui.UIController;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -9,6 +10,7 @@ public class InputController {
     private final Window window;
     private PlayerInputMap playerInputMap;
     private ScreenController screenController;
+    private UIController uiController;
     
     private boolean[] keyPressed = new boolean[GLFW_KEY_LAST + 1];
     private double lastMouseX = 0;
@@ -19,8 +21,9 @@ public class InputController {
         this.window = window;
     }
 
-    public void init(ScreenController screenController) {
+    public void init(ScreenController screenController, UIController uiController) {
         this.screenController = screenController;
+        this.uiController = uiController;
         setupCallbacks();
     }
 
@@ -34,6 +37,11 @@ public class InputController {
         glfwSetKeyCallback(windowHandle, (w, key, scancode, action, mods) -> {
             if(key >= 0 && key < keyPressed.length) {
                 keyPressed[key] = action != GLFW_RELEASE;
+            }
+
+            if(uiController != null && uiController.handleKeyPress(key, action)) {
+                updateCursorState();
+                return;
             }
             
             /**
@@ -55,6 +63,10 @@ public class InputController {
         });
 
         glfwSetCursorPosCallback(windowHandle, (w, xPos, yPos) -> {
+            if(uiController != null && uiController.isVisible()) {
+                return;
+            }
+
             boolean inAimMode = false;
             if(playerInputMap != null) inAimMode = playerInputMap.isRightMousePressed();
 
@@ -84,13 +96,17 @@ public class InputController {
             
             if(playerInputMap != null) playerInputMap.setMouseButtonState(button, pressed);
             updateCursorState();
-            
+
             if(button == GLFW_MOUSE_BUTTON_RIGHT && pressed) return;
             if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
                 if(screenController.shouldCursorBeEnabled()) {
                     double[] xPos = new double[1];
                     double[] yPos = new double[1];
                     glfwGetCursorPos(w, xPos, yPos);
+                    if (uiController != null && uiController.handleMouseClick(xPos[0], yPos[0], button, action)) {
+                        updateCursorState();
+                        return;
+                    }
                     
                     String clickedAction = screenController.checkClick(
                         (int)xPos[0], 
@@ -112,6 +128,15 @@ public class InputController {
         if(playerInputMap != null) {
             inAimMode = playerInputMap.isRightMousePressed();
             if(inAimMode) showCursor = true;
+        }
+
+        if (uiController != null && uiController.isVisible()) {
+            glfwSetInputMode(
+                window.getWindow(), 
+                GLFW_CURSOR, 
+                GLFW_CURSOR_NORMAL
+            );
+            return;
         }
 
         /**

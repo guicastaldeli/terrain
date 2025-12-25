@@ -1,7 +1,6 @@
 package main.com.app.root.ui;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
-import main.com.app.root.player_controller.PlayerInputMap;
 import main.com.app.root.ui.upgrade_menu.UpgradeMenu;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +14,6 @@ public class UIController {
 
     private final Window window;
     private final ShaderProgram shaderProgram;
-    private final PlayerInputMap playerInputMap;
 
     private Map<UIType, UI> uis;
     private UIType active;
@@ -24,14 +22,9 @@ public class UIController {
     private boolean isVisible = false;
     private boolean[] keyPresed = new boolean[GLFW_KEY_LAST + 1];
 
-    public UIController(
-        Window window,
-        ShaderProgram shaderProgram,
-        PlayerInputMap playerInputMap
-    ) {
+    public UIController(Window window, ShaderProgram shaderProgram) {
         this.window = window;
         this.shaderProgram = shaderProgram;
-        this.playerInputMap = playerInputMap;
 
         this.uis = new HashMap<>();
         
@@ -90,7 +83,6 @@ public class UIController {
         currentUI = uis.get(uiType);
 
         if(currentUI != null) {
-            currentUI.setVisible(true);
             isVisible = true;
             glfwSetInputMode(window.getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
@@ -100,8 +92,6 @@ public class UIController {
      * Hide UI
      */
     public void hide() {
-        if(currentUI != null) currentUI.setVisible(false);
-
         active = null;
         currentUI = null;
         isVisible = false;
@@ -138,9 +128,7 @@ public class UIController {
     }
 
     public void render() {
-        if(currentUI != null && currentUI.isVisible()) {
-            currentUI.render();
-        }
+        currentUI.render();
     }
 
     public void onWindowResize(int width, int height) {

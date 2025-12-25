@@ -6,6 +6,8 @@ import main.com.app.root._shaders.ShaderModuleData;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.screen_controller.Screen;
 import main.com.app.root.screen_controller.ScreenController;
+import main.com.app.root.ui.UIController;
+
 import org.lwjgl.opengl.GL;
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +33,7 @@ public class Main {
 
     private Scene scene;
     private ScreenController screenController;
+    private UIController uiController;
     private InputController inputController;
     private ShaderProgram shaderProgram;
 
@@ -92,6 +95,8 @@ public class Main {
             stateController
         );
 
+        uiController = new UIController(window, shaderProgram);
+
         console.init(this, window, screenController);
         console.setScene(scene);
 
@@ -99,7 +104,7 @@ public class Main {
         window.setScreenController(screenController);
 
         inputController = new InputController(window);
-        inputController.init(screenController);
+        inputController.init(screenController, uiController);
     }
 
     private void startAutoSaveThread() {

@@ -5,6 +5,7 @@ import main.com.app.root.ui.UIElement;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.env.axe.AxeSlot;
+import main.com.app.root.DocParser;
 import main.com.app.root.Upgrader;
 import java.util.ArrayList;
 import java.util.List;
@@ -203,5 +204,28 @@ public class UpgradeMenu extends UI {
     
     public Upgrader getUpgrader() {
         return upgrader;
+    }
+
+    @Override 
+    public void render() {
+        DocParser.renderUI(uiData, 1280, 720, shaderProgram, textRenderer);
+        super.render();
+    }
+
+    @Override
+    public void onWindowResize(int width, int height) {
+        if(getTextRenderer() != null) {
+            getTextRenderer().updateScreenSize(width, height);
+        }
+
+        try {
+            this.uiData = DocParser.parseUI(
+                UI_PATH,
+                width,
+                height
+            );
+        } catch (Exception err) {
+            System.err.println("Failed to re-parse screen on resize: " + err.getMessage());
+        }
     }
 }
