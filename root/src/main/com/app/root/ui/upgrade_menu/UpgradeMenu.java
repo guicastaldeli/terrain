@@ -1,5 +1,207 @@
 package main.com.app.root.ui.upgrade_menu;
+import main.com.app.root.ui.UI;
+import main.com.app.root.ui.UIController;
+import main.com.app.root.ui.UIElement;
+import main.com.app.root.Window;
+import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.env.axe.AxeSlot;
+import main.com.app.root.Upgrader;
+import java.util.ArrayList;
+import java.util.List;
 
-public class UpgradeMenu {
+public class UpgradeMenu extends UI {
+    private static final String UI_PATH = DIR + "upgrade_menu/upgrade_menu.xml";
+
+    private final Window window;
+    private final ShaderProgram shaderProgram;
+    private final UIController uiController;
+
+    private Upgrader upgrader;
+    private UpgradeMenuActions upgradeMenuActions;
     
+    private int currentAxeLevel = 0;
+    private List<AxeSlot> axeSlots;
+
+    public UpgradeMenu(
+        Window window,
+        ShaderProgram shaderProgram,
+        UIController uiController
+    ) {
+        super(UI_PATH, "UPGRADE_MENU");
+
+
+        this.window = window;
+        this.shaderProgram = shaderProgram;
+        this.uiController = uiController;
+
+        this.currentAxeLevel = upgrader.getAxeLevel();
+        refreshAxeSlots();
+    }
+
+    @Override
+    public void onShow() {
+        if(upgrader != null) {
+            currentAxeLevel = upgrader.getAxeLevel();
+            refreshAxeSlots();
+        }
+    }
+
+    /**
+     * Refresh Axe Slots
+     */
+    public void refreshAxeSlots() {
+        axeSlots.clear();
+
+        for(int level = 0; level <= 10; level++) {
+            AxeSlot slot = new AxeSlot(level, currentAxeLevel);
+            axeSlots.add(slot);
+        }
+
+        updateEl();
+    }
+
+    /**
+     * Update uiData.elements
+     */
+    private void updateEl() {
+        List<UIElement> toRemove = new ArrayList<>();
+        for(UIElement el : uiData.elements) {
+            if(el.id.startsWith("axe_") || 
+                el.id.startsWith("upgrade_") ||
+                el.id.startsWith("equip_") ||
+                el.id.startsWith("wood_")
+            ) {
+                toRemove.add(el);
+            }
+        }
+        uiData.elements.removeAll(toRemove);
+
+        int startX = 100;
+        int startY = 150;
+        int slotWidth = 200;
+        int slotHeight = 80;
+        int slotSpacing = 20;
+        
+        for(int i = 0; i < axeSlots.size(); i++) {
+            AxeSlot slot = axeSlots.get(i);
+            int slotX = startX + (i % 3) * (slotWidth + slotSpacing);
+            int slotY = startY + (i / 3) * (slotHeight + slotSpacing);
+            
+            UIElement axeLabel = new UIElement(
+                "label",
+                "axe_" + slot.level,
+                "Axe Level " + slot.level,
+                slotX, slotY,
+                slotWidth, 30,
+                0.8f,
+                slot.level == currentAxeLevel ? 
+                    new float[]{0.0f, 1.0f, 0.0f, 1.0f} : 
+                    new float[]{1.0f, 1.0f, 1.0f, 1.0f},
+                ""
+            );
+            uiData.elements.add(axeLabel);
+            
+            int upgradeCost = upgrader.getUpgradeCost(slot.level);
+            int playerWood = upgrader != null ? upgrader.getWood() : 0;
+            
+            UIElement woodLabel = new UIElement(
+                "label",
+                "wood_" + slot.level,
+                "Wood: " + playerWood + "/" + upgradeCost,
+                slotX, slotY + 30,
+                slotWidth, 30,
+                0.6f,
+                playerWood >= upgradeCost ? 
+                    new float[]{0.2f, 0.8f, 0.2f, 1.0f} : 
+                    new float[]{0.8f, 0.2f, 0.2f, 1.0f},
+                ""
+            );
+            uiData.elements.add(woodLabel);
+            
+            if(slot.level == currentAxeLevel) {
+                UIElement equippedLabel = new UIElement(
+                    "label",
+                    "equipped_" + slot.level,
+                    "EQUIPPED",
+                    slotX, slotY + 50,
+                    slotWidth, 30,
+                    0.7f,
+                    new float[]{0.0f, 0.5f, 1.0f, 1.0f},
+                    ""
+                );
+                uiData.elements.add(equippedLabel);
+            } else if(slot.level < currentAxeLevel) {
+                UIElement equipButton = new UIElement(
+                    "button",
+                    "equip_" + slot.level,
+                    "EQUIP",
+                    slotX, slotY + 50,
+                    80, 30,
+                    0.7f,
+                    new float[]{0.2f, 0.6f, 1.0f, 1.0f},
+                    "equip_" + slot.level
+                );
+                uiData.elements.add(equipButton);
+            } else if(slot.level == currentAxeLevel + 1) {
+                UIElement upgradeButton = new UIElement(
+                    "button",
+                    "upgrade_" + slot.level,
+                    "UPGRADE",
+                    slotX, slotY + 50,
+                    80, 30,
+                    0.7f,
+                    playerWood >= upgradeCost ? 
+                        new float[]{0.2f, 0.8f, 0.2f, 1.0f} : 
+                        new float[]{0.5f, 0.5f, 0.5f, 1.0f},
+                    "upgrade_" + slot.level
+                );
+                uiData.elements.add(upgradeButton);
+            } else {
+                UIElement lockedLabel = new UIElement(
+                    "label",
+                    "locked_" + slot.level,
+                    "LOCKED",
+                    slotX, slotY + 50,
+                    slotWidth, 30,
+                    0.7f,
+                    new float[]{0.5f, 0.5f, 0.5f, 1.0f},
+                    ""
+                );
+                uiData.elements.add(lockedLabel);
+            }
+        }
+    }
+
+    @Override
+    public void handleAction(String action) {
+        if(action.startsWith("equip_")) {
+            int level = Integer.parseInt(action.substring(6));
+            upgradeMenuActions.equipAxe(level);
+        } else if(action.startsWith("upgrade_")) {
+            int level = Integer.parseInt(action.substring(8));
+            upgradeMenuActions.upgradeAxe(level);
+        } else if(action.equals("close")) {
+            uiController.hide();
+        }
+    }
+
+    @Override
+    public void update() {
+        if(upgrader != null) {
+            refreshAxeSlots();
+        }
+    }
+
+    public void setCurrentAxeLevel(int level) {
+        this.currentAxeLevel = level;
+        refreshAxeSlots();
+    }
+    
+    public int getCurrentAxeLevel() {
+        return currentAxeLevel;
+    }
+    
+    public Upgrader getUpgrader() {
+        return upgrader;
+    }
 }

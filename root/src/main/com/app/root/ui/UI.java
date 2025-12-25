@@ -9,7 +9,7 @@ import main.com.app.root.DocParser;
 import java.util.List;
 
 public class UI {
-    public static final String UI_DIR = "root/src/main/com/app/root/ui/";
+    public static final String DIR = "root/src/main/com/app/root/ui/";
 
     public static Window window;
     public static ShaderProgram shaderProgram;
