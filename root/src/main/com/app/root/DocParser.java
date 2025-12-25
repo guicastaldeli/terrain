@@ -3,6 +3,7 @@ package main.com.app.root;
 import main.com.app.root.screen_controller.ScreenData;
 import main.com.app.root.screen_controller.ScreenElement;
 import main.com.app.root.ui.UIData;
+import main.com.app.root.ui.UIElement;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
 
@@ -107,6 +108,41 @@ public class DocParser {
             }
         }
     }
+    private static void parseEl(
+        Element parent, 
+        List<UIElement> elements,
+        int screenWidth,
+        int screenHeight,
+        UIElement parentElement
+    ) {
+        NodeList children = parent.getChildNodes();
+        
+        for(int i = 0; i < children.getLength(); i++) {
+            if(!(children.item(i) instanceof Element)) continue;
+            
+            Element element = (Element) children.item(i);
+            String tagName = element.getTagName();
+            
+            UIElement uiElement = createScreenElement(
+                element, 
+                tagName,
+                screenWidth,
+                screenHeight,
+                parentElement
+            );
+            
+            if(uiElement != null) {
+                elements.add(uiElement);
+                parseEl(
+                    element, 
+                    elements,
+                    screenWidth,
+                    screenHeight,
+                    uiElement
+                );
+            }
+        }
+    }
     
     private static ScreenElement createScreenElement(
         Element element, 
@@ -205,6 +241,103 @@ public class DocParser {
         
         return screenElement;
     }
+    private static UIElement createScreenElement(
+        Element element, 
+        String type, 
+        int screenWidth, 
+        int screenHeight,
+        UIElement parentElement
+    ) {
+        String text = element.getTextContent().trim();
+        String id = element.hasAttribute("id") ? element.getAttribute("id") : "";
+        
+        int x = parseCoordinate(element, "x", screenWidth, 1280);
+        int y = parseCoordinate(element, "y", screenHeight, 720);
+        if(parentElement != null) {
+            x += parentElement.x;
+            y += parentElement.y;
+        }
+        
+        int width = parseSize(element, "width", screenWidth, 1280, 100);
+        int height = parseSize(element, "height", screenHeight, 720, 50);
+        
+        float scale = 
+            element.hasAttribute("scale") ? 
+            Float.parseFloat(element.getAttribute("scale")) : 
+            1.0f;
+        
+        float[] color = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+        if(element.hasAttribute("color")) {
+            String colorStr = element.getAttribute("color");
+            String[] colorParts = colorStr.split(",");
+            if(colorParts.length >= 3) {
+                color[0] = Float.parseFloat(colorParts[0]);
+                color[1] = Float.parseFloat(colorParts[1]);
+                color[2] = Float.parseFloat(colorParts[2]);
+                if(colorParts.length >= 4) {
+                    color[3] = Float.parseFloat(colorParts[3]);
+                }
+            }
+        }
+        if(element.hasAttribute("background")) {
+            String bgStr = element.getAttribute("background");
+            String[] bgParts = bgStr.split(",");
+            if(bgParts.length >= 3) {
+                color = new float[] {
+                    Float.parseFloat(bgParts[0]),
+                    Float.parseFloat(bgParts[1]),
+                    Float.parseFloat(bgParts[2]),
+                    bgParts.length >= 4 ? Float.parseFloat(bgParts[3]) : 1.0f
+                };
+            }
+        }
+        
+        String action = element
+            .hasAttribute("action") ? 
+            element.getAttribute("action") : 
+            "";
+        
+        float borderWidth = 
+            element.hasAttribute("border") ? 
+            Float.parseFloat(element.getAttribute("border")) : 
+            0.0f;
+        
+        float[] borderColor = new float[]{0.0f, 0.0f, 0.0f, 1.0f};
+        if(element.hasAttribute("borderColor")) {
+            String borderColorStr = element.getAttribute("borderColor");
+            String[] borderParts = borderColorStr.split(",");
+            if(borderParts.length >= 3) {
+                borderColor = new float[] {
+                    Float.parseFloat(borderParts[0]),
+                    Float.parseFloat(borderParts[1]),
+                    Float.parseFloat(borderParts[2]),
+                    borderParts.length >= 4 ? Float.parseFloat(borderParts[3]) : 1.0f
+                };
+            }
+        }
+        
+        UIElement uiElement = new UIElement(
+            type, 
+            id, 
+            text, 
+            x, y,
+            width, height,
+            scale, 
+            color, 
+            action
+        );
+        
+        uiElement.borderWidth = borderWidth;
+        uiElement.borderColor = borderColor;
+        if(element.hasAttribute("background")) uiElement.hasBackground = true;
+        parseAttr(element, uiElement.attr);
+        
+        if(element.hasAttribute("visible")) {
+            uiElement.visible = Boolean.parseBoolean(element.getAttribute("visible"));
+        }
+        
+        return uiElement;
+    }
 
     private static int parseCoordinate(Element element, String attrName, int currentScreenSize, int originalScreenSize) {
         if(!element.hasAttribute(attrName)) return 0;
@@ -250,6 +383,15 @@ public class DocParser {
     public static List<ScreenElement> getElementsByType(ScreenData screenData, String type) {
         List<ScreenElement> result = new ArrayList<>();
         for(ScreenElement element : screenData.elements) {
+            if(element.type.equals(type) && element.visible) {
+                result.add(element);
+            }
+        }
+        return result;
+    }
+    public static List<UIElement> getElementsByType(UIData uiData, String type) {
+        List<UIElement> result = new ArrayList<>();
+        for(UIElement element : uiData.elements) {
             if(element.type.equals(type) && element.visible) {
                 result.add(element);
             }
