@@ -74,46 +74,43 @@ public class UpgradeMenu extends UI {
      */
     private void updateEl() {
         List<UIElement> toRemove = new ArrayList<>();
-    for(UIElement el : uiData.elements) {
-        if(el.id.startsWith("axe_") || 
-            el.id.startsWith("upgrade_") ||
-            el.id.startsWith("equip_") ||
-            el.id.startsWith("wood_") ||
-            el.id.equals("wood_count") ||
-            el.id.equals("current_axe")
-        ) {
-            toRemove.add(el);
+        for(UIElement el : uiData.elements) {
+            if(el.id.startsWith("axe_") || 
+                el.id.startsWith("upgrade_") ||
+                el.id.startsWith("equip_") ||
+                el.id.startsWith("wood_") ||
+                el.id.equals("wood_count") ||
+                el.id.equals("current_axe")
+            ) {
+                toRemove.add(el);
+            }
         }
-    }
-    uiData.elements.removeAll(toRemove);
+        uiData.elements.removeAll(toRemove);
 
-    // === ADD THESE LINES ===
-    // Recreate wood_count element
-    int playerWood = upgrader != null ? upgrader.getWood() : 0;
-    UIElement woodCountLabel = new UIElement(
-        "label",
-        "wood_count",
-        "Wood: " + playerWood,
-        50, 100,
-        200, 30,
-        0.9f,
-        new float[]{0.9f, 0.8f, 0.6f, 1.0f},
-        ""
-    );
-    uiData.elements.add(woodCountLabel);
-    
-    // Recreate current_axe element
-    UIElement currentAxeLabel = new UIElement(
-        "label",
-        "current_axe",
-        "Current Axe: Level " + currentAxeLevel,
-        50, 130,
-        200, 30,
-        0.9f,
-        new float[]{0.0f, 1.0f, 0.0f, 1.0f},
-        ""
-    );
-    uiData.elements.add(currentAxeLabel);
+        int playerWood = upgrader != null ? upgrader.getWood() : 0;
+        UIElement woodCountLabel = new UIElement(
+            "label",
+            "wood_count",
+            "Wood: " + playerWood,
+            50, 100,
+            200, 30,
+            1.0f,
+            new float[]{0.9f, 0.8f, 0.6f, 1.0f},
+            ""
+        );
+        uiData.elements.add(woodCountLabel);
+        
+        UIElement currentAxeLabel = new UIElement(
+            "label",
+            "current_axe",
+            "Current Axe: Level " + currentAxeLevel,
+            50, 130,
+            200, 30,
+            0.9f,
+            new float[]{0.0f, 1.0f, 0.0f, 1.0f},
+            ""
+        );
+        uiData.elements.add(currentAxeLabel);
 
         int startX = 100;
         int startY = 150;
