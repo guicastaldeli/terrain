@@ -2,6 +2,7 @@ package main.com.app.root;
 
 import main.com.app.root.screen_controller.ScreenData;
 import main.com.app.root.screen_controller.ScreenElement;
+import main.com.app.root.ui.UIData;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
 
@@ -30,7 +31,7 @@ public class DocParser {
     private static boolean uiBuffersInitialized = false;
     
     /**
-     * Parse Screen
+     * Parse
      */
     public static ScreenData parseScreen(String filePath, int screenWidth, int screenHeight) {
         ScreenData screenData = new ScreenData(filePath);
@@ -50,6 +51,25 @@ public class DocParser {
         }
 
         return screenData;
+    }
+    public static UIData parseUI(String filePath, int screenWidth, int screenHeight) {
+        UIData uiData = new UIData(filePath);
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new File(filePath));
+
+            Element root = document.getDocumentElement();
+            uiData.uiType = root.getTagName();
+
+            parseAttr(root, uiData.uiAttr);
+            parseEl(root, uiData.elements, screenWidth, screenHeight, null);
+        } catch(Exception err) {
+            System.err.println("Error parsing screen XML: " + err.getMessage());
+            err.printStackTrace();
+        }
+
+        return uiData;
     }
 
     private static void parseEl(
