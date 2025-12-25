@@ -29,15 +29,10 @@ public class UpgradeMenuActions {
         if(upgradeMenu.getUpgrader() == null) return;
 
         int currentLevel = upgradeMenu.getCurrentAxeLevel();
-        if(targetLevel != currentLevel + 1) {
-            System.out.println("Can only upgrade to next level!");
-            return;
-        }
-
         int upgradeCost = upgradeMenu.getUpgrader().getUpgradeCost(targetLevel);
         int playerWood = upgradeMenu.getUpgrader().getWood();
         if(playerWood >= upgradeCost) {
-            boolean success = upgradeMenu.getUpgrader().upgradeAxe();
+            boolean success = upgradeMenu.getUpgrader().upgradeAxe(targetLevel);
             if(success) {
                 upgradeMenu.setCurrentAxeLevel(targetLevel);
                 upgradeMenu.refreshAxeSlots();

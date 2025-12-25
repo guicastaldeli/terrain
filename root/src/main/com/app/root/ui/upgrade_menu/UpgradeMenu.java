@@ -93,6 +93,8 @@ public class UpgradeMenu extends UI {
                 el.id.startsWith("upgrade_") ||
                 el.id.startsWith("equip_") ||
                 el.id.startsWith("wood_") ||
+                el.id.startsWith("locked_") ||
+                el.id.startsWith("equipped_") ||
                 el.id.equals("wood_count") ||
                 el.id.equals("current_axe")
             ) {
@@ -129,6 +131,8 @@ public class UpgradeMenu extends UI {
         uiData.elements.add(currentAxeLabel);
         
         /* Slots */
+        int maxUnlockedLevel = upgrader != null ? upgrader.getMaxUnlockedAxeLevel() : 0;
+        
         for(int i = 0; i < axeSlots.size(); i++) {
             AxeSlot slot = axeSlots.get(i);
             int slotX = startX + (i % 3) * (slotWidth + slotSpacing);
@@ -148,8 +152,8 @@ public class UpgradeMenu extends UI {
             );
             uiData.elements.add(axeLabel);
             
-            int upgradeCost = upgrader.getUpgradeCost(slot.level);
-            
+            int upgradeCost = upgrader != null ? upgrader.getUpgradeCost(slot.level) : 0;
+            boolean canAfford = playerWood >= upgradeCost;
             UIElement woodLabel = new UIElement(
                 "label",
                 "wood_" + slot.level,
@@ -157,7 +161,7 @@ public class UpgradeMenu extends UI {
                 slotX, slotY + 30,
                 slotWidth, 30,
                 0.6f,
-                playerWood >= upgradeCost ? 
+                canAfford ? 
                     new float[]{0.2f, 0.8f, 0.2f, 1.0f} : 
                     new float[]{0.8f, 0.2f, 0.2f, 1.0f},
                 ""
@@ -176,7 +180,7 @@ public class UpgradeMenu extends UI {
                     ""
                 );
                 uiData.elements.add(equippedLabel);
-            } else if(slot.level < currentAxeLevel) {
+            } else if(slot.level <= maxUnlockedLevel) {
                 UIElement equipButton = new UIElement(
                     "button",
                     "equip_" + slot.level,
@@ -188,7 +192,7 @@ public class UpgradeMenu extends UI {
                     "equip_" + slot.level
                 );
                 uiData.elements.add(equipButton);
-            } else if(slot.level == currentAxeLevel + 1) {
+            } else if(canAfford) {
                 UIElement upgradeButton = new UIElement(
                     "button",
                     "upgrade_" + slot.level,
@@ -196,9 +200,7 @@ public class UpgradeMenu extends UI {
                     slotX, slotY + 50,
                     80, 30,
                     0.7f,
-                    playerWood >= upgradeCost ? 
-                        new float[]{0.2f, 0.8f, 0.2f, 1.0f} : 
-                        new float[]{0.5f, 0.5f, 0.5f, 1.0f},
+                    new float[]{0.2f, 0.8f, 0.2f, 1.0f},
                     "upgrade_" + slot.level
                 );
                 uiData.elements.add(upgradeButton);

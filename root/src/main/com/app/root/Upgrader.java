@@ -26,21 +26,30 @@ public class Upgrader {
         return data.getWood() >= upgradeCost;
     }
 
-    public boolean upgradeAxe() {
-        if(!canUpgrade()) return false;
-
-        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
-        int upgradeCost = (int) EnvCall.callReturn(axeInstance, "getUpgradeCost");
-        data.setWood(data.getWood() - upgradeCost);
-        EnvCall.call(axeInstance, "upgrade");
+    public boolean upgradeAxe(int targetLevel) {
+        if(targetLevel <= getEquippedAxeLevel() || targetLevel > 10) return false;
         
-        cachedAxeLevel++;
-        data.setAxeLevel(cachedAxeLevel);
-        data.setCurrentAxe("axe" + cachedAxeLevel);
+        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+        
+        int totalCost = 0;
+        for(int level = getEquippedAxeLevel() + 1; level <= targetLevel; level++) {
+            totalCost += getUpgradeCost(level);
+        }
+        
+        if(data.getWood() < totalCost) return false;
+        data.setWood(data.getWood() - totalCost);
+        
+        for(int level = getEquippedAxeLevel() + 1; level <= targetLevel; level++) {
+            EnvCall.callWithParams(axeInstance, new Object[]{level}, "setLevel");
+        }
+        
+        cachedAxeLevel = targetLevel;
+        data.setAxeLevel(targetLevel);
+        data.setCurrentAxe("axe" + targetLevel);
 
         saveData();
         
-        System.out.println("Upgraded! New level: " + cachedAxeLevel);
+        System.out.println("Upgraded to level " + targetLevel + "!");
         return true;
     }
 
