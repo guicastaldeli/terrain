@@ -1,1 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<screen type="upgrade_menu">
+    <div 
+        id="container" 
+        x="50" y="50" 
+        width="1180" height="620" 
+        background="0.1,0.1,0.1,0.9" 
+        hasBackground="true"
+    >
+         
+        <label 
+            id="title" 
+            text="Axe Upgrade Menu" 
+            x="500" y="70" 
+            width="280" height="40" 
+            scale="1.2" 
+            color="1.0,1.0,1.0,1.0"
+        >
+            Axe Upgrade Menu
+        </label>
+        <label 
+            id="wood_count" 
+            x="50" y="100" 
+            width="200" height="30" 
+            scale="0.9" 
+            color="0.9,0.8,0.6,1.0"
+        >
+            Wood: 0
+        </label>
+        <label 
+            id="current_axe" 
+            x="50" y="130" 
+            width="200" height="30" 
+            scale="0.9" 
+            color="0.0,1.0,0.0,1.0"
+        >
+            Current Axe: Level 0
+        </label>
+
+        <div 
+            id="axe_slots_container" 
+            x="100" y="150" 
+            width="1000" height="400" 
+            background="0.15,0.15,0.15,0.5" 
+            hasBackground="true"
+        />
+        
+        <button 
+            id="close_button" 
+            x="1050" y="570" 
+            width="100" height="40" 
+            scale="0.8" 
+            color="0.8,0.2,0.2,1.0" 
+            action="close"
+        >
+            Close (E)
+        </button>
+    </div>
+</screen>
