@@ -209,9 +209,14 @@ public class UpgradeMenu extends UI {
 
     @Override 
     public void render() {
-        System.out.println("TTETTETTSTSTSTSTTSTS");
         super.render();
-        DocParser.renderUI(uiData, 1280, 720, shaderProgram, textRenderer);
+        DocParser.renderUI(
+            uiData, 
+            window.getWidth(), 
+            window.getHeight(), 
+            shaderProgram, 
+            textRenderer
+        );
     }
 
     @Override

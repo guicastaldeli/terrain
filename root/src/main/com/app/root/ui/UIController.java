@@ -142,14 +142,10 @@ public class UIController {
     }
 
     public void render() {
-    System.out.println("UIController.render() called - isVisible: " + isVisible + ", currentUI: " + currentUI);
-    if(currentUI != null) {
-        System.out.println("About to call currentUI.render() for: " + currentUI.getClass().getSimpleName());
-        currentUI.render();
-    } else {
-        System.out.println("currentUI is null, not rendering");
+        if(currentUI != null) {
+            currentUI.render();
+        }
     }
-}
 
     public void onWindowResize(int width, int height) {
         for(UI ui : uis.values()) {

@@ -42,7 +42,7 @@ public class InputController {
                 keyPressed[key] = action != GLFW_RELEASE;
             }
 
-            uiController.handleKeyPress(key, action);
+            //uiController.handleKeyPress(key, action);
             if(uiController != null && uiController.handleKeyPress(key, action)) {
                 updateCursorState();
                 return;
