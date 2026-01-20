@@ -1,7 +1,6 @@
 package main.com.app.root.screen.pause;
 import main.com.app.root.DocParser;
 import main.com.app.root.screen.Screen;
-
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
@@ -16,7 +15,8 @@ public class PauseScreen extends Screen {
             screenController, 
             this,
             stateController,
-            saveGenerator
+            saveGenerator,
+            dataGetter
         );
     }
 

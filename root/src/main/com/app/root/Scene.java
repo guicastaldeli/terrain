@@ -117,7 +117,8 @@ public class Scene {
                 collisionManager,
                 spawner,
                 upgrader,
-                envController
+                envController,
+                dataController
             );
             mesh.setPlayerController(playerController);
 

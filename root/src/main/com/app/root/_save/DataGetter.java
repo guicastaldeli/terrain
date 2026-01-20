@@ -13,23 +13,25 @@ public class DataGetter {
     public final DataController dataController;
     public final StateController stateController;
     public final EnvController envController;
-    public final PlayerController playerController;
+    public PlayerController playerController;
     private Upgrader upgrader;
 
     public DataGetter(
         DataController dataController,
         StateController stateController,
-        EnvController envController,
-        PlayerController playerController
+        EnvController envController
     ) {
         this.dataController = dataController;
         this.stateController = stateController;
         this.envController = envController;
-        this.playerController = playerController;
     }
 
     public void setUpgrader(Upgrader upgrader) {
         this.upgrader = upgrader;
+    }
+
+    public void setPlayerController(PlayerController playerController) {
+        this.playerController = playerController;
     }
 
     /**

@@ -2,6 +2,7 @@ package main.com.app.root.screen;
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
 import main.com.app.root.Window;
+import main.com.app.root._save.DataGetter;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveLoader;
 import main.com.app.root._shaders.ShaderProgram;
@@ -26,6 +27,7 @@ public class ScreenController {
     private final SaveGenerator saveGenerator;
     private final SaveLoader saveLoader;
     private final DataController dataController;
+    private final DataGetter dataGetter;
     private final StateController stateController;
 
     public TextRenderer textRenderer;
@@ -46,6 +48,7 @@ public class ScreenController {
         SaveGenerator saveGenerator,
         SaveLoader saveLoader,
         DataController dataController,
+        DataGetter dataGetter,
         StateController stateController
     ) {
         this.window = window;
@@ -53,6 +56,7 @@ public class ScreenController {
         this.saveGenerator = saveGenerator;
         this.saveLoader = saveLoader;
         this.dataController = dataController;
+        this.dataGetter = dataGetter;
         this.stateController = stateController;
 
         Screen.init(
@@ -62,7 +66,8 @@ public class ScreenController {
             saveGenerator, 
             saveLoader, 
             dataController, 
-            stateController
+            stateController,
+            dataGetter
         );
         this.screens = new HashMap<>();
         this.currentScreen = null;

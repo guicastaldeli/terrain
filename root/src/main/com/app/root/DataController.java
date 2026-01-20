@@ -118,4 +118,19 @@ public class DataController implements Serializable {
         int secs = playTimeSecs % 60;
         return String.format("%02d:%02d:%02d", hours, minutes, secs);
     }
+
+    /**
+     * 
+     * Reset
+     * 
+     */
+    public void reset() {
+        this.playerPos = null;
+        this.playerRotation = null;
+        this.worldSeed = System.currentTimeMillis();
+        this.worldTime = 0L; //Maybe change this later???
+        this.playTimeSecs = 0;
+        this.itemsCollected = 0;
+        if(this.items != null) this.items.clear();
+    }
 }

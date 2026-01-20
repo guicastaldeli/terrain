@@ -2,6 +2,7 @@ package main.com.app.root.screen;
 import main.com.app.root.Window;
 import main.com.app.root._font.FontConfig;
 import main.com.app.root._font.FontMap;
+import main.com.app.root._save.DataGetter;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveLoader;
 import main.com.app.root._shaders.ShaderProgram;
@@ -25,6 +26,7 @@ public class Screen implements ScreenHandler {
     public static DataController dataController;
     public static StateController stateController;
     public static Scene scene;
+    public static DataGetter dataGetter;
     
     public TextRenderer textRenderer;
     public boolean active = false;
@@ -38,7 +40,8 @@ public class Screen implements ScreenHandler {
         SaveGenerator saveGenerator,
         SaveLoader saveLoader,
         DataController dataController,
-        StateController stateController
+        StateController stateController,
+        DataGetter dataGetter
     ) {
         Screen.window = window;
         Screen.shaderProgram = shaderProgram;
@@ -47,6 +50,7 @@ public class Screen implements ScreenHandler {
         Screen.saveLoader = saveLoader;
         Screen.dataController = dataController;
         Screen.stateController = stateController;
+        Screen.dataGetter = dataGetter;
     }
     public Screen(String filePath, String screenName) {
         this.screenName = screenName;

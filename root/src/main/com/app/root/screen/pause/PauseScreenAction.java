@@ -1,6 +1,7 @@
 package main.com.app.root.screen.pause;
 import main.com.app.root.Console;
 import main.com.app.root.StateController;
+import main.com.app.root._save.DataGetter;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root.screen.Screen;
 import main.com.app.root.screen.ScreenController;
@@ -11,17 +12,20 @@ public class PauseScreenAction {
     private final PauseScreen pauseScreen;
     private final StateController stateController;
     private final SaveGenerator saveGenerator;
+    private final DataGetter dataGetter;
 
     public PauseScreenAction(
         ScreenController screenController, 
         PauseScreen pauseScreen,
         StateController stateController,
-        SaveGenerator saveGenerator
+        SaveGenerator saveGenerator,
+        DataGetter dataGetter
     ) {
         this.screenController = screenController;
         this.pauseScreen = pauseScreen;
         this.stateController = stateController;
         this.saveGenerator = saveGenerator;
+        this.dataGetter = dataGetter;
     }
 
     /**
@@ -48,6 +52,9 @@ public class PauseScreenAction {
      * Save
      */
     public void save() {
+        if(dataGetter.playerController == null && Screen.getScene() != null) {
+            dataGetter.setPlayerController(Screen.getScene().getPlayerController());
+        }
         String currentSaveId = stateController.getCurrentSaveId();
         if(currentSaveId != null) {
             try {

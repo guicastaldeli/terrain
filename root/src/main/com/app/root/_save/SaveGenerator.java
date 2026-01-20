@@ -32,6 +32,8 @@ public class SaveGenerator {
         stateController.setCurrentSaveId(saveId);
         stateController.setLoadInProgress(true);
 
+        dataController.reset();
+
         Date currentDate = new Date();
         String creationDate = DateFormat.getDateTimeInstance(
             DateFormat.DEFAULT,
@@ -40,7 +42,7 @@ public class SaveGenerator {
         ).format(currentDate);
         saveFile.setSaveInfo("save_name", saveName);
         saveFile.setSaveInfo("creation_date", creationDate);
-        saveFile.setSaveInfo("version", "beta_1.0.0"); //Change this
+        saveFile.setSaveInfo("version", "beta_1.0.0"); //Change this later;;;;;
         saveFile.setSaveInfo("last_played", saveFile.getSaveInfo("creation_date"));
         saveFile.setSaveInfo("play_time", "00:00:00");
 

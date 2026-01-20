@@ -71,8 +71,7 @@ public class Main {
         dataGetter = new DataGetter(
             dataController, 
             stateController, 
-            scene.getEnvController(), 
-            scene.getPlayerController()
+            scene.getEnvController()
         );
         dataGetter.setUpgrader(scene.getUpgrader());
         saveGenerator = new SaveGenerator(
@@ -93,6 +92,7 @@ public class Main {
             saveGenerator,
             saveLoader,
             dataController,
+            dataGetter,
             stateController
         );
 
@@ -105,6 +105,8 @@ public class Main {
         inputController = new InputController(window);
         inputController.init(screenController);
         scene.setInputController(inputController);
+
+        dataGetter.setPlayerController(scene.getPlayerController());
     }
 
     private void startAutoSaveThread() {

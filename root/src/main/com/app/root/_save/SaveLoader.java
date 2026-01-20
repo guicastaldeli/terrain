@@ -26,6 +26,7 @@ public class SaveLoader {
      */
     public boolean loadSave(String saveId) {
         try {
+            System.out.println("=== LOAD SAVE DEBUG ===");
             SaveFile saveFile = new SaveFile(saveId);
             if(!saveFile.exists()) {
                 System.err.println("Save file not found: " + saveId);
@@ -39,19 +40,26 @@ public class SaveLoader {
 
             /* Load Data */
             DataController loadedData = (DataController) saveFile.loadObject("data", "s.data");
+            System.out.println("Loaded DataController: " + (loadedData != null));
+            
             if(loadedData != null) {
+                System.out.println("Source player position: " + loadedData.getPlayerPos());
+                System.out.println("Target player position before copy: " + dataController.getPlayerPos());
                 copyDataController(loadedData, dataController);
+                System.out.println("Target player position after copy: " + dataController.getPlayerPos());
             }
             
             /* Load World Data */
             if(saveFile.hasData("world", "w.data")) {
                 Map<String, Object> worldData = (Map<String, Object>) saveFile.loadObject("world", "w.data");
+                System.out.println("World data loaded: " + (worldData != null));
                 dataGetter.applyWorldData(worldData);
             }
             
             /* Load Player Data */
             if(saveFile.hasData("player", "p.data")) {
                 Map<String, Object> playerData = (Map<String, Object>) saveFile.loadObject("player", "p.data");
+                System.out.println("Player data loaded: " + (playerData != null));
                 dataGetter.applyPlayerData(playerData);
             }
 
