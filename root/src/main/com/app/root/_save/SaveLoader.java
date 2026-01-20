@@ -56,14 +56,6 @@ public class SaveLoader {
             /* Load Data */
             DataController loadedData = (DataController) saveFile.loadObject("data", "s.data");
             if(loadedData != null) copyDataController(loadedData, dataController);
-
-            /* Main Data */
-            if(saveFile.hasData("main", "m.data") && dataGetter.upgrader != null) {
-                MainData loadedMainData = (MainData) saveFile.loadObject("main", "m.data");
-                if(loadedMainData != null) {
-                    dataGetter.upgrader.setData(loadedMainData);
-                }
-            }
             
             /* Load World Data */
             if(saveFile.hasData("world", "w.data")) {
@@ -77,6 +69,17 @@ public class SaveLoader {
                 Map<String, Object> playerData = (Map<String, Object>) saveFile.loadObject("player", "p.data");
                 System.out.println("Player data loaded: " + (playerData != null));
                 dataGetter.applyPlayerData(playerData);
+            }
+
+            /* Main Data */
+            if(saveFile.hasData("main", "m.data")) {
+                MainData loadedMainData = (MainData) saveFile.loadObject("main", "m.data");
+                if(loadedMainData != null && dataGetter.upgrader != null) {
+                    dataGetter.upgrader.setData(loadedMainData);
+                    System.out.println("MainData loaded successfully: wood=" + loadedMainData.getWood() + ", axeLevel=" + loadedMainData.getAxeLevel());
+                }
+            } else {
+                System.out.println("No MainData found in save file");
             }
 
             Date currentDate = new Date();

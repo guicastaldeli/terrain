@@ -9,10 +9,12 @@ public class Upgrader {
     private int cachedAxeLevel;
 
     public Upgrader(EnvController envController) {
-        this.data = MainDataLoader.load();
-        this.envController = envController;
-        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
-        this.cachedAxeLevel = (int) EnvCall.callReturn(axeInstance, "getLevel");
+        this.data = new MainData();
+        if(envController != null) {
+            this.envController = envController;
+            Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+            this.cachedAxeLevel = (int) EnvCall.callReturn(axeInstance, "getLevel");
+        }
     }
 
     /**

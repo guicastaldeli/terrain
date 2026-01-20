@@ -144,15 +144,24 @@ public class SaveGenerator {
             "s.data",
             dataController
         );
+        
         /* Main Data */
         if(dataGetter.upgrader != null) {
             MainData mainData = dataGetter.upgrader.getData();
-            saveFile.saveObject(
-                "main",
-                "m.data",
-                (Serializable) mainData
-            );
+            if(mainData != null) {
+                saveFile.saveObject(
+                    "main",
+                    "m.data",
+                    (Serializable) mainData
+                );
+                System.out.println("MainData saved: wood=" + mainData.getWood() + ", axeLevel=" + mainData.getAxeLevel());
+            } else {
+                System.out.println("Warning: MainData is null, cannot save");
+            }
+        } else {
+            System.out.println("Warning: Upgrader is null, cannot save MainData");
         }
+        
         /* Save Player Data */
         Map<String, Object> playerData = dataGetter.getPlayerData();
         saveFile.saveObject(

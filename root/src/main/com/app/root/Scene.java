@@ -43,6 +43,8 @@ public class Scene {
         this.dataController = dataController;
         this.stateController = stateController;
         this.shaderProgram = shaderProgram;
+
+        this.upgrader = new Upgrader(null);
     }
 
     public boolean isInit() {
@@ -65,8 +67,20 @@ public class Scene {
         return uiController;
     }
 
+    /**
+     * Upgrader
+     */
     public Upgrader getUpgrader() {
         return upgrader;
+    }
+
+    private Upgrader initUpgrader(EnvController envController) {
+        if(this.upgrader == null) {
+            return new Upgrader(envController);
+        } else {
+            this.upgrader.setEnvController(envController);
+            return this.upgrader;
+        }
     }
 
     public void setDataGetter(DataGetter dataGetter) {
@@ -88,6 +102,10 @@ public class Scene {
         if(playerController != null) {
             playerController = null;
         }
+        if(collisionManager != null) {
+            collisionManager = null;
+        }
+        collisionManager = new CollisionManager();
 
         if(playerController != null) playerController = null;
         this.playerController = new PlayerController(
@@ -140,12 +158,8 @@ public class Scene {
     
             this.envController = new EnvController(dependencyContainer);
             spawner.setEnvController(envController);
-            
-            if(this.upgrader == null) {
-                this.upgrader = new Upgrader(envController);
-            } else {
-                this.upgrader.setEnvController(envController);
-            }
+
+            this.upgrader = initUpgrader(envController);
 
             this.uiController = new UIController(
                 window, 

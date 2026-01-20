@@ -9,6 +9,9 @@ import org.luaj.vm2.lib.jse.JsePlatform;
 public class MainDataLoader {
     private static final String DATA_PATH = "root/src/main/com/app/root/_data/main_data.lua";
 
+    /**
+     * Load (Defaults...)
+     */
     public static MainData load() {
         try {
             Globals globals = JsePlatform.standardGlobals();

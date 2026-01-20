@@ -38,6 +38,7 @@ public class MainScreenAction {
      */
     public void start(String saveName) {
         try {
+            scene.init(true);
             String saveId = saveGenerator.generateNewSave(saveName);
             if(saveLoader.loadSave(saveId, true)) {
                 mainScreen.loadSaveMenu.hide();
@@ -49,9 +50,6 @@ public class MainScreenAction {
                 
                 stateController.setInMenu(false);
                 stateController.setPaused(false);
-
-                scene.init(true);
-                scene.init = true;
             }
         } catch(IOException err) {
             System.err.println("Failed to create new game: " + err.getMessage());
@@ -63,6 +61,7 @@ public class MainScreenAction {
      * Load
      */
     public void load(String saveId) {
+        scene.init(false);
         if(saveLoader.loadSave(saveId, false)) {
             mainScreen.loadSaveMenu.hide();
             mainScreen.saveNameDialog.hide();
@@ -73,9 +72,6 @@ public class MainScreenAction {
 
             stateController.setInMenu(false);
             stateController.setPaused(false);
-
-            scene.init(false);
-            scene.init = true;
         }
     }
 

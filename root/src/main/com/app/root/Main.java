@@ -75,7 +75,6 @@ public class Main {
             stateController, 
             scene.getEnvController()
         );
-        dataGetter.setUpgrader(scene.getUpgrader());
         
         /* Save Generator */
         saveGenerator = new SaveGenerator(
@@ -113,10 +112,15 @@ public class Main {
         inputController.init(screenController);
         scene.setInputController(inputController);
 
+        dataGetter.setUpgrader(scene.getUpgrader());
         dataGetter.setPlayerController(scene.getPlayerController());
+        
         scene.setDataGetter(dataGetter);
         saveGenerator.setScene(scene);
         saveLoader.setScene(scene);
+        
+        System.out.println("Initialization complete - Upgrader: " + 
+            (scene.getUpgrader() != null ? "Present" : "NULL"));
     }
 
     private void startAutoSaveThread() {
