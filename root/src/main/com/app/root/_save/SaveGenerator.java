@@ -1,5 +1,6 @@
 package main.com.app.root._save;
 import main.com.app.root.DataController;
+import main.com.app.root.Scene;
 import main.com.app.root.StateController;
 import java.io.IOException;
 import java.io.Serializable;
@@ -11,6 +12,8 @@ public class SaveGenerator {
     private final StateController stateController;
     private final DataGetter dataGetter;
 
+    private Scene scene;
+
     public SaveGenerator(
         DataController dataController,
         StateController stateController,
@@ -19,6 +22,10 @@ public class SaveGenerator {
         this.dataController = dataController;
         this.stateController = stateController;
         this.dataGetter = dataGetter;
+    }
+
+    public void setScene(Scene scene) {
+        this.scene = scene;
     }
 
     /**
@@ -32,6 +39,7 @@ public class SaveGenerator {
         stateController.setCurrentSaveId(saveId);
         stateController.setLoadInProgress(true);
 
+        scene.reset();
         dataController.reset();
 
         Date currentDate = new Date();

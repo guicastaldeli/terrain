@@ -1,5 +1,6 @@
 package main.com.app.root._save;
 import main.com.app.root.DataController;
+import main.com.app.root.Scene;
 import main.com.app.root.StateController;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -11,6 +12,8 @@ public class SaveLoader {
     private final StateController stateController;
     private final DataGetter dataGetter;
 
+    private Scene scene;
+
     public SaveLoader(
         DataController dataController,
         StateController stateController,
@@ -21,12 +24,15 @@ public class SaveLoader {
         this.dataGetter = dataGetter;
     }
 
+    public void setScene(Scene scene) {
+        this.scene = scene;
+    }
+
     /**
      * Load Save
      */
-    public boolean loadSave(String saveId) {
+    public boolean loadSave(String saveId, boolean isNewSave) {
         try {
-            System.out.println("=== LOAD SAVE DEBUG ===");
             SaveFile saveFile = new SaveFile(saveId);
             if(!saveFile.exists()) {
                 System.err.println("Save file not found: " + saveId);
@@ -38,15 +44,19 @@ public class SaveLoader {
             stateController.setLoadInProgress(true);
             stateController.setInMenu(false);
 
+            if(isNewSave) {
+                System.out.println("New save detected, resetting scene and data...");
+                scene.reset();
+                dataController.reset();
+            } else {
+                System.out.println("Loading existing save, preserving state...");
+            }
+
             /* Load Data */
             DataController loadedData = (DataController) saveFile.loadObject("data", "s.data");
-            System.out.println("Loaded DataController: " + (loadedData != null));
             
             if(loadedData != null) {
-                System.out.println("Source player position: " + loadedData.getPlayerPos());
-                System.out.println("Target player position before copy: " + dataController.getPlayerPos());
                 copyDataController(loadedData, dataController);
-                System.out.println("Target player position after copy: " + dataController.getPlayerPos());
             }
             
             /* Load World Data */

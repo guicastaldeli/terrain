@@ -195,7 +195,7 @@ void generateMap(const char* fileName) {
                 &pointCollection,
                 objLocations
             );
-            printf("  Chunks: %.1f%%\n", (float)(x + 1) / chunksX * 100.0f);
+            //printf("  Chunks: %.1f%%\n", (float)(x + 1) / chunksX * 100.0f);
         }
     }
 

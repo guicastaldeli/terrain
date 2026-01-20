@@ -39,7 +39,7 @@ public class MainScreenAction {
     public void start(String saveName) {
         try {
             String saveId = saveGenerator.generateNewSave(saveName);
-            if(saveLoader.loadSave(saveId)) {
+            if(saveLoader.loadSave(saveId, true)) {
                 mainScreen.loadSaveMenu.hide();
                 mainScreen.saveNameDialog.hide();
                 mainScreen.setActive(false);
@@ -50,7 +50,7 @@ public class MainScreenAction {
                 stateController.setInMenu(false);
                 stateController.setPaused(false);
 
-                scene.init();
+                scene.init(true);
                 scene.init = true;
             }
         } catch(IOException err) {
@@ -63,7 +63,7 @@ public class MainScreenAction {
      * Load
      */
     public void load(String saveId) {
-        if(saveLoader.loadSave(saveId)) {
+        if(saveLoader.loadSave(saveId, false)) {
             mainScreen.loadSaveMenu.hide();
             mainScreen.saveNameDialog.hide();
             mainScreen.setActive(false);
@@ -74,7 +74,7 @@ public class MainScreenAction {
             stateController.setInMenu(false);
             stateController.setPaused(false);
 
-            scene.init();
+            scene.init(false);
             scene.init = true;
         }
     }

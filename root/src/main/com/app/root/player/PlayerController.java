@@ -1,5 +1,6 @@
 package main.com.app.root.player;
 import main.com.app.root.Spawner;
+import main.com.app.root.StateController;
 import main.com.app.root.Tick;
 import main.com.app.root.Upgrader;
 import main.com.app.root.Window;
@@ -30,6 +31,7 @@ public class PlayerController {
     private final Upgrader upgrader;
     private final EnvController envController;
     private final DataController dataController;
+    private final StateController stateController;
     
     private Vector3f position;
     private Vector3f velocity;
@@ -68,7 +70,8 @@ public class PlayerController {
         Spawner spawner,
         Upgrader upgrader,
         EnvController envController,
-        DataController dataController
+        DataController dataController,
+        StateController stateController
     ) {
         this.tick = tick;
         this.window = window;
@@ -78,6 +81,7 @@ public class PlayerController {
         this.upgrader = upgrader;
         this.envController = envController;
         this.dataController = dataController;
+        this.stateController = stateController;
         this.playerInputMap = new PlayerInputMap(
             tick,
             this,
@@ -98,16 +102,19 @@ public class PlayerController {
         addCollider();
     }
 
-    private void set() {
+    public void set() {
         Vector3f savedPos = dataController.getPlayerPos();
         System.out.println("DataController saved position: " + savedPos);
 
-        boolean isNewSave = savedPos != null &&
+        boolean isNewSave = 
+            savedPos != null &&
             savedPos.x == 0 &&
             savedPos.y == 0 &&
             savedPos.z == 0;
         
-        if(savedPos != null) {
+        boolean dataControllerReset = stateController.isLoadInProgress();
+        
+        if(savedPos != null && !isNewSave && !dataControllerReset) {
             this.position = new Vector3f(savedPos);
             System.out.println("PlayerController position set to saved: " + position);
         } else {

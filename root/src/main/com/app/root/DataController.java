@@ -67,6 +67,13 @@ public class DataController implements Serializable {
         this.playerPos = pos;
     }
     public Vector3f getPlayerPos() {
+        if(playerPos != null &&
+            playerPos.x == 0 &&
+            playerPos.y == 0 &&
+            playerPos.z == 0
+        ) {
+            return null;
+        }
         return playerPos;
     }
 
@@ -125,12 +132,14 @@ public class DataController implements Serializable {
      * 
      */
     public void reset() {
-        this.playerPos = null;
-        this.playerRotation = null;
+        this.playerPos = new Vector3f(0, 0, 0);
+        this.playerRotation = new Vector3f(0, 0, 0);
         this.worldSeed = System.currentTimeMillis();
-        this.worldTime = 0L; //Maybe change this later???
+        this.worldTime = 0L;
         this.playTimeSecs = 0;
         this.itemsCollected = 0;
-        if(this.items != null) this.items.clear();
+        if(this.items != null) {
+            this.items.clear();
+        }
     }
 }

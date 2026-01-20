@@ -60,6 +60,7 @@ public class Main {
     private void init() {
         loadShaders();
 
+        /* Scene */
         scene = new Scene(
             window, 
             tick,
@@ -68,23 +69,29 @@ public class Main {
             shaderProgram
         );
         
+        /* Data Getter */
         dataGetter = new DataGetter(
             dataController, 
             stateController, 
             scene.getEnvController()
         );
         dataGetter.setUpgrader(scene.getUpgrader());
+        
+        /* Save Generator */
         saveGenerator = new SaveGenerator(
             dataController, 
             stateController, 
             dataGetter
         );
+
+        /* Save Loader */
         saveLoader = new SaveLoader(
             dataController, 
             stateController, 
             dataGetter
         );
 
+        /* Screen */
         Screen.setScene(scene);
         screenController = new ScreenController(
             window, 
@@ -107,6 +114,9 @@ public class Main {
         scene.setInputController(inputController);
 
         dataGetter.setPlayerController(scene.getPlayerController());
+        scene.setDataGetter(dataGetter);
+        saveGenerator.setScene(scene);
+        saveLoader.setScene(scene);
     }
 
     private void startAutoSaveThread() {
