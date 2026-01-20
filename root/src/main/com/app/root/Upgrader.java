@@ -110,4 +110,19 @@ public class Upgrader {
     private void saveData() {
         MainDataLoader.saveData(data);
     }
+
+    public MainData getData() {
+        return data;
+    }
+
+    public void setData(MainData newData) {
+        this.data = newData;
+        this.cachedAxeLevel = data.getAxeLevel();
+    }
+
+    public void setEnvController(EnvController envController) {
+        this.envController = envController;
+        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+        this.cachedAxeLevel = (int) EnvCall.callReturn(axeInstance, "getLevel");
+    }
 }

@@ -1,6 +1,9 @@
 package main.com.app.root;
+import java.io.Serializable;
 
-public class MainData {
+public class MainData implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public int wood;
     public int axeLevel;
     private String currAxe;
@@ -10,7 +13,7 @@ public class MainData {
     private float[] woodMultiplier;
 
     public MainData() {
-        this.wood = 999;
+        this.wood = 0;
         this.axeLevel = 0;
         this.currAxe = "axe0";
         this.upgradeCosts = new int[10];
@@ -33,7 +36,7 @@ public class MainData {
         return wood; 
     }
     public void setWood(int wood) { 
-        this.wood = Math.max(999, wood); 
+        this.wood = Math.max(0, wood); 
     }
     public void addWood(int amount) {
         this.wood += Math.max(0, amount);

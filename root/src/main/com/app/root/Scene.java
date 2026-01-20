@@ -141,7 +141,11 @@ public class Scene {
             this.envController = new EnvController(dependencyContainer);
             spawner.setEnvController(envController);
             
-            this.upgrader = new Upgrader(envController);
+            if(this.upgrader == null) {
+                this.upgrader = new Upgrader(envController);
+            } else {
+                this.upgrader.setEnvController(envController);
+            }
 
             this.uiController = new UIController(
                 window, 

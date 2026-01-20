@@ -1,5 +1,6 @@
 package main.com.app.root._save;
 import main.com.app.root.DataController;
+import main.com.app.root.MainData;
 import main.com.app.root.Scene;
 import main.com.app.root.StateController;
 import java.io.IOException;
@@ -88,6 +89,15 @@ public class SaveGenerator {
             "s.data", 
             dataController
         );
+        /* Main Data */
+        if(dataGetter.upgrader != null) {
+            MainData mainData = dataGetter.upgrader.getData();
+            saveFile.saveObject(
+                "main",
+                "m.data",
+                (Serializable) mainData
+            );
+        }
         /* World */
         Map<String, Object> worldData = dataGetter.getWorldData();
         saveFile.saveObject(
@@ -134,6 +144,15 @@ public class SaveGenerator {
             "s.data",
             dataController
         );
+        /* Main Data */
+        if(dataGetter.upgrader != null) {
+            MainData mainData = dataGetter.upgrader.getData();
+            saveFile.saveObject(
+                "main",
+                "m.data",
+                (Serializable) mainData
+            );
+        }
         /* Save Player Data */
         Map<String, Object> playerData = dataGetter.getPlayerData();
         saveFile.saveObject(

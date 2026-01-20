@@ -1,5 +1,6 @@
 package main.com.app.root._save;
 import main.com.app.root.DataController;
+import main.com.app.root.MainData;
 import main.com.app.root.Scene;
 import main.com.app.root.StateController;
 import java.io.IOException;
@@ -54,9 +55,14 @@ public class SaveLoader {
 
             /* Load Data */
             DataController loadedData = (DataController) saveFile.loadObject("data", "s.data");
-            
-            if(loadedData != null) {
-                copyDataController(loadedData, dataController);
+            if(loadedData != null) copyDataController(loadedData, dataController);
+
+            /* Main Data */
+            if(saveFile.hasData("main", "m.data") && dataGetter.upgrader != null) {
+                MainData loadedMainData = (MainData) saveFile.loadObject("main", "m.data");
+                if(loadedMainData != null) {
+                    dataGetter.upgrader.setData(loadedMainData);
+                }
             }
             
             /* Load World Data */

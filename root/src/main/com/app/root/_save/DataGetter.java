@@ -14,7 +14,7 @@ public class DataGetter {
     public final StateController stateController;
     public final EnvController envController;
     public PlayerController playerController;
-    private Upgrader upgrader;
+    public Upgrader upgrader;
 
     public DataGetter(
         DataController dataController,

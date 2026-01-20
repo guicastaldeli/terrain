@@ -40,7 +40,6 @@ void generateMapMeshData(
     *normals = malloc(*vertexCount * 3 * sizeof(float));
     *colors = malloc(*vertexCount * 4 * sizeof(float));
 
-    // First, find the actual min and max heights
     float minHeight = 999999.0f;
     float maxHeight = -999999.0f;
     for(int z = 0; z < height; z++) {
