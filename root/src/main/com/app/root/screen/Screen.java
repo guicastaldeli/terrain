@@ -1,4 +1,4 @@
-package main.com.app.root.screen_controller;
+package main.com.app.root.screen;
 import main.com.app.root.Window;
 import main.com.app.root._font.FontConfig;
 import main.com.app.root._font.FontMap;
@@ -14,7 +14,7 @@ import main.com.app.root.StateController;
 import java.util.*;
 
 public class Screen implements ScreenHandler {
-    public static final String DIR = "root/src/main/com/app/root/screen_controller/";
+    public static final String DIR = "root/src/main/com/app/root/screen/";
 
     public static Window window;
     public static ShaderProgram shaderProgram;

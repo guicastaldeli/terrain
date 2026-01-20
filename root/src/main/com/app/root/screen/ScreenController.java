@@ -1,6 +1,4 @@
-package main.com.app.root.screen_controller;
-import main.com.app.root.screen_controller.main.MainScreen;
-import main.com.app.root.screen_controller.pause.PauseScreen;
+package main.com.app.root.screen;
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
 import main.com.app.root.Window;
@@ -8,6 +6,9 @@ import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveLoader;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
+import main.com.app.root.screen.main.MainScreen;
+import main.com.app.root.screen.pause.PauseScreen;
+
 import java.util.HashMap;
 import java.util.Map;
 import static org.lwjgl.glfw.GLFW.*;

@@ -1,10 +1,10 @@
-package main.com.app.root.screen_controller.pause;
+package main.com.app.root.screen.pause;
 import main.com.app.root.Console;
 import main.com.app.root.StateController;
 import main.com.app.root._save.SaveGenerator;
-import main.com.app.root.screen_controller.Screen;
-import main.com.app.root.screen_controller.ScreenController;
-import main.com.app.root.screen_controller.ScreenController.SCREENS;
+import main.com.app.root.screen.Screen;
+import main.com.app.root.screen.ScreenController;
+import main.com.app.root.screen.ScreenController.SCREENS;
 
 public class PauseScreenAction {
     private final ScreenController screenController;

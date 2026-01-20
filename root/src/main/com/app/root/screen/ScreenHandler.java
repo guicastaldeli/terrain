@@ -1,4 +1,4 @@
-package main.com.app.root.screen_controller;
+package main.com.app.root.screen;
 
 public interface ScreenHandler {
     default void render() {};

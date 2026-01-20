@@ -1,7 +1,8 @@
-package main.com.app.root.screen_controller.main;
+package main.com.app.root.screen.main;
 import main.com.app.root.DocParser;
 import main.com.app.root._save.SaveInfo;
-import main.com.app.root.screen_controller.Screen;
+import main.com.app.root.screen.Screen;
+
 import java.util.*;
 
 public class MainScreen extends Screen {

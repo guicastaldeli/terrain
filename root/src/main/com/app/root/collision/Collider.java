@@ -1,5 +1,5 @@
 package main.com.app.root.collision;
-import main.com.app.root.player_controller.RigidBody;
+import main.com.app.root.player.RigidBody;
 
 public interface Collider {
     BoundingBox getBoundingBox();

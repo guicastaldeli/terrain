@@ -7,7 +7,7 @@ import main.com.app.root.DataController;
 import main.com.app.root.StateController;
 import main.com.app.root.Upgrader;
 import main.com.app.root.env.EnvController;
-import main.com.app.root.player_controller.PlayerController;
+import main.com.app.root.player.PlayerController;
 
 public class DataGetter {
     public final DataController dataController;

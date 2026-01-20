@@ -1,4 +1,4 @@
-package main.com.app.root.player_controller;
+package main.com.app.root.player;
 import org.joml.Math;
 import org.joml.Vector3f;
 

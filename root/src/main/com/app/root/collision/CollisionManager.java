@@ -5,7 +5,7 @@ import org.joml.Vector3f;
 
 import main.com.app.root.collision.types.DynamicObject;
 import main.com.app.root.collision.types.StaticObject;
-import main.com.app.root.player_controller.RigidBody;
+import main.com.app.root.player.RigidBody;
 
 public class CollisionManager {
     public enum CollisionType {

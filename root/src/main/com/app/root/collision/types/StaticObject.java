@@ -5,7 +5,7 @@ import main.com.app.root.collision.BoundingBox;
 import main.com.app.root.collision.Collider;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.CollisionResult;
-import main.com.app.root.player_controller.RigidBody;
+import main.com.app.root.player.RigidBody;
 
 public class StaticObject implements Collider {
     private BoundingBox bBox;

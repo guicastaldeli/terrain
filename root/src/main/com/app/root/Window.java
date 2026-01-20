@@ -1,10 +1,12 @@
 package main.com.app.root;
-import main.com.app.root.screen_controller.ScreenController;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import org.lwjgl.glfw.*;
 import org.lwjgl.system.MemoryStack;
+
+import main.com.app.root.screen.ScreenController;
+
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glViewport;
@@ -129,7 +131,7 @@ public class Window {
             glViewport(0, 0, newWidth, newHeight);
 
             if(scene != null && scene.getPlayerController() != null) {
-                main.com.app.root.player_controller.Camera camera = scene.getPlayerController().getCamera();
+                main.com.app.root.player.Camera camera = scene.getPlayerController().getCamera();
                 if (camera != null) {
                     camera.setAspectRatio(getAspectRatio());
                 }

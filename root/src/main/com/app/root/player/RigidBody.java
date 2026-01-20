@@ -1,4 +1,4 @@
-package main.com.app.root.player_controller;
+package main.com.app.root.player;
 import main.com.app.root.Tick;
 import main.com.app.root.collision.BoundingBox;
 import org.joml.Vector3f;

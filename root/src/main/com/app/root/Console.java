@@ -1,7 +1,8 @@
 package main.com.app.root;
-import main.com.app.root.screen_controller.ScreenController;
-import main.com.app.root.screen_controller.ScreenController.SCREENS;
 import java.io.*;
+
+import main.com.app.root.screen.ScreenController;
+import main.com.app.root.screen.ScreenController.SCREENS;
 
 public class Console {
     private static Console instance;

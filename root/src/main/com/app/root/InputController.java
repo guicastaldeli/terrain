@@ -1,7 +1,7 @@
 package main.com.app.root;
-import main.com.app.root.player_controller.PlayerInputMap;
-import main.com.app.root.screen_controller.ScreenController;
-import main.com.app.root.screen_controller.ScreenHandler;
+import main.com.app.root.player.PlayerInputMap;
+import main.com.app.root.screen.ScreenController;
+import main.com.app.root.screen.ScreenHandler;
 import main.com.app.root.ui.UIController;
 
 import static org.lwjgl.glfw.GLFW.*;

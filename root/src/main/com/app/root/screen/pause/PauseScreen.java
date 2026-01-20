@@ -1,6 +1,7 @@
-package main.com.app.root.screen_controller.pause;
+package main.com.app.root.screen.pause;
 import main.com.app.root.DocParser;
-import main.com.app.root.screen_controller.Screen;
+import main.com.app.root.screen.Screen;
+
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 

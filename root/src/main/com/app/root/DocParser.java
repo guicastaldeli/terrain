@@ -1,10 +1,11 @@
 package main.com.app.root;
-import main.com.app.root.screen_controller.ScreenData;
-import main.com.app.root.screen_controller.ScreenElement;
 import main.com.app.root.ui.UIData;
 import main.com.app.root.ui.UIElement;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
+import main.com.app.root.screen.ScreenData;
+import main.com.app.root.screen.ScreenElement;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;

@@ -6,7 +6,8 @@ import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.axe.AxeController;
-import main.com.app.root.player_controller.PlayerController;
+import main.com.app.root.player.PlayerController;
+
 import org.joml.Vector3f;
 
 public class TreeInteractor {

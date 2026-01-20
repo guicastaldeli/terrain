@@ -1,10 +1,11 @@
-package main.com.app.root.screen_controller.main;
+package main.com.app.root.screen.main;
 import main.com.app.root.Scene;
 import main.com.app.root.StateController;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveInfo;
 import main.com.app.root._save.SaveLoader;
-import main.com.app.root.screen_controller.ScreenController;
+import main.com.app.root.screen.ScreenController;
+
 import java.io.IOException;
 import java.util.List;
 

@@ -1,8 +1,9 @@
 package main.com.app.root.mesh;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
-import main.com.app.root.player_controller.Camera;
-import main.com.app.root.player_controller.PlayerController;
+import main.com.app.root.player.Camera;
+import main.com.app.root.player.PlayerController;
+
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.joml.Matrix4f;

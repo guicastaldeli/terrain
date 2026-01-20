@@ -1,4 +1,4 @@
-package main.com.app.root.player_controller;
+package main.com.app.root.player;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;

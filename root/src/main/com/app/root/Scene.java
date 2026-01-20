@@ -1,6 +1,6 @@
 package main.com.app.root;
 import main.com.app.root.mesh.Mesh;
-import main.com.app.root.player_controller.PlayerController;
+import main.com.app.root.player.PlayerController;
 import main.com.app.root.ui.UIController;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;

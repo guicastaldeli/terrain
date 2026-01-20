@@ -4,8 +4,8 @@ import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveLoader;
 import main.com.app.root._shaders.ShaderModuleData;
 import main.com.app.root._shaders.ShaderProgram;
-import main.com.app.root.screen_controller.Screen;
-import main.com.app.root.screen_controller.ScreenController;
+import main.com.app.root.screen.Screen;
+import main.com.app.root.screen.ScreenController;
 import main.com.app.root.ui.UIController;
 
 import org.lwjgl.opengl.GL;

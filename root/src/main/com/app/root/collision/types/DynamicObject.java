@@ -3,7 +3,8 @@ package main.com.app.root.collision.types;
 import main.com.app.root.collision.BoundingBox;
 import main.com.app.root.collision.Collider;
 import main.com.app.root.collision.CollisionResult;
-import main.com.app.root.player_controller.RigidBody;
+import main.com.app.root.player.RigidBody;
+
 import org.joml.Vector3f;
 
 public class DynamicObject implements Collider {
