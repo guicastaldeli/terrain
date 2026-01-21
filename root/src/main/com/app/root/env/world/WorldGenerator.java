@@ -22,9 +22,9 @@ import java.util.Random;
 public class WorldGenerator {
     private final Tick tick;
     private final ShaderProgram shaderProgram;
-
-    private static final String MAP_ID = "MAP_ID";
-    private static final String TEMP_MAP_ID = "temp_map_";
+    private final DataController dataController;
+    private final StateController stateController;
+    private final CollisionManager collisionManager;
     private final Mesh mesh;
     private final MeshRenderer meshRenderer;
     private MeshData meshData;
@@ -35,12 +35,14 @@ public class WorldGenerator {
     private int mapWidth;
     private int mapHeight;
 
-    private final DataController dataController;
-    private final StateController stateController;
-    private final CollisionManager collisionManager;
-
     private boolean isReady = false;
     private Runnable onReadyCallback;
+
+    private static final String MAP_ID = "MAP_ID";
+    private static final String TEMP_MAP_ID = "temp_map_";
+
+    public static final int MAX_WORLD_SIZE = 10000;
+    public static final int RENDER_DISTANCE = 3;
     
     public WorldGenerator(
         Tick tick, 
