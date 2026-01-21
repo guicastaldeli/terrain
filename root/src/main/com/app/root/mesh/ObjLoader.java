@@ -60,7 +60,7 @@ public class ObjLoader {
                     faces.add(new FaceData(vertexIndices, texCoordIndices, normalIndices));
                 }
             }
-        } catch (IOException e) {
+        } catch(IOException e) {
             throw new RuntimeException("Failed to load OBJ file: " + filePath, e);
         }
 

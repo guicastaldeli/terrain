@@ -60,7 +60,7 @@ public class PauseScreenAction {
             try {
                 saveGenerator.save(currentSaveId);
                 System.out.println("Game saved successfully!");
-            } catch (Exception err) {
+            } catch(Exception err) {
                 System.err.println("Failed to save game: " + err.getMessage());
                 err.printStackTrace();
             }

@@ -102,7 +102,7 @@ public class DataGetter {
                     
                     System.out.println("DEBUG: Saved tree at [" + treePos.x + ", " + treePos.z + "] level " + treeLevel + " alive: " + isAlive);
                 }
-            } catch (Exception e) {
+            } catch(Exception e) {
                 System.out.println("DEBUG: Error processing tree: " + e.getMessage());
                 e.printStackTrace();
             }
@@ -260,7 +260,7 @@ public class DataGetter {
                     } else {
                         System.err.println("DEBUG: No config found for tree level " + level);
                     }
-                } catch (Exception e) {
+                } catch(Exception e) {
                     System.err.println("DEBUG: Error loading tree: " + e.getMessage());
                     e.printStackTrace();
                 }

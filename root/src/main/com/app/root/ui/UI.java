@@ -35,7 +35,7 @@ public class UI implements UIHandler {
             UI.shaderProgram = shaderProgram;
             UI.uiController = uiController;
             UI.upgrader = upgrader;
-        } catch (Exception e) {
+        } catch(Exception e) {
             //System.err.println("Failed to initialize UI: " + UI.uinam);
             e.printStackTrace();
         }
@@ -64,7 +64,7 @@ public class UI implements UIHandler {
             System.out.println("TextRenderer: " + textRenderer);
             System.out.println("uiData: " + uiData);
             System.out.println("Elements count: " + (uiData != null ? uiData.elements.size() : 0));
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Failed to init ui: " + uiName);
             System.err.println("Error: " + err.getMessage());
             err.printStackTrace();

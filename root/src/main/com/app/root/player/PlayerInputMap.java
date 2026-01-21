@@ -51,7 +51,7 @@ public class PlayerInputMap {
      * Handle Mouse
      */
     public void handleMouse(float xOffset, float yOffset) {
-        if (playerController != null && playerController.getCamera() != null) {
+        if(playerController != null && playerController.getCamera() != null) {
             Camera camera = playerController.getCamera();
             if(rightMousePressed) {
                 camera.getAimController().handleMouse(xOffset, yOffset);

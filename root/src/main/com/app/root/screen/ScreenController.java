@@ -130,7 +130,7 @@ public class ScreenController {
     }
 
     public String checkClick(int mouseX, int mouseY) {
-        if (currentScreen != null) {
+        if(currentScreen != null) {
             return currentScreen.checkClick(mouseX, mouseY);
         }
         return null;

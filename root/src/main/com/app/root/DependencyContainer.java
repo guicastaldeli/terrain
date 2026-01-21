@@ -144,9 +144,9 @@ public class DependencyContainer {
                     field.setAccessible(true);
 
                     Object value;
-                    if (!dep.value().isEmpty()) {
+                    if(!dep.value().isEmpty()) {
                         value = namedDeps.get(dep.value());
-                        if (value == null) {
+                        if(value == null) {
                             throw new DependencyNotFoundException(
                                 "Named dependency not found: " + dep.value()
                             );
@@ -156,7 +156,7 @@ public class DependencyContainer {
                     }
 
                     field.set(instance, value);
-                } catch (IllegalAccessException e) {
+                } catch(IllegalAccessException e) {
                     throw new RuntimeException("Failed to inject dependency into field: " + field.getName(), e);
                 }
             }

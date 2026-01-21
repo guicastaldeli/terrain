@@ -97,7 +97,7 @@ public class TextRenderer {
      */
     private void preloadChars() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        for (char c : chars.toCharArray()) {
+        for(char c : chars.toCharArray()) {
             Glyph glyph = loadGlyphToAtlas(c);
         }
     }
@@ -166,14 +166,14 @@ public class TextRenderer {
             updateQuad(xPos, yPos, w, h, glyph);
             
             int error = glGetError();
-            if (error != GL_NO_ERROR) {
+            if(error != GL_NO_ERROR) {
                 System.err.println("  OpenGL error before draw: " + error);
             }
             
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             
             error = glGetError();
-            if (error != GL_NO_ERROR) {
+            if(error != GL_NO_ERROR) {
                 System.err.println("  OpenGL error after draw: " + error);
             }
 

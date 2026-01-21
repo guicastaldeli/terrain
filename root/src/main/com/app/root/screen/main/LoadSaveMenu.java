@@ -212,7 +212,7 @@ public class LoadSaveMenu extends Screen {
             );
             
             if(active) updateSaveSlots();
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Failed to re-parse save menu on resize: " + err.getMessage());
         }
     }

@@ -74,7 +74,7 @@ public class StaticObject implements Collider {
     public float getHeightAtWorld(float worldX, float worldZ) {
         int x = (int)((worldX + mapWidth / 2.0f));
         int z = (int)((worldZ + mapHeight / 2.0f));
-        if (x < 0 || 
+        if(x < 0 || 
             x >= mapWidth || 
             z < 0 || 
             z >= mapHeight
@@ -148,9 +148,9 @@ public class StaticObject implements Collider {
         float minOverlap = Math.min(Math.min(xOverlap, yOverlap), zOverlap);
         Vector3f normal = new Vector3f();
         
-        if (minOverlap == xOverlap) {
+        if(minOverlap == xOverlap) {
             normal.set(a.maxX > b.maxX ? 1 : -1, 0, 0);
-        } else if (minOverlap == yOverlap) {
+        } else if(minOverlap == yOverlap) {
             normal.set(0, a.maxY > b.maxY ? 1 : -1, 0);
         } else {
             normal.set(0, 0, a.maxZ > b.maxZ ? 1 : -1);

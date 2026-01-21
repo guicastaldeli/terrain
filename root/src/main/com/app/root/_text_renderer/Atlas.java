@@ -97,7 +97,7 @@ public class Atlas {
             fos.close();
             System.out.println("Atlas saved successfully to " + filename);
             
-        } catch (IOException e) {
+        } catch(IOException e) {
             System.err.println("Failed to save atlas: " + e.getMessage());
         }
     }

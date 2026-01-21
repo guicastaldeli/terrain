@@ -3,7 +3,7 @@ package main.com.app.root;
 public class GLErrorChecker {
     public static void check(String location) {
         int error;
-        while ((error = org.lwjgl.opengl.GL11.glGetError()) != org.lwjgl.opengl.GL11.GL_NO_ERROR) {
+        while((error = org.lwjgl.opengl.GL11.glGetError()) != org.lwjgl.opengl.GL11.GL_NO_ERROR) {
             System.err.println("OpenGL Error at " + location + ": " + getErrorString(error));
         }
     }

@@ -78,7 +78,7 @@ public class Screen implements ScreenHandler {
             System.out.println("TextRenderer: " + textRenderer);
             System.out.println("ScreenData: " + screenData);
             System.out.println("Elements count: " + (screenData != null ? screenData.elements.size() : 0));
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Failed to init screen: " + screenName);
             System.err.println("Error: " + err.getMessage());
             err.printStackTrace();

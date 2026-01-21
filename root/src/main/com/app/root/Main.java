@@ -7,7 +7,6 @@ import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.screen.Screen;
 import main.com.app.root.screen.ScreenController;
 import main.com.app.root.ui.UIController;
-
 import org.lwjgl.opengl.GL;
 import java.util.Arrays;
 import java.util.List;
@@ -135,9 +134,9 @@ public class Main {
                         stateController.setSaveInProgress(false);
                         System.out.println("Auto-save completed");
                     }
-                } catch (InterruptedException e) {
+                } catch(InterruptedException e) {
                     Thread.currentThread().interrupt();
-                } catch (Exception e) {
+                } catch(Exception e) {
                     System.err.println("Auto-save failed: " + e.getMessage());
                     stateController.setSaveInProgress(false);
                 }

@@ -86,7 +86,7 @@ public class Console {
             writer.close();
             File file = new File(LOG_FILE);
             file.setLastModified(0);
-        } catch (IOException e) {
+        } catch(IOException e) {
             return;
         }
     }
@@ -99,7 +99,7 @@ public class Console {
             PrintWriter writer = new PrintWriter(LOCK_FILE);
             writer.println("CONSOLE_ACTIVE");
             writer.close();
-        } catch (IOException e) {
+        } catch(IOException e) {
             return;
         }
     }
@@ -121,7 +121,7 @@ public class Console {
         try(PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE, true))) {
             writer.println(message);
             writer.flush();
-        } catch (IOException e) {
+        } catch(IOException e) {
             return;
         }
     }
@@ -173,7 +173,7 @@ public class Console {
                     
                     Thread.sleep(100);
                 }
-            } catch (Exception e) {
+            } catch(Exception e) {
                 if(!Thread.currentThread().isInterrupted()) {
                     return;
                 }
@@ -195,7 +195,7 @@ public class Console {
                     break;
                 }
             }
-        } catch (InterruptedException e) {
+        } catch(InterruptedException e) {
             return;
         }
     }
@@ -294,7 +294,7 @@ public class Console {
         try {
             File file = new File(LOG_FILE);
             file.setLastModified(beforeWrite - 5000);
-        } catch (Exception e) {
+        } catch(Exception e) {
             return;
         }
         
@@ -312,14 +312,14 @@ public class Console {
         try(PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE, true))) {
             writer.println(message);
             writer.flush();
-        } catch (IOException e) {
+        } catch(IOException e) {
             return;
         }
         
         try {
             File file = new File(LOG_FILE);
             file.setLastModified(beforeWrite - 5000);
-        } catch (Exception e) {
+        } catch(Exception e) {
             return;
         }
     }
@@ -333,14 +333,14 @@ public class Console {
         try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE, true))) {
             writer.println(message);
             writer.flush();
-        } catch (IOException err) {
+        } catch(IOException err) {
             return;
         }
         
         try {
             File file = new File(LOG_FILE);
             file.setLastModified(beforeWrite - 5000);
-        } catch (Exception e) {
+        } catch(Exception e) {
             return;
         }
         

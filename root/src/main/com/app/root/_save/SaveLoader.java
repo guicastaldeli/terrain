@@ -96,7 +96,7 @@ public class SaveLoader {
             
             System.out.println("Save loaded successfully: " + saveId);
             return true;
-        } catch (Exception e) {
+        } catch(Exception e) {
             System.err.println("Failed to load save: " + saveId);
             e.printStackTrace();
             stateController.setLoadInProgress(false);
@@ -208,7 +208,7 @@ public class SaveLoader {
             try {
                 format.setLenient(false);
                 return format.parse(dateString);
-            } catch (Exception e) {
+            } catch(Exception e) {
                 continue;
             }
         }
@@ -220,7 +220,7 @@ public class SaveLoader {
                 Locale.getDefault()
             );
             return defaultFormatter.parse(dateString);
-        } catch (Exception e) {
+        } catch(Exception e) {
             return null;
         }
     }

@@ -50,7 +50,7 @@ public class SaveNameDialog extends Screen {
             );
             updateNameDisplay();
             screenController.switchTo(ScreenController.SCREENS.SAVE_NAME_DIALOG);
-        } catch (Exception e) {
+        } catch(Exception e) {
             System.err.println("Failed to parse save name dialog: " + e.getMessage());
         }
     }
@@ -177,7 +177,7 @@ public class SaveNameDialog extends Screen {
                 height
             );
             updateNameDisplay();
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Failed to re-parse save menu on resize: " + err.getMessage());
         }
     }

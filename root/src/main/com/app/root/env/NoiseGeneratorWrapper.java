@@ -13,7 +13,7 @@ public class NoiseGeneratorWrapper {
     private static void loadNativeLibraries() {
         try {
             Path directory = Paths.get(DLL_PATH);
-            if (!Files.exists(directory)) {
+            if(!Files.exists(directory)) {
                 throw new RuntimeException("dll directory does not exist: " + directory.toAbsolutePath());
             }
             //System.out.println("Files in dll directory:");
@@ -21,7 +21,7 @@ public class NoiseGeneratorWrapper {
                 Files.list(directory)
                     .filter(path -> path.toString().toLowerCase().endsWith(".dll"))
                     .forEach(path -> System.out.println("  - " + path.getFileName()));
-            } catch (Exception err) {
+            } catch(Exception err) {
                 System.out.println("error directory" + err.getMessage());
             }
 
@@ -33,7 +33,7 @@ public class NoiseGeneratorWrapper {
             
             for(String lib : libraries) {
                 Path libPath = directory.resolve(lib);
-                if (!Files.exists(libPath)) {
+                if(!Files.exists(libPath)) {
                     System.err.println("Missing required DLL: " + libPath.toAbsolutePath());
                     throw new RuntimeException("Required DLL not found: " + lib);
                 }
@@ -44,13 +44,13 @@ public class NoiseGeneratorWrapper {
                 try {
                     System.load(libPath.toAbsolutePath().toString());
                     //System.out.println("Successfully loaded: " + lib);
-                } catch (UnsatisfiedLinkError e) {
+                } catch(UnsatisfiedLinkError e) {
                     System.err.println("Failed to load: " + lib);
                     System.err.println("Error: " + e.getMessage());
                     throw e;
                 }
             }
-        } catch (Exception err) {
+        } catch(Exception err) {
             err.printStackTrace();
             throw new RuntimeException("Failed to load native libraries: " + err.getMessage());
         }

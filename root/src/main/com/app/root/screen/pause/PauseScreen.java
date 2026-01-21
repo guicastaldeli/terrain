@@ -60,7 +60,7 @@ public class PauseScreen extends Screen {
                 width,
                 height
             );
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Failed to re-parse screen on resize: " + err.getMessage());
         }
     }

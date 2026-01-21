@@ -55,7 +55,7 @@ public class ObjMap {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch(Exception e) {
             System.err.println("Failed to load object map!: " + e.getMessage());
             e.printStackTrace();
         }

@@ -101,7 +101,7 @@ public class InputController {
                 double[] yPos = new double[1];
                 glfwGetCursorPos(w, xPos, yPos);
                 
-                if (uiController != null && uiController.handleMouseClick(xPos[0], yPos[0], button, action)) {
+                if(uiController != null && uiController.handleMouseClick(xPos[0], yPos[0], button, action)) {
                     return;
                 }
                 
@@ -135,7 +135,7 @@ public class InputController {
             if(inAimMode) showCursor = true;
         }
 
-        if (uiController != null && uiController.isVisible()) {
+        if(uiController != null && uiController.isVisible()) {
             glfwSetInputMode(
                 window.getWindow(), 
                 GLFW_CURSOR, 

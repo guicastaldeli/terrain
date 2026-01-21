@@ -278,7 +278,7 @@ public class UpgradeMenu extends UI {
                 width,
                 height
             );
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Failed to re-parse screen on resize: " + err.getMessage());
         }
     }

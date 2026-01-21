@@ -132,7 +132,7 @@ public class Window {
 
             if(scene != null && scene.getPlayerController() != null) {
                 main.com.app.root.player.Camera camera = scene.getPlayerController().getCamera();
-                if (camera != null) {
+                if(camera != null) {
                     camera.setAspectRatio(getAspectRatio());
                 }
             }

@@ -147,9 +147,9 @@ public class CollisionManager {
 
         Vector3f velocity = body.getVelocity();
         float dot = velocity.dot(collision.normal);
-        if (dot < 0) {
+        if(dot < 0) {
             velocity.sub(collision.normal.mul(dot, new Vector3f()));
-            if (collision.normal.y > 0.5f) {
+            if(collision.normal.y > 0.5f) {
                 body.setOnGround(true);
             }
         }
