@@ -65,8 +65,9 @@ public class SaveLoader {
             }
             
             /* Load Player Data */
+            Map<String, Object> playerData = null;
             if(saveFile.hasData("player", "p.data")) {
-                Map<String, Object> playerData = (Map<String, Object>) saveFile.loadObject("player", "p.data");
+                playerData = (Map<String, Object>) saveFile.loadObject("player", "p.data");
                 System.out.println("Player data loaded: " + (playerData != null));
                 dataGetter.applyPlayerData(playerData);
             }
@@ -91,6 +92,7 @@ public class SaveLoader {
             saveFile.setSaveInfo("last_played", lastPlayed);
 
             stateController.setLoadInProgress(false);
+            if(scene != null) scene.initSetPlayerController();
             
             System.out.println("Save loaded successfully: " + saveId);
             return true;

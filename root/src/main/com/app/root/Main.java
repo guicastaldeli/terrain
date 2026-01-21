@@ -72,8 +72,7 @@ public class Main {
         /* Data Getter */
         dataGetter = new DataGetter(
             dataController, 
-            stateController, 
-            scene.getEnvController()
+            stateController
         );
         
         /* Save Generator */
@@ -111,9 +110,6 @@ public class Main {
         inputController = new InputController(window);
         inputController.init(screenController);
         scene.setInputController(inputController);
-
-        dataGetter.setUpgrader(scene.getUpgrader());
-        dataGetter.setPlayerController(scene.getPlayerController());
         
         scene.setDataGetter(dataGetter);
         saveGenerator.setScene(scene);

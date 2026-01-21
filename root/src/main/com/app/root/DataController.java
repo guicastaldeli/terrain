@@ -67,13 +67,6 @@ public class DataController implements Serializable {
         this.playerPos = pos;
     }
     public Vector3f getPlayerPos() {
-        if(playerPos != null &&
-            playerPos.x == 0 &&
-            playerPos.y == 0 &&
-            playerPos.z == 0
-        ) {
-            return null;
-        }
         return playerPos;
     }
 

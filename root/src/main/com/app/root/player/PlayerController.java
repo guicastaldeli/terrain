@@ -71,7 +71,8 @@ public class PlayerController {
         Upgrader upgrader,
         EnvController envController,
         DataController dataController,
-        StateController stateController
+        StateController stateController,
+        boolean autoSet
     ) {
         this.tick = tick;
         this.window = window;
@@ -91,7 +92,7 @@ public class PlayerController {
         );
         this.collisionManager = collisionManager;
 
-        this.set();
+        if(autoSet) this.set();
 
         this.camera.setAspectRatio(window.getAspectRatio());
         this.playerMesh = new PlayerMesh(
@@ -107,14 +108,18 @@ public class PlayerController {
         System.out.println("DataController saved position: " + savedPos);
 
         boolean isNewSave = 
-            savedPos != null &&
-            savedPos.x == 0 &&
-            savedPos.y == 0 &&
-            savedPos.z == 0;
+            stateController.isLoadInProgress() &&
+            stateController.getCurrentSaveId() != null;
+
+        if(position == null) {
+            position = new Vector3f(
+                camera.getPosition().x,
+                camera.getPosition().y, 
+                camera.getPosition().z
+            );
+        }
         
-        boolean dataControllerReset = stateController.isLoadInProgress();
-        
-        if(savedPos != null && !isNewSave && !dataControllerReset) {
+        if(savedPos != null && !isNewSave) {
             this.position = new Vector3f(savedPos);
             System.out.println("PlayerController position set to saved: " + position);
         } else {
@@ -142,17 +147,24 @@ public class PlayerController {
      * Position
      */
     public Vector3f getPosition() {
+        if(position == null) {
+            this.position = new Vector3f(
+                camera.getPosition().x,
+                camera.getPosition().y, 
+                camera.getPosition().z
+            );
+        } 
         return new Vector3f(position);
     }
 
     public void setPosition(float x, float y, float z) {
-        //System.out.println("PlayerController.setPosition(" + x + ", " + y + ", " + z + ")");
-        position.set(x, y, z);
-        
+        if(position == null) {
+            position = new Vector3f(x, y, z);
+        } else {
+            position.set(x, y, z);
+        }
         if(dataController != null) {
-            //System.out.println("Syncing to DataController...");
             dataController.setPlayerPos(new Vector3f(position));
-            //System.out.println("DataController position after sync: " + dataController.getPlayerPos());
         }
         
         updateCameraPosition();

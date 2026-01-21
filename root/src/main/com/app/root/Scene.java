@@ -44,7 +44,11 @@ public class Scene {
         this.stateController = stateController;
         this.shaderProgram = shaderProgram;
 
-        this.upgrader = new Upgrader(null);
+        //this.upgrader = new Upgrader(null);
+    }
+
+    public DataGetter getDataGetter() {
+        return dataGetter;
     }
 
     public boolean isInit() {
@@ -55,16 +59,29 @@ public class Scene {
         return envController;
     }
 
-    public PlayerController getPlayerController() {
-        return playerController;
-    }
-
     public void setInputController(InputController inputController) {
         this.inputController = inputController;
     } 
 
     public UIController getUIController() {
         return uiController;
+    }
+
+    public Spawner getSpawner() {
+        return spawner;
+    }
+
+    /**
+     * Player Controller
+     */
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
+
+    public void initSetPlayerController() {
+        if(playerController != null) {
+            playerController.set();
+        }
     }
 
     /**
@@ -117,7 +134,8 @@ public class Scene {
             upgrader, 
             envController, 
             dataController, 
-            stateController
+            stateController,
+            true
         );
 
         mesh.setPlayerController(playerController);
@@ -136,13 +154,19 @@ public class Scene {
 
             this.mesh = new Mesh(tick, shaderProgram);
 
-            this.spawner = new Spawner(
-                tick, 
-                mesh,
-                new Vector3f(0, 0, 0),
-                100,
-                200.0f
-            );
+            if(reset || spawner == null) {
+                this.spawner = new Spawner(
+                    tick, 
+                    mesh,
+                    new Vector3f(0, 0, 0),
+                    100,
+                    200.0f
+                );
+                System.out.println("Spawner created (reset=" + reset + ")");
+            } else {
+                spawner.mesh = mesh;
+                System.out.println("Spawner preserved and mesh updated (reset=" + reset + ")");
+            }
 
             this.dependencyContainer = new DependencyContainer();
             dependencyContainer.registerAll(
@@ -157,6 +181,8 @@ public class Scene {
             );
     
             this.envController = new EnvController(dependencyContainer);
+
+            dataGetter.setEnvController(envController);
             spawner.setEnvController(envController);
 
             this.upgrader = initUpgrader(envController);
@@ -178,7 +204,8 @@ public class Scene {
                     upgrader,
                     envController,
                     dataController,
-                    stateController
+                    stateController,
+                    false
                 );
                 System.out.println("PlayerController created (resetPlayer=" + reset + ")");
             } else {
@@ -204,7 +231,12 @@ public class Scene {
     private void start() {
         envRenderer.render();
 
-        spawner.initialSpawn();
+        if(stateController.isLoadInProgress()) {
+            System.out.println("Loading trees from save data...");
+            // Trees will be loaded from save data in DataGetter.applyWorldData()
+        } else {
+            spawner.initialSpawn();
+        }
         spawner.setActive(true);
         spawner.printSpawnerStatus();
     }

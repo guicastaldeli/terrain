@@ -6,7 +6,6 @@ import main.com.app.root.env.tree.TreeController;
 import main.com.app.root.env.tree.TreeData;
 import main.com.app.root.env.tree.TreeGenerator;
 import main.com.app.root.mesh.Mesh;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,7 +16,7 @@ import org.joml.Vector3f;
 
 public class Spawner {
     private final Tick tick;
-    private final Mesh mesh;
+    public Mesh mesh;
     private EnvController envController;
 
     private Vector3f centerPosition;
@@ -37,7 +36,7 @@ public class Spawner {
         TREE
     }
     private SpawnType currentType = SpawnType.TREE;
-    private TreeData treeData;
+    public TreeData treeData;
 
     public Spawner(
         Tick tick,
@@ -101,13 +100,6 @@ public class Spawner {
             System.err.println("No config for level " + level + ", using level 0");
         }
 
-        /**
-         * 
-         * 
-         * TEMPORARY SOLUTION... SWITCH LATER
-         * 
-         * 
-         */
         TreeController treeController = new TreeController();
         treeController.createGenerator(data, position, mesh, this);
         
@@ -297,7 +289,11 @@ public class Spawner {
     }
 
     public List<TreeController> getTrees() {
-        return new ArrayList<>(treeData.trees);
+        return treeData.trees;
+    }
+
+    public void addTree(TreeController tree) {
+        treeData.trees.add(tree);
     }
 
     public int getActiveTreeCount() {
@@ -367,7 +363,14 @@ public class Spawner {
      * Spawn Tree At Level
      */
     private void spawnTreeAtLevel(Vector3f position, int level) {
-        if(!isActive || treeData.trees.size() >= maxObjs) return;
+        if(!isActive) {
+            System.out.println("DEBUG: Spawner not active, skipping spawn");
+            return;
+        }
+        if(treeData.trees.size() >= maxObjs) {
+            System.out.println("DEBUG: Max trees reached (" + maxObjs + "), skipping spawn");
+            return;
+        }
 
         TreeData data = treeData.configs.get(level);
         if(data == null) {
@@ -380,19 +383,25 @@ public class Spawner {
         
         TreeGenerator treeGenerator = treeController.getGenerator();
         if(treeGenerator == null) {
-            System.err.println("Failed to create tree generator for level " + level);
+            System.err.println("DEBUG: Failed to create tree generator for level " + level);
             return;
         }
-        treeGenerator.mesh = this.mesh;
         
+        treeGenerator.mesh = this.mesh;
+    
         String treeId = "tree" + treeData.currentTreeId++;
         treeGenerator.setId(treeId);
         
+        treeGenerator.isAlive = true;
+        treeGenerator.currHealth = data.getHealth();
+        treeGenerator.createMesh();
+        
         treeData.trees.add(treeController);
+        
         /*
-        System.out.println("Spawned Level " + level + " tree at [" + 
-                          position.x + ", " + position.z + "]");
-                          */
+        System.out.println("DEBUG: Spawned Level " + level + " tree at [" + 
+                        position.x + ", " + position.z + "] - Total trees now: " + treeData.trees.size());
+                        */
     }
 
     /**
@@ -402,10 +411,7 @@ public class Spawner {
         cleanupTreeAtPos(position);
         
         int nextLevel = currLevel + 1;
-        if(!treeData.configs.containsKey(nextLevel)) {
-            System.out.println("No config for level " + nextLevel + ", spawning base level instead");
-            nextLevel = 0;
-        }
+        if(!treeData.configs.containsKey(nextLevel)) nextLevel = 0;
         
         spawnTreeAtLevel(position, nextLevel);
     }
@@ -485,5 +491,17 @@ public class Spawner {
                 EnvCall.call(treeGenerator, "render");
             }
         }
+    }
+
+    public void clearTrees() {
+        for(TreeController tree : treeData.trees) {
+            Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
+            if(treeGenerator != null) {
+                EnvCall.call(treeGenerator, "cleanup");
+            }
+        }
+        treeData.trees.clear();
+        treeData.currentTreeId = 0;
+        System.out.println("Cleared all trees for save loading");
     }
 }

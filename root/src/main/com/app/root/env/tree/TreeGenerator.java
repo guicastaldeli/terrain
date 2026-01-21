@@ -6,19 +6,19 @@ import java.util.Random;
 import org.joml.Vector3f;
 
 public class TreeGenerator {
-    private final TreeData treeData;
-    private final Vector3f position;
-    private Spawner spawner;
+    public final TreeData treeData;
+    public final Vector3f position;
+    public Spawner spawner;
 
     public Mesh mesh;
-    private final String MESH_ID;
-    private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/env/";
+    public final String MESH_ID;
+    public static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/env/";
     
-    private String id;
-    private float currHealth;
-    private boolean isAlive;
-    private float respawnTimer;
-    private Random random;
+    public String id;
+    public float currHealth;
+    public boolean isAlive;
+    public float respawnTimer;
+    public Random random;
 
     public TreeGenerator(TreeData treeData, Vector3f position, Mesh mesh, Spawner spawner) {
         this.treeData = treeData;
@@ -31,14 +31,12 @@ public class TreeGenerator {
         this.isAlive = true;
         this.respawnTimer = 0;
         this.random = new Random();
-
-        createMesh();
     }
 
     /**
      * Load Texure
      */
-    private void loadTex(String name) {
+    public void loadTex(String name) {
         int id = TextureLoader.load(TEX_PATH + name + ".png");
         if(id <= 0) {
             System.err.println("FAILED to load texture!");
@@ -50,21 +48,22 @@ public class TreeGenerator {
     /**
      * Mesh
      */
-    private void createMesh() {
-        try {
-            String treeName = "tree" + treeData.getLevel();
-            mesh.addModel(MESH_ID, treeName);
-            mesh.setPosition(MESH_ID, position);
-            loadTex(treeName);
-            
-            //System.out.println("Created mesh for " + treeName);
-        } catch(Exception err) {
-            System.err.println("Failed to create mesh for " + treeData.getIndexTo() + ": " + err.getMessage());
-            err.printStackTrace();
-        }
+    public void createMesh() {
+    try {
+        String treeName = "tree" + treeData.getLevel();
+        System.out.println("DEBUG: Creating mesh for " + treeName + " with ID " + MESH_ID);
+        mesh.addModel(MESH_ID, treeName);
+        mesh.setPosition(MESH_ID, position);
+        loadTex(treeName);
+        
+        System.out.println("DEBUG: Mesh created successfully for " + treeName);
+    } catch(Exception err) {
+        System.err.println("Failed to create mesh for " + treeData.getIndexTo() + ": " + err.getMessage());
+        err.printStackTrace();
     }
+}
 
-    private void destroyMesh() {
+    public void destroyMesh() {
         if(mesh.hasMesh(MESH_ID)) {
             mesh.removeMesh(MESH_ID);
             //System.out.println("Mesh destroyed for " + MESH_ID);
@@ -142,7 +141,7 @@ public class TreeGenerator {
     /**
      * Respawn
      */
-    private void respawn() {
+    public void respawn() {
         isAlive = true;
         currHealth = treeData.getHealth();
         createMesh();

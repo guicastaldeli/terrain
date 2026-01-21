@@ -39,6 +39,13 @@ public class MainScreenAction {
     public void start(String saveName) {
         try {
             scene.init(true);
+            if(scene.getDataGetter() != null) {
+                scene.getDataGetter().setEnvController(scene.getEnvController());
+                scene.getDataGetter().setUpgrader(scene.getUpgrader());
+                scene.getDataGetter().setSpawner(scene.getSpawner());
+                scene.getDataGetter().setPlayerController(scene.getPlayerController());
+                System.out.println("DEBUG: DataGetter dependencies set after Scene.init()");
+            }
             String saveId = saveGenerator.generateNewSave(saveName);
             if(saveLoader.loadSave(saveId, true)) {
                 mainScreen.loadSaveMenu.hide();
@@ -62,6 +69,13 @@ public class MainScreenAction {
      */
     public void load(String saveId) {
         scene.init(false);
+        if(scene.getDataGetter() != null) {
+            scene.getDataGetter().setEnvController(scene.getEnvController());
+            scene.getDataGetter().setUpgrader(scene.getUpgrader());
+            scene.getDataGetter().setSpawner(scene.getSpawner());
+            scene.getDataGetter().setPlayerController(scene.getPlayerController());
+            System.out.println("DEBUG: DataGetter dependencies set after Scene.init()");
+        }
         if(saveLoader.loadSave(saveId, false)) {
             mainScreen.loadSaveMenu.hide();
             mainScreen.saveNameDialog.hide();

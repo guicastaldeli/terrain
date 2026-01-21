@@ -162,7 +162,18 @@ public class SaveGenerator {
             System.out.println("Warning: Upgrader is null, cannot save MainData");
         }
         
-        /* Save Player Data */
+        /* World Data */
+        Map<String, Object> worldData = dataGetter.getWorldData();
+        saveFile.saveObject(
+            "world",
+            "w.data",
+            (Serializable) worldData
+        );
+        System.out.println("World data saved with " + 
+            ((worldData.containsKey("trees")) ? 
+                ((List<?>) worldData.get("trees")).size() : 0) + " trees");
+        
+        /* Player Data */
         Map<String, Object> playerData = dataGetter.getPlayerData();
         saveFile.saveObject(
             "player",
