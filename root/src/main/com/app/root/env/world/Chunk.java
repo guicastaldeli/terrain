@@ -16,7 +16,7 @@ public class Chunk {
     public Map<String, ChunkData> cachedChunks = new HashMap<>();
     public final Object chunkLock = new Object();
     
-    public static int CHUNK_SIZE = 64;
+    public static final int CHUNK_SIZE = 64;
 
     public Chunk(
         WorldGenerator worldGenerator, 
@@ -34,8 +34,8 @@ public class Chunk {
      * Get Coords
      */
     public static int[] getCoords(float worldX, float worldZ) {
-        int x = (int)Math.floor((worldX + WorldGenerator.MAX_WORLD_SIZE / 2) / CHUNK_SIZE);
-        int z = (int)Math.floor((worldZ + WorldGenerator.MAX_WORLD_SIZE / 2) / CHUNK_SIZE);
+        int x = (int)Math.floor((worldX + WorldGenerator.WORLD_SIZE / 2) / CHUNK_SIZE);
+        int z = (int)Math.floor((worldZ + WorldGenerator.WORLD_SIZE / 2) / CHUNK_SIZE);
         return new int[]{ x, z };
     }
 
@@ -51,12 +51,12 @@ public class Chunk {
         int chunkX = Integer.parseInt(parts[1]);
         int chunkZ = Integer.parseInt(parts[2]);
 
-        return Math.abs(chunkX - centerZ) <= WorldGenerator.RENDER_DISTANCE &&
+        return Math.abs(chunkX - centerX) <= WorldGenerator.RENDER_DISTANCE &&
             Math.abs(chunkZ - centerZ) <= WorldGenerator.RENDER_DISTANCE;
     }
 
     public boolean isValid(int chunkX, int chunkZ) {
-        int maxChunks = WorldGenerator.MAX_WORLD_SIZE / CHUNK_SIZE;
+        int maxChunks = WorldGenerator.WORLD_SIZE / CHUNK_SIZE;
         return chunkX >= 0 && chunkX < maxChunks &&
             chunkZ >= 0 && chunkZ < maxChunks;
     }
@@ -130,8 +130,8 @@ public class Chunk {
         float[] heightData = new float[CHUNK_SIZE * CHUNK_SIZE];
         for(int x = 0; x < CHUNK_SIZE; x++) {
             for(int z = 0; z < CHUNK_SIZE; z++) {
-                float worldX = startX + x - WorldGenerator.MAX_WORLD_SIZE / 2;
-                float worldZ = startZ + z - WorldGenerator.MAX_WORLD_SIZE / 2;
+                float worldX = startX + x - WorldGenerator.WORLD_SIZE / 2;
+                float worldZ = startZ + z - WorldGenerator.WORLD_SIZE / 2;
                 heightData[x * CHUNK_SIZE + z] = worldGenerator.getHeightAt(worldX, worldZ);
             }
         }

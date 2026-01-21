@@ -16,6 +16,7 @@
 float generateHeightMap(
     float worldX,
     float worldZ,
+    int worldSize,
     PointCollection* collection
 ) {
     /**
@@ -28,14 +29,14 @@ float generateHeightMap(
      * 
      * 
      */
-    float centerX = WORLD_SIZE / 2.0f;
-    float centerZ = WORLD_SIZE / 2.0f;
+    float centerX = worldSize / 2.0f;
+    float centerZ = worldSize / 2.0f;
     
     float dx = worldX - centerX;
     float dz = worldZ - centerZ;
     float distFromCenter = sqrtf(dx * dx + dz * dz);
     
-    float maxRadius = WORLD_SIZE * 0.45f;
+    float maxRadius = worldSize * 0.45f;
     float normalizedDist = distFromCenter / maxRadius;
     
     float islandFalloff = 1.0f;
@@ -47,7 +48,7 @@ float generateHeightMap(
     
     float baseHeight = 100.0f * (1.0f - normalizedDist * normalizedDist) * islandFalloff;
     float mountainHeight = 0.0f;
-    float mountainRadius = WORLD_SIZE * 0.15f;
+    float mountainRadius = worldSize * 0.15f;
     
     if(distFromCenter < mountainRadius) {
         float mountainNorm = distFromCenter / mountainRadius;
@@ -92,7 +93,8 @@ float generateHeightMap(
 void generateChunk(
     Chunk* chunk,
     PointCollection* collection,
-    PoissonCollection* objLocations
+    PoissonCollection* objLocations,
+    int worldSize
 ) {
     int worldX = chunk->x * CHUNK_SIZE;
     int worldZ = chunk->z * CHUNK_SIZE;
@@ -102,7 +104,11 @@ void generateChunk(
             float globalX = worldX + x;
             float globalZ = worldZ + z;
 
-            chunk->heightMap[x][z] = generateHeightMap(globalX, globalZ, collection);
+            chunk->heightMap[x][z] = generateHeightMap(
+                globalX, globalZ, 
+                worldSize,
+                collection
+            );
             chunk->pointId[x][z] = 0;
             float bestMask = 0.0f;
             for(int i = 0; i < collection->count; i++) {
@@ -135,38 +141,42 @@ void generateChunk(
 /**
  * Generate Map
  */
-void generateMap(const char* fileName) {
+void generateMap(int worldSize, const char* fileName) {
     unsigned long seed = (unsigned long)time(NULL) ^ (unsigned long)rand();
     int pointCount = 15 + (rand() % 20);
     initSystems(seed);
 
-    int chunksX = WORLD_SIZE / CHUNK_SIZE;
-    int chunksZ = WORLD_SIZE / CHUNK_SIZE;
+    int chunksX = worldSize / CHUNK_SIZE;
+    int chunksZ = worldSize / CHUNK_SIZE;
 
-    float** worldHeightMap = malloc(WORLD_SIZE * sizeof(float*));
-    unsigned char** riverMap = malloc(WORLD_SIZE * sizeof(unsigned char*));
-    for(int i = 0; i < WORLD_SIZE; i++) {
-        worldHeightMap[i] = malloc(WORLD_SIZE * sizeof(float));
-        riverMap[i] = calloc(WORLD_SIZE, sizeof(unsigned char));
+    float** worldHeightMap = malloc(worldSize * sizeof(float*));
+    unsigned char** riverMap = malloc(worldSize * sizeof(unsigned char*));
+    for(int i = 0; i < worldSize; i++) {
+        worldHeightMap[i] = malloc(worldSize * sizeof(float));
+        riverMap[i] = calloc(worldSize, sizeof(unsigned char));
     }
 
     PointCollection pointCollection;
     initCollection(&pointCollection, pointCount);
-    generatePoints(&pointCollection, WORLD_SIZE, pointCount);
+    generatePoints(&pointCollection, worldSize, pointCount);
 
-    for(int x = 0; x < WORLD_SIZE; x++) {
-        for(int z = 0; z < WORLD_SIZE; z++) {
-            worldHeightMap[x][z] = generateHeightMap(x, z, &pointCollection);
+    for(int x = 0; x < worldSize; x++) {
+        for(int z = 0; z < worldSize; z++) {
+            worldHeightMap[x][z] = generateHeightMap(
+                x, z, 
+                worldSize,
+                &pointCollection
+            );
         }
         if((x + 1) % 100 == 0) {
-            printf("  Base terrain: %.1f%%\n", (float)(x + 1) / WORLD_SIZE * 100.0f);
+            printf("  Base terrain: %.1f%%\n", (float)(x + 1) / worldSize * 100.0f);
         }
     }
-    simulateHydraulicErosion(worldHeightMap, WORLD_SIZE, 3000, 3);
-    thermalErosion(worldHeightMap, WORLD_SIZE, 0.08f, 8);
-    generateRivers(worldHeightMap, riverMap, WORLD_SIZE, pointCount);
+    simulateHydraulicErosion(worldHeightMap, worldSize, 3000, 3);
+    thermalErosion(worldHeightMap, worldSize, 0.08f, 8);
+    generateRivers(worldHeightMap, riverMap, worldSize, pointCount);
 
-    PoissonCollection* objLocations = poissonDiskSampling(25.0f, WORLD_SIZE, WORLD_SIZE, 30);
+    PoissonCollection* objLocations = poissonDiskSampling(25.0f, worldSize, worldSize, 30);
     printf("Generated %d object locations\n", objLocations->count);
 
     Chunk** chunks = malloc(chunksX * sizeof(Chunk*));
@@ -193,7 +203,8 @@ void generateMap(const char* fileName) {
             generateChunk(
                 &chunks[x][z],
                 &pointCollection,
-                objLocations
+                objLocations,
+                worldSize
             );
             //printf("  Chunks: %.1f%%\n", (float)(x + 1) / chunksX * 100.0f);
         }
@@ -209,7 +220,7 @@ void generateMap(const char* fileName) {
         seed
     );
     
-    for(int i = 0; i < WORLD_SIZE; i++) {
+    for(int i = 0; i < worldSize; i++) {
         free(worldHeightMap[i]);
         free(riverMap[i]);
     }

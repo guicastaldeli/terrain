@@ -264,7 +264,8 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
     JNIEnv *env, 
     jobject obj, 
     jstring outputPath, 
-    jlong seed
+    jlong seed,
+    jint worldSize
 ) {    
     const char *path = (*env)->GetStringUTFChars(env, outputPath, 0); 
 
@@ -277,7 +278,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
     
     PointCollection collection;
     initCollection(&collection, 50);
-    generatePoints(&collection, WORLD_SIZE, 15);
+    generatePoints(&collection, worldSize, 15);
     pointCount = collection.count;
     
     pointData = malloc(pointCount * 6 * sizeof(float));
@@ -291,15 +292,19 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
         pointData[idx + 5] = collection.points[i].elevation;
     }
     
-    float** heightMap = malloc(WORLD_SIZE * sizeof(float*));
-    for(int i = 0; i < WORLD_SIZE; i++) {
-        heightMap[i] = malloc(WORLD_SIZE * sizeof(float));
-        for(int j = 0; j < WORLD_SIZE; j++) {
-            heightMap[i][j] = generateHeightMap(i, j, &collection);
+    float** heightMap = malloc(worldSize * sizeof(float*));
+    for(int i = 0; i < worldSize; i++) {
+        heightMap[i] = malloc(worldSize * sizeof(float));
+        for(int j = 0; j < worldSize; j++) {
+            heightMap[i][j] = generateHeightMap(
+                i, j, 
+                worldSize,
+                &collection
+            );
         }
     }
     
-    saveAsImage(heightMap, WORLD_SIZE, WORLD_SIZE, "map.png");
+    saveAsImage(heightMap, worldSize, worldSize, "map.png");
     
     float* vertices;
     int* indices;
@@ -309,8 +314,8 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
     int iCount;
     generateMapMeshData(
         heightMap, 
-        WORLD_SIZE, 
-        WORLD_SIZE, 
+        worldSize, 
+        worldSize, 
         &vertices, 
         &indices, 
         &normals, 
@@ -318,8 +323,8 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
         &vCount, 
         &iCount
     );
-    mapWidth = WORLD_SIZE;
-    mapHeight = WORLD_SIZE;
+    mapWidth = worldSize;
+    mapHeight = worldSize;
     vertexCount = vCount;
     indexCount = iCount;
     
@@ -336,7 +341,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
     normalsData = normals;
     colorsData = colors;
     
-    if(strlen(path) > 0) generateMap(path);
+    if(strlen(path) > 0) generateMap(worldSize, path);
     freePointCollection(&collection);
     (*env)->ReleaseStringUTFChars(env, outputPath, path);
     

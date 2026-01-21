@@ -6,7 +6,6 @@
 #include "noise.h"
 #include "erosion.h"
 
-#define WORLD_SIZE 1024
 #define CHUNK_SIZE 64
 
 typedef struct {
@@ -22,11 +21,13 @@ typedef struct {
 float generateHeightMap(
     float worldX,
     float worldZ,
+    int worldSize,
     PointCollection* collection
 );
 void generateChunk(
     Chunk* chunk,
     PointCollection* collection,
-    PoissonCollection* objLocations
+    PoissonCollection* objLocations,
+    int worldSize
 );
-void generateMap(const char* filename);
+void generateMap(int worldSize, const char* filename);

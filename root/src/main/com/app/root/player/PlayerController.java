@@ -6,7 +6,9 @@ import main.com.app.root.Upgrader;
 import main.com.app.root.Window;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.types.DynamicObject;
+import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
+import main.com.app.root.env.EnvData;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.DataController;
 import org.joml.Vector3f;
@@ -306,6 +308,19 @@ public class PlayerController {
         float deltaTime = tick.getDeltaTime();
 
         applyMov();
+
+        if(envController != null && envController.getEnv(EnvData.MAP) != null) {
+            Vector3f pos = getPosition();
+            Object[] params = { pos.x, pos.z };
+            Object worldGenerator = envController.getEnv(EnvData.MAP);
+            if(worldGenerator != null) {
+                EnvCall.callWithParams(
+                    worldGenerator, 
+                    params, 
+                    "update"
+                );
+            }
+        }
         
         if(onJump && rigidBody.isOnGround()) {
             Vector3f currVel = rigidBody.getVelocity();
