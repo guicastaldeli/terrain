@@ -7,6 +7,7 @@ void saveMapToFile(
     Chunk** chunks,
     int chunksX,
     int chunksZ,
+    int chunkSize,
     PointCollection* collection,
     PoissonCollection* objLocations,
     unsigned long seed

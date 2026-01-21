@@ -10,6 +10,12 @@
 #define PERSISTENCE 0.5
 #define LACUNARITY 2.0
 
+// Fixed terrain feature sizes (independent of world size)
+#define FIXED_ISLAND_RADIUS 450.0f
+#define FIXED_MOUNTAIN_RADIUS 150.0f
+#define FIXED_MOUNTAIN_HEIGHT 400.0f
+#define FIXED_BASE_HEIGHT 100.0f
+
 /**
  * Generate Height Map
  */
@@ -36,7 +42,8 @@ float generateHeightMap(
     float dz = worldZ - centerZ;
     float distFromCenter = sqrtf(dx * dx + dz * dz);
     
-    float maxRadius = worldSize * 0.45f;
+    // Use fixed radius instead of worldSize-based
+    float maxRadius = FIXED_ISLAND_RADIUS;
     float normalizedDist = distFromCenter / maxRadius;
     
     float islandFalloff = 1.0f;
@@ -46,13 +53,13 @@ float generateHeightMap(
         islandFalloff = fmaxf(0.0f, islandFalloff);
     }
     
-    float baseHeight = 100.0f * (1.0f - normalizedDist * normalizedDist) * islandFalloff;
+    float baseHeight = FIXED_BASE_HEIGHT * (1.0f - normalizedDist * normalizedDist) * islandFalloff;
     float mountainHeight = 0.0f;
-    float mountainRadius = worldSize * 0.15f;
+    float mountainRadius = FIXED_MOUNTAIN_RADIUS;
     
     if(distFromCenter < mountainRadius) {
         float mountainNorm = distFromCenter / mountainRadius;
-        mountainHeight = 400.0f * (1.0f - mountainNorm * mountainNorm);
+        mountainHeight = FIXED_MOUNTAIN_HEIGHT * (1.0f - mountainNorm * mountainNorm);
     }
     
     float noiseInfluence = 1.0f;
@@ -94,13 +101,14 @@ void generateChunk(
     Chunk* chunk,
     PointCollection* collection,
     PoissonCollection* objLocations,
-    int worldSize
+    int worldSize,
+    int chunkSize
 ) {
-    int worldX = chunk->x * CHUNK_SIZE;
-    int worldZ = chunk->z * CHUNK_SIZE;
+    int worldX = chunk->x * chunkSize;
+    int worldZ = chunk->z * chunkSize;
 
-    for(int x = 0; x < CHUNK_SIZE; x++) {
-        for(int z = 0; z < CHUNK_SIZE; z++) {
+    for(int x = 0; x < chunkSize; x++) {
+        for(int z = 0; z < chunkSize; z++) {
             float globalX = worldX + x;
             float globalZ = worldZ + z;
 
@@ -141,13 +149,17 @@ void generateChunk(
 /**
  * Generate Map
  */
-void generateMap(int worldSize, const char* fileName) {
+void generateMap(
+    int worldSize,
+    int chunkSize, 
+    const char* fileName
+) {
     unsigned long seed = (unsigned long)time(NULL) ^ (unsigned long)rand();
     int pointCount = 15 + (rand() % 20);
     initSystems(seed);
 
-    int chunksX = worldSize / CHUNK_SIZE;
-    int chunksZ = worldSize / CHUNK_SIZE;
+    int chunksX = worldSize / chunkSize;
+    int chunksZ = worldSize / chunkSize;
 
     float** worldHeightMap = malloc(worldSize * sizeof(float*));
     unsigned char** riverMap = malloc(worldSize * sizeof(unsigned char*));
@@ -181,20 +193,31 @@ void generateMap(int worldSize, const char* fileName) {
 
     Chunk** chunks = malloc(chunksX * sizeof(Chunk*));
     for(int x = 0; x < chunksX; x++) {
-        chunks[x] = malloc(chunksX * sizeof(Chunk));
+        chunks[x] = malloc(chunksZ * sizeof(Chunk));
+        
         for(int z = 0; z < chunksZ; z++) {
             chunks[x][z].x = x;
             chunks[x][z].z = z;
-            memset(
-                chunks[x][z].riverMap,
-                0,
-                CHUNK_SIZE * CHUNK_SIZE
-            );
-
-            for(int cx = 0; cx < CHUNK_SIZE; cx++) {
-                for(int cz = 0; cz < CHUNK_SIZE; cz++) {
-                    int worldX = x * CHUNK_SIZE + cx;
-                    int worldZ = z * CHUNK_SIZE + cz;
+            chunks[x][z].chunkSize = chunkSize;
+            
+            chunks[x][z].heightMap = malloc(chunkSize * sizeof(float*));
+            chunks[x][z].waterMap = malloc(chunkSize * sizeof(float*));
+            chunks[x][z].pointId = malloc(chunkSize * sizeof(unsigned char*));
+            chunks[x][z].riverMap = malloc(chunkSize * sizeof(unsigned char*));
+            chunks[x][z].objMap = malloc(chunkSize * sizeof(unsigned char*));
+            
+            for(int i = 0; i < chunkSize; i++) {
+                chunks[x][z].heightMap[i] = malloc(chunkSize * sizeof(float));
+                chunks[x][z].waterMap[i] = malloc(chunkSize * sizeof(float));
+                chunks[x][z].pointId[i] = malloc(chunkSize * sizeof(unsigned char));
+                chunks[x][z].riverMap[i] = malloc(chunkSize * sizeof(unsigned char));
+                chunks[x][z].objMap[i] = malloc(chunkSize * sizeof(unsigned char));
+            }
+            
+            for(int cx = 0; cx < chunkSize; cx++) {
+                for(int cz = 0; cz < chunkSize; cz++) {
+                    int worldX = x * chunkSize + cx;
+                    int worldZ = z * chunkSize + cz;
                     chunks[x][z].heightMap[cx][cz] = worldHeightMap[worldX][worldZ];
                     chunks[x][z].riverMap[cx][cz] = riverMap[worldX][worldZ];
                 }
@@ -204,9 +227,9 @@ void generateMap(int worldSize, const char* fileName) {
                 &chunks[x][z],
                 &pointCollection,
                 objLocations,
-                worldSize
+                worldSize,
+                chunkSize
             );
-            //printf("  Chunks: %.1f%%\n", (float)(x + 1) / chunksX * 100.0f);
         }
     }
 
@@ -215,6 +238,7 @@ void generateMap(int worldSize, const char* fileName) {
         chunks,
         chunksX,
         chunksZ,
+        chunkSize,
         &pointCollection,
         objLocations,
         seed

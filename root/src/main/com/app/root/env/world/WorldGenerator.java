@@ -30,7 +30,7 @@ public class WorldGenerator {
     private MeshData meshData;
     private StaticObject collider;
 
-    private final NoiseGeneratorWrapper noiseGeneratorWrapper;
+    public final NoiseGeneratorWrapper noiseGeneratorWrapper;
     private float[] heightMapData;
     private int mapWidth;
     private int mapHeight;
@@ -43,8 +43,8 @@ public class WorldGenerator {
     private static final String MAP_ID = "MAP_ID";
     private static final String TEMP_MAP_ID = "temp_map_";
 
-    public static final int WORLD_SIZE = 10000;
-    public static final int RENDER_DISTANCE = 3;
+    public static final int WORLD_SIZE = 2000;
+    public static final int RENDER_DISTANCE = 8;
     
     public WorldGenerator(
         Tick tick, 
@@ -98,7 +98,8 @@ public class WorldGenerator {
             boolean success = noiseGeneratorWrapper.generateMap(
                 tempPath, 
                 seed, 
-                WORLD_SIZE
+                WORLD_SIZE,
+                Chunk.CHUNK_SIZE
             );
             if(success) {
                 Path source = Paths.get(tempPath);
@@ -129,7 +130,7 @@ public class WorldGenerator {
                     .resolve("world")
                     .resolve("d.m.0.dat");
                 
-                boolean success = noiseGeneratorWrapper.loadMapData(mapFilePath.toString());
+                boolean success = noiseGeneratorWrapper.loadMapData(mapFilePath.toString(), Chunk.CHUNK_SIZE);
                 
                 if(success) {
                     heightMapData = noiseGeneratorWrapper.getHeightMapData();
@@ -206,7 +207,8 @@ public class WorldGenerator {
             boolean success = noiseGeneratorWrapper.generateMap(
                 path, 
                 seed,
-                WORLD_SIZE
+                WORLD_SIZE,
+                Chunk.CHUNK_SIZE
             );
             if(success) {
                 heightMapData = noiseGeneratorWrapper.getHeightMapData();
@@ -297,34 +299,42 @@ public class WorldGenerator {
         int[] chunkCoords = Chunk.getCoords(x, z);
         String chunkId = Chunk.getId(chunkCoords[0], chunkCoords[1]);
         if(chunk.loadedChunks.containsKey(chunkId)) {
-            int localX = (int)((x + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
-            int localY = (int)((z + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
-        }
-
-        if(heightMapData == null) {
-            heightMapData = noiseGeneratorWrapper.getHeightMapData();
-            if(heightMapData != null) {
-                mapWidth = noiseGeneratorWrapper.getMapWidth();
-                mapHeight = noiseGeneratorWrapper.getMapHeight();
-                System.out.println("Retrieved from wrapper: " + heightMapData.length + " floats");
-            } else {
-                System.out.println("Still null even from wrapper!");
-                return 0.0f;
+            ChunkData chunkData = chunk.loadedChunks.get(chunkId);
+            if(chunkData.meshData != null) {
+                int localX = (int)((x + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
+                int localZ = (int)((z + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
+                return getHeightFromChunkData(chunkData, localX, localZ);
             }
         }
-        
-        int mapX = (int)(x + mapWidth / 2.0f);
-        int mapZ = (int)(z + mapHeight / 2.0f);
-        
-        mapX = Math.max(0, Math.min(mapWidth - 1, mapX));
-        mapZ = Math.max(0, Math.min(mapHeight - 1, mapZ));
-        
-        int index = mapX * mapHeight + mapZ;
-        if(index >= 0 && index < heightMapData.length) {
-            return heightMapData[index];
+
+        chunk.load(chunkCoords[0], chunkCoords[1]);
+        if(chunk.loadedChunks.containsKey(chunkId)) {
+            ChunkData chunkData = chunk.loadedChunks.get(chunkId);
+            return getHeightFromChunkData(
+                chunkData,
+                (int)((x + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE),
+                (int)((z + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE)
+            );
         }
-        
-        System.out.println("Index out of bounds! Index =" + index + ", array length=" + heightMapData.length);
+
+        return 0.0f;
+    }
+
+    private float getHeightFromChunkData(
+        ChunkData chunkData,
+        int localX,
+        int localZ
+    ) {
+        if(chunkData.meshData == null || chunkData.meshData.getVertices() == null) {
+            return 0.0f;
+        }
+
+        int vertexIndex = (localX + localZ * Chunk.CHUNK_SIZE) * 3;
+        float[] vertices = chunkData.meshData.getVertices();
+        if(vertexIndex >= 0 && vertexIndex + 1 < vertices.length) {
+            return vertices[vertexIndex + 1];
+        }
+
         return 0.0f;
     }
 

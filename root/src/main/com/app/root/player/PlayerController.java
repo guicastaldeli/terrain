@@ -312,13 +312,13 @@ public class PlayerController {
         if(envController != null && envController.getEnv(EnvData.MAP) != null) {
             Vector3f pos = getPosition();
             Object[] params = { pos.x, pos.z };
-            Object worldGenerator = envController.getEnv(EnvData.MAP);
-            if(worldGenerator != null) {
-                EnvCall.callWithParams(
-                    worldGenerator, 
-                    params, 
-                    "update"
-                );
+            
+            Object worldController = envController.getEnv(EnvData.MAP);
+            if(worldController != null) {
+                Object generator = EnvCall.callReturn(worldController, "getGenerator");
+                if(generator != null) {
+                    EnvCall.callWithParams(generator, params, "update");
+                }
             }
         }
         

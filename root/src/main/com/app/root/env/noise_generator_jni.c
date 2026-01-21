@@ -265,7 +265,8 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
     jobject obj, 
     jstring outputPath, 
     jlong seed,
-    jint worldSize
+    jint worldSize,
+    jint chunkSize
 ) {    
     const char *path = (*env)->GetStringUTFChars(env, outputPath, 0); 
 
@@ -341,7 +342,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
     normalsData = normals;
     colorsData = colors;
     
-    if(strlen(path) > 0) generateMap(worldSize, path);
+    if(strlen(path) > 0) generateMap(worldSize, chunkSize, path);
     freePointCollection(&collection);
     (*env)->ReleaseStringUTFChars(env, outputPath, path);
     
@@ -351,7 +352,8 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
 JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_loadMapData(
     JNIEnv *env, 
     jobject obj, 
-    jstring filePath
+    jstring filePath,
+    jint chunkSize
 ) {    
     const char *path = (*env)->GetStringUTFChars(env, filePath, 0);
     FILE* file = fopen(path, "rb");
@@ -363,7 +365,8 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_load
     }
 
     unsigned long fileSeed;
-    int chunksX, chunksZ;
+    int chunksX; 
+    int chunksZ;
     int storedPointCount;
     
     fread(&fileSeed, sizeof(unsigned long), 1, file);
@@ -380,8 +383,8 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_load
     fread(&poissonCount, sizeof(int), 1, file);
     fseek(file, poissonCount * sizeof(PoissonPoint), SEEK_CUR);
     
-    int width = chunksX * CHUNK_SIZE;
-    int height = chunksZ * CHUNK_SIZE;
+    int width = chunksX * chunkSize;
+    int height = chunksZ * chunkSize;
     
     if(heightMapData) free(heightMapData);
     if(indicesData) free(indicesData);
@@ -390,25 +393,28 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_load
     if(pointData) free(pointData);
     heightMapData = malloc(width * height * sizeof(float));
     
+    float* chunkHeights = malloc(chunkSize * chunkSize * sizeof(float));
+    
     for(int cx = 0; cx < chunksX; cx++) {
         for(int cz = 0; cz < chunksZ; cz++) {
-            float chunkHeights[CHUNK_SIZE][CHUNK_SIZE];
-            fread(chunkHeights, sizeof(float), CHUNK_SIZE * CHUNK_SIZE, file);
+            fread(chunkHeights, sizeof(float), chunkSize * chunkSize, file);
             
-            fseek(file, CHUNK_SIZE * CHUNK_SIZE * sizeof(unsigned char), SEEK_CUR);
-            fseek(file, CHUNK_SIZE * CHUNK_SIZE * sizeof(int), SEEK_CUR);
-            fseek(file, CHUNK_SIZE * CHUNK_SIZE * sizeof(unsigned char), SEEK_CUR);
+            fseek(file, chunkSize * chunkSize * sizeof(unsigned char), SEEK_CUR);
+            fseek(file, chunkSize * chunkSize * sizeof(int), SEEK_CUR);
+            fseek(file, chunkSize * chunkSize * sizeof(unsigned char), SEEK_CUR);
             
-            for(int x = 0; x < CHUNK_SIZE; x++) {
-                for(int z = 0; z < CHUNK_SIZE; z++) {
-                    int worldX = cx * CHUNK_SIZE + x;
-                    int worldZ = cz * CHUNK_SIZE + z;
+            for(int x = 0; x < chunkSize; x++) {
+                for(int z = 0; z < chunkSize; z++) {
+                    int worldX = cx * chunkSize + x;
+                    int worldZ = cz * chunkSize + z;
                     int index = worldX * height + worldZ;
-                    heightMapData[index] = chunkHeights[x][z];
+                    heightMapData[index] = chunkHeights[x * chunkSize + z];
                 }
             }
         }
     }
+    
+    free(chunkHeights);
     
     mapWidth = width;
     mapHeight = height;
@@ -554,4 +560,47 @@ JNIEXPORT jint JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getPoint
     jobject obj
 ) { 
     return pointCount; 
+}
+
+JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_generateChunk(
+    JNIEnv *env, 
+    jobject obj, 
+    jint chunkX, 
+    jint chunkZ,
+    jint chunkSize,
+    jint worldSize
+) {
+    int startX = chunkX * chunkSize;
+    int startZ = chunkZ * chunkSize;
+
+    jfloatArray result = (*env)->NewFloatArray(env, chunkSize * chunkSize);
+    float* heightData = malloc(chunkSize * chunkSize * sizeof(float));
+
+    PointCollection collection;
+    initCollection(&collection, 50);
+    generatePoints(&collection, worldSize, 15);
+
+    for(int x = 0; x < chunkSize; x++) {
+        for(int z = 0; z < chunkSize; z++) {
+            float worldX = startX + x;
+            float worldZ = startZ + z;
+            heightData[x * chunkSize + z] = generateHeightMap(
+                worldX,
+                worldZ,
+                worldSize,
+                &collection
+            );
+        }
+    }
+
+    freePointCollection(&collection);
+    (*env)->SetFloatArrayRegion(
+        env,
+        result,
+        0,
+        chunkSize * chunkSize,
+        heightData
+    );
+    free(heightData);
+    return result;
 }

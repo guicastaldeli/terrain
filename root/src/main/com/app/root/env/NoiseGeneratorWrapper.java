@@ -59,10 +59,18 @@ public class NoiseGeneratorWrapper {
     public native boolean generateMap(
         String outputhPath, 
         long seed, 
+        int worldSize,
+        int chunkSize
+    );
+    
+    public native float[] generateChunk(
+        int chunkX, 
+        int chunkZ, 
+        int chunkSize,
         int worldSize
     );
-    public native boolean loadMapData(String filePath);
-
+    
+    public native boolean loadMapData(String filePath, int chunkSize);
     public native float[] getHeightMapData();
     public native int[] getIndicesData();
     public native float[] getNormalsData();

@@ -5,6 +5,7 @@ void saveMapToFile(
     Chunk** chunks, 
     int chunksX, 
     int chunksZ, 
+    int chunkSize,
     PointCollection* collection, 
     PoissonCollection* objLocations, 
     unsigned long seed
@@ -28,10 +29,10 @@ void saveMapToFile(
         for(int z = 0; z < chunksZ; z++) {
             fwrite(&chunks[x][z].x, sizeof(int), 1, file);
             fwrite(&chunks[x][z].z, sizeof(int), 1, file);
-            fwrite(chunks[x][z].heightMap, sizeof(float), CHUNK_SIZE * CHUNK_SIZE, file);
-            fwrite(chunks[x][z].pointId, sizeof(unsigned char), CHUNK_SIZE * CHUNK_SIZE, file);
-            fwrite(chunks[x][z].riverMap, sizeof(unsigned char), CHUNK_SIZE * CHUNK_SIZE, file);
-            fwrite(chunks[x][z].objMap, sizeof(unsigned char), CHUNK_SIZE * CHUNK_SIZE, file);
+            fwrite(chunks[x][z].heightMap, sizeof(float), chunkSize * chunkSize, file);
+            fwrite(chunks[x][z].pointId, sizeof(unsigned char), chunkSize * chunkSize, file);
+            fwrite(chunks[x][z].riverMap, sizeof(unsigned char), chunkSize * chunkSize, file);
+            fwrite(chunks[x][z].objMap, sizeof(unsigned char), chunkSize * chunkSize, file);
         }
     }
 
