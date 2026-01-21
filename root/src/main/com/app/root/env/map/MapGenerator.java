@@ -97,7 +97,7 @@ public class MapGenerator {
             }
 
             return false;
-        } catch(Exception err) {
+        } catch (Exception err) {
             System.err.println("Failed to generate new map for save: " + saveId);
             err.printStackTrace();
             return false;
@@ -111,7 +111,6 @@ public class MapGenerator {
         try {
             SaveFile saveFile = new SaveFile(saveId);
             if(saveFile.hasData("world", "d.m.0")) {
-                // Get the actual file path
                 Path mapFilePath = saveFile.getSavePath()
                     .resolve("world")
                     .resolve("d.m.0.dat");
@@ -134,7 +133,7 @@ public class MapGenerator {
                 System.out.println("No map data found in save, generating new map");
                 return generateNewMap(saveId);
             }
-        } catch(Exception err) {
+        } catch (Exception err) {
             System.err.println("Failed to load map from save: " + saveId);
             err.printStackTrace();
             return generateNewMap(saveId);
@@ -163,7 +162,7 @@ public class MapGenerator {
             }
 
             return setData(saveFile);
-        } catch(IOException e) {
+        } catch (IOException e) {
             System.err.println("Failed to generate map data: " + e.getMessage());
             return false;
         }
@@ -271,7 +270,7 @@ public class MapGenerator {
                 collisionManager.addStaticCollider(coll);
                 System.out.println("Map collider added to collision system");
             }
-        } catch(Exception err) {
+        } catch (Exception err) {
             System.err.println("Failed to add map collider: " + err.getMessage());
         }
     }

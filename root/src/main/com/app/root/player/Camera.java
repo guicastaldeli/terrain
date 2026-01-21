@@ -34,7 +34,7 @@ public class Camera {
     private AimController aimController;
 
     public float posX = 200.0f;
-    public float posY = 1200.0f;
+    public float posY = 600.0f;
     public float posZ = 0.0f;
 
     public Camera() {
