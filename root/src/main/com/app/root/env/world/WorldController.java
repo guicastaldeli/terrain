@@ -1,4 +1,4 @@
-package main.com.app.root.env.map;
+package main.com.app.root.env.world;
 import main.com.app.root.DataController;
 import main.com.app.root.DependencyValue;
 import main.com.app.root.StateController;
@@ -9,7 +9,7 @@ import main.com.app.root.env.EnvInstance;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshRenderer;
 
-public class MapController implements EnvInstance<MapController> {
+public class WorldController implements EnvInstance<WorldController> {
     @DependencyValue private Tick tick;
     @DependencyValue private ShaderProgram shaderProgram;
     @DependencyValue private Mesh mesh;
@@ -18,16 +18,16 @@ public class MapController implements EnvInstance<MapController> {
     @DependencyValue private StateController stateController;
     @DependencyValue private CollisionManager collisionManager;
 
-    private MapGenerator mapGenerator;
+    private WorldGenerator worldGenerator;
 
     @Override
-    public MapController getInstance() {
-        if(mapGenerator == null) createGenerator();
+    public WorldController getInstance() {
+        if(worldGenerator == null) createGenerator();
         return this;
     }
 
     private void createGenerator() {
-        this.mapGenerator = new MapGenerator(
+        this.worldGenerator = new WorldGenerator(
             tick, 
             mesh, 
             meshRenderer, 
@@ -41,8 +41,8 @@ public class MapController implements EnvInstance<MapController> {
     /**
      * Get Map Generator
      */
-    public MapGenerator getGenerator() {
+    public WorldGenerator getGenerator() {
         //System.out.println("GET GENERATOR");
-        return mapGenerator;
+        return worldGenerator;
     }
 }

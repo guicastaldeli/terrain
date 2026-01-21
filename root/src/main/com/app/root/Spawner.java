@@ -133,10 +133,10 @@ public class Spawner {
         float z = centerPosition.z + (float) Math.sin(angle) * distance;
         
         Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
-        Object mapGenerator = EnvCall.callReturn(mapInstance, "getGenerator");
+        Object worldGenerator = EnvCall.callReturn(mapInstance, "getGenerator");
         
         Object[] heightParams = new Object[]{x, z};
-        Float height = (Float) EnvCall.callReturnWithParams(mapGenerator, heightParams, "getHeightAt");
+        Float height = (Float) EnvCall.callReturnWithParams(worldGenerator, heightParams, "getHeightAt");
         
         return new Vector3f(x, height, z);
     }

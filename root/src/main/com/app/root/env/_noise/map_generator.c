@@ -10,101 +10,78 @@
 #define PERSISTENCE 0.5
 #define LACUNARITY 2.0
 
-IslandParams generateIslandParams(
-    unsigned long seed,
-    int islandIndex,
-    int totalIslands
-) {
-    IslandParams params;
-
-    unsigned long islandSeed = seed + islandIndex * 12345;
-    srand(islandSeed);
-    params.islandRadius = WORLD_SIZE * (0.1f + (rand() % 200) / 1000.0f);
-
-    float margin = params.islandRadius * 2.0f;
-    
-    params.centerX = margin + (rand() % (int)(WORLD_SIZE - 2 * margin));
-    params.centerZ = margin + (rand() % (int)(WORLD_SIZE - 2 * margin));
-
-    params.hasMountain = (rand() % 100) < 80;
-    if(params.hasMountain) {
-        params.mountainRadius = params.islandRadius * (0.2f + (rand() % 400) / 1000.0f);
-        params.mountainHeight = 200.0f + (rand() % 400);
-    } else {
-        params.mountainRadius = 0;
-        params.mountainHeight = 0;
-    }
-
-    params.baseHeight = 50.0f + (rand() % 100);
-    params.floorHeight = (rand() % (int)params.baseHeight);
-    
-    printf("Island %d: radius=%.1f, center=(%.1f,%.1f), hasMountain=%d\n", 
-           islandIndex, params.islandRadius, params.centerX, params.centerZ, params.hasMountain);
-    
-    return params;
-}
-
 /**
  * Generate Height Map
  */
 float generateHeightMap(
     float worldX,
     float worldZ,
-    PointCollection* collection,
-    IslandParams* islands,
-    int islandCount
+    PointCollection* collection
 ) {
-    float height = 0.0f;
-    float bestIslandInfluence = 0.0f;
-    for(int i = 0; i < islandCount; i++) {
-        IslandParams* island = &islands[i];
-
-        float dx = worldX - island->centerX;
-        float dz = worldZ - island->centerZ;
-        float distFromCenter = sqrtf(dx * dx + dz * dz);
-        float normalizedDist = distFromCenter / island->islandRadius;
-
-        float islandInfluence = 1.0f;
-        if(normalizedDist > 0.7f) {
-            float edgeFactor = (normalizedDist - 0.7f) / 0.3f;
-            islandInfluence = 1.0f - (edgeFactor * edgeFactor);
-            islandInfluence = fmaxf(0.0f, islandInfluence);
-        }
-
-        if(islandInfluence > bestIslandInfluence) {
-            bestIslandInfluence = islandInfluence;
-
-            float baseShape = 1.0f - normalizedDist * normalizedDist;
-            height = island->baseHeight * baseShape * islandInfluence;
-            if(island->hasMountain && distFromCenter < island->mountainRadius) {
-                float mountainNorm = distFromCenter / island->mountainRadius;
-                float mountainShape = 1.0f - mountainNorm * mountainNorm;
-                height += island->mountainHeight * mountainShape;
-            }
-            height += island->floorHeight;
-        }
+    /**
+     * 
+     * 
+     *  - IMPORTANT!!!: This is only a temporary noise
+     *               i will set the real map noise later
+     *               for now this is the mountain noise to test
+     *               things on the game.
+     * 
+     * 
+     */
+    float centerX = WORLD_SIZE / 2.0f;
+    float centerZ = WORLD_SIZE / 2.0f;
+    
+    float dx = worldX - centerX;
+    float dz = worldZ - centerZ;
+    float distFromCenter = sqrtf(dx * dx + dz * dz);
+    
+    float maxRadius = WORLD_SIZE * 0.45f;
+    float normalizedDist = distFromCenter / maxRadius;
+    
+    float islandFalloff = 1.0f;
+    if(normalizedDist > 0.7f) {
+        float edgeFactor = (normalizedDist - 0.7f) / 0.3f;
+        islandFalloff = 1.0f - (edgeFactor * edgeFactor);
+        islandFalloff = fmaxf(0.0f, islandFalloff);
     }
-
-    if(bestIslandInfluence > 0.01f) {
-        float terrainNoise = fractualSimplexNoise(
-            worldX * 0.01f,
-            worldZ * 0.01f,
-            4,
-            0.5f,
-            2.0f
-        );
-        float detailNoise = fractualSimplexNoise(
-            worldX * 0.05f,
-            worldZ * 0.05f,
-            3,
-            0.3f,
-            2.0f
-        );
-
-        height += terrainNoise * 30.0f * bestIslandInfluence;
-        height += detailNoise * 10.0f * bestIslandInfluence;
+    
+    float baseHeight = 100.0f * (1.0f - normalizedDist * normalizedDist) * islandFalloff;
+    float mountainHeight = 0.0f;
+    float mountainRadius = WORLD_SIZE * 0.15f;
+    
+    if(distFromCenter < mountainRadius) {
+        float mountainNorm = distFromCenter / mountainRadius;
+        mountainHeight = 400.0f * (1.0f - mountainNorm * mountainNorm);
     }
-
+    
+    float noiseInfluence = 1.0f;
+    if(distFromCenter > mountainRadius) {
+        float distanceFromMountain = distFromCenter - mountainRadius;
+        float maxIslandRadius = maxRadius * 0.7f;
+        noiseInfluence = 1.0f - (distanceFromMountain / (maxIslandRadius - mountainRadius));
+        noiseInfluence = fmaxf(0.1f, fminf(1.0f, noiseInfluence));
+    }
+    
+    float terrainNoise = fractualSimplexNoise(
+        worldX * 0.01f,
+        worldZ * 0.01f,
+        4,
+        0.5f,
+        2.0f
+    );
+    float detailNoise = fractualSimplexNoise(
+        worldX * 0.05f,
+        worldZ * 0.05f,
+        3,
+        0.3f,
+        2.0f
+    );
+    
+    float height = baseHeight + mountainHeight;
+    
+    height += terrainNoise * 30.0f * islandFalloff * noiseInfluence;
+    height += detailNoise * 10.0f * islandFalloff * noiseInfluence;
+    
     height = fmaxf(height, 0.0f);
     return height;
 }
@@ -115,9 +92,7 @@ float generateHeightMap(
 void generateChunk(
     Chunk* chunk,
     PointCollection* collection,
-    PoissonCollection* objLocations,
-    IslandParams* islands,
-    int islandCount
+    PoissonCollection* objLocations
 ) {
     int worldX = chunk->x * CHUNK_SIZE;
     int worldZ = chunk->z * CHUNK_SIZE;
@@ -127,12 +102,7 @@ void generateChunk(
             float globalX = worldX + x;
             float globalZ = worldZ + z;
 
-            chunk->heightMap[x][z] = generateHeightMap(
-                globalX, globalZ, 
-                collection,
-                islands,
-                islandCount
-            );
+            chunk->heightMap[x][z] = generateHeightMap(globalX, globalZ, collection);
             chunk->pointId[x][z] = 0;
             float bestMask = 0.0f;
             for(int i = 0; i < collection->count; i++) {
@@ -170,12 +140,6 @@ void generateMap(const char* fileName) {
     int pointCount = 15 + (rand() % 20);
     initSystems(seed);
 
-    int islandCount = 8 + (rand() % 9);
-    IslandParams* islands = malloc(islandCount * sizeof(IslandParams));
-    for(int i = 0; i < islandCount; i++) {
-        islands[i] = generateIslandParams(seed, i, islandCount);
-    }
-
     int chunksX = WORLD_SIZE / CHUNK_SIZE;
     int chunksZ = WORLD_SIZE / CHUNK_SIZE;
 
@@ -192,22 +156,17 @@ void generateMap(const char* fileName) {
 
     for(int x = 0; x < WORLD_SIZE; x++) {
         for(int z = 0; z < WORLD_SIZE; z++) {
-            worldHeightMap[x][z] = generateHeightMap(
-                x, z, 
-                &pointCollection,
-                islands,
-                islandCount
-            );
+            worldHeightMap[x][z] = generateHeightMap(x, z, &pointCollection);
         }
         if((x + 1) % 100 == 0) {
             printf("  Base terrain: %.1f%%\n", (float)(x + 1) / WORLD_SIZE * 100.0f);
         }
     }
-    //simulateHydraulicErosion(worldHeightMap, WORLD_SIZE, 3000, 3);
-    //thermalErosion(worldHeightMap, WORLD_SIZE, 0.08f, 8);
-    //generateRivers(worldHeightMap, riverMap, WORLD_SIZE, pointCount);
+    simulateHydraulicErosion(worldHeightMap, WORLD_SIZE, 3000, 3);
+    thermalErosion(worldHeightMap, WORLD_SIZE, 0.08f, 8);
+    generateRivers(worldHeightMap, riverMap, WORLD_SIZE, pointCount);
 
-    PoissonCollection* objLocations = poissonDiskSampling(45.0f, WORLD_SIZE, WORLD_SIZE, 30);
+    PoissonCollection* objLocations = poissonDiskSampling(25.0f, WORLD_SIZE, WORLD_SIZE, 30);
     printf("Generated %d object locations\n", objLocations->count);
 
     Chunk** chunks = malloc(chunksX * sizeof(Chunk*));
@@ -234,9 +193,7 @@ void generateMap(const char* fileName) {
             generateChunk(
                 &chunks[x][z],
                 &pointCollection,
-                objLocations,
-                islands,
-                islandCount
+                objLocations
             );
             //printf("  Chunks: %.1f%%\n", (float)(x + 1) / chunksX * 100.0f);
         }
@@ -258,7 +215,6 @@ void generateMap(const char* fileName) {
     }
     free(worldHeightMap);
     free(riverMap);
-    free(islands);
 
     for(int x = 0; x < chunksX; x++) {
         free(chunks[x]);

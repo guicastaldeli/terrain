@@ -290,27 +290,15 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
         pointData[idx + 4] = collection.points[i].ruggedness;
         pointData[idx + 5] = collection.points[i].elevation;
     }
-
-    int islandCount = 3 + (rand() % 4);
-    IslandParams* islands = malloc(islandCount * sizeof(IslandParams));
-    for(int i = 0; i < islandCount; i++) {
-        islands[i] = generateIslandParams((unsigned long) seed, i, islandCount);
-    }
     
     float** heightMap = malloc(WORLD_SIZE * sizeof(float*));
     for(int i = 0; i < WORLD_SIZE; i++) {
         heightMap[i] = malloc(WORLD_SIZE * sizeof(float));
         for(int j = 0; j < WORLD_SIZE; j++) {
-            heightMap[i][j] = generateHeightMap(
-                i, j, 
-                &collection,
-                islands,
-                islandCount
-            );
+            heightMap[i][j] = generateHeightMap(i, j, &collection);
         }
     }
     
-    free(islands);
     saveAsImage(heightMap, WORLD_SIZE, WORLD_SIZE, "map.png");
     
     float* vertices;

@@ -1,4 +1,4 @@
-package main.com.app.root.env.map;
+package main.com.app.root.env.world;
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
 import main.com.app.root.Tick;
@@ -19,7 +19,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Random;
 
-public class MapGenerator {
+public class WorldGenerator {
     private final Tick tick;
     private final ShaderProgram shaderProgram;
 
@@ -42,7 +42,7 @@ public class MapGenerator {
     private boolean isReady = false;
     private Runnable onReadyCallback;
     
-    public MapGenerator(
+    public WorldGenerator(
         Tick tick, 
         Mesh mesh,
         MeshRenderer meshRenderer, 
