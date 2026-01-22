@@ -33,7 +33,10 @@ public class SaveGenerator {
      * Generate New Save
      */
     public String generateNewSave(String saveName) throws IOException {
-        String saveId = generateSaveId(saveName);
+        SaveNameResult result = generateSaveId(saveName);
+        String saveId = result.saveId;
+        String finalSaveName = result.saveName;
+
         SaveFile saveFile = new SaveFile(saveId);
         saveFile.createSaveDir();
 
@@ -49,9 +52,9 @@ public class SaveGenerator {
             DateFormat.DEFAULT,
             Locale.getDefault()
         ).format(currentDate);
-        saveFile.setSaveInfo("save_name", saveName);
+        saveFile.setSaveInfo("save_name", finalSaveName);
         saveFile.setSaveInfo("creation_date", creationDate);
-        saveFile.setSaveInfo("version", "beta_1.0.0"); //Change this later;;;;;
+        saveFile.setSaveInfo("version", "beta_1.1.0"); //Change this later;;;;;
         saveFile.setSaveInfo("last_played", saveFile.getSaveInfo("creation_date"));
         saveFile.setSaveInfo("play_time", "00:00:00");
 
@@ -62,21 +65,50 @@ public class SaveGenerator {
         return saveId;
     }
 
-    public String generateSaveId(String saveName) {
-        String baseId = saveName.toLowerCase()
-            .replaceAll("[^a-z0-9]", "_")
+    private boolean isSaveNameTaken(
+        String saveId, 
+        String saveName,
+        List<String> existingSaves
+    ) {
+        if(existingSaves.contains(saveId)) return true;
+
+        if(!saveId.contains("_")) {
+            for(String existingSaveId : existingSaves) {
+                try {
+                    SaveFile existingSave = new SaveFile(existingSaveId);
+                    String existingSaveName = existingSave.getSaveInfo("save_name");
+                    if(saveName.equals(existingSaveName)) return true;
+                } catch(Exception e) {
+                    continue;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public SaveNameResult generateSaveId(String saveName) {
+        if(saveName == null || saveName.trim().isEmpty()) {
+            saveName = "New World";
+        }
+
+        String baseId = saveName
+            .replaceAll("[^a-zA-Z0-9]", "_")
             .replaceAll("_+", "_")
             .replaceAll("^_|_$", "");
-
+        
         String finalSaveId = baseId;
+        String finalSaveName = saveName;
         int counter = 1;
         List<String> existingSaves = SaveFile.listAllSaves();
-        while(existingSaves.contains(finalSaveId)) {
-            finalSaveId = baseId + counter;
+
+        while(isSaveNameTaken(finalSaveId, finalSaveName, existingSaves)) {
+            finalSaveId = baseId + "_" + counter;
+            finalSaveName = saveName + "_" + counter;
             counter++;
         }
 
-        return finalSaveId;
+        return new SaveNameResult(finalSaveId, finalSaveName);
     }
 
     /**

@@ -30,7 +30,7 @@ public class SaveNameDialog extends Screen {
      */
     private void confirmName() {
         String saveName = keyboardInputHandler.getText().trim();
-        if(!saveName.isEmpty()) mainScreenAction.start(saveName);
+        mainScreenAction.start(saveName);
         hide();
     }
 

@@ -10,18 +10,15 @@ import main.com.app.root.env.NoiseGeneratorWrapper;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshRenderer;
-import java.io.File;
-import java.io.IOException;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Random;
 
 public class WorldGenerator {
     private final Tick tick;
     private final ShaderProgram shaderProgram;
-    private final DataController dataController;
+    public final DataController dataController;
     private final StateController stateController;
     private final CollisionManager collisionManager;
     private final Mesh mesh;
@@ -43,7 +40,7 @@ public class WorldGenerator {
     private static final String TEMP_MAP_ID = "temp_map_";
 
     public static final int WORLD_SIZE = 20000;
-    public static final int RENDER_DISTANCE = 4;
+    public static final int RENDER_DISTANCE = 8;
     
     public WorldGenerator(
         Tick tick, 
@@ -115,110 +112,6 @@ public class WorldGenerator {
             System.err.println("Failed to generate new map for save: " + saveId);
             err.printStackTrace();
             return false;
-        }
-    }
-
-    /**
-     * Load Map
-     */
-    public boolean loadMapData(String saveId) {
-        try {
-            SaveFile saveFile = new SaveFile(saveId);
-            if(saveFile.hasData("world", "d.m.0")) {
-                Path mapFilePath = saveFile.getSavePath()
-                    .resolve("world")
-                    .resolve("d.m.0.dat");
-                
-                boolean success = noiseGeneratorWrapper.loadMapData(mapFilePath.toString(), Chunk.CHUNK_SIZE);
-                
-                if(success) {
-                    heightMapData = noiseGeneratorWrapper.getHeightMapData();
-                    mapWidth = noiseGeneratorWrapper.getMapWidth();
-                    mapHeight = noiseGeneratorWrapper.getMapHeight();
-                    
-                    System.out.println("Map loaded from save: " + saveId);
-                    System.out.println("Map dimensions: " + mapWidth + "x" + mapHeight);
-                    return true;
-                } else {
-                    System.err.println("Native loader failed, regenerating map");
-                    return generateNewMap(saveId);
-                }
-            } else {
-                System.out.println("No map data found in save, generating new map");
-                return generateNewMap(saveId);
-            }
-        } catch (Exception err) {
-            System.err.println("Failed to load map from save: " + saveId);
-            err.printStackTrace();
-            return generateNewMap(saveId);
-        }
-    }
-
-    /**
-     * 
-     * Map Data
-     * 
-     */
-    public boolean generateData() {
-        try {
-            String currentSaveId = stateController.getCurrentSaveId();
-            SaveFile saveFile;
-
-            if(currentSaveId != null && !currentSaveId.isEmpty()) {
-                saveFile = new SaveFile(currentSaveId);
-            } else {
-                System.out.println(currentSaveId);
-                currentSaveId = "New World" + "_" + System.currentTimeMillis();
-                saveFile = new SaveFile(currentSaveId);
-            }
-            if(!saveFile.exists()) {
-                saveFile.createSaveDir();
-            }
-
-            return setData(saveFile);
-        } catch (IOException e) {
-            System.err.println("Failed to generate map data: " + e.getMessage());
-            return false;
-        }
-    }
-
-    private boolean setData(SaveFile saveFile) throws IOException {
-        String currentSaveId = stateController.getCurrentSaveId();
-        if(currentSaveId != null && stateController.isLoadInProgress()) {
-            return loadMapData(currentSaveId);
-        } else {
-            String noiseDir = "root/src/main/com/app/root/env/_noise/data";
-            File dir = new File(noiseDir);
-            if(!dir.exists()) dir.mkdirs();
-    
-            Random r = new Random();
-            int r1 = r.nextInt(9);
-            int r2 = r.nextInt(9);
-            String fileName = String.format(
-                "m.%03d.%03d.%d.dat",
-                r1,
-                r2,
-                System.currentTimeMillis()
-            );
-            String path = Paths.get(noiseDir, fileName).toString();
-    
-            long seed = dataController.getWorldSeed();
-            boolean success = noiseGeneratorWrapper.generateMapMetadata(
-                path, 
-                seed,
-                WORLD_SIZE,
-                Chunk.CHUNK_SIZE
-            );
-            if(success) {
-                System.out.println("World metadata generated successfully: " + path);
-                Path source = Paths.get(path);
-                Path target = saveFile.getSavePath().resolve("world").resolve("d.m.0.dat");
-                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("World metadata saved to: " + target);
-                return true;
-            } else {
-                throw new IOException("Failed to generate world map");
-            }
         }
     }
 

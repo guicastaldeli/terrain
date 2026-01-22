@@ -71,68 +71,62 @@ public class Chunk {
      */
     private float[] generateColors(float[] heightData) {
         float[] colors = new float[CHUNK_SIZE * CHUNK_SIZE * 4];
+        int heightDataSize = CHUNK_SIZE + 1;
         
-        float minHeight = Float.MAX_VALUE;
-        float maxHeight = Float.MIN_VALUE;
-        for(float h : heightData) {
-            if(h < minHeight) minHeight = h;
-            if(h > maxHeight) maxHeight = h;
-        }
+        float WATER_LEVEL = -5.0f;
+        float GRASS_LEVEL = 10.0f;
+        float MOUNTAIN_LEVEL = 30.0f;
         
-        float heightRange = maxHeight - minHeight;
-        if(heightRange < 0.001f) heightRange = 1.0f;
-        
-        for(int i = 0; i < CHUNK_SIZE * CHUNK_SIZE; i++) {
-            int colorIdx = i * 4;
-            float heightVal = heightData[i];
-            float normalizedHeight = (heightVal - minHeight) / heightRange;
-            colors[colorIdx + 3] = 1.0f;
-            
-            if(normalizedHeight < 0.1f) {
-                // Blue
-                colors[colorIdx] = 0.0f;
-                colors[colorIdx + 1] = 0.1f;
-                colors[colorIdx + 2] = 0.4f;
-            } else if(normalizedHeight < 0.2f) {
-                // Green
-                int x = i % CHUNK_SIZE;
-                int z = i / CHUNK_SIZE;
-                float noise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(x * 0.05f, z * 0.05f, 3, 0.4f, 2.0f);
-                float baseGreen = 0.7f + noise * 0.15f;
-                float redTint = 0.3f + noise * 0.1f;
+        for(int x = 0; x < CHUNK_SIZE; x++) {
+            for(int z = 0; z < CHUNK_SIZE; z++) {
+                int i = x * CHUNK_SIZE + z;
+                int colorIdx = i * 4;
                 
-                colors[colorIdx] = redTint;
-                colors[colorIdx + 1] = baseGreen;
-                colors[colorIdx + 2] = 0.3f + noise * 0.1f;
-            } else if(normalizedHeight < 0.4f) {
-                // Mountain Gray
-                int x = i % CHUNK_SIZE;
-                int z = i / CHUNK_SIZE;
-                float noise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(x * 0.1f, z * 0.1f, 2, 0.3f, 2.0f) * 0.15f;
-                float mountainBlend = (normalizedHeight - 0.2f) / 0.2f;
-                float gray = 0.35f + mountainBlend * 0.25f + noise;
+                float heightVal = heightData[x * heightDataSize + z];
+                colors[colorIdx + 3] = 1.0f;
                 
-                colors[colorIdx] = gray;
-                colors[colorIdx + 1] = gray;
-                colors[colorIdx + 2] = gray;
-            } else {
-                // Snow
-                int x = i % CHUNK_SIZE;
-                int z = i / CHUNK_SIZE;
-                float snowBlend = (normalizedHeight - 0.4f) / 0.6f;
-                float baseGray = 0.6f;
-                float smoothBlend = snowBlend * snowBlend * (3.0f - 2.0f * snowBlend);
-                float color = baseGray + (1.0f - baseGray) * smoothBlend;
-                
-                float snowNoise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(x * 0.08f, z * 0.08f, 3, 0.3f, 2.0f) * 0.08f;
-                color += snowNoise;
-                
-                if(color > 1.0f) color = 1.0f;
-                if(color < baseGray) color = baseGray;
-                
-                colors[colorIdx] = color;
-                colors[colorIdx + 1] = color;
-                colors[colorIdx + 2] = color;
+                if(heightVal < WATER_LEVEL) {
+                    colors[colorIdx] = 0.0f;
+                    colors[colorIdx + 1] = 0.1f;
+                    colors[colorIdx + 2] = 0.4f;
+                } else if(heightVal < GRASS_LEVEL) {
+                    float noise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(
+                        x * 0.05f, z * 0.05f, 3, 0.4f, 2.0f
+                    );
+                    float baseGreen = 0.7f + noise * 0.15f;
+                    float redTint = 0.3f + noise * 0.1f;
+                    
+                    colors[colorIdx] = redTint;
+                    colors[colorIdx + 1] = baseGreen;
+                    colors[colorIdx + 2] = 0.3f + noise * 0.1f;
+                } else if(heightVal < MOUNTAIN_LEVEL) {
+                    float noise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(
+                        x * 0.1f, z * 0.1f, 2, 0.3f, 2.0f
+                    ) * 0.15f;
+                    float gray = 0.5f + noise;
+                    
+                    colors[colorIdx] = gray;
+                    colors[colorIdx + 1] = gray;
+                    colors[colorIdx + 2] = gray;
+                } else {
+                    float snowHeight = (heightVal - MOUNTAIN_LEVEL) / 20.0f;
+                    if(snowHeight > 1.0f) snowHeight = 1.0f;
+                    
+                    float baseGray = 0.6f;
+                    float color = baseGray + (1.0f - baseGray) * snowHeight;
+                    
+                    float snowNoise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(
+                        x * 0.08f, z * 0.08f, 3, 0.3f, 2.0f
+                    ) * 0.08f;
+                    color += snowNoise;
+                    
+                    if(color > 1.0f) color = 1.0f;
+                    if(color < baseGray) color = baseGray;
+                    
+                    colors[colorIdx] = color;
+                    colors[colorIdx + 1] = color;
+                    colors[colorIdx + 2] = color;
+                }
             }
         }
         
@@ -143,8 +137,12 @@ public class Chunk {
      * Generate Normals
      */
     private float[] generateNormals(float[] vertices, int[] indices) {
-        float[] normals = new float[CHUNK_SIZE * CHUNK_SIZE * 3];
+        int heightDataSize = CHUNK_SIZE + 1;
+        float[] normals = new float[heightDataSize * heightDataSize * 3]; 
         
+        for(int i = 0; i < heightDataSize * heightDataSize; i++) {
+            int idx = i * 3;
+        }
         for(int i = 0; i < normals.length; i++) {
             normals[i] = 0.0f;
         }
@@ -206,53 +204,58 @@ public class Chunk {
      * Generate Mesh Data
      */
     public MeshData createMeshData(
-        float[] heightData,
-        int chunkX,
-        int chunkZ
-    ) {
-        meshData = MeshLoader.load(MeshData.MeshType.MAP, getId(chunkX, chunkZ));
+    float[] heightData,
+    int chunkX,
+    int chunkZ
+) {
+    meshData = MeshLoader.load(MeshData.MeshType.MAP, getId(chunkX, chunkZ));
 
-        float worldOffsetX = (chunkX * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
-        float worldOffsetZ = (chunkZ * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
+    float worldOffsetX = (chunkX * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
+    float worldOffsetZ = (chunkZ * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
 
-        float[] vertices = new float[CHUNK_SIZE * CHUNK_SIZE * 3];
-        for(int x = 0; x < CHUNK_SIZE; x++) {
-            for(int z = 0; z < CHUNK_SIZE; z++) {
-                int i = (x * CHUNK_SIZE + z) * 3;
-                vertices[i] = worldOffsetX + x;
-                vertices[i+1] = heightData[x * CHUNK_SIZE + z];
-                vertices[i+2] = worldOffsetZ + z;
-            }
+    int heightDataSize = CHUNK_SIZE + 1;
+    
+    // Generate (CHUNK_SIZE+1) x (CHUNK_SIZE+1) vertices = 91x91
+    float[] vertices = new float[heightDataSize * heightDataSize * 3];
+    
+    for(int x = 0; x < heightDataSize; x++) {  // Changed: now goes 0 to 90
+        for(int z = 0; z < heightDataSize; z++) {  // Changed: now goes 0 to 90
+            int i = (x * heightDataSize + z) * 3;  // Changed: use heightDataSize
+            vertices[i] = worldOffsetX + x;
+            vertices[i+1] = heightData[x * heightDataSize + z];
+            vertices[i+2] = worldOffsetZ + z;
         }
-
-        int[] indices = new int[(CHUNK_SIZE - 1) * (CHUNK_SIZE - 1) * 6];
-        int i = 0;
-        for(int x = 0; x < CHUNK_SIZE - 1; x++) {
-            for(int z = 0; z < CHUNK_SIZE - 1; z++) {
-                int topLeft = x * CHUNK_SIZE + z;
-                int topRight = topLeft + 1;
-                int bottomLeft = (x + 1) * CHUNK_SIZE + z;
-                int bottomRight = bottomLeft + 1;
-
-                indices[i++] = topLeft;
-                indices[i++] = bottomLeft;
-                indices[i++] = topRight;
-                indices[i++] = topRight;
-                indices[i++] = bottomLeft;
-                indices[i++] = bottomRight;
-            }
-        }
-
-        float[] colors = generateColors(heightData);
-        float[] normals = generateNormals(vertices, indices);
-
-        meshData.setVertices(vertices);
-        meshData.setIndices(indices);
-        meshData.setColors(colors);
-        meshData.setNormals(normals);
-
-        return meshData;
     }
+
+    // Indices still create CHUNK_SIZE x CHUNK_SIZE quads (90x90 quads from 91x91 vertices)
+    int[] indices = new int[CHUNK_SIZE * CHUNK_SIZE * 6];
+    int i = 0;
+    for(int x = 0; x < CHUNK_SIZE; x++) {
+        for(int z = 0; z < CHUNK_SIZE; z++) {
+            int topLeft = x * heightDataSize + z;  // Changed: use heightDataSize
+            int topRight = topLeft + 1;
+            int bottomLeft = (x + 1) * heightDataSize + z;  // Changed: use heightDataSize
+            int bottomRight = bottomLeft + 1;
+
+            indices[i++] = topLeft;
+            indices[i++] = bottomLeft;
+            indices[i++] = topRight;
+            indices[i++] = topRight;
+            indices[i++] = bottomLeft;
+            indices[i++] = bottomRight;
+        }
+    }
+
+    float[] colors = generateColors(heightData);
+    float[] normals = generateNormals(vertices, indices);
+
+    meshData.setVertices(vertices);
+    meshData.setIndices(indices);
+    meshData.setColors(colors);
+    meshData.setNormals(normals);
+
+    return meshData;
+}
 
     /**
      * Create Collider
@@ -274,14 +277,30 @@ public class Chunk {
      * Generate Height Data
      */
     public float[] generateHeightData(int chunkX, int chunkZ) {
-        float[] heightData = worldGenerator.noiseGeneratorWrapper.generateChunk(
-            chunkX, 
-            chunkZ, 
-            CHUNK_SIZE,
-            WorldGenerator.WORLD_SIZE
-        );
+        int size = CHUNK_SIZE + 1;
+        float[] heightData = new float[size * size];
+        
+        int worldStartX = chunkX * CHUNK_SIZE;
+        int worldStartZ = chunkZ * CHUNK_SIZE;
+        
+        if(!worldGenerator.noiseGeneratorWrapper.initNoise(worldGenerator.dataController.getWorldSeed(), WorldGenerator.WORLD_SIZE)) {
+            System.err.println("Failed to initialize noise system for chunk generation");
+            return heightData;
+        }
+        
+        for(int x = 0; x < size; x++) {
+            for(int z = 0; z < size; z++) {
+                float worldX = worldStartX + x;
+                float worldZ = worldStartZ + z;
+                
+                heightData[x * size + z] = worldGenerator.noiseGeneratorWrapper
+                    .getHeightAt(worldX, worldZ, WorldGenerator.WORLD_SIZE);
+            }
+        }
+        
         return heightData;
     }
+
 
     /**
      * Update Chunks

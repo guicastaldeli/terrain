@@ -11,6 +11,7 @@ static int* indicesData = NULL;
 static float* normalsData = NULL;
 static float* colorsData = NULL;
 static float* pointData = NULL;
+static PointCollection* globalCollection = NULL;
 
 static int mapWidth = 0;
 static int mapHeight = 0;
@@ -58,6 +59,29 @@ void saveAsImage(
     
     stbi_write_png(fileName, width, height, 3, pixels, width * 3);
     free(pixels);
+}
+
+JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_initNoise(
+    JNIEnv *env, 
+    jobject obj, 
+    jlong seed,
+    jint worldSize
+) {
+    initSystems((unsigned long)seed);
+    
+    if(globalCollection != NULL) {
+        freePointCollection(globalCollection);
+        free(globalCollection);
+    }
+    
+    globalCollection = malloc(sizeof(PointCollection));
+    initCollection(globalCollection, 50);
+    generatePoints(globalCollection, worldSize, 15);
+    
+    printf("Noise system initialized with seed %lu, %d points generated\n", 
+           (unsigned long)seed, globalCollection->count);
+    
+    return JNI_TRUE;
 }
 
 JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_generateMap(
@@ -338,6 +362,11 @@ JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_g
     jint chunkSize,
     jint worldSize
 ) {
+    if(globalCollection == NULL) {
+        printf("ERROR: Noise system not initialized! Call initNoise first.\n");
+        return NULL;
+    }
+    
     float* chunkData = malloc(chunkSize * chunkSize * sizeof(float));
     
     int worldStartX = chunkX * chunkSize;
@@ -349,7 +378,9 @@ JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_g
             float worldZ = worldStartZ + z;
             
             chunkData[x * chunkSize + z] = generateHeightMap(
-                worldX, worldZ, worldSize, NULL
+                worldX, worldZ, 
+                worldSize, 
+                globalCollection
             );
         }
     }
@@ -361,6 +392,20 @@ JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_g
     return result;
 }
 
+JNIEXPORT jfloat JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getHeightAt(
+    JNIEnv *env, 
+    jobject obj, 
+    jfloat worldX,
+    jfloat worldZ,
+    jint worldSize
+) {
+    if(globalCollection == NULL) {
+        printf("ERROR: Noise system not initialized! Call initNoise first.\n");
+        return 0.0f;
+    }
+    return generateHeightMap(worldX, worldZ, worldSize, globalCollection);
+}
+
 JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_generateMapMetadata(
     JNIEnv *env, 
     jobject obj, 
@@ -370,7 +415,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
     jint chunkSize
 ) {
     const char *path = (*env)->GetStringUTFChars(env, outputPath, NULL);
-    initSystems((unsigned long) seed);
+   // initSystems((unsigned long) seed);
 
     FILE *file = fopen(path, "wb");
     if(file) {

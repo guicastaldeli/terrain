@@ -56,6 +56,14 @@ public class NoiseGeneratorWrapper {
         }
     }
 
+    public native boolean initNoise(long seed, int worldSize);
+
+    public native float getHeightAt(
+        float worldX,
+        float worldZ,
+        int worldSize
+    );
+
     public native boolean generateMap(
         String outputhPath, 
         long seed, 
