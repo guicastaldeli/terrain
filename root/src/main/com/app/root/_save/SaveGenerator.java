@@ -93,9 +93,9 @@ public class SaveGenerator {
         }
 
         String baseId = saveName
-            .replaceAll("[^a-zA-Z0-9]", "_")
-            .replaceAll("_+", "_")
-            .replaceAll("^_|_$", "");
+            .replaceAll("[<>:\"/\\\\|?*]", "")
+            .replaceAll("^\\s+|\\s+$", "")
+            .replaceAll("\\.+$", ""); 
         
         String finalSaveId = baseId;
         String finalSaveName = saveName;
