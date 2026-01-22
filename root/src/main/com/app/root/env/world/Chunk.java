@@ -69,9 +69,12 @@ public class Chunk {
     /**
      * Generate Colors
      */
-    private float[] generateColors(float[] heightData) {
+    private float[] generateColors(float[] heightData, int chunkX, int chunkZ) {
         int heightDataSize = CHUNK_SIZE + 1;
         float[] colors = new float[heightDataSize * heightDataSize * 4];
+        
+        int worldStartX = chunkX * CHUNK_SIZE;
+        int worldStartZ = chunkZ * CHUNK_SIZE;
         
         float WATER_LEVEL = -5.0f;
         float GRASS_LEVEL = 10.0f;
@@ -82,7 +85,10 @@ public class Chunk {
                 int i = x * heightDataSize + z;
                 int colorIdx = i * 4;
                 
-                float heightVal = heightData[x * heightDataSize + z];
+                float worldX = worldStartX + x;
+                float worldZ = worldStartZ + z;
+                
+                float heightVal = heightData[i];
                 colors[colorIdx + 3] = 1.0f;
                 
                 if(heightVal < WATER_LEVEL) {
@@ -91,7 +97,7 @@ public class Chunk {
                     colors[colorIdx + 2] = 0.4f;
                 } else if(heightVal < GRASS_LEVEL) {
                     float noise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(
-                        x * 0.05f, z * 0.05f, 3, 0.4f, 2.0f
+                        worldX * 0.05f, worldZ * 0.05f, 3, 0.4f, 2.0f
                     );
                     float baseGreen = 0.7f + noise * 0.15f;
                     float redTint = 0.3f + noise * 0.1f;
@@ -101,7 +107,7 @@ public class Chunk {
                     colors[colorIdx + 2] = 0.3f + noise * 0.1f;
                 } else if(heightVal < MOUNTAIN_LEVEL) {
                     float noise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(
-                        x * 0.1f, z * 0.1f, 2, 0.3f, 2.0f
+                        worldX * 0.1f, worldZ * 0.1f, 2, 0.3f, 2.0f
                     ) * 0.15f;
                     float gray = 0.5f + noise;
                     
@@ -116,7 +122,7 @@ public class Chunk {
                     float color = baseGray + (1.0f - baseGray) * snowHeight;
                     
                     float snowNoise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(
-                        x * 0.08f, z * 0.08f, 3, 0.3f, 2.0f
+                        worldX * 0.08f, worldZ * 0.08f, 3, 0.3f, 2.0f 
                     ) * 0.08f;
                     color += snowNoise;
                     
@@ -244,7 +250,7 @@ public class Chunk {
             }
         }
 
-        float[] colors = generateColors(heightData);
+        float[] colors = generateColors(heightData, chunkX, chunkZ);
         float[] normals = generateNormals(vertices, indices);
 
         meshData.setVertices(vertices);
