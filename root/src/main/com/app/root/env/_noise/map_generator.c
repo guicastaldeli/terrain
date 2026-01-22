@@ -10,7 +10,6 @@
 #define PERSISTENCE 0.5
 #define LACUNARITY 2.0
 
-// Fixed terrain feature sizes (independent of world size)
 #define FIXED_ISLAND_RADIUS 450.0f
 #define FIXED_MOUNTAIN_RADIUS 150.0f
 #define FIXED_MOUNTAIN_HEIGHT 400.0f
@@ -42,7 +41,6 @@ float generateHeightMap(
     float dz = worldZ - centerZ;
     float distFromCenter = sqrtf(dx * dx + dz * dz);
     
-    // Use fixed radius instead of worldSize-based
     float maxRadius = FIXED_ISLAND_RADIUS;
     float normalizedDist = distFromCenter / maxRadius;
     
