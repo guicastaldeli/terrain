@@ -9,7 +9,6 @@ import main.com.app.root.collision.types.StaticObject;
 import main.com.app.root.env.NoiseGeneratorWrapper;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
-import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.mesh.MeshRenderer;
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +42,7 @@ public class WorldGenerator {
     private static final String MAP_ID = "MAP_ID";
     private static final String TEMP_MAP_ID = "temp_map_";
 
-    public static final int WORLD_SIZE = 2000;
+    public static final int WORLD_SIZE = 10000;
     public static final int RENDER_DISTANCE = 8;
     
     public WorldGenerator(
@@ -95,7 +94,7 @@ public class WorldGenerator {
             long seed = dataController.getWorldSeed();
 
             String tempPath = "temp_map_" + System.currentTimeMillis() + ".dat";
-            boolean success = noiseGeneratorWrapper.generateMap(
+            boolean success = noiseGeneratorWrapper.generateMapMetadata(
                 tempPath, 
                 seed, 
                 WORLD_SIZE,
@@ -204,70 +203,23 @@ public class WorldGenerator {
             String path = Paths.get(noiseDir, fileName).toString();
     
             long seed = dataController.getWorldSeed();
-            boolean success = noiseGeneratorWrapper.generateMap(
+            boolean success = noiseGeneratorWrapper.generateMapMetadata(
                 path, 
                 seed,
                 WORLD_SIZE,
                 Chunk.CHUNK_SIZE
             );
             if(success) {
-                heightMapData = noiseGeneratorWrapper.getHeightMapData();
-                mapWidth = noiseGeneratorWrapper.getMapWidth();
-                mapHeight = noiseGeneratorWrapper.getMapHeight();
-                System.out.println("Map generated successfully: " + path);
-                System.out.println("Map dimensions: " + mapWidth + "x" + mapHeight);
-                
+                System.out.println("World metadata generated successfully: " + path);
                 Path source = Paths.get(path);
                 Path target = saveFile.getSavePath().resolve("world").resolve("d.m.0.dat");
                 Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("World map generated and saved to: " + target);
+                System.out.println("World metadata saved to: " + target);
                 return true;
             } else {
                 throw new IOException("Failed to generate world map");
             }
         }
-    }
-
-    /**
-     * Create Mesh
-     */
-    public void createMesh() {
-        if(!generateData()) {
-            System.err.println("Failed to generate terrain data");
-            return;
-        }
-        
-        meshData = MeshLoader.load(MeshData.MeshType.MAP, MAP_ID);
-        if(meshData == null) {
-            System.err.println("Failed to load terrain mesh template");
-            return;
-        }
-
-        heightMapData = noiseGeneratorWrapper.getHeightMapData();
-        mapWidth = noiseGeneratorWrapper.getMapWidth();
-        mapHeight = noiseGeneratorWrapper.getMapHeight();
-        
-        if(heightMapData == null || heightMapData.length == 0) {
-            System.err.println("heightMapData is null after generation!");
-            System.err.println("Map width: " + mapWidth + ", height: " + mapHeight);
-            return;
-        }
-    
-        float[] vertices = createVertices(heightMapData);
-        int[] indices = noiseGeneratorWrapper.getIndicesData();
-        float[] normals = noiseGeneratorWrapper.getNormalsData();
-        float[] colors = noiseGeneratorWrapper.getColorsData();
-
-        int vertexCount = noiseGeneratorWrapper.getVertexCount();
-        int indexCount = noiseGeneratorWrapper.getIndexCount();
-
-        if(vertices != null && vertices.length > 0) meshData.setVertices(vertices);
-        if(indices != null && indices.length > 0) meshData.setIndices(indices);
-        if(normals != null && normals.length > 0) meshData.setNormals(normals);
-        if(colors != null && colors.length > 0) meshData.setColors(colors);
-
-        mesh.add(MAP_ID, meshData);
-        createCollider(heightMapData);
     }
 
     /**
@@ -307,14 +259,15 @@ public class WorldGenerator {
             }
         }
 
-        chunk.load(chunkCoords[0], chunkCoords[1]);
-        if(chunk.loadedChunks.containsKey(chunkId)) {
-            ChunkData chunkData = chunk.loadedChunks.get(chunkId);
-            return getHeightFromChunkData(
-                chunkData,
-                (int)((x + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE),
-                (int)((z + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE)
-            );
+        float[] chunkHeightData = chunk.generateHeightData(chunkCoords[0], chunkCoords[1]);
+        int localX = (int)((x + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
+        int localZ = (int)((z + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
+
+        if(chunkHeightData != null && chunkHeightData.length > 0) {
+            int i = localX * Chunk.CHUNK_SIZE + localZ;
+            if(i >= 0 && i < chunkHeightData.length) {
+                return chunkHeightData[i];
+            }
         }
 
         return 0.0f;
@@ -352,8 +305,6 @@ public class WorldGenerator {
         addMapCollider();
         */
 
-        int[] spawnChunk = Chunk.getCoords(0, 0);
-        System.out.println("Chunk spanwned!");
         chunk.updateChunks(0, 0);
         System.out.println("Chunk updated!");
         
@@ -363,6 +314,7 @@ public class WorldGenerator {
 
     public void update(float playerX, float playerZ) {
         chunk.updateChunks(playerX, playerZ);
+        chunk.processChunkLoading();
         for(String chunkId : chunk.loadedChunks.keySet()) {
             mesh.render(chunkId, 0);
         }

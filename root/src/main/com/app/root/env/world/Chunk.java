@@ -12,9 +12,14 @@ public class Chunk {
     private final Mesh mesh;
     private MeshData meshData;
 
+    public final Object chunkLock = new Object();
     public Map<String, ChunkData> loadedChunks = new HashMap<>();
     public Map<String, ChunkData> cachedChunks = new HashMap<>();
-    public final Object chunkLock = new Object();
+    
+    private List<String> chunksToLoad = new ArrayList<>();
+    private int chunksPerFrame = 1;
+    private int lastProcessedIndex = 0;
+    private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
     
     public static final int CHUNK_SIZE = 512;
 
@@ -256,19 +261,6 @@ public class Chunk {
             CHUNK_SIZE,
             WorldGenerator.WORLD_SIZE
         );
-        if(heightData == null || heightData.length == 0) {
-            System.err.println("Native chunk generation failed, using fallback");
-            int startX = chunkX * CHUNK_SIZE;
-            int startZ = chunkZ * CHUNK_SIZE;
-            heightData = new float[CHUNK_SIZE * CHUNK_SIZE];
-            for(int x = 0; x < CHUNK_SIZE; x++) {
-                for(int z = 0; z < CHUNK_SIZE; z++) {
-                    float worldX = startX + x - WorldGenerator.WORLD_SIZE / 2;
-                    float worldZ = startZ + z - WorldGenerator.WORLD_SIZE / 2;
-                    heightData[x * CHUNK_SIZE + z] = worldGenerator.getHeightAt(worldX, worldZ);
-                }
-            }
-        }
         return heightData;
     }
 
@@ -290,13 +282,63 @@ public class Chunk {
             for(String chunkId : chunksToUnload) {
                 unload(chunkId);
             }
+
+            chunksToLoad.clear();
             for(int x = playerChunkX - WorldGenerator.RENDER_DISTANCE; x <= playerChunkX + WorldGenerator.RENDER_DISTANCE; x++) {
                 for(int z = playerChunkZ - WorldGenerator.RENDER_DISTANCE; z <= playerChunkZ + WorldGenerator.RENDER_DISTANCE; z++) {
                     String chunkId = getId(x, z);
                     if(!loadedChunks.containsKey(chunkId) && isValid(x, z)) {
-                        load(x, z);
+                        chunksToLoad.add(chunkId);
                     }
                 }
+            }
+
+            chunksToLoad.sort((id1, id2) -> {
+                String[] parts1 = id1.split("_");
+                String[] parts2 = id2.split("_");
+                int x1 = Integer.parseInt(parts1[1]);
+                int z1 = Integer.parseInt(parts1[2]);
+                int x2 = Integer.parseInt(parts2[1]);
+                int z2 = Integer.parseInt(parts2[2]);
+                
+                float dist1 = (float)Math.sqrt(
+                    Math.pow(x1 - playerChunkX, 2) + 
+                    Math.pow(z1 - playerChunkZ, 2)
+                );
+                float dist2 = (float)Math.sqrt(
+                    Math.pow(x2 - playerChunkX, 2) + 
+                    Math.pow(z2 - playerChunkZ, 2)
+                );
+                
+                return Float.compare(dist1, dist2);
+            });
+
+            lastProcessedIndex = 0;
+        }
+    }
+
+    public void processChunkLoading() {
+        synchronized(chunkLock) {
+            int chunkLoadedThisFrame = 0;
+            
+            for(int i = lastProcessedIndex; i < chunksToLoad.size() && chunkLoadedThisFrame < chunksPerFrame; i++) {
+                String chunkId = chunksToLoad.get(i);
+                String[] parts = chunkId.split("_");
+
+                int chunkX = Integer.parseInt(parts[1]);
+                int chunkZ = Integer.parseInt(parts[2]);
+
+                if(!loadedChunks.containsKey(chunkId) && isValid(chunkX, chunkZ)) {
+                    load(chunkX, chunkZ);
+                    chunkLoadedThisFrame++;
+                }
+
+                lastProcessedIndex++;
+            }
+
+            if(lastProcessedIndex >= chunksToLoad.size()) {
+                chunksToLoad.clear();
+                lastProcessedIndex = 0;
             }
         }
     }

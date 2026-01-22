@@ -566,41 +566,54 @@ JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_g
     JNIEnv *env, 
     jobject obj, 
     jint chunkX, 
-    jint chunkZ,
+    jint chunkZ, 
     jint chunkSize,
     jint worldSize
 ) {
-    int startX = chunkX * chunkSize;
-    int startZ = chunkZ * chunkSize;
-
-    jfloatArray result = (*env)->NewFloatArray(env, chunkSize * chunkSize);
-    float* heightData = malloc(chunkSize * chunkSize * sizeof(float));
-
-    PointCollection collection;
-    initCollection(&collection, 50);
-    generatePoints(&collection, worldSize, 15);
-
+    float* chunkData = malloc(chunkSize * chunkSize * sizeof(float));
+    
+    int worldStartX = chunkX * chunkSize;
+    int worldStartZ = chunkZ * chunkSize;
+    
     for(int x = 0; x < chunkSize; x++) {
         for(int z = 0; z < chunkSize; z++) {
-            float worldX = startX + x;
-            float worldZ = startZ + z;
-            heightData[x * chunkSize + z] = generateHeightMap(
-                worldX,
-                worldZ,
-                worldSize,
-                &collection
+            float worldX = worldStartX + x;
+            float worldZ = worldStartZ + z;
+            
+            chunkData[x * chunkSize + z] = generateHeightMap(
+                worldX, worldZ, worldSize, NULL
             );
         }
     }
-
-    freePointCollection(&collection);
-    (*env)->SetFloatArrayRegion(
-        env,
-        result,
-        0,
-        chunkSize * chunkSize,
-        heightData
-    );
-    free(heightData);
+    
+    jfloatArray result = (*env)->NewFloatArray(env, chunkSize * chunkSize);
+    (*env)->SetFloatArrayRegion(env, result, 0, chunkSize * chunkSize, chunkData);
+    free(chunkData);
+    
     return result;
+}
+
+JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_generateMapMetadata(
+    JNIEnv *env, 
+    jobject obj, 
+    jstring outputPath, 
+    jlong seed, 
+    jint worldSize,
+    jint chunkSize
+) {
+    const char *path = (*env)->GetStringUTFChars(env, outputPath, NULL);
+    initSystems((unsigned long) seed);
+
+    FILE *file = fopen(path, "wb");
+    if(file) {
+        fwrite(&seed, sizeof(long), 1, file);
+        fwrite(&worldSize, sizeof(int), 1, file);
+        fwrite(&chunkSize, sizeof(int), 1, file);
+        fclose(file);
+        (*env)->ReleaseStringUTFChars(env, outputPath, path);
+        return JNI_TRUE;
+    }
+
+    (*env)->ReleaseStringUTFChars(env, outputPath, path);
+    return JNI_FALSE;
 }

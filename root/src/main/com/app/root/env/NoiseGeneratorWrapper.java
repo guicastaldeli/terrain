@@ -62,6 +62,12 @@ public class NoiseGeneratorWrapper {
         int worldSize,
         int chunkSize
     );
+    public native boolean generateMapMetadata(
+        String outputPath, 
+        long seed, 
+        int worldSize,
+        int chunkSize
+    );
     
     public native float[] generateChunk(
         int chunkX, 
