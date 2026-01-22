@@ -1,7 +1,6 @@
 package main.com.app.root.env;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.player.PlayerController;
-
 import org.joml.Vector3f;
 
 public class EnvRenderer {

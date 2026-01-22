@@ -432,7 +432,15 @@ public class PlayerController {
         }
     }
 
+    /**
+     * Render
+     */
     public void render() {
         if(playerMesh != null) playerMesh.render();
+    }
+
+    public void reset() {
+        Object axeController = envController != null ? envController.getEnv(EnvData.AXE) : null;
+        if(axeController != null) EnvCall.call(axeController, "reset");
     }
 }

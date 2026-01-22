@@ -139,4 +139,8 @@ public class AxeController implements EnvInstance<AxeController> {
             mesh.render(AXE_ID, 0);
         }
     }
+
+    public static void reset() {
+        instance = null;
+    }
 }

@@ -172,22 +172,14 @@ public class Scene {
                 dataController,
                 stateController,
                 collisionManager,
-                spawner
+                spawner,
+                playerController
             );
     
             this.envController = new EnvController(dependencyContainer);
 
             dataGetter.setEnvController(envController);
             spawner.setEnvController(envController);
-
-            this.upgrader = initUpgrader(envController);
-
-            this.uiController = new UIController(
-                window, 
-                shaderProgram, 
-                upgrader
-            );
-            inputController.setUiController(uiController);
 
             if(reset || playerController == null) {
                 this.playerController = new PlayerController(
@@ -203,6 +195,15 @@ public class Scene {
                     false
                 );
             }
+            this.upgrader = initUpgrader(envController);
+
+            this.uiController = new UIController(
+                window, 
+                shaderProgram, 
+                upgrader
+            );
+            inputController.setUiController(uiController);
+
             mesh.setPlayerController(playerController);
 
             this.envRenderer = new EnvRenderer(
@@ -249,5 +250,16 @@ public class Scene {
         spawner.render();
         mesh.renderAll();
         playerController.render();
+    }
+
+    public void cleanup() {
+        init = false;
+        
+        if(mesh != null) mesh.cleanup();
+        if(playerController != null) playerController.reset();
+        
+        mesh = null;
+        envRenderer = null;
+        envController = null;
     }
 }

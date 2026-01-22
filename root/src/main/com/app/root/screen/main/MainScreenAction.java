@@ -67,6 +67,7 @@ public class MainScreenAction {
      * Load
      */
     public void load(String saveId) {
+        scene.cleanup(); 
         scene.init(true);
         if(scene.getDataGetter() != null) {
             scene.getDataGetter().setEnvController(scene.getEnvController());
