@@ -42,7 +42,7 @@ void generatePoints(
         attempts++;
     }
 
-    printf("Generated %d points after %d attempts ", collection->count, attempts);
+    //printf("Generated %d points after %d attempts ", collection->count, attempts);
 }
 
 /*

@@ -2,7 +2,6 @@ package main.com.app.root.env.world;
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
 import main.com.app.root.Tick;
-import main.com.app.root._save.SaveFile;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.types.StaticObject;
@@ -10,10 +9,6 @@ import main.com.app.root.env.NoiseGeneratorWrapper;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshRenderer;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class WorldGenerator {
     private final Tick tick;
@@ -37,7 +32,6 @@ public class WorldGenerator {
     private final Chunk chunk;
 
     private static final String MAP_ID = "MAP_ID";
-    private static final String TEMP_MAP_ID = "temp_map_";
 
     public static final int WORLD_SIZE = 20000;
     public static final int RENDER_DISTANCE = 8;
@@ -83,39 +77,6 @@ public class WorldGenerator {
     }
 
     /**
-     * Generate New Map
-     */
-    private boolean generateNewMap(String saveId) {
-        try {
-            SaveFile saveFile = new SaveFile(saveId);
-            long seed = dataController.getWorldSeed();
-
-            String tempPath = "temp_map_" + System.currentTimeMillis() + ".dat";
-            boolean success = noiseGeneratorWrapper.generateMapMetadata(
-                tempPath, 
-                seed, 
-                WORLD_SIZE,
-                Chunk.CHUNK_SIZE
-            );
-            if(success) {
-                Path source = Paths.get(tempPath);
-                Path target = saveFile.getSavePath().resolve("world").resolve("d.m.0.dat");
-                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-                Files.deleteIfExists(source);
-
-                System.out.println("New map generated for save: " + saveId);
-                return true;
-            }
-
-            return false;
-        } catch (Exception err) {
-            System.err.println("Failed to generate new map for save: " + saveId);
-            err.printStackTrace();
-            return false;
-        }
-    }
-
-    /**
      * Collision
      */
     private void createCollider(float[] heightData) {
@@ -140,6 +101,9 @@ public class WorldGenerator {
         }
     }
 
+    /**
+     * Height Data
+     */
     public float getHeightAt(float x, float z) {
         int[] chunkCoords = Chunk.getCoords(x, z);
         String chunkId = Chunk.getId(chunkCoords[0], chunkCoords[1]);
@@ -192,6 +156,11 @@ public class WorldGenerator {
     }
 
     public void render(float playerX, float playerZ) {
+        if(!noiseGeneratorWrapper.initNoise(dataController.getWorldSeed(), WORLD_SIZE)) {
+            System.err.println("Failed to initialize noise system in render");
+            return;
+        }
+
         chunk.updateChunks(playerX, playerZ);
         chunk.processChunkLoading();
         
@@ -203,7 +172,15 @@ public class WorldGenerator {
         if(onReadyCallback != null) onReadyCallback.run();
     }
 
+    /**
+     * Update
+     */
     public void update(float playerX, float playerZ) {
+        if(!noiseGeneratorWrapper.initNoise(dataController.getWorldSeed(), WORLD_SIZE)) {
+            System.err.println("Failed to initialize noise system in render");
+            return;
+        }
+        
         chunk.updateChunks(playerX, playerZ);
         chunk.processChunkLoading();
         for(String chunkId : chunk.loadedChunks.keySet()) {
@@ -213,5 +190,9 @@ public class WorldGenerator {
 
     public boolean isReady() {
         return isReady;
+    }
+
+    public Chunk getChunk() {
+        return chunk;
     }
 }

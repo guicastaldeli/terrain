@@ -363,29 +363,19 @@ public class Spawner {
      * Spawn Tree At Level
      */
     private void spawnTreeAtLevel(Vector3f position, int level) {
-        if(!isActive) {
-            System.out.println("DEBUG: Spawner not active, skipping spawn");
-            return;
-        }
-        if(treeData.trees.size() >= maxObjs) {
-            System.out.println("DEBUG: Max trees reached (" + maxObjs + "), skipping spawn");
-            return;
-        }
+        if(!isActive) return;
+        if(treeData.trees.size() >= maxObjs) return;
 
         TreeData data = treeData.configs.get(level);
         if(data == null) {
             data = treeData.configs.get(0);
-            System.err.println("No config for level " + level + ", using level 0");
         }
 
         TreeController treeController = new TreeController();
         treeController.createGenerator(data, position, mesh, this);
         
         TreeGenerator treeGenerator = treeController.getGenerator();
-        if(treeGenerator == null) {
-            System.err.println("DEBUG: Failed to create tree generator for level " + level);
-            return;
-        }
+        if(treeGenerator == null) return;
         
         treeGenerator.mesh = this.mesh;
     

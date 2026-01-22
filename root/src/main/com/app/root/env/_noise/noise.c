@@ -233,5 +233,5 @@ void initSystems(unsigned long seed) {
     };
     memcpy(simplexGradients, grad3, sizeof(grad3));
 
-    printf("Initalized with seed: %lu\n", seed);
+    //printf("Initalized with seed: %lu\n", seed);
 }

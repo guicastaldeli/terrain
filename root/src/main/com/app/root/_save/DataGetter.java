@@ -79,14 +79,11 @@ public class DataGetter {
         data.put("spawner_active", spawner.isActive());
         
         List<Map<String, Object>> treesData = new ArrayList<>();
-        System.out.println("DEBUG: Number of trees to save: " + spawner.getTrees().size());
         for(TreeController tree : spawner.getTrees()) {
             Map<String, Object> treeData = new HashMap<>();
-            System.out.println("DEBUG: Processing tree: " + tree);
             
             try {
                 Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
-                System.out.println("DEBUG: TreeGenerator: " + treeGenerator);
                 
                 if(treeGenerator != null) {
                     Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
@@ -99,16 +96,12 @@ public class DataGetter {
                     treeData.put("level", treeLevel);
                     treeData.put("alive", isAlive);
                     treesData.add(treeData);
-                    
-                    System.out.println("DEBUG: Saved tree at [" + treePos.x + ", " + treePos.z + "] level " + treeLevel + " alive: " + isAlive);
                 }
-            } catch(Exception e) {
-                System.out.println("DEBUG: Error processing tree: " + e.getMessage());
-                e.printStackTrace();
+            } catch(Exception err) {
+                err.printStackTrace();
             }
         }
         data.put("trees", treesData);
-        System.out.println("DEBUG: Saved " + treesData.size() + " trees to save file");
     }
     
     return data;
@@ -162,22 +155,16 @@ public class DataGetter {
      * Apply Data
      * 
      */
-    public void applyData(Map<String, Object> data) {
-        System.out.println("DEBUG: applyData() called with keys: " + data.keySet());
-        
+    public void applyData(Map<String, Object> data) {  
         if(data.containsKey("world")) {
-            System.out.println("DEBUG: Applying world data...");
             applyWorldData((Map<String, Object>) data.get("world"));
         }
         if(data.containsKey("player")) {
-            System.out.println("DEBUG: Applying player data...");
             applyPlayerData((Map<String, Object>) data.get("player"));
         }
     }
 
     public void applyWorldData(Map<String, Object> data) {
-        System.out.println("DEBUG: applyWorldData() called with keys: " + data.keySet());
-        
         if(data.containsKey("seed")) {
             dataController.setWorldSeed(((Number) data.get("seed")).longValue());
         }
@@ -208,13 +195,8 @@ public class DataGetter {
         }
         
         if(data.containsKey("trees") && spawner != null) {
-            System.out.println("DEBUG: Found trees data in save, loading trees...");
             List<Map<String, Object>> treesData = (List<Map<String, Object>>) data.get("trees");
-            System.out.println("DEBUG: Number of trees to load: " + treesData.size());
-            
-            System.out.println("DEBUG: Trees before clearing: " + spawner.getTrees().size());
             spawner.clearTrees();
-            System.out.println("DEBUG: Trees after clearing: " + spawner.getTrees().size());
             
             int maxTreeId = 0;
             
@@ -253,23 +235,13 @@ public class DataGetter {
                             }
                             
                             spawner.addTree(treeController);
-                            System.out.println("DEBUG: Loaded tree at [" + x + ", " + z + "] level " + level + " alive: " + alive);
-                        } else {
-                            System.err.println("DEBUG: Failed to create tree generator for level " + level);
                         }
-                    } else {
-                        System.err.println("DEBUG: No config found for tree level " + level);
                     }
-                } catch(Exception e) {
-                    System.err.println("DEBUG: Error loading tree: " + e.getMessage());
-                    e.printStackTrace();
+                } catch(Exception err) {
+                    err.printStackTrace();
                 }
             }
             spawner.treeData.currentTreeId = maxTreeId;
-            
-            System.out.println("DEBUG: Total trees after loading: " + spawner.getTrees().size());
-        } else {
-            System.out.println("DEBUG: No trees data found in save or spawner is null");
         }
     }
 

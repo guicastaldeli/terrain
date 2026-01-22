@@ -110,7 +110,6 @@ public class Scene {
     public void reset() {
         if(dataController != null) {
             dataController.reset();
-            System.out.println("DataController reset, playerPos: " + dataController.getPlayerPos());
         }
         if(mesh == null) {
             mesh = new Mesh(tick, shaderProgram);
@@ -148,8 +147,6 @@ public class Scene {
      */
     public void init(boolean reset) {
         if(!init) {
-            System.out.println("------- Scene Started!!! -------");
-
             this.collisionManager = new CollisionManager();
 
             this.mesh = new Mesh(tick, shaderProgram);
@@ -162,10 +159,8 @@ public class Scene {
                     100,
                     200.0f
                 );
-                System.out.println("Spawner created (reset=" + reset + ")");
             } else {
                 spawner.mesh = mesh;
-                System.out.println("Spawner preserved and mesh updated (reset=" + reset + ")");
             }
 
             this.dependencyContainer = new DependencyContainer();
@@ -207,9 +202,6 @@ public class Scene {
                     stateController,
                     false
                 );
-                System.out.println("PlayerController created (resetPlayer=" + reset + ")");
-            } else {
-                System.out.println("PlayerController preserved (resetPlayer=" + reset + ")");
             }
             mesh.setPlayerController(playerController);
 
@@ -230,13 +222,7 @@ public class Scene {
      */
     private void start() {
         envRenderer.render();
-
-        if(stateController.isLoadInProgress()) {
-            System.out.println("Loading trees from save data...");
-            // Trees will be loaded from save data in DataGetter.applyWorldData()
-        } else {
-            spawner.initialSpawn();
-        }
+        if(!stateController.isLoadInProgress()) spawner.initialSpawn();
         spawner.setActive(true);
         spawner.printSpawnerStatus();
     }

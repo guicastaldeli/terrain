@@ -51,12 +51,9 @@ public class TreeGenerator {
     public void createMesh() {
     try {
         String treeName = "tree" + treeData.getLevel();
-        System.out.println("DEBUG: Creating mesh for " + treeName + " with ID " + MESH_ID);
         mesh.addModel(MESH_ID, treeName);
         mesh.setPosition(MESH_ID, position);
         loadTex(treeName);
-        
-        System.out.println("DEBUG: Mesh created successfully for " + treeName);
     } catch(Exception err) {
         System.err.println("Failed to create mesh for " + treeData.getIndexTo() + ": " + err.getMessage());
         err.printStackTrace();

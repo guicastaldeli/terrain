@@ -78,9 +78,10 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_init
     initCollection(globalCollection, 50);
     generatePoints(globalCollection, worldSize, 15);
     
+    /*
     printf("Noise system initialized with seed %lu, %d points generated\n", 
            (unsigned long)seed, globalCollection->count);
-    
+        */
     return JNI_TRUE;
 }
 

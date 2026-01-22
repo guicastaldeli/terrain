@@ -218,7 +218,6 @@ public class Chunk {
 
         float worldOffsetX = (chunkX * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
         float worldOffsetZ = (chunkZ * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
-
         int heightDataSize = CHUNK_SIZE + 1;
         
         float[] vertices = new float[heightDataSize * heightDataSize * 3];
@@ -287,18 +286,18 @@ public class Chunk {
         int worldStartX = chunkX * CHUNK_SIZE;
         int worldStartZ = chunkZ * CHUNK_SIZE;
         
-        if(!worldGenerator.noiseGeneratorWrapper.initNoise(worldGenerator.dataController.getWorldSeed(), WorldGenerator.WORLD_SIZE)) {
-            System.err.println("Failed to initialize noise system for chunk generation");
-            return heightData;
-        }
-        
         for(int x = 0; x < size; x++) {
             for(int z = 0; z < size; z++) {
                 float worldX = worldStartX + x;
                 float worldZ = worldStartZ + z;
-                
-                heightData[x * size + z] = worldGenerator.noiseGeneratorWrapper
-                    .getHeightAt(worldX, worldZ, WorldGenerator.WORLD_SIZE);
+                heightData[x * size + z] = 
+                    worldGenerator
+                    .noiseGeneratorWrapper
+                    .getHeightAt(
+                        worldX, 
+                        worldZ, 
+                        WorldGenerator.WORLD_SIZE
+                    );
             }
         }
         
@@ -412,7 +411,7 @@ public class Chunk {
             }
 
             render(chunkId);
-            System.out.println("Loaded chunk: " + chunkId);
+            //System.out.println("Loaded chunk: " + chunkId);
         } catch (Exception err) {
             System.err.println("Failed to load chunk " + chunkId + ": " + err.getMessage());
         }
@@ -460,7 +459,9 @@ public class Chunk {
         if(chunkData != null) {
             chunkData.isRendered = true;
             chunkData.lastAccessTime = System.currentTimeMillis();
-            mesh.render(chunkId, 0);
+            if(mesh.hasMesh(chunkId)) {
+                mesh.render(chunkId, 0);
+            }
         }
     }
 }
