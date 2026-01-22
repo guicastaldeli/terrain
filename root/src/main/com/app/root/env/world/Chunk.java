@@ -70,16 +70,16 @@ public class Chunk {
      * Generate Colors
      */
     private float[] generateColors(float[] heightData) {
-        float[] colors = new float[CHUNK_SIZE * CHUNK_SIZE * 4];
         int heightDataSize = CHUNK_SIZE + 1;
+        float[] colors = new float[heightDataSize * heightDataSize * 4];
         
         float WATER_LEVEL = -5.0f;
         float GRASS_LEVEL = 10.0f;
         float MOUNTAIN_LEVEL = 30.0f;
         
-        for(int x = 0; x < CHUNK_SIZE; x++) {
-            for(int z = 0; z < CHUNK_SIZE; z++) {
-                int i = x * CHUNK_SIZE + z;
+        for(int x = 0; x < heightDataSize; x++) {
+            for(int z = 0; z < heightDataSize; z++) {
+                int i = x * heightDataSize + z;
                 int colorIdx = i * 4;
                 
                 float heightVal = heightData[x * heightDataSize + z];
@@ -183,7 +183,7 @@ public class Chunk {
             normals[idx3 + 2] += nz;
         }
         
-        for(int i = 0; i < CHUNK_SIZE * CHUNK_SIZE; i++) {
+        for(int i = 0; i < heightDataSize * heightDataSize; i++) {
             int idx = i * 3;
             float len = (float)Math.sqrt(
                 normals[idx] * normals[idx] +
@@ -204,58 +204,56 @@ public class Chunk {
      * Generate Mesh Data
      */
     public MeshData createMeshData(
-    float[] heightData,
-    int chunkX,
-    int chunkZ
-) {
-    meshData = MeshLoader.load(MeshData.MeshType.MAP, getId(chunkX, chunkZ));
+        float[] heightData,
+        int chunkX,
+        int chunkZ
+    ) {
+        meshData = MeshLoader.load(MeshData.MeshType.MAP, getId(chunkX, chunkZ));
 
-    float worldOffsetX = (chunkX * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
-    float worldOffsetZ = (chunkZ * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
+        float worldOffsetX = (chunkX * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
+        float worldOffsetZ = (chunkZ * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
 
-    int heightDataSize = CHUNK_SIZE + 1;
-    
-    // Generate (CHUNK_SIZE+1) x (CHUNK_SIZE+1) vertices = 91x91
-    float[] vertices = new float[heightDataSize * heightDataSize * 3];
-    
-    for(int x = 0; x < heightDataSize; x++) {  // Changed: now goes 0 to 90
-        for(int z = 0; z < heightDataSize; z++) {  // Changed: now goes 0 to 90
-            int i = (x * heightDataSize + z) * 3;  // Changed: use heightDataSize
-            vertices[i] = worldOffsetX + x;
-            vertices[i+1] = heightData[x * heightDataSize + z];
-            vertices[i+2] = worldOffsetZ + z;
+        int heightDataSize = CHUNK_SIZE + 1;
+        
+        float[] vertices = new float[heightDataSize * heightDataSize * 3];
+        
+        for(int x = 0; x < heightDataSize; x++) { 
+            for(int z = 0; z < heightDataSize; z++) {
+                int i = (x * heightDataSize + z) * 3;
+                vertices[i] = worldOffsetX + x;
+                vertices[i+1] = heightData[x * heightDataSize + z];
+                vertices[i+2] = worldOffsetZ + z;
+            }
         }
-    }
 
-    // Indices still create CHUNK_SIZE x CHUNK_SIZE quads (90x90 quads from 91x91 vertices)
-    int[] indices = new int[CHUNK_SIZE * CHUNK_SIZE * 6];
-    int i = 0;
-    for(int x = 0; x < CHUNK_SIZE; x++) {
-        for(int z = 0; z < CHUNK_SIZE; z++) {
-            int topLeft = x * heightDataSize + z;  // Changed: use heightDataSize
-            int topRight = topLeft + 1;
-            int bottomLeft = (x + 1) * heightDataSize + z;  // Changed: use heightDataSize
-            int bottomRight = bottomLeft + 1;
+        int[] indices = new int[CHUNK_SIZE * CHUNK_SIZE * 6];
+        int i = 0;
+        for(int x = 0; x < CHUNK_SIZE; x++) {
+            for(int z = 0; z < CHUNK_SIZE; z++) {
+                int topLeft = x * heightDataSize + z;
+                int topRight = topLeft + 1;
+                int bottomLeft = (x + 1) * heightDataSize + z;
+                int bottomRight = bottomLeft + 1;
 
-            indices[i++] = topLeft;
-            indices[i++] = bottomLeft;
-            indices[i++] = topRight;
-            indices[i++] = topRight;
-            indices[i++] = bottomLeft;
-            indices[i++] = bottomRight;
+                indices[i++] = topLeft;
+                indices[i++] = bottomLeft;
+                indices[i++] = topRight;
+                indices[i++] = topRight;
+                indices[i++] = bottomLeft;
+                indices[i++] = bottomRight;
+            }
         }
+
+        float[] colors = generateColors(heightData);
+        float[] normals = generateNormals(vertices, indices);
+
+        meshData.setVertices(vertices);
+        meshData.setIndices(indices);
+        meshData.setColors(colors);
+        meshData.setNormals(normals);
+
+        return meshData;
     }
-
-    float[] colors = generateColors(heightData);
-    float[] normals = generateNormals(vertices, indices);
-
-    meshData.setVertices(vertices);
-    meshData.setIndices(indices);
-    meshData.setColors(colors);
-    meshData.setNormals(normals);
-
-    return meshData;
-}
 
     /**
      * Create Collider
