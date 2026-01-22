@@ -75,6 +75,14 @@ public class NoiseGeneratorWrapper {
         int chunkSize,
         int worldSize
     );
+
+    public native float fractualSimplexNoise(
+        float x,
+        float y,
+        int octaves,
+        float persistence,
+        float lacunarity
+    );
     
     public native boolean loadMapData(String filePath, int chunkSize);
     public native float[] getHeightMapData();

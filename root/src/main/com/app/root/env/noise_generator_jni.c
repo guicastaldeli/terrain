@@ -19,206 +19,6 @@ static int indexCount = 0;
 static int pointCount = 0;
 
 /**
- * Generate Map Mesh Data
- */
-void generateMapMeshData(
-    float** heightMap,
-    int width,
-    int height,
-    float** vertices,
-    int** indices,
-    float** normals,
-    float** colors,
-    int* vertexCount,
-    int* indexCount
-) {
-    *vertexCount = width * height;
-    *indexCount = (width - 1) * (height - 1) * 6;
-
-    *vertices = malloc(*vertexCount * 3 * sizeof(float));
-    *indices = malloc(*indexCount * sizeof(int));
-    *normals = malloc(*vertexCount * 3 * sizeof(float));
-    *colors = malloc(*vertexCount * 4 * sizeof(float));
-
-    float minHeight = 999999.0f;
-    float maxHeight = -999999.0f;
-    for(int z = 0; z < height; z++) {
-        for(int x = 0; x < width; x++) {
-            if(heightMap[x][z] < minHeight) minHeight = heightMap[x][z];
-            if(heightMap[x][z] > maxHeight) maxHeight = heightMap[x][z];
-        }
-    }
-    
-    printf("DEBUG: Height range for colors: min=%.2f, max=%.2f\n", minHeight, maxHeight);
-
-    /**
-     * 
-     * 
-     *  - IMPORTANT!!!: This is only temporary colors for the
-     *               temporary noise, i will set the real map noise later
-     *               for now this is the mountain noise colors to test
-     *               things on the game.
-     * 
-     * 
-     */
-    for(int z = 0; z < height; z++) {
-        for(int x = 0; x < width; x++) {
-            int colorIdx = (z * width + x) * 4;
-            float heightVal = heightMap[x][z];
-            (*colors)[colorIdx + 3] = 1.0f;
-            
-            float centerX = width / 2.0f;
-            float centerZ = height / 2.0f;
-            float dx = x - centerX;
-            float dz = z - centerZ;
-            float distFromCenter = sqrtf(dx * dx + dz * dz);
-            float normalizedDist = distFromCenter / (width * 0.5f);
-            
-            float normalizedHeight = (heightVal - minHeight) / (maxHeight - minHeight);
-            
-            if(normalizedHeight < 0.1f) {
-                //Blue
-                (*colors)[colorIdx] = 0.0f;
-                (*colors)[colorIdx + 1] = 0.1f;
-                (*colors)[colorIdx + 2] = 0.4f;
-            } else if(normalizedHeight < 0.2f) { 
-                // Green
-                float noise = fractualSimplexNoise(x * 0.05f, z * 0.05f, 3, 0.4f, 2.0f);
-                float baseGreen = 0.7f + noise * 0.15f;
-                float redTint = 0.3f + noise * 0.1f;
-                
-                (*colors)[colorIdx] = redTint;
-                (*colors)[colorIdx + 1] = baseGreen;
-                (*colors)[colorIdx + 2] = 0.3f + noise * 0.1f;
-            } else if(normalizedHeight < 0.4f) { 
-                // Mountain Gray
-                float noise = fractualSimplexNoise(x * 0.1f, z * 0.1f, 2, 0.3f, 2.0f) * 0.15f;
-                float mountainBlend = (normalizedHeight - 0.2f) / 0.2f;
-                float gray = 0.35f + mountainBlend * 0.25f + noise;
-                
-                (*colors)[colorIdx] = gray;
-                (*colors)[colorIdx + 1] = gray;
-                (*colors)[colorIdx + 2] = gray;
-            } else { 
-                // Snow
-                float snowBlend = (normalizedHeight - 0.4f) / 0.6f;
-                float baseGray = 0.6f;
-                float smoothBlend = snowBlend * snowBlend * (3.0f - 2.0f * snowBlend);
-                float color = baseGray + (1.0f - baseGray) * smoothBlend;
-                
-                float snowNoise = fractualSimplexNoise(x * 0.08f, z * 0.08f, 3, 0.3f, 2.0f) * 0.08f;
-                color += snowNoise;
-                
-                if(color > 1.0f) color = 1.0f;
-                if(color < baseGray) color = baseGray;
-                
-                (*colors)[colorIdx] = color;
-                (*colors)[colorIdx + 1] = color;
-                (*colors)[colorIdx + 2] = color;
-            }
-        }
-    }
-
-    int indicesIdx = 0;
-    for(int z = 0; z < height - 1; z++) {
-        for(int x = 0; x < width - 1; x++) {
-            int topLeft = z * width + x;
-            int topRight = topLeft + 1;
-            int bottomLeft = (z + 1) * width + x;
-            int bottomRight = bottomLeft + 1;
-
-            (*indices)[indicesIdx++] = topLeft;
-            (*indices)[indicesIdx++] = bottomLeft;
-            (*indices)[indicesIdx++] = topRight;
-
-            (*indices)[indicesIdx++] = topRight;
-            (*indices)[indicesIdx++] = bottomLeft;
-            (*indices)[indicesIdx++] = bottomRight;
-        }
-    }
-}
-
-/**
- * Generate Vertex Positions
- */
-void generateVertexPositions(float** heightMap, int width, int height, float** vertices) {
-    *vertices = malloc(width * height * 3 * sizeof(float));
-    for(int z = 0; z < height; z++) {
-        for(int x = 0; x < width; x++) {
-            int i = (z * width + x) * 3;
-            (*vertices)[i] = (float)x - width / 2.0f;
-            (*vertices)[i+1] = heightMap[x][z] * 1.0f;
-            (*vertices)[i+2] = (float)z - height / 2.0f;
-        }
-    }
-}
-
-/**
- * Calculate Normals
- */
-void calculateNormals(
-    float* vertices,
-    int* indices,
-    int indexCount,
-    float* normals,
-    int vertexCount
-) {
-    for(int i = 0; i < vertexCount * 3; i++) {
-        normals[i] = 0.0f;
-    }
-
-    for(int i = 0; i < indexCount; i += 3) {
-        int idx1 = indices[i] * 3;
-        int idx2 = indices[i+1] * 3;
-        int idx3 = indices[i+2] * 3;
-
-        float v1x = vertices[idx2] - vertices[idx1];
-        float v1y = vertices[idx2+1] - vertices[idx1+1];
-        float v1z = vertices[idx2+2] - vertices[idx1+2];
-
-        float v2x = vertices[idx3] - vertices[idx1];
-        float v2y = vertices[idx3+1] - vertices[idx1+1];
-        float v2z = vertices[idx3+2] - vertices[idx1+2];
-
-        float nx = v1y * v2z - v1z * v2y;
-        float ny = v1z * v2x - v1x * v2z;
-        float nz = v1x * v2y - v1y * v2x;
-
-        float len = sqrt(nx * nx + ny * ny + nz * nz);
-        if(len > 0) {
-            nx /= len;
-            ny /= len;
-            nz /= len;
-        }
-
-        normals[idx1] += nx;
-        normals[idx1+1] += ny;
-        normals[idx1+2] += nz;
-
-        normals[idx2] += nx;
-        normals[idx2+1] += ny;
-        normals[idx2+2] += nz;
-
-        normals[idx3] += nx;
-        normals[idx3+1] += ny;
-        normals[idx3+2] += nz;
-    }
-    for(int i = 0; i < vertexCount; i++) {
-        int idx = i * 3;
-        float len = sqrt(
-            normals[idx] * normals[idx] +
-            normals[idx+1] * normals[idx+1] +
-            normals[idx+2] * normals[idx+2]
-        );
-        if(len > 0) {
-            normals[idx] /= len;
-            normals[idx+1] /= len;
-            normals[idx+2] /= len;
-        }
-    }
-}
-
-/**
  * Save as Image
  */
 void saveAsImage(
@@ -307,27 +107,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
     
     saveAsImage(heightMap, worldSize, worldSize, "map.png");
     
-    float* vertices;
-    int* indices;
-    float* normals;
-    float* colors;
-    int vCount;
-    int iCount;
-    generateMapMeshData(
-        heightMap, 
-        worldSize, 
-        worldSize, 
-        &vertices, 
-        &indices, 
-        &normals, 
-        &colors, 
-        &vCount, 
-        &iCount
-    );
-    mapWidth = worldSize;
-    mapHeight = worldSize;
-    vertexCount = vCount;
-    indexCount = iCount;
+    
     
     heightMapData = malloc(mapWidth * mapHeight * sizeof(float));
     for(int i = 0; i < mapWidth; i++) {
@@ -337,10 +117,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
         free(heightMap[i]);
     }
     free(heightMap);
-    
-    indicesData = indices;
-    normalsData = normals;
-    colorsData = colors;
+   
     
     if(strlen(path) > 0) generateMap(worldSize, chunkSize, path);
     freePointCollection(&collection);
@@ -431,13 +208,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_load
         }
     }
     
-    float* vertices;
-    int* indices;
-    float* normals;
-    float* colors;
-    int vCount;
-    int iCount;
-    
+    /*
     generateMapMeshData(
         heightMap, 
         width, 
@@ -449,10 +220,7 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_load
         &vCount, 
         &iCount
     );
-    
-    indicesData = indices;
-    normalsData = normals;
-    colorsData = colors;
+    */
     
     for(int i = 0; i < width; i++) {
         free(heightMap[i]);
@@ -616,4 +384,16 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
 
     (*env)->ReleaseStringUTFChars(env, outputPath, path);
     return JNI_FALSE;
+}
+
+JNIEXPORT jfloat JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_fractualSimplexNoise(
+    JNIEnv *env, 
+    jobject obj, 
+    jfloat x,
+    jfloat y,
+    jint octaves,
+    jfloat persistence,
+    jfloat lacunarity
+) {
+    return fractualSimplexNoise(x, y, octaves, persistence, lacunarity);
 }

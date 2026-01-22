@@ -42,8 +42,8 @@ public class WorldGenerator {
     private static final String MAP_ID = "MAP_ID";
     private static final String TEMP_MAP_ID = "temp_map_";
 
-    public static final int WORLD_SIZE = 10000;
-    public static final int RENDER_DISTANCE = 8;
+    public static final int WORLD_SIZE = 20000;
+    public static final int RENDER_DISTANCE = 4;
     
     public WorldGenerator(
         Tick tick, 
@@ -298,16 +298,14 @@ public class WorldGenerator {
         this.onReadyCallback = callback;
     }
 
-    public void render() {
-        /*
-        generate();
-        System.out.println("Map generated...");
-        addMapCollider();
-        */
-
-        chunk.updateChunks(0, 0);
-        System.out.println("Chunk updated!");
+    public void render(float playerX, float playerZ) {
+        chunk.updateChunks(playerX, playerZ);
+        chunk.processChunkLoading();
         
+        for(String chunkId : chunk.loadedChunks.keySet()) {
+            mesh.render(chunkId, 0);
+        }
+
         isReady = true;
         if(onReadyCallback != null) onReadyCallback.run();
     }

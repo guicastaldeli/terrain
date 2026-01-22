@@ -21,7 +21,7 @@ public class Chunk {
     private int lastProcessedIndex = 0;
     private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
     
-    public static final int CHUNK_SIZE = 512;
+    public static final int CHUNK_SIZE = 90;
 
     public Chunk(
         WorldGenerator worldGenerator, 
@@ -89,24 +89,43 @@ public class Chunk {
             colors[colorIdx + 3] = 1.0f;
             
             if(normalizedHeight < 0.1f) {
+                // Blue
                 colors[colorIdx] = 0.0f;
                 colors[colorIdx + 1] = 0.1f;
                 colors[colorIdx + 2] = 0.4f;
             } else if(normalizedHeight < 0.2f) {
-                colors[colorIdx] = 0.3f;
-                colors[colorIdx + 1] = 0.7f;
-                colors[colorIdx + 2] = 0.3f;
+                // Green
+                int x = i % CHUNK_SIZE;
+                int z = i / CHUNK_SIZE;
+                float noise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(x * 0.05f, z * 0.05f, 3, 0.4f, 2.0f);
+                float baseGreen = 0.7f + noise * 0.15f;
+                float redTint = 0.3f + noise * 0.1f;
+                
+                colors[colorIdx] = redTint;
+                colors[colorIdx + 1] = baseGreen;
+                colors[colorIdx + 2] = 0.3f + noise * 0.1f;
             } else if(normalizedHeight < 0.4f) {
+                // Mountain Gray
+                int x = i % CHUNK_SIZE;
+                int z = i / CHUNK_SIZE;
+                float noise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(x * 0.1f, z * 0.1f, 2, 0.3f, 2.0f) * 0.15f;
                 float mountainBlend = (normalizedHeight - 0.2f) / 0.2f;
-                float gray = 0.35f + mountainBlend * 0.25f;
+                float gray = 0.35f + mountainBlend * 0.25f + noise;
+                
                 colors[colorIdx] = gray;
                 colors[colorIdx + 1] = gray;
                 colors[colorIdx + 2] = gray;
             } else {
+                // Snow
+                int x = i % CHUNK_SIZE;
+                int z = i / CHUNK_SIZE;
                 float snowBlend = (normalizedHeight - 0.4f) / 0.6f;
                 float baseGray = 0.6f;
                 float smoothBlend = snowBlend * snowBlend * (3.0f - 2.0f * snowBlend);
                 float color = baseGray + (1.0f - baseGray) * smoothBlend;
+                
+                float snowNoise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(x * 0.08f, z * 0.08f, 3, 0.3f, 2.0f) * 0.08f;
+                color += snowNoise;
                 
                 if(color > 1.0f) color = 1.0f;
                 if(color < baseGray) color = baseGray;

@@ -10,7 +10,7 @@ public class EnvRenderer {
     private final PlayerController playerController;
     
     private final Object skyboxInstance;
-    private final Object mapInstance;
+    private final Object worldInstance;
     private final Object axeInstance;
     
     public EnvRenderer(
@@ -23,7 +23,7 @@ public class EnvRenderer {
         this.playerController = playerController;
         
         this.skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
-        this.mapInstance = envController.getEnv(EnvData.MAP).getInstance();
+        this.worldInstance = envController.getEnv(EnvData.MAP).getInstance();
         this.axeInstance = envController.getEnv(EnvData.AXE).getInstance();
     }
 
@@ -35,7 +35,12 @@ public class EnvRenderer {
         EnvCall.call(skyboxInstance, "getMesh", "render");
 
         /* Map */
-        EnvCall.call(mapInstance, "getGenerator", "render");
+        Vector3f pos = playerController.getPosition();
+        Object[] playerPosParams = { pos.x, pos.z };
+        Object generator = EnvCall.callReturn(worldInstance, "getGenerator");
+        if(generator != null) {
+            EnvCall.callWithParams(generator, playerPosParams, "render");
+        }
 
         /* Axe */
         EnvCall.call(axeInstance, "render");
