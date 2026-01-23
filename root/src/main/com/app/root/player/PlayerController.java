@@ -187,38 +187,36 @@ public class PlayerController {
     }
 
     private void applyMov() {
-        Vector3f moveForce = new Vector3f();
-        float force = movSpeed * rigidBody.getMass();
-        if(flyMode) force = flySpeed * rigidBody.getMass();
-        
+        Vector3f targetVel = new Vector3f();
+        float speed = flyMode ? flySpeed : movSpeed;
+
         Vector3f cameraFront = camera.getFront();
         Vector3f cameraRight = camera.getRight();
-        
+
         Vector3f horizontalFront = new Vector3f(cameraFront.x, 0.0f, cameraFront.z).normalize();
         Vector3f horizontalRight = new Vector3f(cameraRight.x, 0.0f, cameraRight.z).normalize();
         
+        if(movingForward) targetVel.add(horizontalFront.mul(speed));
+        if(movingBackward) targetVel.sub(horizontalFront.mul(speed));
+        if(movingLeft) targetVel.sub(horizontalRight.mul(speed));
+        if(movingRight) targetVel.add(horizontalRight.mul(speed));
+
+        Vector3f currentVel = rigidBody.getVelocity();
+
         if(flyMode) {
-            horizontalFront = new Vector3f(cameraFront).normalize();
-            horizontalRight = new Vector3f(cameraRight).normalize();
-        }
-        
-        if(movingForward) moveForce.add(horizontalFront.mul(force));
-        if(movingBackward) moveForce.sub(horizontalFront.mul(force));
-        if(movingLeft) moveForce.sub(horizontalRight.mul(force));
-        if(movingRight) moveForce.add(horizontalRight.mul(force));
-        if(flyMode) {
-            if(movingUp) moveForce.add(new Vector3f(0, 1, 0).mul(force));
-            if(movingDown) moveForce.add(new Vector3f(0, -1, 0).mul(force));
-            if(!movingUp && !movingDown) {
-                Vector3f currentVel = rigidBody.getVelocity();
-                currentVel.y = 0;
-                rigidBody.setVelocity(currentVel);
-            }
+            if(movingUp) targetVel.y = speed;
+            else if(movingDown) targetVel.y = -speed;
+            else targetVel.y = 0;
+            rigidBody.setVelocity(targetVel);
+        } else {
+            rigidBody.setVelocity(new Vector3f(
+                targetVel.x,
+                currentVel.y,
+                targetVel.z
+            ));
         }
 
-        if(moveForce.length() > 0) {
-            moveForce.normalize().mul(force);
-            rigidBody.applyForce(moveForce);
+        if(targetVel.length() > 0) {
             updateMeshRotation();
         }
     }
