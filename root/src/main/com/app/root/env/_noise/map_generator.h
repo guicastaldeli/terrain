@@ -17,6 +17,19 @@ typedef struct {
     unsigned char** objMap;
 } Chunk;
 
+#define MAX_ISLANDS 10
+#define MIN_ISLANDS 3
+
+typedef struct {
+    float centerX;
+    float centerZ;
+    float radius;
+    float mountainRadius;
+    float mountainHeight;
+    float baseHeight;
+    int hasMountain;
+} Island;
+
 float generateHeightMap(
     float worldX,
     float worldZ,

@@ -1,8 +1,7 @@
-REM filepath: c:\Users\casta\OneDrive\Desktop\vscode\terrain\root\src\main\com\app\root\env\_noise\.build\build.bat
 @echo off
 setlocal EnableDelayedExpansion
 
-echo Building Terrain Generator Standalone Executable
+echo Building Terrain Generator
 echo =====================================================
 
 set JAVA_HOME=C:\Program Files\Java\jdk-22
@@ -165,6 +164,29 @@ echo.
 echo Linking EXE with link.exe...
 link /nologo /OUT:world.exe ^
     main.obj ^
+    noise.obj ^
+    map_generator.obj ^
+    poisson_disk.obj ^
+    point_generator.obj ^
+    domain_warp.obj ^
+    erosion.obj ^
+    file_saver.obj ^
+    img.obj ^
+    /LIBPATH:"%OPENSSL_LIB%" ^
+    libssl.lib ^
+    libcrypto.lib ^
+    ws2_32.lib ^
+    advapi32.lib
+
+if %errorlevel% neq 0 (
+    echo ERROR: Linking EXE failed
+    pause
+    exit /b 1
+)
+
+echo.
+echo Linking JNI DLL with link.exe...
+link /nologo /DLL /OUT:noise_generator.dll ^
     noise_generator_jni.obj ^
     noise.obj ^
     map_generator.obj ^
@@ -181,7 +203,7 @@ link /nologo /OUT:world.exe ^
     advapi32.lib
 
 if %errorlevel% neq 0 (
-    echo ERROR: Linking failed
+    echo ERROR: Linking DLL failed
     pause
     exit /b 1
 )
@@ -220,6 +242,11 @@ if not exist world.exe (
     set MISSING=1
 )
 
+if not exist noise_generator.dll (
+    echo ERROR: noise_generator.dll not created!
+    set MISSING=1
+)
+
 if not exist libcrypto-3-x64.dll (
     echo WARNING: libcrypto-3-x64.dll not found
     echo This file is required at runtime!
@@ -243,6 +270,7 @@ if not exist libssl-3-x64.dll (
 if %MISSING% equ 0 (
     echo.
     echo BUILD SUCCESSFUL!
+    echo Created both world.exe and noise_generator.dll
     echo.
     echo Files created in: %CD%
 )
