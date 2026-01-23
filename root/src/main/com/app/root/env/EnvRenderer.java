@@ -51,9 +51,5 @@ public class EnvRenderer {
     public void update() {
         /* Skybox */
         EnvCall.call(skyboxInstance, "getMesh", "update");
-
-        /* Axe */
-        Vector3f playerPos = playerController.getPosition();
-        EnvCall.callWithParams(axeInstance, new Object[]{playerPos}, "setPosition");
     }
 }

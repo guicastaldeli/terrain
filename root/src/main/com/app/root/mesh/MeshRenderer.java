@@ -52,6 +52,7 @@ public class MeshRenderer {
     private boolean hasCustomScale = false;
 
     private int colorVbo;
+    private int normalVbo;
     private int texCoordsVbo;
     private int texId = -1;
     private boolean hasTex = false;
@@ -94,6 +95,21 @@ public class MeshRenderer {
             glEnableVertexAttribArray(0);
             
             vertexCount = vertices.length / 3;
+        }
+
+        /* Normals */
+        float[] normals = meshData.getNormals();
+        if(normals != null && normals.length > 0) {
+            int normalVbo = glGenBuffers();
+            glBindBuffer(GL_ARRAY_BUFFER, normalVbo);
+            
+            FloatBuffer normalBuffer = memAllocFloat(normals.length);
+            normalBuffer.put(normals).flip();
+            glBufferData(GL_ARRAY_BUFFER, normalBuffer, GL_STATIC_DRAW);
+            memFree(normalBuffer);
+            
+            glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0);
+            glEnableVertexAttribArray(1);
         }
 
         /* Colors */
@@ -307,11 +323,14 @@ public class MeshRenderer {
     public void cleanup() {
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
+        glDisableVertexAttribArray(3);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
         if(vbo != 0) glDeleteBuffers(vbo);
+        if(normalVbo != 0) glDeleteBuffers(normalVbo);
         if(colorVbo != 0) glDeleteBuffers(colorVbo);
         if(texCoordsVbo != 0) glDeleteBuffers(texCoordsVbo);
         if(ebo != 0) glDeleteBuffers(ebo);

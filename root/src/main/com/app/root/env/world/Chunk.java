@@ -76,9 +76,9 @@ public class Chunk {
         int worldStartX = chunkX * CHUNK_SIZE;
         int worldStartZ = chunkZ * CHUNK_SIZE;
         
-        float WATER_LEVEL = -5.0f;
-        float GRASS_LEVEL = 10.0f;
-        float MOUNTAIN_LEVEL = 30.0f;
+        float WATER_LEVEL = 10.0f;
+        float GRASS_LEVEL = 20.0f;
+        float MOUNTAIN_LEVEL = 40.0f;
         
         for(int x = 0; x < heightDataSize; x++) {
             for(int z = 0; z < heightDataSize; z++) {
@@ -304,7 +304,6 @@ public class Chunk {
         return heightData;
     }
 
-
     /**
      * Update Chunks
      */
@@ -405,10 +404,7 @@ public class Chunk {
             loadedChunks.put(chunkId, chunkData);
 
             mesh.add(chunkId, chunkMeshData);
-
-            if(chunkCollider != null) {
-                collisionManager.addStaticCollider(chunkCollider);
-            }
+            if(chunkCollider != null) collisionManager.addStaticCollider(chunkCollider);
 
             render(chunkId);
             //System.out.println("Loaded chunk: " + chunkId);
@@ -433,7 +429,7 @@ public class Chunk {
 
             if(cachedChunks.size() > 20) removeOldestCachedChunk();
 
-            System.out.println("Unloaded chunk: " + chunkId);
+            //System.out.println("Unloaded chunk: " + chunkId);
         }
     }
 

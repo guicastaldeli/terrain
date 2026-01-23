@@ -6,4 +6,5 @@ void setTextVert() {
     
     gl_Position = vec4(normalizedPos, 0.0, 1.0);
     texCoord = aTexCoord;
+    uColor = vec4(1.0);
 };

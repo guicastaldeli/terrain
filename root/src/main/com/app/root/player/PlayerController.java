@@ -336,6 +336,7 @@ public class PlayerController {
         setPosition(newPos.x, newPos.y, newPos.z);
         updateCameraPosition();
         if(playerMesh != null) playerMesh.update();
+        updateAxePosition();
     }
 
     private void updateMeshRotation() {
@@ -432,6 +433,15 @@ public class PlayerController {
         }
     }
 
+    public void updateAxePosition() {
+        if(envController != null && envController.getEnv(EnvData.AXE) != null) {
+            Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+            if(axeInstance != null) {
+                EnvCall.callWithParams(axeInstance, new Object[]{getPosition()}, "setPosition");
+            }
+        }
+    }
+
     /**
      * Render
      */
@@ -439,6 +449,9 @@ public class PlayerController {
         if(playerMesh != null) playerMesh.render();
     }
 
+    /**
+     * Reset
+     */
     public void reset() {
         Object axeController = envController != null ? envController.getEnv(EnvData.AXE) : null;
         if(axeController != null) EnvCall.call(axeController, "reset");

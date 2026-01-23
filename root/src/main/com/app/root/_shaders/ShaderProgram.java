@@ -216,7 +216,8 @@ public class ShaderProgram {
 
         int error = glGetError();
         if(error != GL_NO_ERROR) {
-            System.err.println("OpenGL error during shader bind: " + error);
+            //System.err.println("OpenGL error during shader bind: " + error);
+            //printProgramInfo();
         }
         if(!validate()) {
             System.err.println("Shader program validation failed during bind!");
