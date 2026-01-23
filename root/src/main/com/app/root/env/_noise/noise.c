@@ -1,4 +1,5 @@
 #include "noise.h"
+#include "map_generator.h"
 
 static float dot2(
     Vec2 g, 
@@ -138,7 +139,8 @@ void generateRivers(
     for(int river = 0; river < numRivers && river < sources->count; river++) {
         float posX = sources->points[river].x;
         float posY = sources->points[river].y;
-        if(heightMap[(int)posX][(int)posY] < 20.0f) continue;
+
+        if(heightMap[(int)posX][(int)posY] < WATER_LEVEL + 20.0f) continue;
 
         for(int step = 0; step < 800; step++) {
             int x = (int)posX;

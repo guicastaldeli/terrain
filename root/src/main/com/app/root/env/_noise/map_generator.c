@@ -3,94 +3,144 @@
 #include "img.h"
 #include <math.h>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+static Island islands[MAX_ISLANDS];
+static int islandCount = 0;
+static int islandsInitialized = 0;
 
-#define OCTAVES 8
-#define PERSISTENCE 0.5
-#define LACUNARITY 2.0
+void initializeIslands(int worldSize) {
+    if (islandsInitialized) return;
+    
+    islandCount = MAX_ISLANDS;
 
-#define FIXED_ISLAND_RADIUS 450.0f
-#define FIXED_MOUNTAIN_RADIUS 150.0f
-#define FIXED_MOUNTAIN_HEIGHT 400.0f
-#define FIXED_BASE_HEIGHT 100.0f
+    int gridSize = (int)sqrt(MAX_ISLANDS);
+    float cellSize = (float)worldSize / gridSize;
+    
+    float gapFactor = 0.8f;
+    float minGap = cellSize * (1.0f - gapFactor);
+    
+    printf("Island distribution: %dx%d grid, cell size: %.1f, min gap: %.1f\n", 
+           gridSize, gridSize, cellSize, minGap);
+    
+    for(int i = 0; i < islandCount; i++) {
+        int gridX = i % gridSize;
+        int gridZ = i / gridSize;
+        
+        islands[i].centerX = gridX * cellSize + (cellSize * 0.2f) + 
+                            (rand() % (int)(cellSize * gapFactor));
+        islands[i].centerZ = gridZ * cellSize + (cellSize * 0.2f) + 
+                            (rand() % (int)(cellSize * gapFactor));
+        
+        islands[i].radius = MIN_ISLAND_RADIUS + (rand() % (int)(MAX_ISLAND_RADIUS - MIN_ISLAND_RADIUS));
+        
+        float maxAllowedRadius = cellSize * gapFactor * 0.4f;
+        if(islands[i].radius > maxAllowedRadius) {
+            islands[i].radius = maxAllowedRadius;
+        }
+        
+        if(rand() % 100 < 30) {
+            islands[i].mountainRadius = MIN_MOUNTAIN_RADIUS + 
+                (rand() % (int)(MAX_MOUNTAIN_RADIUS - MIN_MOUNTAIN_RADIUS));
+            islands[i].mountainHeight = 50.0f + (rand() % (int)(MAX_MOUNTAIN_HEIGHT - 50.0f));
+        } else {
+            islands[i].mountainRadius = 0.0f;
+            islands[i].mountainHeight = 0.0f;
+        }
+        
+        islands[i].baseHeight = 30.0f + (rand() % (int)BASE_HEIGHT_RANGE);
+    }
+    
+    islandsInitialized = 1;
+}
 
-/**
- * Generate Height Map
- */
 float generateHeightMap(
     float worldX,
     float worldZ,
     int worldSize,
     PointCollection* collection
 ) {
-    /**
-     * 
-     * 
-     *  - IMPORTANT!!!: This is only a temporary noise
-     *               i will set the real map noise later
-     *               for now this is the mountain noise to test
-     *               things on the game.
-     * 
-     * 
-     */
-    float centerX = worldSize / 2.0f;
-    float centerZ = worldSize / 2.0f;
-    
-    float dx = worldX - centerX;
-    float dz = worldZ - centerZ;
-    float distFromCenter = sqrtf(dx * dx + dz * dz);
-    
-    float maxRadius = FIXED_ISLAND_RADIUS;
-    float normalizedDist = distFromCenter / maxRadius;
-    
-    float islandFalloff = 1.0f;
-    if(normalizedDist > 0.7f) {
-        float edgeFactor = (normalizedDist - 0.7f) / 0.3f;
-        islandFalloff = 1.0f - (edgeFactor * edgeFactor);
-        islandFalloff = fmaxf(0.0f, islandFalloff);
+    if(!islandsInitialized) {
+        initializeIslands(worldSize);
     }
     
-    float baseHeight = FIXED_BASE_HEIGHT * (1.0f - normalizedDist * normalizedDist) * islandFalloff;
-    float mountainHeight = 0.0f;
-    float mountainRadius = FIXED_MOUNTAIN_RADIUS;
+    float totalHeight = 0.0f;
+    float maxInfluence = 0.0f;
+    int nearbyIslands[8];
+    float distances[8];
+    int foundCount = 0;
     
-    if(distFromCenter < mountainRadius) {
-        float mountainNorm = distFromCenter / mountainRadius;
-        mountainHeight = FIXED_MOUNTAIN_HEIGHT * (1.0f - mountainNorm * mountainNorm);
+    int searchRadius = 3;
+    int gridSize = (int)sqrt(MAX_ISLANDS);
+    float cellSize = (float)worldSize / gridSize;
+    int currentGridX = (int)(worldX / cellSize);
+    int currentGridZ = (int)(worldZ / cellSize);
+    
+    for(int gx = currentGridX - searchRadius; gx <= currentGridX + searchRadius; gx++) {
+        for(int gz = currentGridZ - searchRadius; gz <= currentGridZ + searchRadius; gz++) {
+            if(gx < 0 || gx >= gridSize || gz < 0 || gz >= gridSize) continue;
+            
+            int islandIndex = gz * gridSize + gx;
+            if(islandIndex >= islandCount) continue;
+            
+            float dx = worldX - islands[islandIndex].centerX;
+            float dz = worldZ - islands[islandIndex].centerZ;
+            float distFromCenter = sqrtf(dx * dx + dz * dz);
+            
+            if(distFromCenter > islands[islandIndex].radius * 2.0f) continue;
+            
+            if(foundCount < 8) {
+                nearbyIslands[foundCount] = islandIndex;
+                distances[foundCount] = distFromCenter;
+                foundCount++;
+            }
+        }
     }
     
-    float noiseInfluence = 1.0f;
-    if(distFromCenter > mountainRadius) {
-        float distanceFromMountain = distFromCenter - mountainRadius;
-        float maxIslandRadius = maxRadius * 0.7f;
-        noiseInfluence = 1.0f - (distanceFromMountain / (maxIslandRadius - mountainRadius));
-        noiseInfluence = fmaxf(0.1f, fminf(1.0f, noiseInfluence));
+    for(int i = 0; i < foundCount; i++) {
+        int islandIndex = nearbyIslands[i];
+        float distFromCenter = distances[i];
+        float normalizedDist = distFromCenter / islands[islandIndex].radius;
+        float islandFalloff = 1.0f;
+        
+        if(normalizedDist > 0.7f) {
+            float edgeFactor = (normalizedDist - 0.7f) / 0.3f;
+            islandFalloff = 1.0f - (edgeFactor * edgeFactor);
+            islandFalloff = fmaxf(0.0f, islandFalloff);
+        }
+        
+        // Generate terrain that goes below water level (volumetric ocean)
+        float baseHeight = islands[islandIndex].baseHeight * (1.0f - normalizedDist * normalizedDist) * islandFalloff;
+        
+        float mountainHeight = 0.0f;
+        if(islands[islandIndex].mountainRadius > 0 && distFromCenter < islands[islandIndex].mountainRadius) {
+            float mountainNorm = distFromCenter / islands[islandIndex].mountainRadius;
+            mountainHeight = islands[islandIndex].mountainHeight * (1.0f - mountainNorm * mountainNorm);
+        }
+        
+        float terrainNoise = fractualSimplexNoise(
+            worldX * 0.02f,
+            worldZ * 0.02f,
+            2,
+            0.3f,
+            2.0f
+        );
+        
+        float islandHeight = baseHeight + mountainHeight + terrainNoise * 15.0f * islandFalloff;
+        
+        float proximityWeight = 1.0f - fminf(1.0f, normalizedDist);
+        totalHeight += islandHeight * proximityWeight;
+        maxInfluence += proximityWeight;
     }
     
-    float terrainNoise = fractualSimplexNoise(
-        worldX * 0.01f,
-        worldZ * 0.01f,
-        4,
-        0.5f,
-        2.0f
-    );
-    float detailNoise = fractualSimplexNoise(
-        worldX * 0.05f,
-        worldZ * 0.05f,
-        3,
-        0.3f,
-        2.0f
-    );
+    float oceanFloor = -OCEAN_DEPTH;
+    if(maxInfluence < 0.1f) {
+        oceanFloor = -OCEAN_DEPTH + fractualSimplexNoise(worldX * 0.01f, worldZ * 0.01f, 1, 0.2f, 2.0f) * 20.0f;
+    }
     
-    float height = baseHeight + mountainHeight;
+    float finalHeight = maxInfluence > 0.1f ? (totalHeight / maxInfluence) : oceanFloor;
     
-    height += terrainNoise * 30.0f * islandFalloff * noiseInfluence;
-    height += detailNoise * 10.0f * islandFalloff * noiseInfluence;
+    finalHeight = fmaxf(finalHeight, -OCEAN_DEPTH - 30.0f);
     
-    height = fmaxf(height, 0.0f);
-    return height;
+    return finalHeight;
 }
 
 /**
@@ -184,11 +234,11 @@ void generateMap(
         }
     }
 
+    save(worldHeightMap, worldSize, worldSize, "world.png");
+
     simulateHydraulicErosion(worldHeightMap, worldSize, 3000, 3);
     thermalErosion(worldHeightMap, worldSize, 0.08f, 8);
     generateRivers(worldHeightMap, riverMap, worldSize, pointCount);
-
-    save(worldHeightMap, worldSize, worldSize, "world.png");
 
     PoissonCollection* objLocations = poissonDiskSampling(25.0f, worldSize, worldSize, 30);
     printf("Generated %d object locations\n", objLocations->count);

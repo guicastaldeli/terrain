@@ -60,7 +60,7 @@ public class PlayerController {
     private boolean movingRight = false;
 
     public boolean flyMode = false;
-    private float flySpeed = 20.0f;
+    private float flySpeed = 200.0f;
     private boolean movingUp = false;
     private boolean movingDown = false;
 

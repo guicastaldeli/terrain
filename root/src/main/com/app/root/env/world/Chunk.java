@@ -76,7 +76,7 @@ public class Chunk {
         int worldStartX = chunkX * CHUNK_SIZE;
         int worldStartZ = chunkZ * CHUNK_SIZE;
         
-        float WATER_LEVEL = 10.0f;
+        float OCEAN_DEPTH = 100.0f;
         float GRASS_LEVEL = 65.0f;
         float MOUNTAIN_LEVEL = 250.0f;
         
@@ -91,26 +91,38 @@ public class Chunk {
                 float heightVal = heightData[i];
                 colors[colorIdx + 3] = 1.0f;
                 
-                if(heightVal < WATER_LEVEL) {
+                if(heightVal < Water.LEVEL) {
                     colors[colorIdx] = 0.0f;
                     colors[colorIdx + 1] = 0.1f;
-                    colors[colorIdx + 2] = 0.4f;
+                    colors[colorIdx + 2] = 0.4f;;
                 } else if(heightVal < GRASS_LEVEL) {
-                    float noise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(
-                        worldX * 0.05f, worldZ * 0.05f, 3, 0.4f, 2.0f
-                    );
+                    float noise = 
+                        worldGenerator
+                            .noiseGeneratorWrapper
+                            .fractualSimplexNoise(
+                                worldX * 0.05f, worldZ * 0.05f, 
+                                3, 
+                                0.4f, 
+                                2.0f
+                            );
+
                     float baseGreen = 0.7f + noise * 0.15f;
                     float redTint = 0.3f + noise * 0.1f;
-                    
                     colors[colorIdx] = redTint;
                     colors[colorIdx + 1] = baseGreen;
                     colors[colorIdx + 2] = 0.3f + noise * 0.1f;
                 } else if(heightVal < MOUNTAIN_LEVEL) {
-                    float noise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(
-                        worldX * 0.1f, worldZ * 0.1f, 2, 0.3f, 2.0f
-                    ) * 0.15f;
+                    float noise = 
+                        worldGenerator
+                            .noiseGeneratorWrapper
+                            .fractualSimplexNoise(
+                                worldX * 0.1f, worldZ * 0.1f, 
+                                2, 
+                                0.3f, 
+                                2.0f
+                            ) * 0.15f;
+
                     float gray = 0.5f + noise;
-                    
                     colors[colorIdx] = gray;
                     colors[colorIdx + 1] = gray;
                     colors[colorIdx + 2] = gray;
@@ -121,9 +133,16 @@ public class Chunk {
                     float baseGray = 0.6f;
                     float color = baseGray + (1.0f - baseGray) * snowHeight;
                     
-                    float snowNoise = worldGenerator.noiseGeneratorWrapper.fractualSimplexNoise(
-                        worldX * 0.08f, worldZ * 0.08f, 3, 0.3f, 2.0f 
-                    ) * 0.08f;
+                    float snowNoise = 
+                        worldGenerator
+                            .noiseGeneratorWrapper
+                            .fractualSimplexNoise(
+                                worldX * 0.08f, worldZ * 0.08f, 
+                                3, 
+                                0.3f, 
+                                2.0f 
+                            ) * 0.08f;
+
                     color += snowNoise;
                     
                     if(color > 1.0f) color = 1.0f;
@@ -225,8 +244,10 @@ public class Chunk {
         for(int x = 0; x < heightDataSize; x++) { 
             for(int z = 0; z < heightDataSize; z++) {
                 int i = (x * heightDataSize + z) * 3;
+                float terrainHeight = heightData[x * heightDataSize + z];
+                
                 vertices[i] = worldOffsetX + x;
-                vertices[i+1] = heightData[x * heightDataSize + z];
+                vertices[i+1] = terrainHeight;
                 vertices[i+2] = worldOffsetZ + z;
             }
         }
@@ -388,6 +409,8 @@ public class Chunk {
      */
     public void load(int chunkX, int chunkZ) {
         String chunkId = getId(chunkX, chunkZ);
+        String waterId = Water.getId(chunkX, chunkZ);
+        
         if(cachedChunks.containsKey(chunkId)) {
             ChunkData cached = cachedChunks.remove(chunkId);
             loadedChunks.put(chunkId, cached);
@@ -398,12 +421,15 @@ public class Chunk {
         try {
             float[] chunkHeightData = generateHeightData(chunkX, chunkZ);
             MeshData chunkMeshData = createMeshData(chunkHeightData, chunkX, chunkZ);
+            MeshData waterMeshData = Water.createMeshData(chunkX, chunkZ);
             StaticObject chunkCollider = createCollider(chunkHeightData, chunkX, chunkZ);
 
             ChunkData chunkData = new ChunkData(chunkMeshData, chunkCollider);
             loadedChunks.put(chunkId, chunkData);
 
             mesh.add(chunkId, chunkMeshData);
+            mesh.add(waterId, waterMeshData);
+            
             if(chunkCollider != null) collisionManager.addStaticCollider(chunkCollider);
 
             render(chunkId);
@@ -419,7 +445,11 @@ public class Chunk {
     public void unload(String chunkId) {
         ChunkData chunkData = loadedChunks.remove(chunkId);
         if(chunkData != null) {
+            String waterId = chunkId.replace("chunk_", "water_");
+            
             mesh.removeMesh(chunkId);
+            mesh.removeMesh(waterId);
+            
             if(chunkData.collider != null) {
                 collisionManager.removeCollider(chunkData.collider);
             }
@@ -457,6 +487,11 @@ public class Chunk {
             chunkData.lastAccessTime = System.currentTimeMillis();
             if(mesh.hasMesh(chunkId)) {
                 mesh.render(chunkId, 0);
+            }
+            
+            String waterId = chunkId.replace("chunk_", "water_");
+            if(mesh.hasMesh(waterId)) {
+                mesh.render(waterId, 0);
             }
         }
     }
