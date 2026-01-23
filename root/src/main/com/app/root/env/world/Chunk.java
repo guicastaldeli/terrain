@@ -20,7 +20,7 @@ public class Chunk {
     private int chunksPerFrame = 1;
     private int lastProcessedIndex = 0;
     private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
-    
+
     public static final int CHUNK_SIZE = 90;
 
     public Chunk(
