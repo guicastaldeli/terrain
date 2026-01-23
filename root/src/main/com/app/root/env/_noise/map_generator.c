@@ -107,7 +107,6 @@ float generateHeightMap(
             islandFalloff = fmaxf(0.0f, islandFalloff);
         }
         
-        // Generate terrain that goes below water level (volumetric ocean)
         float baseHeight = islands[islandIndex].baseHeight * (1.0f - normalizedDist * normalizedDist) * islandFalloff;
         
         float mountainHeight = 0.0f;
