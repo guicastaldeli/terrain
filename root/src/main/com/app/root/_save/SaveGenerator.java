@@ -145,10 +145,10 @@ public class SaveGenerator {
             (Serializable) playerData
         );
         /* Stats */
-        saveFile.saveData(
+        saveFile.saveObject(
             "stats",
             "st.data",
-            new byte[0]
+           (Serializable) worldData
         );
     }
 

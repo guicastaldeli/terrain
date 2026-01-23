@@ -132,8 +132,6 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
     
     saveAsImage(heightMap, worldSize, worldSize, "map.png");
     
-    
-    
     heightMapData = malloc(mapWidth * mapHeight * sizeof(float));
     for(int i = 0; i < mapWidth; i++) {
         for(int j = 0; j < mapHeight; j++) {
