@@ -289,12 +289,28 @@ public class Chunk {
         int chunkX,
         int chunkZ
     ) {
+        int chunkSize = CHUNK_SIZE + 1;
+        float worldOffsetX = (chunkX * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE) / 2.0f;
+        float worldOffsetZ = (chunkZ * CHUNK_SIZE) -  (WorldGenerator.WORLD_SIZE) / 2.0f;
+
         return new StaticObject(
             heightData,
-            CHUNK_SIZE,
-            CHUNK_SIZE,
+            chunkSize,
+            chunkSize,
             getId(chunkX, chunkZ)
-        );
+        ) {
+            @Override
+            public float getHeightAtWorld(float worldX, float worldZ) {
+                int localX = (int)(worldX - worldOffsetX);
+                int localZ = (int)(worldZ - worldOffsetZ);
+                if(localX < 0 || localX >= chunkSize ||
+                    localZ < 0 || localZ >= chunkSize
+                ) {
+                    return -100.0f;
+                }
+                return heightData[localX * chunkSize + localZ];
+            }
+        };
     }
 
     /**

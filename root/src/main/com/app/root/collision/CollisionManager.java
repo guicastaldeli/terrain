@@ -124,12 +124,13 @@ public class CollisionManager {
             if(staticObj.isMap()) {
                 if(collision.normal.y > 0.5f) {
                     body.setOnGround(true);
+                    //System.out.println("on ground" + body.isOnGround());
 
                     Vector3f pos = body.getPosition();
                     Vector3f size = body.getSize();
                     float groundHeight = staticObj.getHeightAtWorld(pos.x, pos.z);
-                    if(Math.abs(pos.y - size.y/2 - groundHeight) < 0.5f) {
-                        body.setPosition(new Vector3f(pos.x, groundHeight + size.y/2, pos.z));
+                    if(Math.abs(pos.y - size.y / 2 - groundHeight) < 0.5f) {
+                        body.setPosition(new Vector3f(pos.x, groundHeight + size.y / 2 , pos.z));
                     }
                     
                     Vector3f velocity = body.getVelocity();

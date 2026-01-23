@@ -34,29 +34,29 @@ public class StaticObject implements Collider {
         this.mapHeight = height;
         this.type = type;
         this.isMap = true;
-        this.bBox = calcMapBounds();
+
+        float minY = Float.MAX_VALUE;
+        float maxY = Float.MIN_VALUE;
+
+        for(int i = 0; i < heightMapData.length; i++) {
+            float heightVal = heightMapData[i];
+            minY = Math.min(minY, heightVal);
+            maxY = Math.max(maxY, heightVal);
+        }
+
+        this.maxHeight = maxY;
+
+        this.bBox = calcMapBounds(minY, maxY);
     }
 
     /**
      * Calculate Map Bounds
      */
-    private BoundingBox calcMapBounds() {
-        float minX = -mapWidth / 2.0f;
-        float maxX = mapWidth / 2.0f;
-        float minZ = -mapHeight / 2.0f;
-        float maxZ = mapHeight / 2.0f;
-        
-        float minY = Float.MAX_VALUE;
-        float maxY = Float.MIN_VALUE;
-
-        for(int x = 0; x < mapWidth; x++) {
-            for(int z = 0; z < mapHeight; z++) {
-                float height = getHeightAt(x, z);
-                maxY = Math.max(maxY, height);
-            }
-        }
-
-        return new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
+    private BoundingBox calcMapBounds(float minY, float maxY) {
+        return new BoundingBox(
+            -Float.MAX_VALUE, minY, -Float.MAX_VALUE,
+            Float.MAX_VALUE, maxY, Float.MAX_VALUE
+        );
     }
 
     private float getHeightAt(int x, int z) {
@@ -68,7 +68,7 @@ public class StaticObject implements Collider {
             return 0.0f;
         }
 
-        return heightMapData[x * mapHeight + z] * maxHeight;
+        return heightMapData[x * mapHeight + z];
     }
 
     public float getHeightAtWorld(float worldX, float worldZ) {
@@ -113,18 +113,37 @@ public class StaticObject implements Collider {
             return new CollisionResult();
         }
 
-        float groundMargin = 20.0f;
+        float heighestTerrainHeight = Float.MIN_VALUE;
+        int samplePoints = 5;
+
+        float[] sampleX = {
+            box.minX,
+            box.minX + (box.maxX - box.minX) / 2,
+            box.maxX,
+            box.minX,
+            box.maxX
+        };
+        float[] sampleZ = {
+            box.minZ,
+            box.minZ + (box.maxZ - box.minZ) / 2,
+            box.minZ,
+            box.maxZ,
+            box.maxZ
+        };
+
+        for(int i = 0; i < samplePoints; i++) {
+            float height = getHeightAtWorld(sampleX[i], sampleZ[i]);
+            if(height > heighestTerrainHeight) heighestTerrainHeight = height;
+        }
+
         float playerBottom = box.minY;
-        float mapHeight = 
-            getHeightAtWorld(
-                box.minX + (box.maxX - box.minX) / 2, 
-                box.minZ + (box.maxZ - box.minZ) / 2
-            );
-        if(playerBottom <= mapHeight + groundMargin &&
-            playerBottom >= mapHeight - groundMargin
+        float groundMargin = 20.0f;
+
+        if(playerBottom <= heighestTerrainHeight + groundMargin &&
+            playerBottom >= heighestTerrainHeight - groundMargin
         ) {
             Vector3f normal = new Vector3f(0, 1, 0);
-            float depth = Math.abs(playerBottom - mapHeight);
+            float depth = Math.abs(playerBottom - heighestTerrainHeight);
             return new CollisionResult(
                 true,
                 normal,

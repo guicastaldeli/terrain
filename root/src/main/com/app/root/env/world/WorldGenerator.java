@@ -59,6 +59,7 @@ public class WorldGenerator {
             mesh, 
             null
         );
+        addMapCollider();
     }
 
     private float[] createVertices(float[] heightData) {
@@ -107,12 +108,19 @@ public class WorldGenerator {
     public float getHeightAt(float x, float z) {
         int[] chunkCoords = Chunk.getCoords(x, z);
         String chunkId = Chunk.getId(chunkCoords[0], chunkCoords[1]);
+
         if(chunk.loadedChunks.containsKey(chunkId)) {
             ChunkData chunkData = chunk.loadedChunks.get(chunkId);
             if(chunkData.meshData != null) {
                 int localX = (int)((x + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
                 int localZ = (int)((z + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
                 return getHeightFromChunkData(chunkData, localX, localZ);
+            }
+        }
+        if(chunk.loadedChunks.containsKey(chunkId)) {
+            ChunkData chunkData = chunk.loadedChunks.get(chunkId);
+            if(chunkData.collider != null && chunkData.collider.isMap()) {
+                return chunkData.collider.getHeightAtWorld(x, z);
             }
         }
 

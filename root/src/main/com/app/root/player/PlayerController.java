@@ -102,7 +102,6 @@ public class PlayerController {
             this,
             mesh
         );
-        addCollider();
     }
 
     public void set() {
@@ -141,7 +140,10 @@ public class PlayerController {
             new Vector3f(position),
             new Vector3f(sizeX, sizeY, sizeZ)
         );
+
+        addCollider();
         rigidBody.setGravityScale(2.0f);
+        
         updateCameraPosition(); 
     }
 
