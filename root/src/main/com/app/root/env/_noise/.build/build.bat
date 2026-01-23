@@ -1,7 +1,8 @@
+REM filepath: c:\Users\casta\OneDrive\Desktop\vscode\terrain\root\src\main\com\app\root\env\_noise\.build\build.bat
 @echo off
 setlocal EnableDelayedExpansion
 
-echo Building Terrain Generator with Visual Studio Compiler
+echo Building Terrain Generator Standalone Executable
 echo =====================================================
 
 set JAVA_HOME=C:\Program Files\Java\jdk-22
@@ -29,6 +30,7 @@ if exist "%VS_PATH%\vcvars64.bat" (
 echo.
 echo Cleaning previous builds...
 del *.obj 2>nul
+del world.exe 2>nul
 del noise_generator.dll 2>nul
 del libcrypto-3-x64.dll 2>nul
 del libssl-3-x64.dll 2>nul
@@ -146,9 +148,22 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+cl /nologo /c /O2 /EHsc /std:c17 ^
+    /I"%JAVA_HOME%\include" ^
+    /I"%JAVA_HOME%\include\win32" ^
+    /I"%OPENSSL_INCLUDE%" ^
+    /I"%STB_INCLUDE%" ^
+    "%SRC_DIR%\img.c"
+
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to compile img.c
+    pause
+    exit /b 1
+)
+
 echo.
-echo Linking DLL with link.exe...
-link /nologo /DLL /OUT:noise_generator.dll ^
+echo Linking EXE with link.exe...
+link /nologo /OUT:world.exe ^
     main.obj ^
     noise_generator_jni.obj ^
     noise.obj ^
@@ -158,6 +173,7 @@ link /nologo /DLL /OUT:noise_generator.dll ^
     domain_warp.obj ^
     erosion.obj ^
     file_saver.obj ^
+    img.obj ^
     /LIBPATH:"%OPENSSL_LIB%" ^
     libssl.lib ^
     libcrypto.lib ^
@@ -192,14 +208,15 @@ if exist "%OPENSSL_LIB%\..\bin\libssl-3-x64.dll" (
 
 echo.
 echo Final verification...
-echo DLLs in current directory:
+echo Files in current directory:
+dir *.exe /B
 dir *.dll /B
 
 echo.
 echo Checking for required files...
 set MISSING=0
-if not exist noise_generator.dll (
-    echo ERROR: noise_generator.dll not created!
+if not exist world.exe (
+    echo ERROR: world.exe not created!
     set MISSING=1
 )
 
@@ -228,15 +245,6 @@ if %MISSING% equ 0 (
     echo BUILD SUCCESSFUL!
     echo.
     echo Files created in: %CD%
-    echo 1. noise_generator.dll
-    echo 2. libcrypto-3-x64.dll
-    echo 3. libssl-3-x64.dll
-    echo.
-    echo Make sure these files are in your Java DLL path:
-    echo %MAP_DIR%\.build\
-) else (
-    echo.
-    echo BUILD FAILED :(
 )
 
 echo.

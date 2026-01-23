@@ -1,5 +1,6 @@
 #include "map_generator.h"
 #include "file_saver.h"
+#include "img.h"
 #include <math.h>
 
 #ifndef M_PI
@@ -182,9 +183,12 @@ void generateMap(
             printf("  Base terrain: %.1f%%\n", (float)(x + 1) / worldSize * 100.0f);
         }
     }
+
     simulateHydraulicErosion(worldHeightMap, worldSize, 3000, 3);
     thermalErosion(worldHeightMap, worldSize, 0.08f, 8);
     generateRivers(worldHeightMap, riverMap, worldSize, pointCount);
+
+    save(worldHeightMap, worldSize, worldSize, "world.png");
 
     PoissonCollection* objLocations = poissonDiskSampling(25.0f, worldSize, worldSize, 30);
     printf("Generated %d object locations\n", objLocations->count);

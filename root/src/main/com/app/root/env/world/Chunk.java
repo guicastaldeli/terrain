@@ -77,8 +77,8 @@ public class Chunk {
         int worldStartZ = chunkZ * CHUNK_SIZE;
         
         float WATER_LEVEL = 10.0f;
-        float GRASS_LEVEL = 20.0f;
-        float MOUNTAIN_LEVEL = 40.0f;
+        float GRASS_LEVEL = 65.0f;
+        float MOUNTAIN_LEVEL = 250.0f;
         
         for(int x = 0; x < heightDataSize; x++) {
             for(int z = 0; z < heightDataSize; z++) {
