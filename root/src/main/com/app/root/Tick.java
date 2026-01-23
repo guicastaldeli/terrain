@@ -1,6 +1,8 @@
 package main.com.app.root;
 
 public class Tick {
+    private static Tick instance;
+
     private final Window window;
     private final TimeCycle timeCycle;
 
@@ -23,6 +25,7 @@ public class Tick {
         this.window = window;
         this.timeCycle = new TimeCycle();
         this.timeCycle.setTimeSpeed(0.5f);
+        instance = this;
     }
 
     private void tick() {
@@ -66,6 +69,11 @@ public class Tick {
 
     public float getDeltaTime() {
         return deltaTime;
+    }
+
+    public static float getIDeltaTime() {
+        if(instance != null) return instance.deltaTime;
+        return 0.016f;
     }
 
     public TimeCycle getTimeCycle() {

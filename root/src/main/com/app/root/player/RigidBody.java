@@ -145,20 +145,11 @@ public class RigidBody {
         velocity.add(acceleration.mul(deltaTime, new Vector3f()));
         velocity.mul(1.0f - (drag * deltaTime));
         
-        if(onGround && gravityEnabled) {
-            float groundFriction = 10.0f * deltaTime;
-            Vector3f horizontalVel = new Vector3f(velocity.x, 0, velocity.z);
-            if(horizontalVel.length() > groundFriction) {
-                horizontalVel.normalize().mul(groundFriction);
-                velocity.x -= horizontalVel.x;
-                velocity.z -= horizontalVel.z;
-            } else {
-                velocity.x = 0;
-                velocity.z = 0;
-            }
-        }
-        
-        position.add(velocity.mul(deltaTime, new Vector3f()));
+        Vector3f newPosition = new Vector3f(position).add(
+            velocity.mul(deltaTime, new Vector3f())
+        );
+
+        position.set(newPosition);
         acceleration.set(0, 0, 0);
     }
 }

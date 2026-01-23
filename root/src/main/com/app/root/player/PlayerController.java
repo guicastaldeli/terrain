@@ -44,7 +44,7 @@ public class PlayerController {
     private CollisionManager collisionManager;
 
     private float sizeX = 1.0f;
-    private float sizeY = 2.0f;
+    private float sizeY = 10.0f;
     private float sizeZ = 1.0f;
 
     private float xSpeed = 0.0f;
@@ -138,7 +138,11 @@ public class PlayerController {
         this.rigidBody = new RigidBody(
             tick,
             new Vector3f(position),
-            new Vector3f(sizeX, sizeY, sizeZ)
+            new Vector3f(
+                sizeX, 
+                sizeY, 
+                sizeZ
+            )
         );
 
         addCollider();

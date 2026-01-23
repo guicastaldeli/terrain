@@ -25,6 +25,18 @@ public class BoundingBox {
         this.maxZ = maxZ;
     }
 
+    public float getSizeX() {
+        return maxX - minX;
+    }
+
+    public float getSizeY() {
+        return maxY - minY;
+    }
+
+    public float getSizeZ() {
+        return maxZ - minZ;
+    }
+
     public boolean intersects(BoundingBox other) {
         return 
             (minX <= other.maxX && maxX >= other.minX) &&

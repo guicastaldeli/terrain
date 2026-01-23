@@ -5,6 +5,7 @@ import main.com.app.root.collision.BoundingBox;
 import main.com.app.root.collision.Collider;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.CollisionResult;
+import main.com.app.root.collision.CollisionManager.CollisionType;
 import main.com.app.root.player.RigidBody;
 
 public class StaticObject implements Collider {
@@ -59,6 +60,9 @@ public class StaticObject implements Collider {
         );
     }
 
+    /**
+     * Get Height
+     */
     private float getHeightAt(int x, int z) {
         if(x < 0 || 
             x >= mapWidth ||
@@ -72,14 +76,15 @@ public class StaticObject implements Collider {
     }
 
     public float getHeightAtWorld(float worldX, float worldZ) {
-        int x = (int)((worldX + mapWidth / 2.0f));
-        int z = (int)((worldZ + mapHeight / 2.0f));
+        int x = (int)(worldX + mapWidth / 2.0f);
+        int z = (int)(worldZ + mapHeight / 2.0f);
+
         if(x < 0 || 
-            x >= mapWidth || 
-            z < 0 || 
+            x >= mapWidth ||
+            z < 0 ||
             z >= mapHeight
         ) {
-            return 0.0f;
+            return -100.0f;
         }
 
         return getHeightAt(x, z);
@@ -113,43 +118,67 @@ public class StaticObject implements Collider {
             return new CollisionResult();
         }
 
-        float heighestTerrainHeight = Float.MIN_VALUE;
-        int samplePoints = 5;
+        float centerX = (box.minX + box.maxX) / 2.0f;
+        float centerZ = (box.minZ + box.maxZ) / 2.0f;
 
         float[] sampleX = {
-            box.minX,
-            box.minX + (box.maxX - box.minX) / 2,
-            box.maxX,
-            box.minX,
-            box.maxX
+            centerX,
+            centerX - box.getSizeX() * 0.4f,
+            centerX + box.getSizeX() * 0.4f,
+            centerX,
+            centerX
         };
         float[] sampleZ = {
-            box.minZ,
-            box.minZ + (box.maxZ - box.minZ) / 2,
-            box.minZ,
-            box.maxZ,
-            box.maxZ
+            centerZ,
+            centerZ,
+            centerZ,
+            centerZ - box.getSizeZ() * 0.4f,
+            centerZ + box.getSizeZ() * 0.4f
         };
 
-        for(int i = 0; i < samplePoints; i++) {
+        float heightestTerrainHeight = Float.MIN_VALUE;
+        float lowestTerrainHeight = Float.MAX_VALUE;
+
+        for(int i = 0; i < sampleX.length; i++) {
             float height = getHeightAtWorld(sampleX[i], sampleZ[i]);
-            if(height > heighestTerrainHeight) heighestTerrainHeight = height;
+            if(height > heightestTerrainHeight) heightestTerrainHeight = height;
+            if(height < lowestTerrainHeight) lowestTerrainHeight = height;
         }
 
         float playerBottom = box.minY;
-        float groundMargin = 20.0f;
+        float groundMargin = 50.0f;
+        float maxStepHeight = 10.0f;
 
-        if(playerBottom <= heighestTerrainHeight + groundMargin &&
-            playerBottom >= heighestTerrainHeight - groundMargin
+        boolean isOnGround = false;
+        float targetHeight = heightestTerrainHeight;
+
+        if(playerBottom > heightestTerrainHeight &&
+            playerBottom <= heightestTerrainHeight + maxStepHeight
         ) {
+            isOnGround = true;
+            targetHeight = heightestTerrainHeight;
+        }
+        else if(
+            playerBottom <= heightestTerrainHeight + groundMargin &&
+            playerBottom >= heightestTerrainHeight - groundMargin
+        ) {
+            isOnGround = true;
+            targetHeight = heightestTerrainHeight;
+        }
+        else if(playerBottom < heightestTerrainHeight) {
+            isOnGround = true;
+            targetHeight = heightestTerrainHeight;
+        }
+
+        if(isOnGround) {
             Vector3f normal = new Vector3f(0, 1, 0);
-            float depth = Math.abs(playerBottom - heighestTerrainHeight);
+            float depth = Math.abs(playerBottom - targetHeight);
             return new CollisionResult(
                 true,
                 normal,
                 depth,
                 this,
-                CollisionManager.CollisionType.STATIC_OBJECT
+                CollisionType.STATIC_OBJECT
             );
         }
 

@@ -1,11 +1,9 @@
 package main.com.app.root.collision;
-import java.util.*;
-
-import org.joml.Vector3f;
-
 import main.com.app.root.collision.types.DynamicObject;
 import main.com.app.root.collision.types.StaticObject;
 import main.com.app.root.player.RigidBody;
+import org.joml.Vector3f;
+import java.util.*;
 
 public class CollisionManager {
     public enum CollisionType {
@@ -122,23 +120,25 @@ public class CollisionManager {
         if(collision.otherCollider instanceof StaticObject) {
             StaticObject staticObj = (StaticObject) collision.otherCollider;
             if(staticObj.isMap()) {
-                if(collision.normal.y > 0.5f) {
-                    body.setOnGround(true);
-                    //System.out.println("on ground" + body.isOnGround());
+                Vector3f position = body.getPosition();
+                BoundingBox bBox = body.getBoundingBox();
 
-                    Vector3f pos = body.getPosition();
-                    Vector3f size = body.getSize();
-                    float groundHeight = staticObj.getHeightAtWorld(pos.x, pos.z);
-                    if(Math.abs(pos.y - size.y / 2 - groundHeight) < 0.5f) {
-                        body.setPosition(new Vector3f(pos.x, groundHeight + size.y / 2 , pos.z));
-                    }
-                    
+                float terrainHeight = getTerrainHeightAtPos(position, staticObj);
+                float playerBottom = bBox.minY;
+                if(playerBottom <= terrainHeight + 5.0f) {
+                    float targetY = terrainHeight + bBox.getSizeY() / 2.0f;
+                    float currentY = position.y;
+                    float yDiff = targetY - currentY;
+
+                    position.y = targetY;
+                    body.setPosition(position);
+                    body.setOnGround(true);
+
                     Vector3f velocity = body.getVelocity();
-                    if(velocity.y < 0) {
-                        velocity.y = 0;
-                        body.setVelocity(velocity);
-                    }
+                    if(velocity.y < 0) velocity.y = 0;
+                    body.setVelocity(velocity);
                 }
+
                 return;
             }
         }
@@ -179,5 +179,9 @@ public class CollisionManager {
                 }
             }
         }
+    }
+
+    private float getTerrainHeightAtPos(Vector3f position, StaticObject terrain) {
+        return terrain.getHeightAtWorld(position.x, position.z);
     }
 }
