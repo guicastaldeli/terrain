@@ -20,7 +20,12 @@ public class TreeGenerator {
     public float respawnTimer;
     public Random random;
 
-    public TreeGenerator(TreeData treeData, Vector3f position, Mesh mesh, Spawner spawner) {
+    public TreeGenerator(
+        TreeData treeData, 
+        Vector3f position, 
+        Mesh mesh, 
+        Spawner spawner
+    ) {
         this.treeData = treeData;
         this.position = position;
         this.mesh = mesh;

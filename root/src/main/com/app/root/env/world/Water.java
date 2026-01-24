@@ -1,12 +1,41 @@
 package main.com.app.root.env.world;
+import main.com.app.root.Tick;
+import main.com.app.root.collision.CollisionManager;
+import main.com.app.root.collision.types.DynamicObject;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
+import main.com.app.root.player.RigidBody;
+import org.joml.Vector3f;
 
 public class Water {
+    public static DynamicObject collider;
+
     public static final float LEVEL = 50.0f;
+    public static final float MIN_DEPTH = 48.0f;
+    public static final float MIN_Y = LEVEL - MIN_DEPTH;
 
     public static String getId(int chunkX, int chunkZ) {
         return "water_" + chunkX + "_" + chunkZ;
+    }
+
+    /**
+     * Add Collider
+     */
+    public static void addCollider(CollisionManager collisionManager) {
+        RigidBody rigidBody = new RigidBody(
+            Tick.instance,
+            new Vector3f(0, LEVEL - (MIN_DEPTH / 2), 0),
+            new Vector3f(
+                WorldGenerator.WORLD_SIZE, 
+                MIN_DEPTH, 
+                WorldGenerator.WORLD_SIZE
+            )
+        );
+        rigidBody.setStatic(true);
+        rigidBody.setGravityEnabled(false);
+
+        Water.collider = new DynamicObject(rigidBody, "WATER");
+        collisionManager.addStaticCollider(collider);
     }
 
     /**

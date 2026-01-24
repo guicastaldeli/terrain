@@ -14,11 +14,13 @@ public class RigidBody {
     private float mass;
     private boolean isStatic;
     private boolean onGround;
+    private boolean isInWater = false;
 
     private boolean gravityEnabled = true;
     private float gravity = -9.81f;
     private float gravityScale = 3.0f;
     private float drag = 0.1f;
+    private float submergedRatio = 0.0f;
 
     public RigidBody(Tick tick, Vector3f position, Vector3f size) {
         this.tick = tick;
@@ -44,6 +46,7 @@ public class RigidBody {
     public void setPosition(Vector3f position) { 
         this.position.set(position); 
     }
+
     public Vector3f getPosition() { 
         return new Vector3f(position); 
     }
@@ -54,6 +57,7 @@ public class RigidBody {
     public void setVelocity(Vector3f velocity) { 
         this.velocity.set(velocity); 
     }
+
     public Vector3f getVelocity() { 
         return new Vector3f(velocity); 
     }
@@ -64,6 +68,7 @@ public class RigidBody {
     public void setSize(Vector3f size) { 
         this.size.set(size); 
     }
+
     public Vector3f getSize() { 
         return new Vector3f(size); 
     }
@@ -74,8 +79,25 @@ public class RigidBody {
     public void setOnGround(boolean onGround) { 
         this.onGround = onGround; 
     }
+
     public boolean isOnGround() { 
         return onGround; 
+    }
+
+    /**
+     * In Water
+     */
+    public void setInWater(boolean inWater, float ratio) {
+        this.isInWater = inWater;
+        this.submergedRatio = ratio;
+    }
+
+    public boolean isInWater() {
+        return isInWater;
+    }
+
+    public float getSubmergetRatio() {
+        return submergedRatio;
     }
     
     /**
@@ -84,6 +106,7 @@ public class RigidBody {
     public void setStatic(boolean isStatic) { 
         this.isStatic = isStatic; 
     }
+
     public boolean isStatic() { 
         return isStatic; 
     }
@@ -94,20 +117,18 @@ public class RigidBody {
     public float getMass() { 
         return mass; 
     }
+
     public void setMass(float mass) { 
         this.mass = mass; 
     }
     
     /**
-     * Gravity Scale
+     * Gravity
      */
     public void setGravityScale(float scale) { 
         this.gravityScale = scale; 
     }
 
-    /**
-     * Gravity
-     */
     public void setGravityEnabled(boolean enabled) {
         this.gravityEnabled = enabled;
     }
@@ -137,24 +158,28 @@ public class RigidBody {
         float deltaTime = tick.getDeltaTime();
         if(isStatic) return;
 
+        /*
         if(!onGround && gravityEnabled) {
-            applyForce(
-                new Vector3f(0, gravity * mass * gravityScale, 0)
-            );
+            if(isInWater) {
+                float buoyancyForce = 300.0f * submergedRatio * mass;
+                applyForce(new Vector3f(0, buoyancyForce, 0));
+                applyForce(new Vector3f(0, gravity * mass * gravityScale * 0.3f, 0));
+            } else {
+                applyForce(new Vector3f(0, gravity * mass * gravityScale, 0));
+            }
         }
+            */
+
+        applyForce(new Vector3f(0, gravity * mass * gravityScale, 0));
         velocity.add(acceleration.mul(deltaTime, new Vector3f()));
         velocity.mul(1.0f - (drag * deltaTime));
-        
-        Vector3f newPosition = new Vector3f(position).add(
+
+        Vector3f newPosition = 
+            new Vector3f(position).add(
             velocity.mul(deltaTime, new Vector3f())
         );
-
         position.set(newPosition);
+        
         acceleration.set(0, 0, 0);
     }
 }
-
-
-
-
-

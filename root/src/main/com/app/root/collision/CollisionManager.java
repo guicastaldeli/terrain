@@ -43,6 +43,14 @@ public class CollisionManager {
     public CollisionResult checkCollision(RigidBody body) {
         BoundingBox bodyBounds = body.getBoundingBox();
         
+        /* Dynamic */
+        for(Collider collider : staticColliders) {
+            if(collider instanceof DynamicObject) {
+                DynamicObject dynamicObj = (DynamicObject) collider;
+                CollisionResult collision = dynamicObj.checkCollision(bodyBounds);
+                if(collision.collided) return collision;
+            }
+        }
         /* Map */
         for(Collider collider : staticColliders) {
             if(collider instanceof StaticObject) {
@@ -66,18 +74,6 @@ public class CollisionManager {
                         return result;
                     }
                 }
-            }
-        }
-        /* Dynamic */
-        for(Collider collider : dynamicColliders) {
-            if(collider.getRigidBody() == body) continue;
-
-            BoundingBox collBounds = collider.getBoundingBox();
-            if(bodyBounds.intersects(collBounds)) {
-                CollisionResult result = calcCollisionResponse(bodyBounds, collBounds);
-                result.otherCollider = collider;
-                result.type = CollisionType.DYNAMIC_OBJECT;
-                return result;
             }
         }
 
@@ -115,48 +111,49 @@ public class CollisionManager {
      * Resolve Collision
      */
     public void resolveCollision(RigidBody body, CollisionResult collision) {
-        if(!collision.collided) return;
+        if(!collision.collided) {
+            body.setInWater(false, 0.0f);
+            return;
+        }
 
+        Vector3f position = body.getPosition();
+        BoundingBox bBox = body.getBoundingBox();
+
+        if(collision.otherCollider instanceof DynamicObject) {
+            DynamicObject.resolveCollision(
+                position, 
+                bBox, 
+                body, 
+                collision
+            );
+            return;
+        }
+        body.setInWater(false, 0.0f);
         if(collision.otherCollider instanceof StaticObject) {
-            StaticObject staticObj = (StaticObject) collision.otherCollider;
-            if(staticObj.isMap()) {
-                Vector3f position = body.getPosition();
-                BoundingBox bBox = body.getBoundingBox();
-
-                float terrainHeight = getTerrainHeightAtPos(position, staticObj);
-                float playerBottom = bBox.minY;
-                if(playerBottom <= terrainHeight + 5.0f) {
-                    float targetY = terrainHeight + bBox.getSizeY() / 2.0f;
-                    float currentY = position.y;
-                    float yDiff = targetY - currentY;
-
-                    position.y = targetY;
-                    body.setPosition(position);
+            StaticObject.resolveCollision(
+                position,
+                bBox,
+                body, 
+                collision
+            );
+        }
+        else {
+            Vector3f correction = new Vector3f(collision.normal).mul(collision.depth);
+            body.setPosition(body.getPosition().add(correction));
+    
+            Vector3f velocity = body.getVelocity();
+            float dot = velocity.dot(collision.normal);
+            if(dot < 0) {
+                velocity.sub(collision.normal.mul(dot, new Vector3f()));
+                if(collision.normal.y > 0.5f) {
                     body.setOnGround(true);
-
-                    Vector3f velocity = body.getVelocity();
-                    if(velocity.y < 0) velocity.y = 0;
-                    body.setVelocity(velocity);
                 }
-
-                return;
             }
+            body.setVelocity(velocity);
+    
+            if(collision.otherCollider != null) collision.otherCollider.onCollision(collision);
         }
 
-        Vector3f correction = new Vector3f(collision.normal).mul(collision.depth);
-        body.setPosition(body.getPosition().add(correction));
-
-        Vector3f velocity = body.getVelocity();
-        float dot = velocity.dot(collision.normal);
-        if(dot < 0) {
-            velocity.sub(collision.normal.mul(dot, new Vector3f()));
-            if(collision.normal.y > 0.5f) {
-                body.setOnGround(true);
-            }
-        }
-        body.setVelocity(velocity);
-
-        if(collision.otherCollider != null) collision.otherCollider.onCollision(collision);
     }
 
     /**
@@ -179,9 +176,5 @@ public class CollisionManager {
                 }
             }
         }
-    }
-
-    private float getTerrainHeightAtPos(Vector3f position, StaticObject terrain) {
-        return terrain.getHeightAtWorld(position.x, position.z);
     }
 }

@@ -116,13 +116,7 @@ public class PlayerInputMap {
             playerController.updatePosition(PlayerController.MovDir.UP, keyPressed[GLFW_KEY_SPACE]);
             playerController.updatePosition(PlayerController.MovDir.DOWN, keyPressed[GLFW_KEY_LEFT_SHIFT]);
         } else {
-            if(keyPressed[GLFW_KEY_SPACE]) {
-                playerController.updatePosition(PlayerController.MovDir.UP, true);
-                keyPressed[GLFW_KEY_SPACE] = false;
-            }
-            if(keyPressed[GLFW_KEY_LEFT_SHIFT]) {
-                playerController.updatePosition(PlayerController.MovDir.DOWN, true);
-            }
+            playerController.updatePosition(PlayerController.MovDir.UP, keyPressed[GLFW_KEY_SPACE]);
         }
     }
 

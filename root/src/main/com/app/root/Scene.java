@@ -43,8 +43,6 @@ public class Scene {
         this.dataController = dataController;
         this.stateController = stateController;
         this.shaderProgram = shaderProgram;
-
-        //this.upgrader = new Upgrader(null);
     }
 
     public DataGetter getDataGetter() {
@@ -147,9 +145,6 @@ public class Scene {
      */
     public void init(boolean reset) {
         if(!init) {
-            if(reset) {
-            cleanup();
-        }
             this.collisionManager = new CollisionManager();
 
             this.mesh = new Mesh(tick, shaderProgram);
@@ -183,6 +178,8 @@ public class Scene {
 
             dataGetter.setEnvController(envController);
             spawner.setEnvController(envController);
+
+            this.upgrader = initUpgrader(envController);
 
             if(reset || playerController == null) {
                 this.playerController = new PlayerController(

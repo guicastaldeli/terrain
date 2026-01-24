@@ -1,7 +1,7 @@
 package main.com.app.root;
 
 public class Tick {
-    private static Tick instance;
+    public static Tick instance;
 
     private final Window window;
     private final TimeCycle timeCycle;

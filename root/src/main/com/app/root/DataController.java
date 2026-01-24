@@ -28,24 +28,7 @@ public class DataController implements Serializable {
     private int itemsCollected;
 
     public DataController() {
-        /* World */
-        worldSeed = System.currentTimeMillis();
-        worldTime = 0;
-
-        /* Player */
-        playerPos = new Vector3f(0, 0, 0);
-        playerRotation = new Vector3f(0, 0, 0);
-
-        /* State */
         items = new ArrayList<>();
-
-        /* Settings */
-        masterVolume = 1.0f;
-        musicVolume = 0.8f;
-        sfxVolume = 0.8f;
-
-        playTimeSecs = 0;
-        itemsCollected = 0;
     }
 
     /* World */
@@ -131,8 +114,6 @@ public class DataController implements Serializable {
         this.worldTime = 0L;
         this.playTimeSecs = 0;
         this.itemsCollected = 0;
-        if(this.items != null) {
-            this.items.clear();
-        }
+        if(this.items != null) this.items.clear();
     }
 }

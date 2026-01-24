@@ -326,11 +326,13 @@ public class PlayerController {
             }
         }
         
-        if(onJump && rigidBody.isOnGround()) {
-            Vector3f currVel = rigidBody.getVelocity();
-            currVel.y = jumpForce;
-            rigidBody.setVelocity(currVel);
-            onJump = false;
+        if(onJump) {
+            if(rigidBody.isOnGround()) {
+                Vector3f currVel = rigidBody.getVelocity();
+                currVel.y = jumpForce;
+                rigidBody.setVelocity(currVel);
+                onJump = false;
+            }
         }
 
         rigidBody.update();
@@ -375,8 +377,13 @@ public class PlayerController {
                 movingRight = isPressed;
                 break;
             case UP:
-                if(isPressed && !flyMode) jump();
-                if(flyMode) movingUp = isPressed;
+                if(flyMode) {
+                    movingUp = isPressed;
+                } else {
+                    if(isPressed && !onJump) {
+                        onJump = true;
+                    }
+                }
                 break;
             case DOWN:
                 if(flyMode) movingDown = isPressed;

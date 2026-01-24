@@ -49,7 +49,12 @@ public class WorldGenerator {
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
         this.meshRenderer = meshRenderer;
+
         this.noiseGeneratorWrapper = new NoiseGeneratorWrapper();
+        if(!noiseGeneratorWrapper.initNoise(dataController.getWorldSeed(), WORLD_SIZE)) {
+            System.err.println("Failed to initialize noise system");
+        }
+        
         this.dataController = dataController;
         this.stateController = stateController;
         this.collisionManager = collisionManager;
@@ -59,6 +64,7 @@ public class WorldGenerator {
             mesh, 
             null
         );
+        Water.addCollider(collisionManager);
         addMapCollider();
     }
 
@@ -164,11 +170,6 @@ public class WorldGenerator {
     }
 
     public void render(float playerX, float playerZ) {
-        if(!noiseGeneratorWrapper.initNoise(dataController.getWorldSeed(), WORLD_SIZE)) {
-            System.err.println("Failed to initialize noise system in render");
-            return;
-        }
-
         chunk.updateChunks(playerX, playerZ);
         chunk.processChunkLoading();
         
@@ -183,12 +184,7 @@ public class WorldGenerator {
     /**
      * Update
      */
-    public void update(float playerX, float playerZ) {
-        if(!noiseGeneratorWrapper.initNoise(dataController.getWorldSeed(), WORLD_SIZE)) {
-            System.err.println("Failed to initialize noise system in render");
-            return;
-        }
-        
+    public void update(float playerX, float playerZ) {        
         chunk.updateChunks(playerX, playerZ);
         chunk.processChunkLoading();
         for(String chunkId : chunk.loadedChunks.keySet()) {

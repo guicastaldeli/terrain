@@ -220,4 +220,39 @@ public class StaticObject implements Collider {
     public boolean isMap() {
         return isMap;
     }
+
+    /**
+     * Resolve Collision
+     */
+    public static void resolveCollision(
+        Vector3f position,
+        BoundingBox bBox,
+        RigidBody body, 
+        CollisionResult collision
+    ) {
+        StaticObject staticObj = (StaticObject) collision.otherCollider;
+        if(staticObj.isMap()) {
+            float terrainHeight = getHeightAtPos(position, staticObj);
+            float playerBottom = bBox.minY;
+            if(playerBottom <= terrainHeight + 5.0f) {
+                float targetY = terrainHeight + bBox.getSizeY() / 2.0f;
+                float currentY = position.y;
+                float yDiff = targetY - currentY;
+
+                position.y = targetY;
+                body.setPosition(position);
+                body.setOnGround(true);
+
+                Vector3f velocity = body.getVelocity();
+                if(velocity.y < 0) velocity.y = 0;
+                body.setVelocity(velocity);
+            }
+
+            return;
+        }
+    }
+
+    private static float getHeightAtPos(Vector3f position, StaticObject obj) {
+        return obj.getHeightAtWorld(position.x, position.z);
+    }
 }
