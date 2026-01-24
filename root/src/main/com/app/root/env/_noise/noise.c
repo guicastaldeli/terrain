@@ -207,8 +207,12 @@ void generateRivers(
     free(sources->points);
 }
 
-void initSystems(unsigned long seed) {
-    srand(seed);
+void initSystems(unsigned long long seed) {
+    unsigned int seed32 = (unsigned int)(seed ^ (seed >> 32));
+    srand(seed32);
+    
+    islandsInitialized = 0;
+    islandCount = 0;
 
     for(int i = 0; i < 256; i++) {
         permutation[i] = i;
@@ -223,7 +227,7 @@ void initSystems(unsigned long seed) {
         permutation[256 + i] = permutation[i];
     }
     for(int i = 0; i < 512; i++) {
-        float angle = (float)rand() / RAND_MAX * 2 * PI;
+        float angle = (float)rand() / RAND_MAX * 2.0f * M_PI;
         gradients[i].x = cosf(angle);
         gradients[i].y = sinf(angle);
     }
@@ -235,5 +239,5 @@ void initSystems(unsigned long seed) {
     };
     memcpy(simplexGradients, grad3, sizeof(grad3));
 
-    //printf("Initalized with seed: %lu\n", seed);
+    printf("initSystems called with seed: %llu (32-bit: %u)\n", seed, seed32);
 }

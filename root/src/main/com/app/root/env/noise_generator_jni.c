@@ -23,21 +23,26 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_init
     jlong seed,
     jint worldSize
 ) {
-    initSystems((unsigned long)seed);
-    
     if(globalCollection != NULL) {
         freePointCollection(globalCollection);
         free(globalCollection);
+        globalCollection = NULL;
     }
     
+    initSystems((unsigned long long)seed);
+    
     globalCollection = malloc(sizeof(PointCollection));
+    if(globalCollection == NULL) {
+        printf("Failed to allocate memory for globalCollection\n");
+        return JNI_FALSE;
+    }
+    
     initCollection(globalCollection, 50);
     generatePoints(globalCollection, worldSize, 15);
     
-    /*
-    printf("Noise system initialized with seed %lu, %d points generated\n", 
-           (unsigned long)seed, globalCollection->count);
-        */
+    printf("Noise system initialized with seed %llu, %d points generated\n", 
+           (unsigned long long)seed, globalCollection->count); 
+    
     return JNI_TRUE;
 }
 
@@ -394,4 +399,46 @@ JNIEXPORT jfloat JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_fractu
     jfloat lacunarity
 ) {
     return fractualSimplexNoise(x, y, octaves, persistence, lacunarity);
+}
+
+JNIEXPORT void JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_reset(
+    JNIEnv *env, 
+    jobject obj
+) {
+    if(heightMapData) {
+        free(heightMapData);
+        heightMapData = NULL;
+    }
+    if(indicesData) {
+        free(indicesData);
+        indicesData = NULL;
+    }
+    if(normalsData) {
+        free(normalsData);
+        normalsData = NULL;
+    }
+    if(colorsData) {
+        free(colorsData);
+        colorsData = NULL;
+    }
+    if(pointData) {
+        free(pointData);
+        pointData = NULL;
+    }
+    
+    if(globalCollection != NULL) {
+        freePointCollection(globalCollection);
+        free(globalCollection);
+        globalCollection = NULL;
+    }
+    
+    mapWidth = 0;
+    mapHeight = 0;
+    vertexCount = 0;
+    indexCount = 0;
+    pointCount = 0;
+    islandsInitialized = 0;
+    islandCount = 0;
+    
+    printf("NoiseGeneratorWrapper reset - all memory freed\n");
 }

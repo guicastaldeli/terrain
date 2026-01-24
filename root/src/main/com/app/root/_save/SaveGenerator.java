@@ -3,6 +3,10 @@ import main.com.app.root.DataController;
 import main.com.app.root.MainData;
 import main.com.app.root.Scene;
 import main.com.app.root.StateController;
+import main.com.app.root.env.EnvCall;
+import main.com.app.root.env.EnvController;
+import main.com.app.root.env.EnvData;
+import main.com.app.root.env.world.WorldGenerator;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
@@ -12,6 +16,7 @@ public class SaveGenerator {
     private final DataController dataController;
     private final StateController stateController;
     private final DataGetter dataGetter;
+    private EnvController envController;
 
     private Scene scene;
 
@@ -29,6 +34,10 @@ public class SaveGenerator {
         this.scene = scene;
     }
 
+    public void setEnvController(EnvController envController) {
+        this.envController = envController;
+    }
+
     /**
      * Generate New Save
      */
@@ -43,9 +52,24 @@ public class SaveGenerator {
         stateController.setCurrentSaveId(saveId);
         stateController.setLoadInProgress(true);
 
+        long newSeed = System.nanoTime();
+    
         scene.reset();
-        dataController.reset();
 
+        dataController.setWorldSeed(newSeed);
+        
+        Object worldController = envController.getEnv(EnvData.MAP);
+        if(worldController != null) {
+            Object generator = EnvCall.callReturn(worldController, "getGenerator");
+            if(generator != null && generator instanceof WorldGenerator) {
+                WorldGenerator worldGenerator = (WorldGenerator) generator;
+                worldGenerator.resetSeed(newSeed);
+            }
+        }
+        
+        System.out.println("New save created with unified seed: " + newSeed);
+    
+        
         Date currentDate = new Date();
         String creationDate = DateFormat.getDateTimeInstance(
             DateFormat.DEFAULT,

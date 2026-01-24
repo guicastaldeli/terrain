@@ -111,6 +111,7 @@ public class Main {
         scene.setInputController(inputController);
         
         scene.setDataGetter(dataGetter);
+        scene.setSaveGenerator(saveGenerator);
         saveGenerator.setScene(scene);
         saveLoader.setScene(scene);
         

@@ -4,12 +4,8 @@
 #include <math.h>
 
 static Island islands[MAX_ISLANDS];
-static int islandCount = 0;
-static int islandsInitialized = 0;
 
 void initializeIslands(int worldSize) {
-    if (islandsInitialized) return;
-    
     islandCount = MAX_ISLANDS;
 
     int gridSize = (int)sqrt(MAX_ISLANDS);
@@ -58,6 +54,10 @@ float generateHeightMap(
     int worldSize,
     PointCollection* collection
 ) {
+    if(collection == NULL) {
+        printf("WARNING: PointCollection is null, using fallback height generation\n");
+        return fractualSimplexNoise(worldX * 0.01f, worldZ * 0.01f, 4, 0.5f, 2.0f) * 100.0f;
+    }
     if(!islandsInitialized) {
         initializeIslands(worldSize);
     }

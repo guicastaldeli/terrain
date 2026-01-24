@@ -21,7 +21,7 @@ public class Water {
     /**
      * Add Collider
      */
-    public static void addCollider(CollisionManager collisionManager) {
+    public static void addCollider(WorldGenerator worldGenerator, CollisionManager collisionManager) {
         RigidBody rigidBody = new RigidBody(
             Tick.instance,
             new Vector3f(0, MIN_Y + (MIN_DEPTH / 2), 0),
@@ -34,7 +34,11 @@ public class Water {
         rigidBody.setStatic(true);
         rigidBody.setGravityEnabled(false);
 
-        Water.collider = new DynamicObject(rigidBody, "WATER");
+        Water.collider = new DynamicObject(
+            rigidBody,
+            worldGenerator,
+            "WATER"
+        );
         collisionManager.addStaticCollider(collider);
     }
 

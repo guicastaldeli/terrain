@@ -43,40 +43,29 @@ public class CollisionManager {
     public CollisionResult checkCollision(RigidBody body) {
         BoundingBox bodyBounds = body.getBoundingBox();
         
-        /* Dynamic */
         for(Collider collider : staticColliders) {
             if(collider instanceof DynamicObject) {
                 DynamicObject dynamicObj = (DynamicObject) collider;
-                CollisionResult collision = dynamicObj.checkCollision(bodyBounds);
-                if(collision.collided) return collision;
-            }
-        }
-        /* Map */
-        for(Collider collider : staticColliders) {
-            if(collider instanceof StaticObject) {
-                StaticObject staticObj = (StaticObject) collider;
-                if(staticObj.isMap()) {
-                    CollisionResult mapCollision = staticObj.checkMapCollision(bodyBounds);
-                    if(mapCollision.collided) return mapCollision;
-                }
-            }
-        }
-        /* Static */
-        for(Collider collider : staticColliders) {
-            if(collider instanceof StaticObject) {
-                StaticObject staticObj = (StaticObject) collider;
-                if(!staticObj.isMap()) {
-                    BoundingBox collBounds = collider.getBoundingBox();
-                    if(bodyBounds.intersects(collBounds)) {
-                        CollisionResult result = calcCollisionResponse(bodyBounds, collBounds);
-                        result.otherCollider = collider;
-                        result.type = CollisionType.STATIC_OBJECT;
+                if("WATER".equals(dynamicObj.getObjectType())) {
+                    CollisionResult result = dynamicObj.checkCollision(bodyBounds);
+                    if(result.collided) {
                         return result;
                     }
                 }
             }
         }
-
+        for(Collider collider : staticColliders) {
+            if(collider instanceof StaticObject) {
+                StaticObject staticObj = (StaticObject) collider;
+                if(staticObj.isMap()) {
+                    CollisionResult result = staticObj.checkMapCollision(bodyBounds);
+                    if(result.collided) {
+                        return result;
+                    }
+                }
+            }
+        }
+        
         return new CollisionResult();
     }
 
@@ -129,7 +118,6 @@ public class CollisionManager {
             );
             return;
         }
-        body.setInWater(false, 0.0f);
         if(collision.otherCollider instanceof StaticObject) {
             StaticObject.resolveCollision(
                 position,
@@ -137,11 +125,10 @@ public class CollisionManager {
                 body, 
                 collision
             );
-        }
-        else {
+        } else {
             Vector3f correction = new Vector3f(collision.normal).mul(collision.depth);
             body.setPosition(body.getPosition().add(correction));
-    
+
             Vector3f velocity = body.getVelocity();
             float dot = velocity.dot(collision.normal);
             if(dot < 0) {
@@ -151,10 +138,14 @@ public class CollisionManager {
                 }
             }
             body.setVelocity(velocity);
-    
+
             if(collision.otherCollider != null) collision.otherCollider.onCollision(collision);
         }
-
+        if(!(collision.otherCollider instanceof DynamicObject) || 
+            !"WATER".equals(((DynamicObject)collision.otherCollider).getObjectType())
+        ) {
+            body.setInWater(false, 0.0f);
+        }
     }
 
     /**

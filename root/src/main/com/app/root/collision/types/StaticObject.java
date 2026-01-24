@@ -6,6 +6,7 @@ import main.com.app.root.collision.Collider;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.CollisionResult;
 import main.com.app.root.collision.CollisionManager.CollisionType;
+import main.com.app.root.env.world.Water;
 import main.com.app.root.player.RigidBody;
 
 public class StaticObject implements Collider {
@@ -227,6 +228,22 @@ public class StaticObject implements Collider {
         if(staticObj.isMap()) {
             float terrainHeight = getHeightAtPos(position, staticObj);
             float playerBottom = bBox.minY;
+
+            boolean wasInWater = body.isInWater();
+            boolean isAboveWater = playerBottom > Water.LEVEL;
+            if(wasInWater && isAboveWater && terrainHeight > Water.LEVEL) {
+                float targetY = terrainHeight + bBox.getSizeY() / 2.0f;
+                position.y = targetY;
+                body.setPosition(position);
+                body.setOnGround(true);
+                body.setInWater(false, 0.0f);
+
+                Vector3f vel = body.getVelocity();
+                if(vel.y < 0) vel.y = 0;
+                body.setVelocity(vel);
+
+                return;
+            }
             if(playerBottom <= terrainHeight + 5.0f && body.getVelocity().y <= 0) {
                 float targetY = terrainHeight + bBox.getSizeY() / 2.0f;
                 if(playerBottom <= terrainHeight + 2.0f) {
@@ -234,9 +251,9 @@ public class StaticObject implements Collider {
                     body.setPosition(position);
                     body.setOnGround(true);
     
-                    Vector3f velocity = body.getVelocity();
-                    if(velocity.y < 0) velocity.y = 0;
-                    body.setVelocity(velocity);
+                    Vector3f vel = body.getVelocity();
+                    if(vel.y < 0) vel.y = 0;
+                    body.setVelocity(vel);
                 }
             }
 
@@ -244,7 +261,7 @@ public class StaticObject implements Collider {
         }
     }
 
-    private static float getHeightAtPos(Vector3f position, StaticObject obj) {
+    public static float getHeightAtPos(Vector3f position, StaticObject obj) {
         return obj.getHeightAtWorld(position.x, position.z);
     }
 }

@@ -511,4 +511,28 @@ public class Chunk {
             }
         }
     }
+
+    /**
+     * Clear
+     */
+    public void clear() {
+        synchronized(chunkLock) {
+            for(String chunkId : new ArrayList<>(loadedChunks.keySet())) {
+                unload(chunkId);
+            }
+            loadedChunks.clear();
+    
+            for(String chunkId : new ArrayList<>(cachedChunks.keySet())) {
+                ChunkData chunkData = cachedChunks.get(chunkId);
+                if(chunkData.collider != null) {
+                    collisionManager.removeCollider(chunkData.collider);
+                }
+                cachedChunks.remove(chunkId);
+            }
+            cachedChunks.clear();
+    
+            chunksToLoad.clear();
+            lastProcessedIndex = 0;
+        }
+    }
 }

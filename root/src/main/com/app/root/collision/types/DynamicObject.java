@@ -4,31 +4,52 @@ import main.com.app.root.collision.Collider;
 import main.com.app.root.collision.CollisionResult;
 import main.com.app.root.collision.CollisionManager.CollisionType;
 import main.com.app.root.env.world.Water;
+import main.com.app.root.env.world.WorldGenerator;
 import main.com.app.root.player.RigidBody;
 import org.joml.Vector3f;
 
 public class DynamicObject implements Collider {
+    private DynamicObject instance;
+
     private RigidBody rigidBody;
     private BoundingBox bBox;
     private String objectType;
+    public WorldGenerator worldGenerator;
     
     public DynamicObject(RigidBody rigidBody, String objectType) {
         this.rigidBody = rigidBody;
         this.objectType = objectType;
         updateBounds();
     }
-    
+    public DynamicObject(
+        RigidBody rigidBody, 
+        WorldGenerator worldGenerator,
+        String objectType
+    ) {
+        this.rigidBody = rigidBody;
+        this.objectType = objectType;
+        this.worldGenerator = worldGenerator;
+        updateBounds();
+    }
     public DynamicObject(RigidBody rigidBody) {
         this(rigidBody, "");
     }
 
-    public static void waterAction(
+    public void waterAction(
         Vector3f position,
         RigidBody body,
         BoundingBox bBox,
         float submergedRatio
     ) {
         float playerBottomY = position.y - bBox.getSizeY() / 2;
+
+        float terrainHeight = worldGenerator.getHeightAt(position.x, position.z);
+        boolean shouldTransitionToLand = terrainHeight > Water.LEVEL && playerBottomY > Water.LEVEL - 1.0f;
+        if(shouldTransitionToLand) {
+            body.setInWater(false, 0.0f);
+            return;
+        }
+        
         if(playerBottomY < Water.MIN_Y) {
             position.y = Water.MIN_Y + bBox.getSizeY() / 2;
             body.setPosition(position);
@@ -130,8 +151,16 @@ public class DynamicObject implements Collider {
         DynamicObject dynamicObj = (DynamicObject) collision.otherCollider;
         if("WATER".equals(dynamicObj.getObjectType())) {
             float submergedRatio = collision.depth / bBox.getSizeY();
+            float playerBottom = position.y - bBox.getSizeY() / 2;
+
+            boolean isLeavingWater = playerBottom > Water.LEVEL - 0.1f;
+            if(isLeavingWater) {
+                body.setInWater(false, 0.0f);
+                return;
+            }
+            
             if(submergedRatio > 0) {
-                waterAction(
+                dynamicObj.waterAction(
                     position, 
                     body, 
                     bBox, 

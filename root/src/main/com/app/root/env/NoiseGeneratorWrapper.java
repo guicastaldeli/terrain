@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 
 public class NoiseGeneratorWrapper {
     private static final String DLL_PATH = "root/src/main/com/app/root/env/_noise/.build/";
+    long newSeed = 162292547585900L;
     
     static {
         loadNativeLibraries();
@@ -105,4 +106,6 @@ public class NoiseGeneratorWrapper {
 
     public native float[] getPointData();
     public native int getPointCount();
+
+    public native void reset();
 }

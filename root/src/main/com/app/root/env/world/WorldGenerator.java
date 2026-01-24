@@ -18,6 +18,7 @@ public class WorldGenerator {
     private final CollisionManager collisionManager;
     private final Mesh mesh;
     private final MeshRenderer meshRenderer;
+    private final Chunk chunk;
     private MeshData meshData;
     private StaticObject collider;
 
@@ -29,7 +30,8 @@ public class WorldGenerator {
     private boolean isReady = false;
     private Runnable onReadyCallback;
 
-    private final Chunk chunk;
+    private boolean noiseInitialized = false;
+    private long currentSeed = -1;
 
     private static final String MAP_ID = "MAP_ID";
 
@@ -51,8 +53,14 @@ public class WorldGenerator {
         this.meshRenderer = meshRenderer;
 
         this.noiseGeneratorWrapper = new NoiseGeneratorWrapper();
-        if(!noiseGeneratorWrapper.initNoise(dataController.getWorldSeed(), WORLD_SIZE)) {
-            System.err.println("Failed to initialize noise system");
+        this.currentSeed = dataController.getWorldSeed();
+        if(!noiseInitialized) {
+            if(!noiseGeneratorWrapper.initNoise(currentSeed, WORLD_SIZE)) {
+                System.err.println("Failed to initialize noise system");
+            } else {
+                noiseInitialized = true;
+                System.out.println("Noise system initialized with seed " + currentSeed);
+            }
         }
         
         this.dataController = dataController;
@@ -64,7 +72,7 @@ public class WorldGenerator {
             mesh, 
             null
         );
-        Water.addCollider(collisionManager);
+        Water.addCollider(this, collisionManager);
         addMapCollider();
     }
 
@@ -192,11 +200,43 @@ public class WorldGenerator {
         }
     }
 
+    /**
+     * Reset Seed
+     */
+    public void resetSeed(long newSeed) {
+        currentSeed = newSeed;
+        
+        if(chunk != null) {
+            chunk.clear();
+        }
+
+        isReady = false;
+        
+        if(noiseGeneratorWrapper != null) {
+            try {
+                noiseGeneratorWrapper.reset();
+                noiseInitialized = false;
+                if(!noiseGeneratorWrapper.initNoise(currentSeed, WORLD_SIZE)) {
+                    System.err.println("Failed to reinitialize noise system after reset");
+                } else {
+                    noiseInitialized = true;
+                    System.out.println("WorldGenerator reinitialized with seed: " + currentSeed);
+                }
+            } catch(Exception err) {
+                err.printStackTrace();
+            }
+        }
+    }
+
     public boolean isReady() {
         return isReady;
     }
 
     public Chunk getChunk() {
         return chunk;
+    }
+
+    public NoiseGeneratorWrapper getNoiseGeneratorWrapper() {
+        return noiseGeneratorWrapper;
     }
 }

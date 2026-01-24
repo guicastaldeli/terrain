@@ -52,11 +52,14 @@ public class EnvCall {
             String lastMethodName = method[method.length - 1];
             Class<?>[] paramTypes = new Class<?>[params.length];
             for(int i = 0; i < params.length; i++) {
-                paramTypes[i] = params[i].getClass();
                 if(params[i] instanceof Float) {
                     paramTypes[i] = float.class;
                 } else if(params[i] instanceof Integer) {
                     paramTypes[i] = int.class;
+                } else if(params[i] instanceof Long) {
+                    paramTypes[i] = long.class;
+                } else {
+                    paramTypes[i] = params[i].getClass();
                 }
             }
             
@@ -80,6 +83,8 @@ public class EnvCall {
                     paramTypes[i] = double.class;
                 } else if(params[i] instanceof Boolean) {
                     paramTypes[i] = boolean.class;
+                } else if(params[i] instanceof Long) {
+                    paramTypes[i] = long.class;
                 } else {
                     paramTypes[i] = params[i].getClass();
                 }

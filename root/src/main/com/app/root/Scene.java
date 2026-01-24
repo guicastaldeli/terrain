@@ -3,6 +3,7 @@ import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player.PlayerController;
 import main.com.app.root.ui.UIController;
 import main.com.app.root._save.DataGetter;
+import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvController;
@@ -15,6 +16,7 @@ public class Scene {
     private final DataController dataController;
     private final StateController stateController;
     private DataGetter dataGetter;
+    private SaveGenerator saveGenerator;
 
     private Mesh mesh;
     private ShaderProgram shaderProgram;
@@ -67,6 +69,10 @@ public class Scene {
 
     public Spawner getSpawner() {
         return spawner;
+    }
+
+    public void setSaveGenerator(SaveGenerator saveGenerator) {
+        this.saveGenerator = saveGenerator;
     }
 
     /**
@@ -175,6 +181,7 @@ public class Scene {
             );
     
             this.envController = new EnvController(dependencyContainer);
+            saveGenerator.setEnvController(getEnvController());
 
             dataGetter.setEnvController(envController);
             spawner.setEnvController(envController);

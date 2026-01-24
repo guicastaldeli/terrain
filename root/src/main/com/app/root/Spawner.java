@@ -5,6 +5,7 @@ import main.com.app.root.env.EnvData;
 import main.com.app.root.env.tree.TreeController;
 import main.com.app.root.env.tree.TreeData;
 import main.com.app.root.env.tree.TreeGenerator;
+import main.com.app.root.env.world.Water;
 import main.com.app.root.mesh.Mesh;
 import java.util.Collections;
 import java.util.HashMap;
@@ -85,13 +86,55 @@ public class Spawner {
         //System.out.println("Spawner initialized with " + treeData.trees.size() + " trees");
     }
 
+    private boolean isValidTreePos(
+        float x,
+        float z,
+        Object worldGenerator
+    ) {
+        float offset = 5.0f;
+
+        Object[] heightParams = new Object[]{x, z};
+        Float height = (Float) EnvCall.callReturnWithParams(worldGenerator, heightParams, "getHeightAt");
+        if(height == null || height < Water.LEVEL + offset) return false;
+        
+        return true;
+    }
+
     /**
      * Spawn Single Tree
      */
     private void spawnSingleTree() {
         if(!isActive || treeData.trees.size() >= maxObjs) return;
-
+        
         Vector3f position = genRandomPos();
+
+        Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
+        Object worldGenerator = EnvCall.callReturn(mapInstance, "getGenerator");
+
+        if(!isValidTreePos(
+            position.x, 
+            position.z, 
+            worldGenerator
+        )) {
+            for(int attempt = 0; attempt < 10; attempt++) {
+                position = genRandomPos();
+                if(isValidTreePos(
+                    position.x, 
+                    position.z, 
+                    worldGenerator
+                )) {
+                    break;
+                }
+            }
+        }
+        if(!isValidTreePos(
+            position.x, 
+            position.z, 
+            worldGenerator
+        )) {
+            return;
+        }
+
         int level = genRandomLevel();
 
         TreeData data = treeData.configs.get(level);
@@ -137,8 +180,42 @@ public class Spawner {
         
         Object[] heightParams = new Object[]{x, z};
         Float height = (Float) EnvCall.callReturnWithParams(worldGenerator, heightParams, "getHeightAt");
+
+        if(height < Water.LEVEL) {
+            findValidPos(x, z, worldGenerator);
+        }
+        if(random.nextFloat() < 0.85f) {
+            if(height < Water.LEVEL) {
+                return findValidPos(x, z, worldGenerator);
+            }
+        }
         
         return new Vector3f(x, height, z);
+    }
+
+    private Vector3f findValidPos(
+        float startX, 
+        float startZ, 
+        Object worldGenerator
+    ) {
+        int maxAttempts = 100;
+        float offset = 5.0f;
+        for(int attempt = 0; attempt < maxAttempts; attempt++) {
+            float searchRadius = 50.0f + (attempt * 20.0f);
+            float searchAngle = random.nextFloat() * (float) Math.PI * 2;
+
+            float x = startX + (float) Math.cos(searchAngle) * searchRadius;
+            float z = startZ + (float) Math.sin(searchAngle) * searchRadius;
+
+            Object[] heightParams = new Object[]{x, z};
+            Float height = (Float) EnvCall.callReturnWithParams(worldGenerator, heightParams, "getHeightAt");
+            
+            if(height != null && height >= Water.LEVEL + offset) {
+                return new Vector3f(x, height, z);
+            }
+        }
+
+        return new Vector3f(startX, Math.max(Water.LEVEL + offset, 0), startZ);
     }
 
     /**
