@@ -125,8 +125,16 @@ public class RigidBody {
     /**
      * Gravity
      */
+    public float getGravity() {
+        return gravity;
+    }
+
     public void setGravityScale(float scale) { 
         this.gravityScale = scale; 
+    }
+
+    public float getGravityScale() {
+        return gravityScale;
     }
 
     public void setGravityEnabled(boolean enabled) {
@@ -157,18 +165,6 @@ public class RigidBody {
     public void update() {
         float deltaTime = tick.getDeltaTime();
         if(isStatic) return;
-
-        /*
-        if(!onGround && gravityEnabled) {
-            if(isInWater) {
-                float buoyancyForce = 300.0f * submergedRatio * mass;
-                applyForce(new Vector3f(0, buoyancyForce, 0));
-                applyForce(new Vector3f(0, gravity * mass * gravityScale * 0.3f, 0));
-            } else {
-                applyForce(new Vector3f(0, gravity * mass * gravityScale, 0));
-            }
-        }
-            */
 
         applyForce(new Vector3f(0, gravity * mass * gravityScale, 0));
         velocity.add(acceleration.mul(deltaTime, new Vector3f()));

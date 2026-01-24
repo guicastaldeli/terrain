@@ -11,7 +11,7 @@ public class Water {
     public static DynamicObject collider;
 
     public static final float LEVEL = 50.0f;
-    public static final float MIN_DEPTH = 48.0f;
+    public static final float MIN_DEPTH = 5.0f;
     public static final float MIN_Y = LEVEL - MIN_DEPTH;
 
     public static String getId(int chunkX, int chunkZ) {
@@ -24,7 +24,7 @@ public class Water {
     public static void addCollider(CollisionManager collisionManager) {
         RigidBody rigidBody = new RigidBody(
             Tick.instance,
-            new Vector3f(0, LEVEL - (MIN_DEPTH / 2), 0),
+            new Vector3f(0, MIN_Y + (MIN_DEPTH / 2), 0),
             new Vector3f(
                 WorldGenerator.WORLD_SIZE, 
                 MIN_DEPTH, 

@@ -22,6 +22,27 @@ public class DynamicObject implements Collider {
         this(rigidBody, "");
     }
 
+    public static void waterAction(
+        Vector3f position,
+        RigidBody body,
+        BoundingBox bBox,
+        float submergedRatio
+    ) {
+        float playerBottomY = position.y - bBox.getSizeY() / 2;
+        if(playerBottomY < Water.MIN_Y) {
+            position.y = Water.MIN_Y + bBox.getSizeY() / 2;
+            body.setPosition(position);
+
+            Vector3f vel = body.getVelocity();
+            if(vel.y < 0) vel.y = 0;
+            body.setVelocity(vel);
+        }
+
+        Vector3f vel = body.getVelocity();
+        vel.mul(0.95f);
+        body.setVelocity(vel);
+    }
+
     /**
      * Update Bounds
      */
@@ -42,22 +63,7 @@ public class DynamicObject implements Collider {
     /**
      * Handle Collision
      */
-    private void handleCollision(CollisionResult coll) {
-        switch (objectType) {
-            case "WATER":
-                rigidBody.applyForce(new Vector3f(0, 5.0f * rigidBody.getMass(), 0));
-                Vector3f vel = rigidBody.getVelocity();
-                vel.mul(0.8f);
-                rigidBody.setVelocity(vel);
-                break;
-            case "PLAYER":
-                System.out.println("Player collided with something");
-                break;
-                
-            default:
-                break;
-        }
-    }
+    private void handleCollision(CollisionResult coll) {}
 
     /**
      * Check Collision
@@ -124,25 +130,14 @@ public class DynamicObject implements Collider {
         DynamicObject dynamicObj = (DynamicObject) collision.otherCollider;
         if("WATER".equals(dynamicObj.getObjectType())) {
             float submergedRatio = collision.depth / bBox.getSizeY();
-            
             if(submergedRatio > 0) {
-                System.out.println("Player submerged in water: " + (submergedRatio * 100) + "%");
-                
-                Vector3f velocity = body.getVelocity();
-                velocity.mul(0.8f);
-                body.setVelocity(velocity);
+                waterAction(
+                    position, 
+                    body, 
+                    bBox, 
+                    submergedRatio
+                );
             }
-            if(position.y - bBox.getSizeY() / 2 < Water.MIN_Y) {
-                position.y = Water.MIN_Y + bBox.getSizeY()/2;
-                body.setPosition(position);
-                
-                Vector3f velocity = body.getVelocity();
-                if(velocity.y < 0) {
-                    velocity.y = 0;
-                }
-                body.setVelocity(velocity);
-            }
-
             body.setOnGround(false);
             return;
         }
