@@ -113,6 +113,7 @@ public class CollisionManager {
     public void resolveCollision(RigidBody body, CollisionResult collision) {
         if(!collision.collided) {
             body.setInWater(false, 0.0f);
+            body.setOnGround(false);
             return;
         }
 

@@ -158,14 +158,7 @@ public class StaticObject implements Collider {
             isOnGround = true;
             targetHeight = heightestTerrainHeight;
         }
-        else if(
-            playerBottom <= heightestTerrainHeight + groundMargin &&
-            playerBottom >= heightestTerrainHeight - groundMargin
-        ) {
-            isOnGround = true;
-            targetHeight = heightestTerrainHeight;
-        }
-        else if(playerBottom < heightestTerrainHeight) {
+        else if(playerBottom <= heightestTerrainHeight + groundMargin) {
             isOnGround = true;
             targetHeight = heightestTerrainHeight;
         }
@@ -234,18 +227,17 @@ public class StaticObject implements Collider {
         if(staticObj.isMap()) {
             float terrainHeight = getHeightAtPos(position, staticObj);
             float playerBottom = bBox.minY;
-            if(playerBottom <= terrainHeight + 5.0f) {
+            if(playerBottom <= terrainHeight + 5.0f && body.getVelocity().y <= 0) {
                 float targetY = terrainHeight + bBox.getSizeY() / 2.0f;
-                float currentY = position.y;
-                float yDiff = targetY - currentY;
-
-                position.y = targetY;
-                body.setPosition(position);
-                body.setOnGround(true);
-
-                Vector3f velocity = body.getVelocity();
-                if(velocity.y < 0) velocity.y = 0;
-                body.setVelocity(velocity);
+                if(playerBottom <= terrainHeight + 2.0f) {
+                    position.y = targetY;
+                    body.setPosition(position);
+                    body.setOnGround(true);
+    
+                    Vector3f velocity = body.getVelocity();
+                    if(velocity.y < 0) velocity.y = 0;
+                    body.setVelocity(velocity);
+                }
             }
 
             return;
