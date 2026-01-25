@@ -44,7 +44,7 @@ public class PlayerController {
     private CollisionManager collisionManager;
 
     private float sizeX = 1.0f;
-    private float sizeY = 20.0f;
+    private float sizeY = 10.0f;
     private float sizeZ = 1.0f;
 
     private float xSpeed = 0.0f;
