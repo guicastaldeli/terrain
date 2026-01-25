@@ -56,15 +56,8 @@ public class WorldGenerator {
         this.spawner = spawner;
 
         this.noiseGeneratorWrapper = new NoiseGeneratorWrapper();
+        
         this.currentSeed = dataController.getWorldSeed();
-        if(!noiseInitialized) {
-            if(!noiseGeneratorWrapper.initNoise(currentSeed, WORLD_SIZE)) {
-                System.err.println("Failed to initialize noise system");
-            } else {
-                noiseInitialized = true;
-                System.out.println("Noise system initialized with seed " + currentSeed);
-            }
-        }
         
         this.dataController = dataController;
         this.stateController = stateController;
@@ -124,6 +117,13 @@ public class WorldGenerator {
      * Height Data
      */
     public float getHeightAt(float x, float z) {
+        if(!noiseInitialized) {
+            initNoise();
+            if(!noiseInitialized) {
+                return 0.0f;
+            }
+        }
+        
         int[] chunkCoords = Chunk.getCoords(x, z);
         String chunkId = Chunk.getId(chunkCoords[0], chunkCoords[1]);
 
@@ -242,5 +242,16 @@ public class WorldGenerator {
 
     public NoiseGeneratorWrapper getNoiseGeneratorWrapper() {
         return noiseGeneratorWrapper;
+    }
+
+    public void initNoise() {
+        if(!noiseInitialized && noiseGeneratorWrapper != null) {
+            if(!noiseGeneratorWrapper.initNoise(currentSeed, WORLD_SIZE)) {
+                System.err.println("Failed to initialize noise system");
+            } else {
+                noiseInitialized = true;
+                System.out.println("Noise system initialized with seed " + currentSeed);
+            }
+        }
     }
 }

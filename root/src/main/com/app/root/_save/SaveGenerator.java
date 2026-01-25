@@ -3,21 +3,19 @@ import main.com.app.root.DataController;
 import main.com.app.root.MainData;
 import main.com.app.root.Scene;
 import main.com.app.root.StateController;
-import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
-import main.com.app.root.env.world.WorldGenerator;
+import main.com.app.root.env.world.WorldController;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
 import java.text.DateFormat;
+import java.util.*;
 
 public class SaveGenerator {
     private final DataController dataController;
     private final StateController stateController;
     private final DataGetter dataGetter;
     private EnvController envController;
-
     private Scene scene;
 
     public SaveGenerator(
@@ -60,11 +58,8 @@ public class SaveGenerator {
         
         Object worldController = envController.getEnv(EnvData.MAP);
         if(worldController != null) {
-            Object generator = EnvCall.callReturn(worldController, "getGenerator");
-            if(generator != null && generator instanceof WorldGenerator) {
-                WorldGenerator worldGenerator = (WorldGenerator) generator;
-                worldGenerator.resetSeed(newSeed);
-            }
+            WorldController wc = (WorldController) worldController;
+            wc.initNoiseWithSeed(newSeed);
         }
         
         Date currentDate = new Date();
@@ -75,14 +70,14 @@ public class SaveGenerator {
         ).format(currentDate);
         saveFile.setSaveInfo("save_name", finalSaveName);
         saveFile.setSaveInfo("creation_date", creationDate);
-        saveFile.setSaveInfo("version", "beta_1.1.0"); //Change this later;;;;;
+        saveFile.setSaveInfo("version", "beta_1.2.0");
         saveFile.setSaveInfo("last_played", saveFile.getSaveInfo("creation_date"));
         saveFile.setSaveInfo("play_time", "00:00:00");
 
         saveInitData(saveFile);
         saveFile.saveSaveInfo();
 
-        System.out.println("New save created" + saveId);
+        System.out.println("New save created: " + saveId + " with seed: " + newSeed);
         return saveId;
     }
 

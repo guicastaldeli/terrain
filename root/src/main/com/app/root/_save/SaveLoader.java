@@ -3,6 +3,9 @@ import main.com.app.root.DataController;
 import main.com.app.root.MainData;
 import main.com.app.root.Scene;
 import main.com.app.root.StateController;
+import main.com.app.root.env.EnvData;
+import main.com.app.root.env.world.WorldController;
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -48,6 +51,17 @@ public class SaveLoader {
             /* Load Data */
             DataController loadedData = (DataController) saveFile.loadObject("data", "s.data");
             if(loadedData != null) copyDataController(loadedData, dataController);
+            
+            long loadedSeed = dataController.getWorldSeed();
+            System.out.println("Loading save with seed: " + loadedSeed);
+            
+            if(scene != null && scene.getEnvController() != null) {
+                Object worldController = scene.getEnvController().getEnv(EnvData.MAP);
+                if(worldController != null && worldController instanceof WorldController) {
+                    WorldController wc = (WorldController) worldController;
+                    wc.initNoiseWithSeed(loadedSeed);
+                }
+            }
             
             /* Load World Data */
             if(saveFile.hasData("world", "w.data")) {

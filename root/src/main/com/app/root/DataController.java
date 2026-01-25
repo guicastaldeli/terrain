@@ -27,11 +27,7 @@ public class DataController implements Serializable {
     private int playTimeSecs;
     private int itemsCollected;
 
-    public DataController() {
-        /* World */
-        this.worldSeed = System.currentTimeMillis() * 982;
-        this.worldTime = 0;
-        
+    public DataController() {        
         /* Player */
         playerPos = new Vector3f(0, 0, 0);
         playerRotation = new Vector3f(0, 0, 0);
@@ -138,7 +134,6 @@ public class DataController implements Serializable {
      * 
      */
     public void reset() {
-        this.worldSeed = 0;
         this.playerPos = new Vector3f(0, 0, 0);
         this.playerRotation = new Vector3f(0, 0, 0);
         this.worldTime = 0L;

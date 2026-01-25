@@ -45,7 +45,12 @@ public class WorldController implements EnvInstance<WorldController> {
      * Get Map Generator
      */
     public WorldGenerator getGenerator() {
-        //System.out.println("GET GENERATOR");
         return worldGenerator;
+    }
+
+    public void initNoiseWithSeed(long seed) {
+        if(worldGenerator == null) createGenerator();
+        worldGenerator.resetSeed(seed);
+        worldGenerator.initNoise();
     }
 }
