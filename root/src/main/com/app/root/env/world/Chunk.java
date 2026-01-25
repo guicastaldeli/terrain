@@ -23,7 +23,7 @@ public class Chunk {
     private int lastProcessedIndex = 0;
     private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
 
-    public static final int CHUNK_SIZE = 90;
+    public static final int CHUNK_SIZE = 60;
 
     public Chunk(
         WorldGenerator worldGenerator, 
@@ -485,10 +485,6 @@ public class Chunk {
             cachedChunks.put(chunkId, chunkData);
 
             if(cachedChunks.size() > 20) removeOldestCachedChunk();
-
-            if(spawner != null) {
-                spawner.clearChunkTrees();
-            }
 
             //System.out.println("Unloaded chunk: " + chunkId);
         }

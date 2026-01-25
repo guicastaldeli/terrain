@@ -288,7 +288,7 @@ public class PlayerController {
             rigidBody.setGravityEnabled(false);
 
             Vector3f vel = rigidBody.getVelocity();
-            vel.y = 0;
+            if(vel.y < 0) vel.y = 0;
 
             rigidBody.setVelocity(vel);
             rigidBody.setOnGround(false);
@@ -297,6 +297,11 @@ public class PlayerController {
             rigidBody.setGravityEnabled(true);
             movingUp = false;
             movingDown = false;
+            
+            Vector3f vel = rigidBody.getVelocity();
+            if(vel.y > 0) vel.y = 0;
+            rigidBody.setVelocity(vel);
+            
             System.out.println("Fly mode: OFF");
         }
     }

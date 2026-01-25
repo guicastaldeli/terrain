@@ -45,7 +45,7 @@ public class Spawner {
     private Map<String, List<TreeController>> chunkTreeMap = new HashMap<>();
     private static Map<Integer, Float> LEVEL_DISTRIBUTION;
 
-    private static final float TREE_COVERAGE = 0.005f;
+    private static final float TREE_COVERAGE = 0.0005f;
     public static final int MAX_TREES_PER_CHUNK = (int)(Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE * TREE_COVERAGE);
 
     public Spawner(
