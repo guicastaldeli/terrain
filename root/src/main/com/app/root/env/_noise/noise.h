@@ -13,9 +13,9 @@ typedef struct {
     float z;
 } Vec3;
 
-static int permutation[512];
-static Vec2 gradients[512];
-static Vec2 simplexGradients[12];
+extern int permutation[512];
+extern Vec2 gradients[512];
+extern Vec2 simplexGradients[12];
 
 static float dot2(
     Vec2 g, 

@@ -30,8 +30,8 @@
 #define WATER_LEVEL 50.0f
 #define OCEAN_DEPTH 100.0f
 
-static int islandCount = 0;
-static int islandsInitialized = 0;
+extern int islandCount;
+extern int islandsInitialized;
 
 typedef struct {
     int x;

@@ -1,6 +1,10 @@
 #include "noise.h"
 #include "map_generator.h"
 
+int permutation[512];
+Vec2 gradients[512];
+Vec2 simplexGradients[12];
+
 static float dot2(
     Vec2 g, 
     float x, 

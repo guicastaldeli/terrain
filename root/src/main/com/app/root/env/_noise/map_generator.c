@@ -5,6 +5,9 @@
 
 static Island islands[MAX_ISLANDS];
 
+int islandCount = 0;
+int islandsInitialized = 0;
+
 void initializeIslands(int worldSize) {
     islandCount = MAX_ISLANDS;
 
