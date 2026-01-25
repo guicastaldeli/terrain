@@ -5,7 +5,6 @@ import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveInfo;
 import main.com.app.root._save.SaveLoader;
 import main.com.app.root.screen.ScreenController;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -38,7 +37,11 @@ public class MainScreenAction {
      */
     public void start(String saveName) {
         try {
+            long newSeed = System.nanoTime();
+            scene.getDataController().setWorldSeed(newSeed);
+            
             scene.init(true);
+
             if(scene.getDataGetter() != null) {
                 scene.getDataGetter().setEnvController(scene.getEnvController());
                 scene.getDataGetter().setUpgrader(scene.getUpgrader());

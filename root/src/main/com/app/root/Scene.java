@@ -51,6 +51,10 @@ public class Scene {
         return dataGetter;
     }
 
+    public DataController getDataController() {
+        return dataController;
+    }
+
     public boolean isInit() {
         return init;
     }
@@ -150,6 +154,10 @@ public class Scene {
      * Setup
      */
     public void init(boolean reset) {
+        if(reset && init) {
+            cleanup();
+            init = false;
+        }
         if(!init) {
             this.collisionManager = new CollisionManager();
 
@@ -179,7 +187,7 @@ public class Scene {
                 spawner,
                 playerController
             );
-    
+
             this.envController = new EnvController(dependencyContainer);
             saveGenerator.setEnvController(getEnvController());
 
@@ -231,7 +239,6 @@ public class Scene {
      */
     private void start() {
         envRenderer.render();
-        if(!stateController.isLoadInProgress()) spawner.initialSpawn();
         spawner.setActive(true);
         spawner.printSpawnerStatus();
     }
@@ -255,7 +262,6 @@ public class Scene {
     public void render() {
         if(!init) return;
 
-        spawner.render();
         mesh.renderAll();
         playerController.render();
     }

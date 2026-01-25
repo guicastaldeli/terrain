@@ -1,5 +1,6 @@
 package main.com.app.root.env.world;
 import main.com.app.root.DataController;
+import main.com.app.root.Spawner;
 import main.com.app.root.StateController;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
@@ -19,6 +20,7 @@ public class WorldGenerator {
     private final Mesh mesh;
     private final MeshRenderer meshRenderer;
     private final Chunk chunk;
+    private final Spawner spawner;
     private MeshData meshData;
     private StaticObject collider;
 
@@ -45,12 +47,14 @@ public class WorldGenerator {
         ShaderProgram shaderProgram,
         DataController dataController,
         StateController stateController,
-        CollisionManager collisionManager
+        CollisionManager collisionManager,
+        Spawner spawner
     ) {
         this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
         this.meshRenderer = meshRenderer;
+        this.spawner = spawner;
 
         this.noiseGeneratorWrapper = new NoiseGeneratorWrapper();
         this.currentSeed = dataController.getWorldSeed();
@@ -70,7 +74,8 @@ public class WorldGenerator {
             this, 
             collisionManager, 
             mesh, 
-            null
+            null,
+            spawner
         );
         Water.addCollider(this, collisionManager);
         addMapCollider();

@@ -52,23 +52,20 @@ public class SaveGenerator {
         stateController.setCurrentSaveId(saveId);
         stateController.setLoadInProgress(true);
 
-        long newSeed = System.nanoTime();
+        long currentSeed = dataController.getWorldSeed();
     
         scene.reset();
-
-        dataController.setWorldSeed(newSeed);
         
         Object worldController = envController.getEnv(EnvData.MAP);
         if(worldController != null) {
             Object generator = EnvCall.callReturn(worldController, "getGenerator");
             if(generator != null && generator instanceof WorldGenerator) {
                 WorldGenerator worldGenerator = (WorldGenerator) generator;
-                worldGenerator.resetSeed(newSeed);
+                worldGenerator.resetSeed(currentSeed);
             }
         }
         
-        System.out.println("New save created with unified seed: " + newSeed);
-    
+        System.out.println("New save created with unified seed: " + currentSeed);
         
         Date currentDate = new Date();
         String creationDate = DateFormat.getDateTimeInstance(

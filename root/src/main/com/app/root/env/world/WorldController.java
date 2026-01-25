@@ -1,6 +1,7 @@
 package main.com.app.root.env.world;
 import main.com.app.root.DataController;
 import main.com.app.root.DependencyValue;
+import main.com.app.root.Spawner;
 import main.com.app.root.StateController;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
@@ -17,6 +18,7 @@ public class WorldController implements EnvInstance<WorldController> {
     @DependencyValue private DataController dataController;
     @DependencyValue private StateController stateController;
     @DependencyValue private CollisionManager collisionManager;
+    @DependencyValue private Spawner spawner;
 
     private WorldGenerator worldGenerator;
 
@@ -34,7 +36,8 @@ public class WorldController implements EnvInstance<WorldController> {
             shaderProgram,
             dataController,
             stateController,
-            collisionManager
+            collisionManager,
+            spawner
         );
     }
 

@@ -5,7 +5,6 @@ import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
 import main.com.app.root.screen.ScreenData;
 import main.com.app.root.screen.ScreenElement;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;

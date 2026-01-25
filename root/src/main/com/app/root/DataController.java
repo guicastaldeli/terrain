@@ -32,6 +32,10 @@ public class DataController implements Serializable {
         playerPos = new Vector3f(0, 0, 0);
         playerRotation = new Vector3f(0, 0, 0);
 
+        /* World */
+        this.worldSeed = 0L;
+        this.worldTime = 0L;
+
         /* State */
         items = new ArrayList<>();
     }

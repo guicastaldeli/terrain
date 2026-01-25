@@ -1,4 +1,5 @@
 package main.com.app.root.env.world;
+import main.com.app.root.Spawner;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.types.StaticObject;
 import main.com.app.root.mesh.Mesh;
@@ -9,6 +10,7 @@ import java.util.*;
 public class Chunk {
     private final WorldGenerator worldGenerator;
     private final CollisionManager collisionManager;
+    private final Spawner spawner;
     private final Mesh mesh;
     private MeshData meshData;
 
@@ -27,12 +29,14 @@ public class Chunk {
         WorldGenerator worldGenerator, 
         CollisionManager collisionManager,
         Mesh mesh,
-        MeshData meshData
+        MeshData meshData,
+        Spawner spawner
     ) {
         this.worldGenerator = worldGenerator;
         this.collisionManager = collisionManager;
         this.mesh = mesh;
         this.meshData = meshData;
+        this.spawner = spawner;
     }
 
     /**
@@ -434,6 +438,13 @@ public class Chunk {
             return;
         }
 
+        if(spawner != null) {
+            spawner.generate(
+                chunkX, 
+                chunkZ
+            );
+        }
+
         try {
             float[] chunkHeightData = generateHeightData(chunkX, chunkZ);
             MeshData chunkMeshData = createMeshData(chunkHeightData, chunkX, chunkZ);
@@ -475,6 +486,10 @@ public class Chunk {
 
             if(cachedChunks.size() > 20) removeOldestCachedChunk();
 
+            if(spawner != null) {
+                spawner.clearChunkTrees();
+            }
+
             //System.out.println("Unloaded chunk: " + chunkId);
         }
     }
@@ -508,6 +523,10 @@ public class Chunk {
             String waterId = chunkId.replace("chunk_", "water_");
             if(mesh.hasMesh(waterId)) {
                 mesh.render(waterId, 0);
+            }
+
+            if(spawner != null) {
+                spawner.render();
             }
         }
     }

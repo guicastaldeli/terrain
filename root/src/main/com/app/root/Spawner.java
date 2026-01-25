@@ -5,7 +5,9 @@ import main.com.app.root.env.EnvData;
 import main.com.app.root.env.tree.TreeController;
 import main.com.app.root.env.tree.TreeData;
 import main.com.app.root.env.tree.TreeGenerator;
+import main.com.app.root.env.world.Chunk;
 import main.com.app.root.env.world.Water;
+import main.com.app.root.env.world.WorldGenerator;
 import main.com.app.root.mesh.Mesh;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,6 +18,12 @@ import java.util.Random;
 import org.joml.Vector3f;
 
 public class Spawner {
+    private enum SpawnType {
+        TREE,
+        NULL,
+        TEST
+    }
+
     private final Tick tick;
     public Mesh mesh;
     private EnvController envController;
@@ -26,18 +34,19 @@ public class Spawner {
     private boolean isActive;
 
     private final Random random;
-    private final Map<Integer, Float> levelDistribution;
-
     private float spawnTimer;
-    private float spawnRate = 2.0f;
+    private float spawnRate = 100.0f;
     private float minSpawnDistance = 80.0f;
     private float maxSpawnDistance = 500.0f;
 
-    private enum SpawnType {
-        TREE
-    }
     private SpawnType currentType = SpawnType.TREE;
     public TreeData treeData;
+
+    private Map<String, List<TreeController>> chunkTreeMap = new HashMap<>();
+    private static Map<Integer, Float> LEVEL_DISTRIBUTION;
+
+    private static final float TREE_COVERAGE = 0.005f;
+    public static final int MAX_TREES_PER_CHUNK = (int)(Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE * TREE_COVERAGE);
 
     public Spawner(
         Tick tick,
@@ -54,37 +63,31 @@ public class Spawner {
         this.spawnRadius = spawnRadius;
 
         this.random = new Random();
-        this.levelDistribution = new HashMap<>();
-        initLevelDistribution();
+        LEVEL_DISTRIBUTION = new HashMap<>();
+        setLevelDistribution();
 
         this.treeData = new TreeData();
         this.treeData.createDefaultConfigs();
         this.isActive = true;
+    } 
+
+    public void setEnvController(EnvController envController) {
+        this.envController = envController;
     }
 
-    private void initLevelDistribution() {
-        levelDistribution.put(0, 0.7f);
-        levelDistribution.put(1, 0.15f);
-        levelDistribution.put(2, 0.07f);
-        levelDistribution.put(3, 0.04f);
-        levelDistribution.put(4, 0.02f);
-        levelDistribution.put(5, 0.01f);
-        levelDistribution.put(6, 0.005f);
-        levelDistribution.put(7, 0.002f);
-        levelDistribution.put(8, 0.001f);
-        levelDistribution.put(9, 0.0005f);
-        levelDistribution.put(10, 0.0003f);
-    }    
-    
-    /**
-     * Initial Spawn
-     */
-    public void initialSpawn() {
-        int treesToSpawn = Math.min(maxObjs, 50);
-        //System.out.println("Initial spawn: Creating " + treesToSpawn + " trees...");
-        for(int i = 0; i < treesToSpawn; i++) spawnSingleTree();
-        //System.out.println("Spawner initialized with " + treeData.trees.size() + " trees");
-    }
+    public static void setLevelDistribution() {
+        LEVEL_DISTRIBUTION.put(0, 0.7f);
+        LEVEL_DISTRIBUTION.put(1, 0.15f);
+        LEVEL_DISTRIBUTION.put(2, 0.07f);
+        LEVEL_DISTRIBUTION.put(3, 0.04f);
+        LEVEL_DISTRIBUTION.put(4, 0.02f);
+        LEVEL_DISTRIBUTION.put(5, 0.01f);
+        LEVEL_DISTRIBUTION.put(6, 0.005f);
+        LEVEL_DISTRIBUTION.put(7, 0.002f);
+        LEVEL_DISTRIBUTION.put(8, 0.001f);
+        LEVEL_DISTRIBUTION.put(9, 0.0005f);
+        LEVEL_DISTRIBUTION.put(10, 0.0003f);
+    }   
 
     private boolean isValidTreePos(
         float x,
@@ -98,146 +101,6 @@ public class Spawner {
         if(height == null || height < Water.LEVEL + offset) return false;
         
         return true;
-    }
-
-    /**
-     * Spawn Single Tree
-     */
-    private void spawnSingleTree() {
-        if(!isActive || treeData.trees.size() >= maxObjs) return;
-        
-        Vector3f position = genRandomPos();
-
-        Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
-        Object worldGenerator = EnvCall.callReturn(mapInstance, "getGenerator");
-
-        if(!isValidTreePos(
-            position.x, 
-            position.z, 
-            worldGenerator
-        )) {
-            for(int attempt = 0; attempt < 10; attempt++) {
-                position = genRandomPos();
-                if(isValidTreePos(
-                    position.x, 
-                    position.z, 
-                    worldGenerator
-                )) {
-                    break;
-                }
-            }
-        }
-        if(!isValidTreePos(
-            position.x, 
-            position.z, 
-            worldGenerator
-        )) {
-            return;
-        }
-
-        int level = genRandomLevel();
-
-        TreeData data = treeData.configs.get(level);
-        if(data == null) {
-            data = treeData.configs.get(0);
-            System.err.println("No config for level " + level + ", using level 0");
-        }
-
-        TreeController treeController = new TreeController();
-        treeController.createGenerator(data, position, mesh, this);
-        
-        TreeGenerator treeGenerator = treeController.getGenerator();
-        if(treeGenerator == null) {
-            System.err.println("Failed to create tree generator for " + data.getIndexTo());
-            return;
-        }
-        treeGenerator.mesh = this.mesh;
-        
-        String treeId = "tree" + treeData.currentTreeId++;
-        treeGenerator.setId(treeId);
-
-        treeData.trees.add(treeController);
-        
-        /*
-        System.out.println("Successfully spawned " + data.getIndexTo() + 
-                        " (Level " + level + ") at [" + 
-                        position.x + ", " + position.z + "]");
-                        */
-    }
-
-    /**
-     * Generate Random Position
-     */
-    private Vector3f genRandomPos() {
-        float angle = random.nextFloat() * (float) Math.PI * 2;
-        float distance = minSpawnDistance + random.nextFloat() * (maxSpawnDistance - minSpawnDistance);
-        
-        float x = centerPosition.x + (float) Math.cos(angle) * distance;
-        float z = centerPosition.z + (float) Math.sin(angle) * distance;
-        
-        Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
-        Object worldGenerator = EnvCall.callReturn(mapInstance, "getGenerator");
-        
-        Object[] heightParams = new Object[]{x, z};
-        Float height = (Float) EnvCall.callReturnWithParams(worldGenerator, heightParams, "getHeightAt");
-
-        if(height < Water.LEVEL) {
-            findValidPos(x, z, worldGenerator);
-        }
-        if(random.nextFloat() < 0.85f) {
-            if(height < Water.LEVEL) {
-                return findValidPos(x, z, worldGenerator);
-            }
-        }
-        
-        return new Vector3f(x, height, z);
-    }
-
-    private Vector3f findValidPos(
-        float startX, 
-        float startZ, 
-        Object worldGenerator
-    ) {
-        int maxAttempts = 100;
-        float offset = 5.0f;
-        for(int attempt = 0; attempt < maxAttempts; attempt++) {
-            float searchRadius = 50.0f + (attempt * 20.0f);
-            float searchAngle = random.nextFloat() * (float) Math.PI * 2;
-
-            float x = startX + (float) Math.cos(searchAngle) * searchRadius;
-            float z = startZ + (float) Math.sin(searchAngle) * searchRadius;
-
-            Object[] heightParams = new Object[]{x, z};
-            Float height = (Float) EnvCall.callReturnWithParams(worldGenerator, heightParams, "getHeightAt");
-            
-            if(height != null && height >= Water.LEVEL + offset) {
-                return new Vector3f(x, height, z);
-            }
-        }
-
-        return new Vector3f(startX, Math.max(Water.LEVEL + offset, 0), startZ);
-    }
-
-    /**
-     * Get Random Level
-     */
-    private int genRandomLevel() {
-        float totalWeight = 0;
-        for(float weight : levelDistribution.values()) {
-            totalWeight += weight;
-        }
-
-        float randomValue = random.nextFloat() * totalWeight;
-        float cumulativeWeight = 0;
-
-        for(Map.Entry<Integer, Float> entry : levelDistribution.entrySet()) {
-            cumulativeWeight += entry.getValue();
-            if(randomValue <= cumulativeWeight) {
-                return entry.getKey();
-            }
-        }
-
-        return 0;
     }
 
     /**
@@ -505,8 +368,86 @@ public class Spawner {
         }
     }
 
-    public void setEnvController(EnvController envController) {
-        this.envController = envController;
+    private TreeData getRandomTreeData(Random random) {
+        float totalWeight = 0;
+        for(float weight : LEVEL_DISTRIBUTION.values()) {
+            totalWeight += weight;
+        }
+
+        float randomVal = random.nextFloat() * totalWeight;
+        float cumulativeWeight = 0;
+
+        for(Map.Entry<Integer, Float> level : LEVEL_DISTRIBUTION.entrySet()) {
+            cumulativeWeight += level.getValue();
+            if(randomVal <= cumulativeWeight) {
+                TreeData data = getConfigForLevel(level.getKey());
+                if(data != null) {
+                    return data;
+                }
+            }
+        }
+
+        return getConfigForLevel(0);
+    }
+
+    public static Random Deterministic(int chunkX, int chunkZ) {
+        return new Random(chunkX * 7919L + chunkZ * 131071L);
+    }
+
+    private float getHeightAt(float worldX, float worldZ) {
+        Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
+        Object worldGenerator = EnvCall.callReturn(mapInstance, "getGenerator");
+        
+        Object[] heightParams = new Object[]{worldX, worldZ};
+        Float height = (Float) EnvCall.callReturnWithParams(worldGenerator, heightParams, "getHeightAt");
+        
+        return height != null ? height : Water.LEVEL;
+    }
+
+    /**
+     * Spawn Tree in Chunk
+     */
+    private void spawnTreeInChunk(
+        Vector3f position,
+        int chunkX,
+        int chunkZ,
+        Random random
+    ) {
+        TreeData data = getRandomTreeData(random);
+        if(data == null) {
+            System.err.println("Failed to get tree data for chunk " + chunkX + ", " + chunkZ);
+            return;
+        }
+
+        TreeController treeController = new TreeController();
+        treeController.createGenerator(
+            data, 
+            position,
+            mesh,
+            this
+        );
+
+        TreeGenerator treeGenerator = treeController.getGenerator();
+        if(treeGenerator != null) {
+            treeGenerator.mesh = this.mesh;
+            String treeId = "tree_" + chunkX + "_" + chunkZ + "_" + treeData.trees.size();
+            treeGenerator.setId(treeId);
+            treeGenerator.createMesh();
+            treeData.trees.add(treeController);
+        } 
+    }
+
+    /**
+     * Clear Trees
+     */
+    public void clearChunkTrees() {
+        for(TreeController tree : treeData.trees) {
+            Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
+            if(treeGenerator != null) {
+                EnvCall.call(treeGenerator, "cleanup");
+            }
+        }
+        treeData.trees.clear();
     }
 
     /**
@@ -514,12 +455,6 @@ public class Spawner {
      */
     public void update() {
         if(!isActive) return;
-
-        spawnTimer -= tick.getDeltaTime();
-        if(spawnTimer <= 0 && treeData.trees.size() < maxObjs) {
-            spawnSingleTree();
-            spawnTimer = spawnRate;
-        }
 
         Iterator<TreeController> iterator = treeData.trees.iterator();
         while(iterator.hasNext()) {
@@ -531,18 +466,42 @@ public class Spawner {
                 iterator.remove();
                 continue;
             }
-
-            Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
-            float distance = treePos.distance(centerPosition);
-            if(distance > spawnRadius * 1.5f) {
-                EnvCall.call(treeGenerator, "cleanup");
-                iterator.remove();
-                //System.out.println("Removed distant tree at distance: " + distance);
-                continue;
-            }
             
             Object[] updateParams = new Object[]{tick.getDeltaTime()};
             EnvCall.callWithParams(treeGenerator, updateParams, "update");
+        }
+    }
+
+    /**
+     * Generate
+     */
+    public void generate(int chunkX, int chunkZ) {
+        Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
+        Object worldGenerator = EnvCall.callReturn(mapInstance, "getGenerator");
+
+        float worldStartX = chunkX * Chunk.CHUNK_SIZE - WorldGenerator.WORLD_SIZE / 2.0f;
+        float worldStartZ = chunkZ * Chunk.CHUNK_SIZE - WorldGenerator.WORLD_SIZE / 2.0f;
+        float worldEndX = worldStartX + Chunk.CHUNK_SIZE;
+        float worldEndZ = worldStartZ + Chunk.CHUNK_SIZE;
+
+        Random random = Deterministic(chunkX, chunkZ);
+
+        for(int i = 0; i < MAX_TREES_PER_CHUNK; i++) {
+            float treeX = worldStartX + random.nextFloat() * Chunk.CHUNK_SIZE;
+            float treeZ = worldStartZ + random.nextFloat() * Chunk.CHUNK_SIZE;
+            
+            Object[] heightParams = new Object[]{treeX, treeZ};
+            Float treeY = (Float) EnvCall.callReturnWithParams(worldGenerator, heightParams, "getHeightAt");
+
+            if(treeY != null && treeY >= Water.LEVEL + 2.0f) {
+                Vector3f treePos = new Vector3f(treeX, treeY, treeZ);
+                spawnTreeInChunk(
+                    treePos, 
+                    chunkX, 
+                    chunkZ,
+                    random
+                );
+            }
         }
     }
 
