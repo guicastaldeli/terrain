@@ -9,6 +9,7 @@ public class TreeGenerator {
     public final TreeData treeData;
     public final Vector3f position;
     public Spawner spawner;
+    public TreeController treeController;
 
     public Mesh mesh;
     public final String MESH_ID;
@@ -36,6 +37,10 @@ public class TreeGenerator {
         this.isAlive = true;
         this.respawnTimer = 0;
         this.random = new Random();
+    }
+
+    public void setTreeController(TreeController controller) {
+        this.treeController = controller;
     }
 
     /**
@@ -94,8 +99,12 @@ public class TreeGenerator {
                 );
 
             System.out.println(treeData.getIndexTo() + " destroyed! Dropping " + woodDrop + " wood.");
-            if(spawner != null) {
-                spawner.handleTreeBreak(new Vector3f(position), treeData.getLevel());
+            if(spawner != null && treeController != null) {
+                spawner.handleTreeBreak(
+                    treeController, 
+                    new Vector3f(position), 
+                    treeData.getLevel()
+                );
             }
             return woodDrop;
         }

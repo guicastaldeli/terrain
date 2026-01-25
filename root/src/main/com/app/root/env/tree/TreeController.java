@@ -32,6 +32,7 @@ public class TreeController implements EnvInstance<TreeController> {
             mesh, 
             spawner
         );
+        this.treeGenerator.setTreeController(this);
     }
     
     public void cleanup() {

@@ -74,7 +74,6 @@ public class DataGetter {
         data.put("spawner_center_x", spawnerCenter.x);
         data.put("spawner_center_y", spawnerCenter.y);
         data.put("spawner_center_z", spawnerCenter.z);
-        data.put("spawner_max_objects", spawner.getMaxObjects());
         data.put("spawner_radius", spawner.getSpawnRadius());
         data.put("spawner_active", spawner.isActive());
         
@@ -180,10 +179,6 @@ public class DataGetter {
             float y = ((Number) data.get("spawner_center_y")).floatValue();
             float z = ((Number) data.get("spawner_center_z")).floatValue();
             spawner.setCenterPos(new Vector3f(x, y, z));
-        }
-        if(data.containsKey("spawner_max_objects") && spawner != null) {
-            int maxObjects = ((Number) data.get("spawner_max_objects")).intValue();
-            spawner.setMaxObjs(maxObjects);
         }
         if(data.containsKey("spawner_radius") && spawner != null) {
             float radius = ((Number) data.get("spawner_radius")).floatValue();

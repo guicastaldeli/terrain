@@ -131,7 +131,6 @@ public class Scene {
                     tick, 
                     mesh,
                     new Vector3f(0, 0, 0),
-                    100,
                     200.0f
                 );
             } else {

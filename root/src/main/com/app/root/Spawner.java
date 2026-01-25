@@ -29,7 +29,6 @@ public class Spawner {
     private EnvController envController;
 
     private Vector3f centerPosition;
-    private int maxObjs;
     private float spawnRadius;
     private boolean isActive;
 
@@ -52,14 +51,12 @@ public class Spawner {
         Tick tick,
         Mesh mesh,
         Vector3f centerPosition,
-        int maxObjs,
         float spawnRadius
     ) {
         this.tick = tick;
         this.mesh = mesh;
 
         this.centerPosition = centerPosition;
-        this.maxObjs = maxObjs;
         this.spawnRadius = spawnRadius;
 
         this.random = new Random();
@@ -214,11 +211,6 @@ public class Spawner {
         System.out.println("Spawner " + (active ? "activated" : "deactivated"));
     }
 
-    public void setMaxObjs(int max) {
-        this.maxObjs = max;
-        adjustObjCount();
-    }
-
     public void setSpawnRate(float rate) {
         this.spawnRate = Math.max(0.1f, rate);
     }
@@ -266,25 +258,8 @@ public class Spawner {
         return new Vector3f(centerPosition);
     }
     
-    public int getMaxObjects() {
-        return maxObjs;
-    }
-    
     public float getSpawnRadius() {
         return spawnRadius;
-    }
-
-    private void adjustObjCount() {
-        if(treeData.trees.size() > maxObjs) {
-            int toRemove = treeData.trees.size() - maxObjs;
-            //System.out.println("Removing " + toRemove + " excess trees");
-            
-            for(int i = 0; i < toRemove && !treeData.trees.isEmpty(); i++) {
-                TreeController tree = treeData.trees.remove(0);
-                Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
-                EnvCall.call(treeGenerator, "cleanup");
-            }
-        }
     }
 
     public void printSpawnerStatus() {
@@ -304,7 +279,6 @@ public class Spawner {
      */
     private void spawnTreeAtLevel(Vector3f position, int level) {
         if(!isActive) return;
-        if(treeData.trees.size() >= maxObjs) return;
 
         TreeData data = treeData.configs.get(level);
         if(data == null) {
@@ -337,8 +311,17 @@ public class Spawner {
     /**
      * Handle Tree Break
      */
-    public void handleTreeBreak(Vector3f position, int currLevel) {
-        cleanupTreeAtPos(position);
+    public void handleTreeBreak(
+        TreeController deadTree, 
+        Vector3f position, 
+        int currLevel
+    ) {
+        if(treeData.trees.contains(deadTree)) {
+            Object treeGenerator = EnvCall.callReturn(deadTree, "getGenerator");
+            EnvCall.call(treeGenerator, "cleanup");
+            treeData.trees.remove(deadTree);
+            System.out.println("Removed dead tree from list");
+        }
         
         int nextLevel = currLevel + 1;
         if(!treeData.configs.containsKey(nextLevel)) nextLevel = 0;
@@ -350,7 +333,7 @@ public class Spawner {
      * Cleanup Tree At Pos
      */
     private void cleanupTreeAtPos(Vector3f position) {
-        float cleanupRadius = 1.0f;
+        float cleanupRadius = 5.0f;
         for(Iterator<TreeController> iterator = treeData.trees.iterator(); iterator.hasNext();) {
             TreeController tree = iterator.next();
             Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
