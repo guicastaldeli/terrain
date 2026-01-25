@@ -17,8 +17,16 @@ public class Upgrader {
         }
     }
 
+    public void setEnvController(EnvController envController) {
+        this.envController = envController;
+        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+        this.cachedAxeLevel = (int) EnvCall.callReturn(axeInstance, "getLevel");
+    }
+
     /**
+     * 
      * Upgrade
+     * 
      */
     public boolean canUpgrade() {
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
@@ -54,26 +62,6 @@ public class Upgrader {
         System.out.println("Upgraded to level " + targetLevel + "!");
         return true;
     }
-
-    public void equipAxe(int level) {
-        if(level < 0 || level > data.getAxeLevel()) return;
-
-        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
-        EnvCall.callWithParams(axeInstance, new Object[]{level}, "setLevel");
-
-        cachedAxeLevel = level;
-        data.setCurrentAxe("axe" + level);
-        saveData();
-    }
-
-    public void addWood(int amount) {
-        data.setWood(data.getWood() + amount);
-        saveData();
-    }
-    
-    public int getWood() {
-        return data.getWood();
-    }
     
     public int getUpgradeCost(int targetLevel) {
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
@@ -86,8 +74,38 @@ public class Upgrader {
         );
     }
 
+    /**
+     * 
+     * Wood
+     * 
+     */
+    public void addWood(int amount) {
+        data.setWood(data.getWood() + amount);
+        saveData();
+    }
+    
+    public int getWood() {
+        return data.getWood();
+    }
+
     public void setWood(int amount) {
         data.setWood(amount);
+    }
+
+    /**
+     * 
+     * Axe
+     * 
+     */
+    public void equipAxe(int level) {
+        if(level < 0 || level > data.getAxeLevel()) return;
+
+        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+        EnvCall.callWithParams(axeInstance, new Object[]{level}, "setLevel");
+
+        cachedAxeLevel = level;
+        data.setCurrentAxe("axe" + level);
+        saveData();
     }
 
     public void setAxeLevel(int level) {
@@ -109,6 +127,11 @@ public class Upgrader {
         return cachedAxeLevel;
     }
 
+    /**
+     * 
+     * Data
+     * 
+     */
     private void saveData() {
         MainDataLoader.saveData(data);
     }
@@ -122,9 +145,15 @@ public class Upgrader {
         this.cachedAxeLevel = data.getAxeLevel();
     }
 
-    public void setEnvController(EnvController envController) {
-        this.envController = envController;
-        Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
-        this.cachedAxeLevel = (int) EnvCall.callReturn(axeInstance, "getLevel");
+    /**
+     * Reset
+     */
+    public void reset() {
+        this.data = new MainData();
+        this.cachedAxeLevel = 0;
+        if(envController != null) {
+            Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
+            EnvCall.callWithParams(axeInstance, new Object[]{0}, "setLevel");
+        }
     }
 }

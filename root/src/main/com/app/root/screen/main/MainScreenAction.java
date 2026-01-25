@@ -37,26 +37,21 @@ public class MainScreenAction {
      */
     public void start(String saveName) {
         try {
-            long newSeed = System.nanoTime();
-            scene.getDataController().setWorldSeed(newSeed);
-            
             scene.init(true);
-
             if(scene.getDataGetter() != null) {
                 scene.getDataGetter().setEnvController(scene.getEnvController());
                 scene.getDataGetter().setUpgrader(scene.getUpgrader());
                 scene.getDataGetter().setSpawner(scene.getSpawner());
                 scene.getDataGetter().setPlayerController(scene.getPlayerController());
             }
-            String saveId = saveGenerator.generateNewSave(saveName);
-            if(saveLoader.loadSave(saveId, true)) {
+            if(saveGenerator.generateNewSave(saveName) != null) {
                 mainScreen.loadSaveMenu.hide();
                 mainScreen.saveNameDialog.hide();
                 mainScreen.setActive(false);
-
+    
                 screenController.switchTo(null);
                 screenController.disableCursor();
-                
+                    
                 stateController.setInMenu(false);
                 stateController.setPaused(false);
             }
@@ -70,15 +65,14 @@ public class MainScreenAction {
      * Load
      */
     public void load(String saveId) {
-        scene.cleanup(); 
-        scene.init(true);
+        scene.init(false);
         if(scene.getDataGetter() != null) {
             scene.getDataGetter().setEnvController(scene.getEnvController());
             scene.getDataGetter().setUpgrader(scene.getUpgrader());
             scene.getDataGetter().setSpawner(scene.getSpawner());
             scene.getDataGetter().setPlayerController(scene.getPlayerController());
         }
-        if(saveLoader.loadSave(saveId, false)) {
+        if(saveLoader.load(saveId)) {
             mainScreen.loadSaveMenu.hide();
             mainScreen.saveNameDialog.hide();
             mainScreen.setActive(false);

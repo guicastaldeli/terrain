@@ -28,36 +28,44 @@ public class DataController implements Serializable {
     private int itemsCollected;
 
     public DataController() {
+        /* World */
+        this.worldSeed = System.currentTimeMillis() * 982;
+        this.worldTime = 0;
+        
         /* Player */
         playerPos = new Vector3f(0, 0, 0);
         playerRotation = new Vector3f(0, 0, 0);
-
-        /* World */
-        this.worldSeed = 0L;
-        this.worldTime = 0L;
 
         /* State */
         items = new ArrayList<>();
     }
 
-    /* World */
+    /**
+     * World
+     */
     public void setWorldSeed(long seed) {
         this.worldSeed = seed;
     }
+
     public long getWorldSeed() {
         return worldSeed;
     }
+
     public void setWorldTime(long time) {
         this.worldTime = time;
     }
+
     public long getWorldTime() {
         return worldTime;
     }
 
-    /* Player */
+    /**
+     * Player
+     */
     public void setPlayerPos(Vector3f pos) {
         this.playerPos = pos;
     }
+
     public Vector3f getPlayerPos() {
         return playerPos;
     }
@@ -65,27 +73,35 @@ public class DataController implements Serializable {
     public void setPlayerRotation(Vector3f rotation) {
         this.playerRotation = rotation;
     }
+
     public Vector3f getPlayerRotation() {
         return playerRotation;
     }
 
-    /* Stats */
+    /**
+     * Item
+     */
     public void addItem(String item) {
         if(!items.contains(item)) {
             items.add(item);
         }
     }
+
     public void removeItem(String item) {
         items.remove(item);
     }
+
     public List<String> getItems() {
         return new ArrayList<>(items);
     }
 
-    /* Settings */
+    /**
+     * Settings
+     */
     public void setMusicVolume(float vol) {
         this.musicVolume = vol;
     }
+
     public float getMusicVol() {
         return musicVolume;
     }
@@ -93,13 +109,18 @@ public class DataController implements Serializable {
     public void setSfxVolume(float vol) {
         this.sfxVolume = vol;
     }
+
     public float getSfxVolume() {
         return sfxVolume;
     }
 
+    /**
+     * Play Time
+     */
     public void incrementPlayTime(int secs) {
         this.playTimeSecs += secs;
     }
+
     public int getPlayTimeSecs() {
         return playTimeSecs;
     }
@@ -117,6 +138,7 @@ public class DataController implements Serializable {
      * 
      */
     public void reset() {
+        this.worldSeed = 0;
         this.playerPos = new Vector3f(0, 0, 0);
         this.playerRotation = new Vector3f(0, 0, 0);
         this.worldTime = 0L;

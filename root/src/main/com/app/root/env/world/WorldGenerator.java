@@ -38,7 +38,6 @@ public class WorldGenerator {
     private static final String MAP_ID = "MAP_ID";
 
     public static final int WORLD_SIZE = 20000;
-    public static final int RENDER_DISTANCE = 8;
     
     public WorldGenerator(
         Tick tick, 

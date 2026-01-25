@@ -32,7 +32,7 @@ public class SaveLoader {
     /**
      * Load Save
      */
-    public boolean loadSave(String saveId, boolean isNewSave) {
+    public boolean load(String saveId) {
         try {
             SaveFile saveFile = new SaveFile(saveId);
             if(!saveFile.exists()) {
@@ -44,14 +44,6 @@ public class SaveLoader {
             stateController.setCurrentLevel(saveId);
             stateController.setLoadInProgress(true);
             stateController.setInMenu(false);
-
-            if(isNewSave) {
-                System.out.println("New save detected, resetting scene and data...");
-                scene.reset();
-                dataController.reset();
-            } else {
-                System.out.println("Loading existing save, preserving state...");
-            }
 
             /* Load Data */
             DataController loadedData = (DataController) saveFile.loadObject("data", "s.data");

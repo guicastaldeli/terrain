@@ -5,6 +5,8 @@ import main.com.app.root.collision.types.StaticObject;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
+import main.com.app.root.player.Camera;
+
 import java.util.*;
 
 public class Chunk {
@@ -23,7 +25,7 @@ public class Chunk {
     private int lastProcessedIndex = 0;
     private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
 
-    public static final int CHUNK_SIZE = 60;
+    public static final int CHUNK_SIZE = 50;
 
     public Chunk(
         WorldGenerator worldGenerator, 
@@ -60,8 +62,8 @@ public class Chunk {
         int chunkX = Integer.parseInt(parts[1]);
         int chunkZ = Integer.parseInt(parts[2]);
 
-        return Math.abs(chunkX - centerX) <= WorldGenerator.RENDER_DISTANCE &&
-            Math.abs(chunkZ - centerZ) <= WorldGenerator.RENDER_DISTANCE;
+        return Math.abs(chunkX - centerX) <= Camera.RENDER_DISTANCE &&
+            Math.abs(chunkZ - centerZ) <= Camera.RENDER_DISTANCE;
     }
 
     public boolean isValid(int chunkX, int chunkZ) {
@@ -365,8 +367,8 @@ public class Chunk {
             }
 
             chunksToLoad.clear();
-            for(int x = playerChunkX - WorldGenerator.RENDER_DISTANCE; x <= playerChunkX + WorldGenerator.RENDER_DISTANCE; x++) {
-                for(int z = playerChunkZ - WorldGenerator.RENDER_DISTANCE; z <= playerChunkZ + WorldGenerator.RENDER_DISTANCE; z++) {
+            for(int x = playerChunkX - Camera.RENDER_DISTANCE; x <= playerChunkX + Camera.RENDER_DISTANCE; x++) {
+                for(int z = playerChunkZ - Camera.RENDER_DISTANCE; z <= playerChunkZ + Camera.RENDER_DISTANCE; z++) {
                     String chunkId = getId(x, z);
                     if(!loadedChunks.containsKey(chunkId) && isValid(x, z)) {
                         chunksToLoad.add(chunkId);

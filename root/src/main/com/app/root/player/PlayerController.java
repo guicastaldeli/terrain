@@ -44,7 +44,7 @@ public class PlayerController {
     private CollisionManager collisionManager;
 
     private float sizeX = 1.0f;
-    private float sizeY = 10.0f;
+    private float sizeY = 20.0f;
     private float sizeZ = 1.0f;
 
     private float xSpeed = 0.0f;
@@ -206,6 +206,7 @@ public class PlayerController {
         if(movingBackward) targetVel.sub(horizontalFront.mul(speed));
         if(movingLeft) targetVel.sub(horizontalRight.mul(speed));
         if(movingRight) targetVel.add(horizontalRight.mul(speed));
+        if(targetVel.lengthSquared() > 0) targetVel.normalize().mul(speed);
 
         Vector3f currentVel = rigidBody.getVelocity();
 

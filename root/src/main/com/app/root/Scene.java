@@ -47,16 +47,12 @@ public class Scene {
         this.shaderProgram = shaderProgram;
     }
 
-    public DataGetter getDataGetter() {
-        return dataGetter;
+    public boolean isInit() {
+        return init;
     }
 
     public DataController getDataController() {
         return dataController;
-    }
-
-    public boolean isInit() {
-        return init;
     }
 
     public EnvController getEnvController() {
@@ -77,6 +73,17 @@ public class Scene {
 
     public void setSaveGenerator(SaveGenerator saveGenerator) {
         this.saveGenerator = saveGenerator;
+    }
+
+    /**
+     * Data Getter
+     */
+    public DataGetter getDataGetter() {
+        return dataGetter;
+    }
+
+    public void setDataGetter(DataGetter dataGetter) {
+        this.dataGetter = dataGetter;
     }
 
     /**
@@ -108,57 +115,13 @@ public class Scene {
         }
     }
 
-    public void setDataGetter(DataGetter dataGetter) {
-        this.dataGetter = dataGetter;
-    }
-
-    /**
-     * Reset
-     */
-    public void reset() {
-        if(dataController != null) {
-            dataController.reset();
-        }
-        if(mesh == null) {
-            mesh = new Mesh(tick, shaderProgram);
-            System.out.println("Mesh initialized");
-        }
-        if(playerController != null) {
-            playerController = null;
-        }
-        if(collisionManager != null) {
-            collisionManager = null;
-        }
-        collisionManager = new CollisionManager();
-
-        if(playerController != null) playerController = null;
-        this.playerController = new PlayerController(
-            tick, 
-            window, 
-            mesh, 
-            collisionManager, 
-            spawner, 
-            upgrader, 
-            envController, 
-            dataController, 
-            stateController,
-            true
-        );
-
-        mesh.setPlayerController(playerController);
-        if(dataGetter != null) dataGetter.setPlayerController(playerController);
-        if(inputController != null) inputController.setPlayerInputMap(playerController.getInputMap());
-    }
-
     /**
      * Setup
      */
-    public void init(boolean reset) {
-        if(reset && init) {
-            cleanup();
-            init = false;
-        }
+    public void setup(boolean reset) {
         if(!init) {
+            if(reset) cleanup();
+
             this.collisionManager = new CollisionManager();
 
             this.mesh = new Mesh(tick, shaderProgram);
@@ -188,30 +151,31 @@ public class Scene {
                 playerController
             );
 
-            this.envController = new EnvController(dependencyContainer);
+            if(reset || envController == null) {
+                this.envController = new EnvController(dependencyContainer);
+            }
+            
             saveGenerator.setEnvController(getEnvController());
 
             dataGetter.setEnvController(envController);
             spawner.setEnvController(envController);
 
             this.upgrader = initUpgrader(envController);
+            if(reset && upgrader != null) upgrader.setData(new MainData());
 
-            if(reset || playerController == null) {
-                this.playerController = new PlayerController(
-                    tick, 
-                    window,
-                    mesh,
-                    collisionManager,
-                    spawner,
-                    upgrader,
-                    envController,
-                    dataController,
-                    stateController,
-                    false
-                );
-                playerController.updateAxePosition();
-            }
-            this.upgrader = initUpgrader(envController);
+            this.playerController = new PlayerController(
+                tick, 
+                window,
+                mesh,
+                collisionManager,
+                spawner,
+                upgrader,
+                envController,
+                dataController,
+                stateController,
+                true
+            );
+            playerController.updateAxePosition();
 
             this.uiController = new UIController(
                 window, 
@@ -264,6 +228,14 @@ public class Scene {
 
         mesh.renderAll();
         playerController.render();
+    }
+
+    /**
+     * Init
+     */
+    public void init(boolean reset) {
+        cleanup();
+        setup(reset);
     }
 
     public void cleanup() {

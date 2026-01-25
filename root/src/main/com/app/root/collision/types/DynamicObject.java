@@ -90,6 +90,9 @@ public class DynamicObject implements Collider {
      * Check Collision
      */
     public CollisionResult checkCollision(BoundingBox playerBox) {
+        float playerBottom = playerBox.minY;
+        if(playerBottom > Water.LEVEL) return new CollisionResult();
+
         boolean isInWater = 
             playerBox.maxY > Water.MIN_Y &&
             playerBox.minY < Water.LEVEL;
