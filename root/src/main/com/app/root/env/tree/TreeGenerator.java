@@ -59,16 +59,16 @@ public class TreeGenerator {
      * Mesh
      */
     public void createMesh() {
-    try {
-        String treeName = "tree" + treeData.getLevel();
-        mesh.addModel(MESH_ID, treeName);
-        mesh.setPosition(MESH_ID, position);
-        loadTex(treeName);
-    } catch(Exception err) {
-        System.err.println("Failed to create mesh for " + treeData.getIndexTo() + ": " + err.getMessage());
-        err.printStackTrace();
+        try {
+            String treeName = "tree" + treeData.getLevel();
+            mesh.addModel(MESH_ID, treeName);
+            mesh.setPosition(MESH_ID, position);
+            loadTex(treeName);
+        } catch(Exception err) {
+            System.err.println("Failed to create mesh for " + treeData.getIndexTo() + ": " + err.getMessage());
+            err.printStackTrace();
+        }
     }
-}
 
     public void destroyMesh() {
         if(mesh.hasMesh(MESH_ID)) {
@@ -89,7 +89,6 @@ public class TreeGenerator {
         System.out.println(treeData.getIndexTo() + " took " + damage + " damage. Health: " + currHealth + "/" + treeData.getHealth());
         if(currHealth <= 0) {
             isAlive = false;
-            respawnTimer = treeData.getRespawnTime();
             destroyMesh();
 
             int woodDrop = 
@@ -163,11 +162,8 @@ public class TreeGenerator {
      * Update
      */
     public void update(float deltaTime) {
-        if(!isAlive) {
+        if(!isAlive && respawnTimer > 0) {
             respawnTimer -= deltaTime;
-            if(respawnTimer <= 0) {
-                respawn();
-            }
         }
     }
 
@@ -179,5 +175,9 @@ public class TreeGenerator {
             //mesh.render(MESH_ID, getLevel());
             //System.out.println("Rendering tree " + id);
         }
+    }
+
+    public float getRespawnTimer() {
+        return this.respawnTimer;
     }
 }

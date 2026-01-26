@@ -9,6 +9,8 @@ import main.com.app.root.env.world.Chunk;
 import main.com.app.root.env.world.Water;
 import main.com.app.root.env.world.WorldGenerator;
 import main.com.app.root.mesh.Mesh;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -262,18 +264,6 @@ public class Spawner {
         return spawnRadius;
     }
 
-    public void printSpawnerStatus() {
-        /*
-        System.out.println("=== SPAWNER STATUS ===");
-        System.out.println("Active: " + isActive);
-        System.out.println("Center: [" + centerPosition.x + ", " + centerPosition.z + "]");
-        System.out.println("Trees: " + getActiveTreeCount() + " alive / " + 
-                          treeData.trees.size() + " total (max: " + maxObjs + ")");
-        System.out.println("Radius: " + spawnRadius);
-        System.out.println("======================");
-        */
-    }
-
     /**
      * Spawn Tree At Level
      */
@@ -317,10 +307,13 @@ public class Spawner {
         int currLevel
     ) {
         if(treeData.trees.contains(deadTree)) {
-            Object treeGenerator = EnvCall.callReturn(deadTree, "getGenerator");
-            EnvCall.call(treeGenerator, "cleanup");
             treeData.trees.remove(deadTree);
             System.out.println("Removed dead tree from list");
+        }
+        
+        Object treeGenerator = EnvCall.callReturn(deadTree, "getGenerator");
+        if(treeGenerator != null) {
+            EnvCall.call(treeGenerator, "cleanup");
         }
         
         int nextLevel = currLevel + 1;
@@ -439,16 +432,13 @@ public class Spawner {
     public void update() {
         if(!isActive) return;
 
-        Iterator<TreeController> iterator = treeData.trees.iterator();
-        while(iterator.hasNext()) {
-            TreeController tree = iterator.next();
+        List<TreeController> treesToUpdate = new ArrayList<>(treeData.trees);
+        
+        for(TreeController tree : treesToUpdate) {
             Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
-
+            
             boolean isAlive = (Boolean) EnvCall.callReturn(treeGenerator, "isAlive");
-            if(!isAlive) {
-                iterator.remove();
-                continue;
-            }
+            if(!isAlive) continue;
             
             Object[] updateParams = new Object[]{tick.getDeltaTime()};
             EnvCall.callWithParams(treeGenerator, updateParams, "update");
@@ -512,5 +502,17 @@ public class Spawner {
         treeData.trees.clear();
         treeData.currentTreeId = 0;
         System.out.println("Cleared all trees for save loading");
+    }
+
+    public void printSpawnerStatus() {
+        /*
+        System.out.println("=== SPAWNER STATUS ===");
+        System.out.println("Active: " + isActive);
+        System.out.println("Center: [" + centerPosition.x + ", " + centerPosition.z + "]");
+        System.out.println("Trees: " + getActiveTreeCount() + " alive / " + 
+                          treeData.trees.size() + " total (max: " + maxObjs + ")");
+        System.out.println("Radius: " + spawnRadius);
+        System.out.println("======================");
+        */
     }
 }

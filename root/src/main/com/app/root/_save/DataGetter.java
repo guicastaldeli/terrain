@@ -1,5 +1,6 @@
 package main.com.app.root._save;
 import main.com.app.root.DataController;
+import main.com.app.root.Scene;
 import main.com.app.root.Spawner;
 import main.com.app.root.StateController;
 import main.com.app.root.Upgrader;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class DataGetter {
     public final DataController dataController;
     public final StateController stateController;
+    private final Scene scene;
     public EnvController envController;
 
     public Spawner spawner;
@@ -26,10 +28,12 @@ public class DataGetter {
 
     public DataGetter(
         DataController dataController,
-        StateController stateController
+        StateController stateController,
+        Scene scene
     ) {
         this.dataController = dataController;
         this.stateController = stateController;
+        this.scene = scene;
     }
 
     public void setEnvController(EnvController envController) {
@@ -64,47 +68,49 @@ public class DataGetter {
      * World Data
      */
     public Map<String, Object> getWorldData() {
-    Map<String, Object> data = new HashMap<>();
-    data.put("seed", dataController.getWorldSeed());
-    data.put("time", dataController.getWorldTime());
-    data.put("current_level", stateController.getCurrentLevel());
-    
-    if(spawner != null) {
-        Vector3f spawnerCenter = spawner.getCenterPosition();
-        data.put("spawner_center_x", spawnerCenter.x);
-        data.put("spawner_center_y", spawnerCenter.y);
-        data.put("spawner_center_z", spawnerCenter.z);
-        data.put("spawner_radius", spawner.getSpawnRadius());
-        data.put("spawner_active", spawner.isActive());
+        Map<String, Object> data = new HashMap<>();
+        data.put("seed", dataController.getWorldSeed());
+        data.put("time", dataController.getWorldTime());
+        data.put("current_level", stateController.getCurrentLevel());
         
-        List<Map<String, Object>> treesData = new ArrayList<>();
-        for(TreeController tree : spawner.getTrees()) {
-            Map<String, Object> treeData = new HashMap<>();
+        if(spawner != null) {
+            Vector3f spawnerCenter = spawner.getCenterPosition();
+            data.put("spawner_center_x", spawnerCenter.x);
+            data.put("spawner_center_y", spawnerCenter.y);
+            data.put("spawner_center_z", spawnerCenter.z);
+            data.put("spawner_radius", spawner.getSpawnRadius());
+            data.put("spawner_active", spawner.isActive());
             
-            try {
-                Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
+            List<Map<String, Object>> treesData = new ArrayList<>();
+            for(TreeController tree : spawner.getTrees()) {
+                Map<String, Object> treeData = new HashMap<>();
                 
-                if(treeGenerator != null) {
-                    Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
-                    int treeLevel = (Integer) EnvCall.callReturn(treeGenerator, "getLevel");
-                    boolean isAlive = (Boolean) EnvCall.callReturn(treeGenerator, "isAlive");
+                try {
+                    Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
                     
-                    treeData.put("position_x", treePos.x);
-                    treeData.put("position_y", treePos.y);
-                    treeData.put("position_z", treePos.z);
-                    treeData.put("level", treeLevel);
-                    treeData.put("alive", isAlive);
-                    treesData.add(treeData);
+                    if(treeGenerator != null) {
+                        Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
+                        int treeLevel = (Integer) EnvCall.callReturn(treeGenerator, "getLevel");
+                        boolean isAlive = (Boolean) EnvCall.callReturn(treeGenerator, "isAlive");
+                        float respawnTimer = (Float) EnvCall.callReturn(treeGenerator, "getRespawnTimer");
+                        
+                        treeData.put("position_x", treePos.x);
+                        treeData.put("position_y", treePos.y);
+                        treeData.put("position_z", treePos.z);
+                        treeData.put("level", treeLevel);
+                        treeData.put("alive", isAlive);
+                        treeData.put("respawn_timer", respawnTimer);
+                        treesData.add(treeData);
+                    }
+                } catch(Exception err) {
+                    err.printStackTrace();
                 }
-            } catch(Exception err) {
-                err.printStackTrace();
             }
+            data.put("trees", treesData);
         }
-        data.put("trees", treesData);
+        
+        return data;
     }
-    
-    return data;
-}
 
     /**
      * Player Data
@@ -191,7 +197,6 @@ public class DataGetter {
         
         if(data.containsKey("trees") && spawner != null) {
             List<Map<String, Object>> treesData = (List<Map<String, Object>>) data.get("trees");
-            spawner.clearTrees();
             
             int maxTreeId = 0;
             
@@ -202,6 +207,10 @@ public class DataGetter {
                     float z = ((Number) treeData.get("position_z")).floatValue();
                     int level = ((Number) treeData.get("level")).intValue();
                     boolean alive = (Boolean) treeData.get("alive");
+                    float respawnTimer = 
+                        treeData.containsKey("respawn_timer") ? 
+                        ((Number) treeData.get("respawn_timer")).floatValue() : 
+                        0f;
                     
                     Vector3f position = new Vector3f(x, y, z);
                     
@@ -222,7 +231,7 @@ public class DataGetter {
                             if(!alive) {
                                 treeGenerator.isAlive = false;
                                 treeGenerator.currHealth = 0;
-                                treeGenerator.respawnTimer = treeConfig.getRespawnTime();
+                                treeGenerator.respawnTimer = respawnTimer;
                             } else {
                                 treeGenerator.isAlive = true;
                                 treeGenerator.currHealth = treeConfig.getHealth();

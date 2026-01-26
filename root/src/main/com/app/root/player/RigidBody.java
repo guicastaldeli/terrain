@@ -166,7 +166,7 @@ public class RigidBody {
         float deltaTime = tick.getDeltaTime();
         if(isStatic) return;
 
-        if(gravityEnabled) applyForce(new Vector3f(0, gravity * mass * gravityScale, 0));
+        if(gravityEnabled && !onGround) applyForce(new Vector3f(0, gravity * mass * gravityScale, 0));
         velocity.add(acceleration.mul(deltaTime, new Vector3f()));
         velocity.mul(1.0f - (drag * deltaTime));
 

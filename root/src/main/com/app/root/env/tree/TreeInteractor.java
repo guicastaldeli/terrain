@@ -82,11 +82,6 @@ public class TreeInteractor {
             int actualWood = axe.calcWoodDrop(woodDropped);
             upgrader.addWood(actualWood);
             System.out.println("+ " + actualWood + " wood! (Total: " + upgrader.getWood() + ")");
-            //Visuals later
-
-            Vector3f treePos = (Vector3f) EnvCall.callReturn(treeGenerator, "getPosition");
-            spawner.handleTreeBreak(tree, treePos, treeLevel);
-            System.out.println("Tree broken! Respawning at next level...");
         }
     }
 

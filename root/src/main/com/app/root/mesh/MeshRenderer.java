@@ -3,12 +3,10 @@ import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.player.Camera;
 import main.com.app.root.player.PlayerController;
-
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;

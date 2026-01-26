@@ -71,7 +71,8 @@ public class Main {
         /* Data Getter */
         dataGetter = new DataGetter(
             dataController, 
-            stateController
+            stateController,
+            scene
         );
         
         /* Save Generator */

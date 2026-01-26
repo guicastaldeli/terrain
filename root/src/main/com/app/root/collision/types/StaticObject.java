@@ -1,6 +1,4 @@
 package main.com.app.root.collision.types;
-import org.joml.Vector3f;
-
 import main.com.app.root.collision.BoundingBox;
 import main.com.app.root.collision.Collider;
 import main.com.app.root.collision.CollisionManager;
@@ -8,6 +6,7 @@ import main.com.app.root.collision.CollisionResult;
 import main.com.app.root.collision.CollisionManager.CollisionType;
 import main.com.app.root.env.world.Water;
 import main.com.app.root.player.RigidBody;
+import org.joml.Vector3f;
 
 public class StaticObject implements Collider {
     private BoundingBox bBox;
@@ -124,8 +123,8 @@ public class StaticObject implements Collider {
 
         float[] sampleX = {
             centerX,
-            centerX - box.getSizeX() * 0.4f,
-            centerX + box.getSizeX() * 0.4f,
+            centerX - box.getSizeX() * 0.5f,
+            centerX + box.getSizeX() * 0.5f,
             centerX,
             centerX
         };
@@ -133,8 +132,8 @@ public class StaticObject implements Collider {
             centerZ,
             centerZ,
             centerZ,
-            centerZ - box.getSizeZ() * 0.4f,
-            centerZ + box.getSizeZ() * 0.4f
+            centerZ - box.getSizeZ() * 0.5f,
+            centerZ + box.getSizeZ() * 0.5f
         };
 
         float heightestTerrainHeight = Float.MIN_VALUE;
