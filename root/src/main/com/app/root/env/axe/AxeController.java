@@ -8,10 +8,14 @@ import org.joml.Vector3f;
 public class AxeController implements EnvInstance<AxeController> {
     @DependencyValue private Mesh mesh;
 
-    private final String AXE_ID = "AXE"; 
-    private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/item/";
-    private AxeData axeData;
     private static AxeController instance;
+    private AxeData axeData;
+
+    private final String AXE_ID = "AXE"; 
+    public static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/item/";
+
+    public static final int AXE_MIN_LEVEL = 0;
+    public static final int AXE_MAX_LEVEL = 10;
 
     @Override
     public AxeController getInstance() {
@@ -106,7 +110,7 @@ public class AxeController implements EnvInstance<AxeController> {
      * Upgrade
      */
     public void upgrade() {
-        if(axeData.level < 10) {
+        if(axeData.level < AXE_MAX_LEVEL) {
             axeData.level++;
             AxeData newConfig = axeData.configs.get(axeData.level);
             if(newConfig != null) {

@@ -179,7 +179,8 @@ public class Scene {
             this.uiController = new UIController(
                 window, 
                 shaderProgram, 
-                upgrader
+                upgrader,
+                mesh
             );
             inputController.setUiController(uiController);
 

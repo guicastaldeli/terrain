@@ -2,6 +2,7 @@ package main.com.app.root.ui;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
+import main.com.app.root.mesh.Mesh;
 import main.com.app.root._font.FontConfig;
 import main.com.app.root._font.FontMap;
 import main.com.app.root.Console;
@@ -17,6 +18,7 @@ public class UI implements UIHandler {
     public static UIController uiController;
     public static Upgrader upgrader;
     public TextRenderer textRenderer;
+    public static Mesh mesh;
 
     public String uiName;
     public String filePath;
@@ -28,13 +30,15 @@ public class UI implements UIHandler {
         Window window, 
         ShaderProgram shaderProgram, 
         UIController uiController,
-        Upgrader upgrader
+        Upgrader upgrader,
+        Mesh mesh
     ) {
         try {
             UI.window = window;
             UI.shaderProgram = shaderProgram;
             UI.uiController = uiController;
             UI.upgrader = upgrader;
+            UI.mesh = mesh;
         } catch(Exception e) {
             //System.err.println("Failed to initialize UI: " + UI.uinam);
             e.printStackTrace();

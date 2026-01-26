@@ -3,12 +3,15 @@ import main.com.app.root.ui.UI;
 import main.com.app.root.ui.UIController;
 import main.com.app.root.ui.UIElement;
 import main.com.app.root.Window;
+import main.com.app.root._resources.TextureLoader;
 import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.env.axe.AxeController;
 import main.com.app.root.env.axe.AxeSlot;
 import main.com.app.root.DocParser;
 import main.com.app.root.Upgrader;
 import java.util.ArrayList;
 import java.util.List;
+import org.joml.Vector3f;
 
 public class UpgradeMenu extends UI {
     private static final String UI_PATH = DIR + "upgrade_menu/upgrade_menu.xml";
@@ -22,6 +25,7 @@ public class UpgradeMenu extends UI {
     
     private int currentAxeLevel = 0;
     private List<AxeSlot> axeSlots;
+    private List<String> axeMeshIds;
 
     public UpgradeMenu(
         Window window,
@@ -37,7 +41,10 @@ public class UpgradeMenu extends UI {
         this.upgrader = upgrader;
 
         this.axeSlots = new ArrayList<>();
+        this.axeMeshIds = new ArrayList<>();
         this.currentAxeLevel = upgrader.getAxeLevel();
+
+        createAxeMeshes();
         refreshAxeSlots();
         
         this.upgradeMenuActions = new UpgradeMenuActions(this);
@@ -57,6 +64,52 @@ public class UpgradeMenu extends UI {
     public void onHide() {
         super.onHide();
         this.visible = false;
+        cleanup();
+    }
+
+    /**
+     * Create Axe Meshes
+     */
+    private void createAxeMeshes() {
+        for(int level = 0; level <= 10; level++) {
+            String meshId = "upgrade_menu_axe_" + level;
+            String axeName = "axe" + level;
+            try {
+                mesh.addModel(meshId, axeName);
+                int texId = TextureLoader.load(AxeController.TEX_PATH + axeName + ".png");
+                if(texId > 0) mesh.setTex(meshId, texId);
+
+                axeMeshIds.add(meshId);
+            } catch(Exception err) {
+                System.err.println("Failed to load axe model for level " + level + ": " + err.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Render Axe Mesh
+     */
+    private void renderAxeMesh() {
+        int startX = 100;
+        int startY = 250;
+        int slotWidth = 200;
+        int slotHeight = 80;
+        int slotSpacing = 20;
+
+        for(int level = AxeController.AXE_MIN_LEVEL; level < AxeController.AXE_MAX_LEVEL; level++) {
+            String meshId = "upgrade_menu_axe_" + level;
+            if(!mesh.hasMesh(meshId)) continue;
+
+            int slotX = startX + (level % 3) * (slotWidth + slotSpacing);
+            int slotY = startY + (level / 3) * (slotHeight + slotSpacing);
+
+            float worldX = (slotX + slotWidth / 2 - window.getWidth() / 2) * 0.01f;
+            float worldY = -(slotY + 40 - window.getHeight() / 2) * 0.01f;
+            float worldZ = -5.0f;
+
+            mesh.setPosition(meshId, new Vector3f(worldX, worldY, worldZ));
+            mesh.render(meshId, 0);
+        }
     }
 
     /**
@@ -264,6 +317,7 @@ public class UpgradeMenu extends UI {
             shaderProgram, 
             textRenderer
         );
+        renderAxeMesh();
     }
 
     @Override
@@ -281,5 +335,17 @@ public class UpgradeMenu extends UI {
         } catch(Exception err) {
             System.err.println("Failed to re-parse screen on resize: " + err.getMessage());
         }
+    }
+
+    /**
+     * Cleanup
+     */
+    public void cleanup() {
+        for(String meshId : axeMeshIds) {
+            if(mesh.hasMesh(meshId)) {
+                mesh.removeMesh(meshId);
+            }
+        }
+        axeMeshIds.clear();
     }
 }

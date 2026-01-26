@@ -3,6 +3,8 @@ import java.io.Serializable;
 
 public class MainData implements Serializable {
     private static final long serialVersionUID = 1L;
+    private static final int MIN_LEVEL = 0;
+    private static final int MAX_LEVEL = 10;
 
     public int wood;
     public int axeLevel;
@@ -21,7 +23,7 @@ public class MainData implements Serializable {
         this.speedIncrease = new float[10];
         this.woodMultiplier = new float[10];
         
-        for(int i = 0; i < 10; i++) {
+        for(int i = MIN_LEVEL; i < MAX_LEVEL; i++) {
             upgradeCosts[i] = 100 * (i + 1);
             damageIncrease[i] = 10 + (i * 5);
             speedIncrease[i] = 1.0f + (i * 0.2f);
@@ -35,9 +37,11 @@ public class MainData implements Serializable {
     public int getWood() { 
         return wood; 
     }
+
     public void setWood(int wood) { 
         this.wood = Math.max(0, wood); 
     }
+    
     public void addWood(int amount) {
         this.wood += Math.max(0, amount);
     }
@@ -48,28 +52,35 @@ public class MainData implements Serializable {
     public int getAxeLevel() { 
         return axeLevel; 
     }
+
     public String getCurrentAxe() { 
         return currAxe; 
     }
+    
     public void setAxeLevel(int level) { 
         this.axeLevel = Math.max(0, Math.min(9, level)); 
         this.currAxe = "axe" + this.axeLevel;
     }
+
     public void upgradeAxe() {
-        if(axeLevel < 9) {
+        if(axeLevel < MAX_LEVEL) {
             axeLevel++;
             currAxe = "axe" + axeLevel;
         }
     }
+
     public void setCurrentAxe(String axe) { 
         this.currAxe = axe; 
     }
+
     public float[] getWoodMultiplier() { 
         return woodMultiplier.clone(); 
     }
+
     public void removeWood(int amount) {
         this.wood = Math.max(0, this.wood - amount);
     }
+
     public void setWoodMultiplier(float[] multiplier) { 
         if(multiplier != null && multiplier.length == 10) {
             this.woodMultiplier = multiplier.clone();
@@ -82,6 +93,7 @@ public class MainData implements Serializable {
     public int[] getUpgradeCosts() { 
         return upgradeCosts.clone(); 
     }
+
     public void setUpgradeCosts(int[] costs) { 
         if(costs != null && costs.length == 10) {
             this.upgradeCosts = costs.clone();
@@ -94,6 +106,7 @@ public class MainData implements Serializable {
     public float[] getDamageIncrease() { 
         return damageIncrease.clone(); 
     }
+
     public void setDamageIncrease(float[] damage) { 
         if(damage != null && damage.length == 10) {
             this.damageIncrease = damage.clone();
@@ -106,8 +119,6 @@ public class MainData implements Serializable {
     public float[] getSpeedIncrease() { 
         return speedIncrease.clone(); 
     }
-    
-    
     
     public void setSpeedIncrease(float[] speed) { 
         if(speed != null && speed.length == 10) {

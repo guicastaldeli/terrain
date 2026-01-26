@@ -2,6 +2,7 @@ package main.com.app.root.ui;
 import main.com.app.root.Upgrader;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.mesh.Mesh;
 import main.com.app.root.ui.upgrade_menu.UpgradeMenu;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ public class UIController {
     private final Window window;
     private final ShaderProgram shaderProgram;
     private final Upgrader upgrader;
+    private final Mesh mesh;
 
     private Map<UIType, UI> uis;
     private UIType active;
@@ -27,16 +29,19 @@ public class UIController {
     public UIController(
         Window window, 
         ShaderProgram shaderProgram,
-        Upgrader upgrader
+        Upgrader upgrader,
+        Mesh mesh
     ) {
         this.window = window;
         this.shaderProgram = shaderProgram;
         this.upgrader = upgrader;
+        this.mesh = mesh;
         UI.init(
             window, 
             shaderProgram, 
             this,
-            upgrader
+            upgrader,
+            mesh
         );
 
         this.uis = new HashMap<>();
@@ -80,7 +85,12 @@ public class UIController {
      * Init UIs
      */
     private void initUI() {
-        UpgradeMenu upgradeMenu = new UpgradeMenu(window, shaderProgram, this, upgrader);
+        UpgradeMenu upgradeMenu = new UpgradeMenu(
+            window, 
+            shaderProgram, 
+            this, 
+            upgrader
+        );
         uis.put(UIType.UPGRADE_MENU, upgradeMenu);
     }
 
