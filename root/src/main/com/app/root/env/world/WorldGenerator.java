@@ -1,4 +1,6 @@
 package main.com.app.root.env.world;
+import org.joml.Vector3f;
+
 import main.com.app.root.DataController;
 import main.com.app.root.Spawner;
 import main.com.app.root.StateController;
@@ -172,6 +174,36 @@ public class WorldGenerator {
         }
 
         return 0.0f;
+    }
+
+    /**
+     * Is Valid Spawn Position
+     */
+    public boolean isValidSpawnPos(float x, float z) {
+        float terrainHeight = getHeightAt(x, z);
+        return terrainHeight > Water.LEVEL + 2.0f;
+    }
+    
+    /**
+     * Find Nearest Land
+     */
+    public Vector3f findNearestLand(
+        float startX,
+        float startZ,
+        float maxDistance
+    ) {
+        for(float radius = 0; radius < maxDistance; radius += 10.0f) {
+            for(int angle = 0; angle < 360; angle += 10) {
+                float rad = (float) Math.toRadians(angle);
+                float checkX = startX + (float)(Math.cos(rad) * radius);
+                float checkZ = startZ + (float)(Math.sin(rad) * radius);
+                if(isValidSpawnPos(checkX, checkZ)) {
+                    float height = getHeightAt(checkX, checkZ);
+                    return new Vector3f(checkX, height + 5.0f, checkZ);
+                }
+            } 
+        }
+        return null;
     }
 
     /**

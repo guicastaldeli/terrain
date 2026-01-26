@@ -91,6 +91,18 @@ cl /nologo /c /O2 /EHsc /std:c17 ^
     /I"%JAVA_HOME%\include" ^
     /I"%JAVA_HOME%\include\win32" ^
     /I"%OPENSSL_INCLUDE%" ^
+    "%SRC_DIR%\main_screen.c"
+
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to compile main_screen.c
+    pause
+    exit /b 1
+)
+
+cl /nologo /c /O2 /EHsc /std:c17 ^
+    /I"%JAVA_HOME%\include" ^
+    /I"%JAVA_HOME%\include\win32" ^
+    /I"%OPENSSL_INCLUDE%" ^
     "%SRC_DIR%\poisson_disk.c"
 
 if %errorlevel% neq 0 (
@@ -166,6 +178,7 @@ link /nologo /OUT:world.exe ^
     main.obj ^
     noise.obj ^
     map_generator.obj ^
+    main_screen.obj ^
     poisson_disk.obj ^
     point_generator.obj ^
     domain_warp.obj ^
@@ -190,6 +203,7 @@ link /nologo /DLL /OUT:noise_generator.dll ^
     noise_generator_jni.obj ^
     noise.obj ^
     map_generator.obj ^
+    main_screen.obj ^
     poisson_disk.obj ^
     point_generator.obj ^
     domain_warp.obj ^

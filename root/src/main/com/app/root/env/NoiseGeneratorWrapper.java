@@ -70,6 +70,12 @@ public class NoiseGeneratorWrapper {
         int worldSize,
         int chunkSize
     );
+    public native boolean generateMapForMainScreen(
+        String outputhPath, 
+        long seed, 
+        int worldSize,
+        int chunkSize
+    );
     public native boolean generateMapMetadata(
         String outputPath, 
         long seed, 
@@ -78,6 +84,12 @@ public class NoiseGeneratorWrapper {
     );
     
     public native float[] generateChunk(
+        int chunkX, 
+        int chunkZ, 
+        int chunkSize,
+        int worldSize
+    );
+    public native float[] generateChunkForMainScreen(
         int chunkX, 
         int chunkZ, 
         int chunkSize,

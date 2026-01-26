@@ -9,6 +9,8 @@ import main.com.app.root.collision.types.DynamicObject;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
+import main.com.app.root.env.world.Water;
+import main.com.app.root.env.world.WorldGenerator;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.DataController;
 import org.joml.Vector3f;
@@ -124,12 +126,8 @@ public class PlayerController {
             this.position = new Vector3f(savedPos);
             System.out.println("PlayerController position set to saved: " + position);
         } else {
-            this.position = new Vector3f(
-                camera.getPosition().x,
-                camera.getPosition().y, 
-                camera.getPosition().z
-            );
-            System.out.println("PlayerController position set to default: " + position);
+            this.position = findValidSpawnPos();
+            System.out.println("PlayerController position set to valid spawn: " + position);
         }
 
         this.velocity = new Vector3f(xSpeed, ySpeed, zSpeed);
@@ -176,6 +174,40 @@ public class PlayerController {
         }
         
         updateCameraPosition();
+    }
+
+    private Vector3f findValidSpawnPos() {
+        WorldGenerator worldGenerator = getWorldGenerator();
+        if(worldGenerator == null) {
+            return new Vector3f(
+                camera.getPosition().x, 
+                camera.getPosition().y, 
+                camera.getPosition().z
+            );
+        }
+
+        int maxAttempts = 1000;
+        float spawnRadius = 1000.0f;
+        for(int attempt = 0; attempt < maxAttempts; attempt++) {
+            float angle = (float)(Math.random() * 2 * Math.PI);
+            float distance = (float)(Math.random() * spawnRadius);
+
+            float spawnX = (float)(Math.cos(angle) * distance);
+            float spawnZ = (float)(Math.sin(angle) * distance);
+
+            float terrainHeight = worldGenerator.getHeightAt(spawnX, spawnZ);
+            if(terrainHeight > Water.LEVEL + 2.0f) {
+                float spawnY = terrainHeight + 5.0f;
+                return new Vector3f(
+                    spawnX, 
+                    spawnY, 
+                    spawnZ
+                );
+            }
+        }
+
+        System.out.println("No valid land spawn found, using default position");
+        return new Vector3f(0f, Water.LEVEL + 50f, 0f);
     }
 
     /**
@@ -472,5 +504,18 @@ public class PlayerController {
     public void reset() {
         Object axeController = envController != null ? envController.getEnv(EnvData.AXE) : null;
         if(axeController != null) EnvCall.call(axeController, "reset");
+    }
+
+    private WorldGenerator getWorldGenerator() {
+        if(envController != null && envController.getEnv(EnvData.MAP) != null) {
+            Object worldController = envController.getEnv(EnvData.MAP);
+            if(worldController != null) {
+                Object generator = EnvCall.callReturn(worldController, "getGenerator");
+                if(generator instanceof WorldGenerator) {
+                    return (WorldGenerator) generator;
+                }
+            }
+        }
+        return null;
     }
 }

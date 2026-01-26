@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "_noise/map_generator.h"
+#include "_noise/main_screen.h"
 
 static float* heightMapData = NULL;
 static int* indicesData = NULL;
@@ -84,6 +85,68 @@ JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_gene
         heightMap[i] = malloc(worldSize * sizeof(float));
         for(int j = 0; j < worldSize; j++) {
             heightMap[i][j] = generateHeightMap(
+                i, j, 
+                worldSize,
+                &collection
+            );
+        }
+    }
+    
+    heightMapData = malloc(mapWidth * mapHeight * sizeof(float));
+    for(int i = 0; i < mapWidth; i++) {
+        for(int j = 0; j < mapHeight; j++) {
+            heightMapData[i * mapWidth + j] = heightMap[i][j];
+        }
+        free(heightMap[i]);
+    }
+    free(heightMap);
+   
+    
+    if(strlen(path) > 0) generateMap(worldSize, chunkSize, path);
+    freePointCollection(&collection);
+    (*env)->ReleaseStringUTFChars(env, outputPath, path);
+    
+    return JNI_TRUE;
+}
+
+JNIEXPORT jboolean JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_generateMapForMainScreen(
+    JNIEnv *env, 
+    jobject obj, 
+    jstring outputPath, 
+    jlong seed,
+    jint worldSize,
+    jint chunkSize
+) {    
+    const char *path = (*env)->GetStringUTFChars(env, outputPath, 0); 
+
+    if(heightMapData) free(heightMapData);
+    if(indicesData) free(indicesData);
+    if(normalsData) free(normalsData);
+    if(colorsData) free(colorsData);
+    if(pointData) free(pointData);
+    initSystems((unsigned long)seed);
+    
+    PointCollection collection;
+    initCollection(&collection, 50);
+    generatePoints(&collection, worldSize, 15);
+    pointCount = collection.count;
+    
+    pointData = malloc(pointCount * 6 * sizeof(float));
+    for(int i = 0; i < pointCount; i++) {
+        int idx = i * 6;
+        pointData[idx] = collection.points[i].centerX;
+        pointData[idx + 1] = collection.points[i].centerZ;
+        pointData[idx + 2] = collection.points[i].radius;
+        pointData[idx + 3] = collection.points[i].heightScale;
+        pointData[idx + 4] = collection.points[i].ruggedness;
+        pointData[idx + 5] = collection.points[i].elevation;
+    }
+    
+    float** heightMap = malloc(worldSize * sizeof(float*));
+    for(int i = 0; i < worldSize; i++) {
+        heightMap[i] = malloc(worldSize * sizeof(float));
+        for(int j = 0; j < worldSize; j++) {
+            heightMap[i][j] = generateHeightMapForMainScreen(
                 i, j, 
                 worldSize,
                 &collection
@@ -350,7 +413,59 @@ JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_g
     return result;
 }
 
+JNIEXPORT jfloatArray JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_generateChunkForMainScreen(
+    JNIEnv *env, 
+    jobject obj, 
+    jint chunkX, 
+    jint chunkZ, 
+    jint chunkSize,
+    jint worldSize
+) {
+    if(globalCollection == NULL) {
+        printf("ERROR: Noise system not initialized! Call initNoise first.\n");
+        return NULL;
+    }
+    
+    float* chunkData = malloc(chunkSize * chunkSize * sizeof(float));
+    
+    int worldStartX = chunkX * chunkSize;
+    int worldStartZ = chunkZ * chunkSize;
+    
+    for(int x = 0; x < chunkSize; x++) {
+        for(int z = 0; z < chunkSize; z++) {
+            float worldX = worldStartX + x;
+            float worldZ = worldStartZ + z;
+            
+            chunkData[x * chunkSize + z] = generateHeightMapForMainScreen(
+                worldX, worldZ, 
+                worldSize, 
+                globalCollection
+            );
+        }
+    }
+    
+    jfloatArray result = (*env)->NewFloatArray(env, chunkSize * chunkSize);
+    (*env)->SetFloatArrayRegion(env, result, 0, chunkSize * chunkSize, chunkData);
+    free(chunkData);
+    
+    return result;
+}
+
 JNIEXPORT jfloat JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getHeightAt(
+    JNIEnv *env, 
+    jobject obj, 
+    jfloat worldX,
+    jfloat worldZ,
+    jint worldSize
+) {
+    if(globalCollection == NULL) {
+        printf("ERROR: Noise system not initialized! Call initNoise first.\n");
+        return 0.0f;
+    }
+    return generateHeightMap(worldX, worldZ, worldSize, globalCollection);
+}
+
+JNIEXPORT jfloat JNICALL Java_main_com_app_root_env_NoiseGeneratorWrapper_getHeightAtMainScreen(
     JNIEnv *env, 
     jobject obj, 
     jfloat worldX,
