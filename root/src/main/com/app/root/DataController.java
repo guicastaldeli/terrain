@@ -28,10 +28,6 @@ public class DataController implements Serializable {
     private int itemsCollected;
 
     public DataController() {        
-        /* Player */
-        playerPos = new Vector3f(0, 0, 0);
-        playerRotation = new Vector3f(0, 0, 0);
-
         /* State */
         items = new ArrayList<>();
     }
@@ -63,7 +59,16 @@ public class DataController implements Serializable {
     }
 
     public Vector3f getPlayerPos() {
-        return playerPos;
+        if(playerPos == null) return null;
+        
+        if(Math.abs(playerPos.x) < 0.1f && 
+            Math.abs(playerPos.y) < 0.1f && 
+            Math.abs(playerPos.z) < 0.1f
+        ) {
+            return null;
+        }
+        
+        return new Vector3f(playerPos);
     }
 
     public void setPlayerRotation(Vector3f rotation) {

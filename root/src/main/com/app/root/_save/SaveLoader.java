@@ -5,7 +5,6 @@ import main.com.app.root.Scene;
 import main.com.app.root.StateController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.world.WorldController;
-
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

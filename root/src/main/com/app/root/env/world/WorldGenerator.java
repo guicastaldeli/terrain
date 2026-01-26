@@ -1,6 +1,4 @@
 package main.com.app.root.env.world;
-import org.joml.Vector3f;
-
 import main.com.app.root.DataController;
 import main.com.app.root.Spawner;
 import main.com.app.root.StateController;
@@ -122,7 +120,8 @@ public class WorldGenerator {
         if(!noiseInitialized) {
             initNoise();
             if(!noiseInitialized) {
-                return 0.0f;
+                System.err.println("Noise not initialized, returning default height");
+                return 100.0f;
             }
         }
         
@@ -134,11 +133,9 @@ public class WorldGenerator {
             if(chunkData.meshData != null) {
                 int localX = (int)((x + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
                 int localZ = (int)((z + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
-                return getHeightFromChunkData(chunkData, localX, localZ);
+                float height = getHeightFromChunkData(chunkData, localX, localZ);
+                if(height > 0.0f) return height;
             }
-        }
-        if(chunk.loadedChunks.containsKey(chunkId)) {
-            ChunkData chunkData = chunk.loadedChunks.get(chunkId);
             if(chunkData.collider != null && chunkData.collider.isMap()) {
                 return chunkData.collider.getHeightAtWorld(x, z);
             }
@@ -155,7 +152,8 @@ public class WorldGenerator {
             }
         }
 
-        return 0.0f;
+        System.err.println("Failed to get height at (" + x + ", " + z + "), returning safe default");
+        return 100.0f;
     }
 
     private float getHeightFromChunkData(
@@ -174,36 +172,6 @@ public class WorldGenerator {
         }
 
         return 0.0f;
-    }
-
-    /**
-     * Is Valid Spawn Position
-     */
-    public boolean isValidSpawnPos(float x, float z) {
-        float terrainHeight = getHeightAt(x, z);
-        return terrainHeight > Water.LEVEL + 2.0f;
-    }
-    
-    /**
-     * Find Nearest Land
-     */
-    public Vector3f findNearestLand(
-        float startX,
-        float startZ,
-        float maxDistance
-    ) {
-        for(float radius = 0; radius < maxDistance; radius += 10.0f) {
-            for(int angle = 0; angle < 360; angle += 10) {
-                float rad = (float) Math.toRadians(angle);
-                float checkX = startX + (float)(Math.cos(rad) * radius);
-                float checkZ = startZ + (float)(Math.sin(rad) * radius);
-                if(isValidSpawnPos(checkX, checkZ)) {
-                    float height = getHeightAt(checkX, checkZ);
-                    return new Vector3f(checkX, height + 5.0f, checkZ);
-                }
-            } 
-        }
-        return null;
     }
 
     /**
@@ -276,6 +244,9 @@ public class WorldGenerator {
         return noiseGeneratorWrapper;
     }
 
+    /**
+     * Init Noise
+     */
     public void initNoise() {
         if(!noiseInitialized && noiseGeneratorWrapper != null) {
             if(!noiseGeneratorWrapper.initNoise(currentSeed, WORLD_SIZE)) {
@@ -284,6 +255,20 @@ public class WorldGenerator {
                 noiseInitialized = true;
                 System.out.println("Noise system initialized with seed " + currentSeed);
             }
+        }
+    }
+
+    public void waitUntilReady() {
+        int maxWaitAttempts = 100;
+        int attempts = 0;
+        while(attempts < maxWaitAttempts && !isReady) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+            attempts++;
         }
     }
 }

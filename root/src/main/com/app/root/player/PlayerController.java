@@ -10,7 +10,6 @@ import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.world.Water;
-import main.com.app.root.env.world.WorldGenerator;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.DataController;
 import org.joml.Vector3f;
@@ -53,7 +52,7 @@ public class PlayerController {
     private float ySpeed = 0.0f;
     private float zSpeed = 0.0f;
 
-    private float jumpForce = 25.0f;
+    private float jumpForce = 15.0f;
     private boolean onJump = false;
 
     private boolean movingForward = false;
@@ -121,13 +120,19 @@ public class PlayerController {
                 camera.getPosition().z
             );
         }
-        
+
         if(savedPos != null && !isNewSave) {
-            this.position = new Vector3f(savedPos);
-            System.out.println("PlayerController position set to saved: " + position);
+            this.position = new Vector3f(
+                savedPos.x,
+                savedPos.y,
+                savedPos.z
+            );
         } else {
-            this.position = findValidSpawnPos();
-            System.out.println("PlayerController position set to valid spawn: " + position);
+            this.position = new Vector3f(
+                camera.getPosition().x,
+                camera.getPosition().y, 
+                camera.getPosition().z
+            );
         }
 
         this.velocity = new Vector3f(xSpeed, ySpeed, zSpeed);
@@ -144,8 +149,6 @@ public class PlayerController {
         );
 
         addCollider();
-        rigidBody.setGravityScale(2.0f);
-        
         updateCameraPosition(); 
     }
 
@@ -169,45 +172,11 @@ public class PlayerController {
         } else {
             position.set(x, y, z);
         }
+        rigidBody.setPosition(new Vector3f(x, y, z));
         if(dataController != null) {
             dataController.setPlayerPos(new Vector3f(position));
         }
-        
         updateCameraPosition();
-    }
-
-    private Vector3f findValidSpawnPos() {
-        WorldGenerator worldGenerator = getWorldGenerator();
-        if(worldGenerator == null) {
-            return new Vector3f(
-                camera.getPosition().x, 
-                camera.getPosition().y, 
-                camera.getPosition().z
-            );
-        }
-
-        int maxAttempts = 1000;
-        float spawnRadius = 1000.0f;
-        for(int attempt = 0; attempt < maxAttempts; attempt++) {
-            float angle = (float)(Math.random() * 2 * Math.PI);
-            float distance = (float)(Math.random() * spawnRadius);
-
-            float spawnX = (float)(Math.cos(angle) * distance);
-            float spawnZ = (float)(Math.sin(angle) * distance);
-
-            float terrainHeight = worldGenerator.getHeightAt(spawnX, spawnZ);
-            if(terrainHeight > Water.LEVEL + 2.0f) {
-                float spawnY = terrainHeight + 5.0f;
-                return new Vector3f(
-                    spawnX, 
-                    spawnY, 
-                    spawnZ
-                );
-            }
-        }
-
-        System.out.println("No valid land spawn found, using default position");
-        return new Vector3f(0f, Water.LEVEL + 50f, 0f);
     }
 
     /**
@@ -375,9 +344,12 @@ public class PlayerController {
 
         rigidBody.update();
         Vector3f newPos = rigidBody.getPosition();
+        if(newPos.y < Water.LEVEL) {
+            newPos.y = Water.LEVEL;
+            rigidBody.setPosition(newPos);
+        }
         
-        position.set(rigidBody.getPosition());
-        setPosition(newPos.x, newPos.y, newPos.z);
+        position.set(newPos);
         updateCameraPosition();
         if(playerMesh != null) playerMesh.update();
         updateAxePosition();
@@ -504,18 +476,5 @@ public class PlayerController {
     public void reset() {
         Object axeController = envController != null ? envController.getEnv(EnvData.AXE) : null;
         if(axeController != null) EnvCall.call(axeController, "reset");
-    }
-
-    private WorldGenerator getWorldGenerator() {
-        if(envController != null && envController.getEnv(EnvData.MAP) != null) {
-            Object worldController = envController.getEnv(EnvData.MAP);
-            if(worldController != null) {
-                Object generator = EnvCall.callReturn(worldController, "getGenerator");
-                if(generator instanceof WorldGenerator) {
-                    return (WorldGenerator) generator;
-                }
-            }
-        }
-        return null;
     }
 }

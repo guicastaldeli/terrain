@@ -17,7 +17,7 @@ public class RigidBody {
     private boolean isInWater = false;
 
     private boolean gravityEnabled = true;
-    private float gravity = -9.81f;
+    private float gravity = -30.0f;
     private float gravityScale = 3.0f;
     private float drag = 0.1f;
     private float submergedRatio = 0.0f;
@@ -166,7 +166,13 @@ public class RigidBody {
         float deltaTime = tick.getDeltaTime();
         if(isStatic) return;
 
-        if(gravityEnabled && !onGround) applyForce(new Vector3f(0, gravity * mass * gravityScale, 0));
+        if(gravityEnabled && !onGround) {
+            applyForce(new Vector3f(
+                0, 
+                gravity * mass * gravityScale, 
+                0
+            ));
+        }
         velocity.add(acceleration.mul(deltaTime, new Vector3f()));
         velocity.mul(1.0f - (drag * deltaTime));
 
