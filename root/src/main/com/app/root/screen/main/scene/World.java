@@ -1,10 +1,6 @@
 package main.com.app.root.screen.main.scene;
-import main.com.app.root.DataController;
-import main.com.app.root.Spawner;
-import main.com.app.root.StateController;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
-import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.types.StaticObject;
 import main.com.app.root.env.NoiseGeneratorWrapper;
 import main.com.app.root.mesh.Mesh;
@@ -14,13 +10,9 @@ import main.com.app.root.mesh.MeshRenderer;
 public class World {
     private final Tick tick;
     private final ShaderProgram shaderProgram;
-    public final DataController dataController;
-    private final StateController stateController;
-    private final CollisionManager collisionManager;
     private final Mesh mesh;
     private final MeshRenderer meshRenderer;
-    private final Chunk chunk;
-    private final Spawner spawner;
+    private final MainScreenChunk chunk;
     private MeshData meshData;
     private StaticObject collider;
 
@@ -43,26 +35,16 @@ public class World {
         Tick tick, 
         Mesh mesh,
         MeshRenderer meshRenderer, 
-        ShaderProgram shaderProgram,
-        DataController dataController,
-        StateController stateController,
-        CollisionManager collisionManager,
-        Spawner spawner
+        ShaderProgram shaderProgram
     ) {
         this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.mesh = mesh;
         this.meshRenderer = meshRenderer;
-        this.spawner = spawner;
 
         this.noiseGeneratorWrapper = new NoiseGeneratorWrapper();
         
-        this.currentSeed = dataController.getWorldSeed();
-        
-        this.dataController = dataController;
-        this.stateController = stateController;
-        this.collisionManager = collisionManager;
-        this.chunk = new Chunk(
+        this.chunk = new MainScreenChunk(
             this, 
             mesh, 
             null
@@ -96,25 +78,25 @@ public class World {
             }
         }
         
-        int[] chunkCoords = Chunk.getCoords(x, z);
-        String chunkId = Chunk.getId(chunkCoords[0], chunkCoords[1]);
+        int[] chunkCoords = MainScreenChunk.getCoords(x, z);
+        String chunkId = MainScreenChunk.getId(chunkCoords[0], chunkCoords[1]);
 
         if(chunk.loadedChunks.containsKey(chunkId)) {
-            ChunkData chunkData = chunk.loadedChunks.get(chunkId);
+            MainScreenChunkData chunkData = chunk.loadedChunks.get(chunkId);
             if(chunkData.meshData != null) {
-                int localX = (int)((x + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
-                int localZ = (int)((z + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
+                int localX = (int)((x + WORLD_SIZE / 2) % MainScreenChunk.CHUNK_SIZE);
+                int localZ = (int)((z + WORLD_SIZE / 2) % MainScreenChunk.CHUNK_SIZE);
                 float height = getHeightFromChunkData(chunkData, localX, localZ);
                 if(height > 0.0f) return height;
             }
         }
 
         float[] chunkHeightData = chunk.generateHeightData(chunkCoords[0], chunkCoords[1]);
-        int localX = (int)((x + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
-        int localZ = (int)((z + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
+        int localX = (int)((x + WORLD_SIZE / 2) % MainScreenChunk.CHUNK_SIZE);
+        int localZ = (int)((z + WORLD_SIZE / 2) % MainScreenChunk.CHUNK_SIZE);
 
         if(chunkHeightData != null && chunkHeightData.length > 0) {
-            int i = localX * Chunk.CHUNK_SIZE + localZ;
+            int i = localX * MainScreenChunk.CHUNK_SIZE + localZ;
             if(i >= 0 && i < chunkHeightData.length) {
                 return chunkHeightData[i];
             }
@@ -125,7 +107,7 @@ public class World {
     }
 
     private float getHeightFromChunkData(
-        ChunkData chunkData,
+        MainScreenChunkData chunkData,
         int localX,
         int localZ
     ) {
@@ -133,7 +115,7 @@ public class World {
             return 0.0f;
         }
 
-        int vertexIndex = (localX + localZ * Chunk.CHUNK_SIZE) * 3;
+        int vertexIndex = (localX + localZ * MainScreenChunk.CHUNK_SIZE) * 3;
         float[] vertices = chunkData.meshData.getVertices();
         if(vertexIndex >= 0 && vertexIndex + 1 < vertices.length) {
             return vertices[vertexIndex + 1];
@@ -204,7 +186,7 @@ public class World {
         return isReady;
     }
 
-    public Chunk getChunk() {
+    public MainScreenChunk getChunk() {
         return chunk;
     }
 

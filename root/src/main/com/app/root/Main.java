@@ -30,11 +30,12 @@ public class Main {
     private SaveGenerator saveGenerator;
     private SaveLoader saveLoader;
 
-    private Scene scene;
     private ScreenController screenController;
     private UIController uiController;
     private InputController inputController;
     private ShaderProgram shaderProgram;
+
+    private Scene scene;
 
     public Main() {
         window = new Window();
@@ -93,6 +94,7 @@ public class Main {
         Screen.setScene(scene);
         screenController = new ScreenController(
             window, 
+            tick,
             shaderProgram,
             saveGenerator,
             saveLoader,

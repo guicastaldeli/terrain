@@ -3,7 +3,7 @@ import main.com.app.root.collision.types.DynamicObject;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 
-public class Water {
+public class MainScreenWater {
     public static DynamicObject collider;
 
     public static final float LEVEL = 50.0f;
@@ -18,9 +18,9 @@ public class Water {
     public static MeshData createMeshData(int chunkX, int chunkZ) {
         MeshData meshData = MeshLoader.load(MeshData.MeshType.MAP, getId(chunkX, chunkZ));
 
-        float worldOffsetX = (chunkX * Chunk.CHUNK_SIZE) - (World.WORLD_SIZE / 2.0f);
-        float worldOffsetZ = (chunkZ * Chunk.CHUNK_SIZE) - (World.WORLD_SIZE / 2.0f);
-        int heightDataSize = Chunk.CHUNK_SIZE + 1;
+        float worldOffsetX = (chunkX * MainScreenChunk.CHUNK_SIZE) - (World.WORLD_SIZE / 2.0f);
+        float worldOffsetZ = (chunkZ * MainScreenChunk.CHUNK_SIZE) - (World.WORLD_SIZE / 2.0f);
+        int heightDataSize = MainScreenChunk.CHUNK_SIZE + 1;
         
         float[] vertices = new float[heightDataSize * heightDataSize * 3];
         
@@ -33,10 +33,10 @@ public class Water {
             }
         }
 
-        int[] indices = new int[Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE * 6];
+        int[] indices = new int[MainScreenChunk.CHUNK_SIZE * MainScreenChunk.CHUNK_SIZE * 6];
         int i = 0;
-        for(int x = 0; x < Chunk.CHUNK_SIZE; x++) {
-            for(int z = 0; z < Chunk.CHUNK_SIZE; z++) {
+        for(int x = 0; x < MainScreenChunk.CHUNK_SIZE; x++) {
+            for(int z = 0; z < MainScreenChunk.CHUNK_SIZE; z++) {
                 int topLeft = x * heightDataSize + z;
                 int topRight = topLeft + 1;
                 int bottomLeft = (x + 1) * heightDataSize + z;

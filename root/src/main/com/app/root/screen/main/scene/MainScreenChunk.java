@@ -5,14 +5,14 @@ import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.player.Camera;
 import java.util.*;
 
-public class Chunk {
+public class MainScreenChunk {
     private final World world;
     private final Mesh mesh;
     private MeshData meshData;
 
     public final Object chunkLock = new Object();
-    public Map<String, ChunkData> loadedChunks = new HashMap<>();
-    public Map<String, ChunkData> cachedChunks = new HashMap<>();
+    public Map<String, MainScreenChunkData> loadedChunks = new HashMap<>();
+    public Map<String, MainScreenChunkData> cachedChunks = new HashMap<>();
     
     private List<String> chunksToLoad = new ArrayList<>();
     private int chunksPerFrame = 1;
@@ -21,7 +21,7 @@ public class Chunk {
 
     public static final int CHUNK_SIZE = 50;
 
-    public Chunk(
+    public MainScreenChunk(
         World world, 
         Mesh mesh,
         MeshData meshData
@@ -49,12 +49,21 @@ public class Chunk {
 
     public boolean isInRange(String chunkId, int centerX, int centerZ) {
         String[] parts = chunkId.split("_");
-        int chunkX = Integer.parseInt(parts[1]);
-        int chunkZ = Integer.parseInt(parts[2]);
-
-        return Math.abs(chunkX - centerX) <= Camera.RENDER_DISTANCE &&
-            Math.abs(chunkZ - centerZ) <= Camera.RENDER_DISTANCE;
+        
+        if (parts.length >= 3 && parts[0].equals("ms") && parts[1].equals("chunk")) {
+            try {
+                int chunkX = Integer.parseInt(parts[2]);
+                int chunkZ = Integer.parseInt(parts[3]);
+                return Math.abs(chunkX - centerX) <= Camera.RENDER_DISTANCE &&
+                    Math.abs(chunkZ - centerZ) <= Camera.RENDER_DISTANCE;
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid chunk ID format: " + chunkId);
+                return false;
+            }
+        }
+        return false;
     }
+
 
     public boolean isValid(int chunkX, int chunkZ) {
         int maxChunks = World.WORLD_SIZE / CHUNK_SIZE;
@@ -87,7 +96,7 @@ public class Chunk {
                 float heightVal = heightData[i];
                 colors[colorIdx + 3] = 1.0f;
                 
-                if(heightVal < Water.LEVEL) {
+                if(heightVal < MainScreenWater.LEVEL) {
                     colors[colorIdx] = 0.0f;
                     colors[colorIdx + 1] = 0.1f;
                     colors[colorIdx + 2] = 0.4f;;
@@ -294,7 +303,7 @@ public class Chunk {
                 heightData[x * size + z] = 
                     world
                     .noiseGeneratorWrapper
-                    .getHeightAtForMainScreen(
+                    .getHeightAtMainScreen(
                         worldX, 
                         worldZ, 
                         World.WORLD_SIZE
@@ -337,10 +346,11 @@ public class Chunk {
             chunksToLoad.sort((id1, id2) -> {
                 String[] parts1 = id1.split("_");
                 String[] parts2 = id2.split("_");
-                int x1 = Integer.parseInt(parts1[1]);
-                int z1 = Integer.parseInt(parts1[2]);
-                int x2 = Integer.parseInt(parts2[1]);
-                int z2 = Integer.parseInt(parts2[2]);
+                
+                int x1 = Integer.parseInt(parts1[2]);
+                int z1 = Integer.parseInt(parts1[3]);
+                int x2 = Integer.parseInt(parts2[2]); 
+                int z2 = Integer.parseInt(parts2[3]);
                 
                 float dist1 = (float)Math.sqrt(
                     Math.pow(x1 - playerChunkX, 2) + 
@@ -366,8 +376,8 @@ public class Chunk {
                 String chunkId = chunksToLoad.get(i);
                 String[] parts = chunkId.split("_");
 
-                int chunkX = Integer.parseInt(parts[1]);
-                int chunkZ = Integer.parseInt(parts[2]);
+                int chunkX = Integer.parseInt(parts[2]);
+                int chunkZ = Integer.parseInt(parts[3]);
 
                 if(!loadedChunks.containsKey(chunkId) && isValid(chunkX, chunkZ)) {
                     load(chunkX, chunkZ);
@@ -389,10 +399,10 @@ public class Chunk {
      */
     public void load(int chunkX, int chunkZ) {
         String chunkId = getId(chunkX, chunkZ);
-        String waterId = Water.getId(chunkX, chunkZ);
+        String waterId = MainScreenWater.getId(chunkX, chunkZ);
         
         if(cachedChunks.containsKey(chunkId)) {
-            ChunkData cached = cachedChunks.remove(chunkId);
+            MainScreenChunkData cached = cachedChunks.remove(chunkId);
             loadedChunks.put(chunkId, cached);
             render(chunkId);
             return;
@@ -401,9 +411,9 @@ public class Chunk {
         try {
             float[] chunkHeightData = generateHeightData(chunkX, chunkZ);
             MeshData chunkMeshData = createMeshData(chunkHeightData, chunkX, chunkZ);
-            MeshData waterMeshData = Water.createMeshData(chunkX, chunkZ);
+            MeshData waterMeshData = MainScreenWater.createMeshData(chunkX, chunkZ);
 
-            ChunkData chunkData = new ChunkData(chunkMeshData);
+            MainScreenChunkData chunkData = new MainScreenChunkData(chunkMeshData);
             loadedChunks.put(chunkId, chunkData);
 
             mesh.add(chunkId, chunkMeshData);
@@ -420,7 +430,7 @@ public class Chunk {
      * Unload
      */
     public void unload(String chunkId) {
-        ChunkData chunkData = loadedChunks.remove(chunkId);
+        MainScreenChunkData chunkData = loadedChunks.remove(chunkId);
         if(chunkData != null) {
             String waterId = chunkId.replace("ms_chunk_", "water_");
             
@@ -439,7 +449,7 @@ public class Chunk {
     public void removeOldestCachedChunk() {
         String oldestChunkId = null;
         long oldestTime = Long.MAX_VALUE;
-        for(Map.Entry<String, ChunkData> entry : cachedChunks.entrySet()) {
+        for(Map.Entry<String, MainScreenChunkData> entry : cachedChunks.entrySet()) {
             if(entry.getValue().lastAccessTime < oldestTime) {
                 oldestTime = entry.getValue().lastAccessTime;
                 oldestChunkId = entry.getKey();
@@ -454,7 +464,7 @@ public class Chunk {
      * Render
      */
     public void render(String chunkId) {
-        ChunkData chunkData = loadedChunks.get(chunkId);
+        MainScreenChunkData chunkData = loadedChunks.get(chunkId);
         if(chunkData != null) {
             chunkData.isRendered = true;
             chunkData.lastAccessTime = System.currentTimeMillis();
@@ -480,7 +490,7 @@ public class Chunk {
             loadedChunks.clear();
     
             for(String chunkId : new ArrayList<>(cachedChunks.keySet())) {
-                ChunkData chunkData = cachedChunks.get(chunkId);
+                MainScreenChunkData chunkData = cachedChunks.get(chunkId);
                 cachedChunks.remove(chunkId);
             }
             cachedChunks.clear();

@@ -2,7 +2,7 @@ package main.com.app.root.screen.main;
 import main.com.app.root.DocParser;
 import main.com.app.root._save.SaveInfo;
 import main.com.app.root.screen.Screen;
-
+import main.com.app.root.screen.main.scene.MainScreenScene;
 import java.util.*;
 
 public class MainScreen extends Screen {
@@ -13,6 +13,8 @@ public class MainScreen extends Screen {
     
     public SaveNameDialog saveNameDialog;
     public LoadSaveMenu loadSaveMenu;
+
+    private MainScreenScene mainScreenScene;
 
     public MainScreen() {
         super(SCREEN_PATH, "main");
@@ -27,6 +29,7 @@ public class MainScreen extends Screen {
         this.loadSaveMenu = new LoadSaveMenu(this);
         this.saveNameDialog = new SaveNameDialog(mainScreenAction);
         refreshSaveList();
+        initScene();
     }
 
     @Override
@@ -106,6 +109,7 @@ public class MainScreen extends Screen {
             //DocParser.renderScreen(screenData, 1280, 720, shaderProgram, textRenderer);
             super.render();
         }
+        renderScene();
     }
 
     /**
@@ -132,5 +136,27 @@ public class MainScreen extends Screen {
         } catch(Exception err) {
             System.err.println("Failed to re-parse screen on resize: " + err.getMessage());
         }
+    }
+
+    /**
+     * 
+     * Scene
+     * 
+     */
+    public void initScene() {
+        mainScreenScene = new MainScreenScene(
+            window, 
+            tick, 
+            shaderProgram
+        );
+        mainScreenScene.init();
+    }
+
+    public void renderScene() {
+        mainScreenScene.getWorld().render(0, 0);
+    }
+
+    public void updateScene() {
+        mainScreenScene.update();
     }
 }

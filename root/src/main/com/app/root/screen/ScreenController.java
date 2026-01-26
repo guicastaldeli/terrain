@@ -1,6 +1,7 @@
 package main.com.app.root.screen;
 import main.com.app.root.DataController;
 import main.com.app.root.StateController;
+import main.com.app.root.Tick;
 import main.com.app.root.Window;
 import main.com.app.root._save.DataGetter;
 import main.com.app.root._save.SaveGenerator;
@@ -23,6 +24,7 @@ public class ScreenController {
     }
 
     public final Window window;
+    private final Tick tick;
     public final ShaderProgram shaderProgram;
     private final SaveGenerator saveGenerator;
     private final SaveLoader saveLoader;
@@ -44,6 +46,7 @@ public class ScreenController {
 
     public ScreenController(
         Window window, 
+        Tick tick,
         ShaderProgram shaderProgram,
         SaveGenerator saveGenerator,
         SaveLoader saveLoader,
@@ -52,6 +55,7 @@ public class ScreenController {
         StateController stateController
     ) {
         this.window = window;
+        this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.saveGenerator = saveGenerator;
         this.saveLoader = saveLoader;
@@ -61,6 +65,7 @@ public class ScreenController {
 
         Screen.init(
             window, 
+            tick,
             shaderProgram, 
             this, 
             saveGenerator, 

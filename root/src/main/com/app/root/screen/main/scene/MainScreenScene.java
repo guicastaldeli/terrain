@@ -4,16 +4,17 @@ import main.com.app.root.Tick;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
 
-public class Scene {
+public class MainScreenScene {
     private final Window window;
     private final Tick tick;
 
     private Mesh mesh;
+    private World world;
     private ShaderProgram shaderProgram;
 
     public boolean init = false;
 
-    public Scene(
+    public MainScreenScene(
         Window window, 
         Tick tick,
         ShaderProgram shaderProgram
@@ -27,10 +28,14 @@ public class Scene {
         return init;
     }
 
+    public World getWorld() {
+        return world;
+    }
+
     /**
      * Setup
      */
-    public void setup(boolean reset) {
+    public void setup() {
         if(!init) {
             this.mesh = new Mesh(tick, shaderProgram);
 
@@ -44,6 +49,12 @@ public class Scene {
      * Start
      */
     private void start() {
+        world = new World(
+            tick, 
+            mesh, 
+            mesh.getMeshRenderer(), 
+            shaderProgram
+        );
     }
 
     /**
@@ -66,9 +77,9 @@ public class Scene {
     /**
      * Init
      */
-    public void init(boolean reset) {
+    public void init() {
         cleanup();
-        setup(reset);
+        setup();
     }
 
     public void cleanup() {

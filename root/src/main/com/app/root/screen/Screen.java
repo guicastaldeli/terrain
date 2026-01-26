@@ -12,12 +12,15 @@ import main.com.app.root.DataController;
 import main.com.app.root.DocParser;
 import main.com.app.root.Scene;
 import main.com.app.root.StateController;
+import main.com.app.root.Tick;
+
 import java.util.*;
 
 public class Screen implements ScreenHandler {
     public static final String DIR = "root/src/main/com/app/root/screen/";
 
     public static Window window;
+    public static Tick tick;
     public static ShaderProgram shaderProgram;
     public static ScreenController screenController;
     
@@ -35,6 +38,7 @@ public class Screen implements ScreenHandler {
 
     public static void init(
         Window window,
+        Tick tick,
         ShaderProgram shaderProgram, 
         ScreenController screenController,
         SaveGenerator saveGenerator,
@@ -44,6 +48,7 @@ public class Screen implements ScreenHandler {
         DataGetter dataGetter
     ) {
         Screen.window = window;
+        Screen.tick = tick;
         Screen.shaderProgram = shaderProgram;
         Screen.screenController = screenController;
         Screen.saveGenerator = saveGenerator;

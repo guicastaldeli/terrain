@@ -63,7 +63,7 @@ public class NoiseGeneratorWrapper {
         float worldZ,
         int worldSize
     );
-    public native float getHeightAtForMainScreen(
+    public native float getHeightAtMainScreen(
         float worldX,
         float worldZ,
         int worldSize
