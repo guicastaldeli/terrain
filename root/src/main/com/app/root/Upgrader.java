@@ -37,22 +37,26 @@ public class Upgrader {
     }
 
     public boolean upgradeAxe(int targetLevel) {
-        if(targetLevel <= getMaxUnlockedAxeLevel() || targetLevel > 10) return false;
+        if(data.isAxeLevelUnlocked(targetLevel) || 
+            targetLevel > MainData.MAX_LEVEL || 
+            targetLevel < MainData.MIN_LEVEL
+        ) { 
+            return false;
+        }
         
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
         
-        int totalCost = 0;
-        for(int level = getMaxUnlockedAxeLevel() + 1; level <= targetLevel; level++) {
-            totalCost += getUpgradeCost(level);
-        }
+        int upgradeCost = getUpgradeCost(targetLevel);
         
-        if(data.getWood() < totalCost) return false;
-        data.setWood(data.getWood() - totalCost);
+        if(data.getWood() < upgradeCost) return false;
+        data.setWood(data.getWood() - upgradeCost);
         
+        data.unlockAxeLevel(targetLevel);
+        
+
         EnvCall.callWithParams(axeInstance, new Object[]{targetLevel}, "setLevel");
         
         cachedEquippedAxeLevel = targetLevel;
-        data.setAxeLevel(targetLevel);
         data.setCurrentAxe("axe" + targetLevel);
 
         saveData();

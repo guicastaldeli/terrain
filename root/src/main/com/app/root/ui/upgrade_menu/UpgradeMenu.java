@@ -233,7 +233,7 @@ public class UpgradeMenu extends UI {
                     ""
                 );
                 uiData.elements.add(equippedLabel);
-            } else if(slot.level <= maxUnlockedLevel) {
+            } else if(upgrader.getData().isAxeLevelUnlocked(slot.level)) {
                 UIElement equipButton = new UIElement(
                     "button",
                     "equip_" + slot.level,

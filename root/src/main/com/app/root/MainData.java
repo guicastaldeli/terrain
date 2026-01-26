@@ -1,10 +1,12 @@
 package main.com.app.root;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainData implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static final int MIN_LEVEL = 0;
-    private static final int MAX_LEVEL = 10;
+    public static final int MIN_LEVEL = 0;
+    public static final int MAX_LEVEL = 10;
 
     public int wood;
     public int axeLevel;
@@ -13,11 +15,14 @@ public class MainData implements Serializable {
     private float[] damageIncrease;
     private float[] speedIncrease;
     private float[] woodMultiplier;
+    private Set<Integer> unlockedAxeLevels;
 
     public MainData() {
         this.wood = 999999;
         this.axeLevel = 0;
         this.currAxe = "axe0";
+        this.unlockedAxeLevels = new HashSet<>();
+        this.unlockedAxeLevels.add(0);
         this.upgradeCosts = new int[10];
         this.damageIncrease = new float[10];
         this.speedIncrease = new float[10];
@@ -58,13 +63,30 @@ public class MainData implements Serializable {
     }
     
     public void setAxeLevel(int level) { 
-        this.axeLevel = Math.max(0, Math.min(9, level)); 
-        this.currAxe = "axe" + this.axeLevel;
+        this.axeLevel = Math.max(0, Math.min(MAX_LEVEL, level)); 
+        this.unlockedAxeLevels.add(level);
+        if(level > this.axeLevel) this.axeLevel = level;
+    }
+
+    public void unlockAxeLevel(int level) {
+        if(level >= MIN_LEVEL && level <= MAX_LEVEL) {
+            this.unlockedAxeLevels.add(level);
+            if(level > this.axeLevel) this.axeLevel = level;
+        }
+    }
+
+    public boolean isAxeLevelUnlocked(int level) {
+        return unlockedAxeLevels.contains(level);
+    }
+
+    public Set<Integer> getUnlockedAxeLevels() {
+        return new HashSet<>(unlockedAxeLevels);
     }
 
     public void upgradeAxe() {
         if(axeLevel < MAX_LEVEL) {
             axeLevel++;
+            unlockedAxeLevels.add(axeLevel);
             currAxe = "axe" + axeLevel;
         }
     }
