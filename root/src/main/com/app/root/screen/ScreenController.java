@@ -10,7 +10,6 @@ import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
 import main.com.app.root.screen.main.MainScreen;
 import main.com.app.root.screen.pause.PauseScreen;
-
 import java.util.HashMap;
 import java.util.Map;
 import static org.lwjgl.glfw.GLFW.*;
@@ -228,6 +227,15 @@ public class ScreenController {
     public void render() {
         if(currentScreen != null && currentScreen.isActive()) {
             currentScreen.render();
+        }
+    }
+
+    /**
+     * Update
+     */
+    public void update() {
+        if(currentScreen != null && currentScreen.isActive()) {
+            currentScreen.update();
         }
     }
 }

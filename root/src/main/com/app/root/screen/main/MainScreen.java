@@ -101,15 +101,19 @@ public class MainScreen extends Screen {
 
     @Override 
     public void render() {
+        renderScene();
         if(saveNameDialog.isActive()) {
             saveNameDialog.render();
         } else if(loadSaveMenu.isActive()) {
             loadSaveMenu.render();
         } else {
-            //DocParser.renderScreen(screenData, 1280, 720, shaderProgram, textRenderer);
             super.render();
         }
-        renderScene();
+    }
+
+    @Override
+    public void update() {
+        mainScreenScene.update();
     }
 
     /**
@@ -153,10 +157,6 @@ public class MainScreen extends Screen {
     }
 
     public void renderScene() {
-        mainScreenScene.getWorld().render(0, 0);
-    }
-
-    public void updateScene() {
-        mainScreenScene.update();
+        mainScreenScene.render();
     }
 }

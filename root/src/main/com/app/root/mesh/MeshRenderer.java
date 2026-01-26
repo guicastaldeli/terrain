@@ -37,6 +37,7 @@ public class MeshRenderer {
     private final ShaderProgram shaderProgram;
     private MeshData meshData;
     private PlayerController playerController;
+    private Camera camera;
 
     private int vao;
     private int vbo;
@@ -239,12 +240,26 @@ public class MeshRenderer {
         }
     }
 
+    /**
+     * Player Controller
+     */
     public void setPlayerController(PlayerController playerController) {
         this.playerController = playerController;
     }
 
     public PlayerController getPlayerController() {
         return playerController;
+    }
+
+    /**
+     * Camera
+     */
+    public void setCamera(Camera camera) {
+        this.camera = camera;
+    }
+
+    public Camera getCamera() {
+        return camera;
     }
 
     public void updateColors(float[] colors) {
@@ -266,7 +281,14 @@ public class MeshRenderer {
      */
     public void render(int shaderType) {
         try {            
-            Camera camera = playerController.getCamera();
+            Camera renderCamera;
+            if(playerController != null) {
+                renderCamera = playerController.getCamera();
+            } else if(camera != null) {
+                renderCamera = camera;
+            } else {
+                throw new IllegalStateException("No camera available for rendering");
+            }
             
             if(!isDynamic) {
                 modelMatrix
@@ -291,8 +313,8 @@ public class MeshRenderer {
             shaderProgram.setUniform("uStarBrightness", starBrightness);
             
             shaderProgram.setUniform("model", modelMatrix);
-            shaderProgram.setUniform("view", camera.getViewMatrix());
-            shaderProgram.setUniform("projection", camera.getProjectionMatrix());
+            shaderProgram.setUniform("view", renderCamera.getViewMatrix());
+            shaderProgram.setUniform("projection", renderCamera.getProjectionMatrix());
             shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
             shaderProgram.setUniform("hasColors", hasColors ? 1 : 0);
             shaderProgram.setUniform("texSampler", 0);

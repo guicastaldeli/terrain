@@ -1,8 +1,8 @@
 package main.com.app.root.mesh;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.player.Camera;
 import main.com.app.root.player.PlayerController;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.joml.Matrix4f;
@@ -27,6 +27,14 @@ public class Mesh {
 
     public MeshRenderer getMeshRenderer() {
         return meshRenderer;
+    }
+
+    public MeshRenderer getMeshRenderer(String id) {
+        return meshRendererMap.get(id);
+    }
+
+    public Map<String, MeshRenderer> getMeshRendererMap() {
+        return meshRendererMap;
     }
 
     /**
@@ -67,6 +75,9 @@ public class Mesh {
         if(meshRenderer != null && meshRenderer.getPlayerController() != null) {
             newRenderer.setPlayerController(meshRenderer.getPlayerController());
         }
+        if(meshRenderer != null && meshRenderer.getCamera() != null) {
+            newRenderer.setCamera(meshRenderer.getCamera());
+        }
         
         meshRendererMap.put(id, newRenderer);
     }
@@ -75,6 +86,13 @@ public class Mesh {
         this.meshRenderer.setPlayerController(playerController);
         for(MeshRenderer renderer : meshRendererMap.values()) {
             renderer.setPlayerController(playerController);
+        }
+    }
+
+    public void setCamera(Camera camera) {
+        this.meshRenderer.setCamera(camera);
+        for(MeshRenderer renderer : meshRendererMap.values()) {
+            renderer.setCamera(camera);
         }
     }
 

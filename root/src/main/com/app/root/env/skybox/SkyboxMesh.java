@@ -12,13 +12,13 @@ import org.lwjgl.opengl.GL11;
 public class SkyboxMesh {
     private static final String[][] PERIOD_COLORS_HEX = {
         //Midnight
-        { "#00001A", "#0D0D26" },
+        { "#1a0010", "#0D0D26" },
         //Dawn
         { "#1A0D33", "#331A4D" },
         //Morning
         { "#334D99", "#6699E6" },
         //Afternoon
-         {"#4D80CC", "#80B3FF" },
+        {"#4D80CC", "#80B3FF" },
         //Dusk
         { "#994D33", "#CC664D" },
         //Night

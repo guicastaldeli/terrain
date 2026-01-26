@@ -38,17 +38,14 @@ public class World {
         ShaderProgram shaderProgram
     ) {
         this.tick = tick;
-        this.shaderProgram = shaderProgram;
         this.mesh = mesh;
         this.meshRenderer = meshRenderer;
-
+        this.shaderProgram = shaderProgram;
         this.noiseGeneratorWrapper = new NoiseGeneratorWrapper();
+        this.chunk = new MainScreenChunk(this, mesh, meshData);
         
-        this.chunk = new MainScreenChunk(
-            this, 
-            mesh, 
-            null
-        );
+        long seed = System.currentTimeMillis();
+        this.noiseGeneratorWrapper.initNoise(seed, WORLD_SIZE);
     }
 
     private float[] createVertices(float[] heightData) {

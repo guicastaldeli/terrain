@@ -184,6 +184,7 @@ public class Main {
         ) {
         }
         scene.update();
+        screenController.update();
     }
     
     /**

@@ -4,7 +4,12 @@ import org.luaj.vm2.lib.jse.*;
 
 public class MeshLoader {
     private static final String DATA_TYPES_DIR = "root/src/main/com/app/root/mesh/types/";
-    private static final ObjMap objMap = new ObjMap(); 
+    private static ObjMap objMap = null;
+    
+    public static ObjMap getObjMap() {
+        if(objMap == null) objMap = new ObjMap();
+        return objMap;
+    }
 
     public static MeshData load(MeshData.MeshType type, String id) {
         String fileName = type.name().toLowerCase() + ".lua";
@@ -119,25 +124,26 @@ public class MeshLoader {
      * Load Model
      */
     public static MeshData loadModel(String modelName, String meshId) {
-        String filePath = objMap.getObjPath(modelName);
+        String filePath = getObjMap().getObjPath(modelName);
         if(filePath == null) throw new RuntimeException("Model not found in object map: " + modelName);
         
         MeshData meshData = ObjLoader.load(filePath, meshId);
         
-        float[] size = objMap.getObjSize(modelName);
+        float[] size = getObjMap().getObjSize(modelName);
         if(size != null) {
             meshData.setScale(size);
         }
         
         return meshData;
     }
+
     public static MeshData loadModel(String filePath) {
         String meshId = extractMeshIdFromPath(filePath);
         return ObjLoader.load(filePath, meshId);
     }
     
     public static float[] getModelSize(String modelName) {
-        return objMap.getObjSize(modelName);
+        return getObjMap().getObjSize(modelName);
     }
     
     private static String extractMeshIdFromPath(String filePath) {
