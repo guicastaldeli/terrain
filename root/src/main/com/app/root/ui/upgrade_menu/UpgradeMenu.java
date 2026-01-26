@@ -120,10 +120,10 @@ public class UpgradeMenu extends UI {
         axeSlots.clear();
         
         int playerWood = upgrader.getWood();
-        currentAxeLevel = upgrader.getAxeLevel();
+        currentAxeLevel = upgrader.getEquippedAxeLevel();
 
         for(int level = 0; level <= 10; level++) {
-            AxeSlot slot = new AxeSlot(level, currentAxeLevel);
+            AxeSlot slot = new AxeSlot(level, upgrader.getMaxUnlockedAxeLevel());
             axeSlots.add(slot);
         }
 
@@ -170,7 +170,6 @@ public class UpgradeMenu extends UI {
         );
         uiData.elements.add(woodCountLabel);
         
-        /* Axe Current Level */
         UIElement currentAxeLabel = new UIElement(
             "label",
             "current_axe",
@@ -185,6 +184,7 @@ public class UpgradeMenu extends UI {
         
         /* Slots */
         int maxUnlockedLevel = upgrader != null ? upgrader.getMaxUnlockedAxeLevel() : 0;
+        int equippedLevel = upgrader != null ? upgrader.getEquippedAxeLevel() : 0;
         
         for(int i = 0; i < axeSlots.size(); i++) {
             AxeSlot slot = axeSlots.get(i);
@@ -198,7 +198,7 @@ public class UpgradeMenu extends UI {
                 slotX, slotY,
                 slotWidth, 30,
                 0.8f,
-                slot.level == currentAxeLevel ? 
+                slot.level == equippedLevel ?
                     new float[]{0.0f, 1.0f, 0.0f, 1.0f} : 
                     new float[]{1.0f, 1.0f, 1.0f, 1.0f},
                 ""
@@ -221,7 +221,7 @@ public class UpgradeMenu extends UI {
             );
             uiData.elements.add(woodLabel);
             
-            if(slot.level == currentAxeLevel) {
+            if(slot.level == equippedLevel) {
                 UIElement equippedLabel = new UIElement(
                     "label",
                     "equipped_" + slot.level,

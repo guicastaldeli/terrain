@@ -13,12 +13,14 @@ public class UpgradeMenuActions {
     public void equipAxe(int level) {
         if(level < 0 || level > 10) return;
 
-        int currentLevel = upgradeMenu.getCurrentAxeLevel();
-        if(level <= currentLevel) {
+        int maxUnlockedLevel = upgradeMenu.getUpgrader().getMaxUnlockedAxeLevel();
+        if(level <= maxUnlockedLevel) {
             upgradeMenu.getUpgrader().equipAxe(level);
             upgradeMenu.setCurrentAxeLevel(level);
             upgradeMenu.refreshAxeSlots();
             System.out.println("Equipped axe level " + level);
+        } else {
+            System.out.println("Cannot equip axe level " + level + " - not yet unlocked!");
         }
     }
 
@@ -28,7 +30,6 @@ public class UpgradeMenuActions {
     public void upgradeAxe(int targetLevel) {
         if(upgradeMenu.getUpgrader() == null) return;
 
-        int currentLevel = upgradeMenu.getCurrentAxeLevel();
         int upgradeCost = upgradeMenu.getUpgrader().getUpgradeCost(targetLevel);
         int playerWood = upgradeMenu.getUpgrader().getWood();
         if(playerWood >= upgradeCost) {

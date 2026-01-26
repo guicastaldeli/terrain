@@ -6,21 +6,21 @@ import main.com.app.root.env.EnvData;
 public class Upgrader {
     private MainData data;
     private EnvController envController;
-    private int cachedAxeLevel;
+    private int cachedEquippedAxeLevel;
 
     public Upgrader(EnvController envController) {
         this.data = new MainData();
         if(envController != null) {
             this.envController = envController;
             Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
-            this.cachedAxeLevel = (int) EnvCall.callReturn(axeInstance, "getLevel");
+            this.cachedEquippedAxeLevel = (int) EnvCall.callReturn(axeInstance, "getLevel");
         }
     }
 
     public void setEnvController(EnvController envController) {
         this.envController = envController;
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
-        this.cachedAxeLevel = (int) EnvCall.callReturn(axeInstance, "getLevel");
+        this.cachedEquippedAxeLevel = (int) EnvCall.callReturn(axeInstance, "getLevel");
     }
 
     /**
@@ -37,23 +37,21 @@ public class Upgrader {
     }
 
     public boolean upgradeAxe(int targetLevel) {
-        if(targetLevel <= getEquippedAxeLevel() || targetLevel > 10) return false;
+        if(targetLevel <= getMaxUnlockedAxeLevel() || targetLevel > 10) return false;
         
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
         
         int totalCost = 0;
-        for(int level = getEquippedAxeLevel() + 1; level <= targetLevel; level++) {
+        for(int level = getMaxUnlockedAxeLevel() + 1; level <= targetLevel; level++) {
             totalCost += getUpgradeCost(level);
         }
         
         if(data.getWood() < totalCost) return false;
         data.setWood(data.getWood() - totalCost);
         
-        for(int level = getEquippedAxeLevel() + 1; level <= targetLevel; level++) {
-            EnvCall.callWithParams(axeInstance, new Object[]{level}, "setLevel");
-        }
+        EnvCall.callWithParams(axeInstance, new Object[]{targetLevel}, "setLevel");
         
-        cachedAxeLevel = targetLevel;
+        cachedEquippedAxeLevel = targetLevel;
         data.setAxeLevel(targetLevel);
         data.setCurrentAxe("axe" + targetLevel);
 
@@ -103,20 +101,16 @@ public class Upgrader {
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
         EnvCall.callWithParams(axeInstance, new Object[]{level}, "setLevel");
 
-        cachedAxeLevel = level;
+        cachedEquippedAxeLevel = level;
         data.setCurrentAxe("axe" + level);
         saveData();
     }
 
     public void setAxeLevel(int level) {
-        cachedAxeLevel = level;
+        cachedEquippedAxeLevel = level;
         data.setAxeLevel(level);
         Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
         EnvCall.callWithParams(axeInstance, new Object[]{level}, "setLevel");
-    }
-
-    public int getAxeLevel() {
-        return cachedAxeLevel;
     }
 
     public int getMaxUnlockedAxeLevel() {
@@ -124,7 +118,11 @@ public class Upgrader {
     }
     
     public int getEquippedAxeLevel() {
-        return cachedAxeLevel;
+        return cachedEquippedAxeLevel;
+    }
+
+    public int getAxeLevel() {
+        return data.getAxeLevel();
     }
 
     /**
@@ -142,7 +140,20 @@ public class Upgrader {
 
     public void setData(MainData newData) {
         this.data = newData;
-        this.cachedAxeLevel = data.getAxeLevel();
+        if(newData.getCurrentAxe() != null && !newData.getCurrentAxe().isEmpty()) {
+            String axeName = newData.getCurrentAxe();
+            if(axeName.startsWith("axe")) {
+                try {
+                    this.cachedEquippedAxeLevel = Integer.parseInt(axeName.substring(3));
+                } catch(NumberFormatException e) {
+                    this.cachedEquippedAxeLevel = newData.getAxeLevel();
+                }
+            } else {
+                this.cachedEquippedAxeLevel = newData.getAxeLevel();
+            }
+        } else {
+            this.cachedEquippedAxeLevel = newData.getAxeLevel();
+        }
     }
 
     /**
@@ -150,7 +161,7 @@ public class Upgrader {
      */
     public void reset() {
         this.data = new MainData();
-        this.cachedAxeLevel = 0;
+        this.cachedEquippedAxeLevel = 0;
         if(envController != null) {
             Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
             EnvCall.callWithParams(axeInstance, new Object[]{0}, "setLevel");

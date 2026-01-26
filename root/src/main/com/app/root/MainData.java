@@ -15,7 +15,7 @@ public class MainData implements Serializable {
     private float[] woodMultiplier;
 
     public MainData() {
-        this.wood = 0;
+        this.wood = 999999;
         this.axeLevel = 0;
         this.currAxe = "axe0";
         this.upgradeCosts = new int[10];
