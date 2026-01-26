@@ -29,7 +29,7 @@ public class TimeCycle {
         }
     }
 
-    public final float DAY_DURATION = 120.0f;
+    public final float DAY_DURATION = 10.0f;
     public final float HOUR_DURATION = DAY_DURATION / 24.0f;
 
     private float currentTime = 6.0f * HOUR_DURATION;

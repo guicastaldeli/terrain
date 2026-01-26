@@ -136,6 +136,15 @@ public class Camera {
         viewMatrixNeedsUpdate = true;
     }
 
+    public void setRotation(float yaw, float pitch) {
+        this.yaw = yaw;
+        this.pitch = pitch;
+        if(pitch > 89.0f) this.pitch = 89.0f;
+        if(pitch < -89.0f) this.pitch = -89.0f;
+    
+        updateVectors();
+    }
+
     public void setAspectRatio(float aspectRatio) {
         this.aspectRatio = aspectRatio;
         projectionMatrixNeedsUpdate = true;

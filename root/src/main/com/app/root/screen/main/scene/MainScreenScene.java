@@ -67,7 +67,8 @@ public class MainScreenScene {
             this.skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
 
             this.camera = new Camera();
-            camera.setPosition(0, 550, 0);
+            camera.setPosition(0, 550, 150);
+            camera.setRotation(0, -50);
             mesh.getMeshRenderer().setCamera(camera);
             mesh.setCamera(camera);
             

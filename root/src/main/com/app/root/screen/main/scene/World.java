@@ -29,7 +29,7 @@ public class World {
 
     private static final String MAP_ID = "MAP_ID";
 
-    public static final int WORLD_SIZE = 1024;
+    public static final int WORLD_SIZE = 5000;
     
     public World(
         Tick tick, 
