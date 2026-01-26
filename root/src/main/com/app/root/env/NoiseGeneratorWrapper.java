@@ -63,6 +63,11 @@ public class NoiseGeneratorWrapper {
         float worldZ,
         int worldSize
     );
+    public native float getHeightAtForMainScreen(
+        float worldX,
+        float worldZ,
+        int worldSize
+    );
 
     public native boolean generateMap(
         String outputhPath, 
