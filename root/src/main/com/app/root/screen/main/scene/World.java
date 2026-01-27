@@ -29,7 +29,7 @@ public class World {
 
     private static final String MAP_ID = "MAP_ID";
 
-    public static final int WORLD_SIZE = 5000;
+    public static final int WORLD_SIZE = 3000;
     
     public World(
         Tick tick, 
@@ -128,8 +128,8 @@ public class World {
         this.onReadyCallback = callback;
     }
 
-    public void render(float playerX, float playerZ) {
-        chunk.updateChunks(playerX, playerZ);
+    public void render(float cameraX, float cameraZ) {
+        chunk.updateChunks(cameraX, cameraZ);
         chunk.processChunkLoading();
         
         for(String chunkId : chunk.loadedChunks.keySet()) {
@@ -143,8 +143,8 @@ public class World {
     /**
      * Update
      */
-    public void update(float playerX, float playerZ) {        
-        chunk.updateChunks(playerX, playerZ);
+    public void update(float cameraX, float cameraZ) {        
+        chunk.updateChunks(cameraX, cameraZ);
         chunk.processChunkLoading();
         for(String chunkId : chunk.loadedChunks.keySet()) {
             mesh.render(chunkId, 0);

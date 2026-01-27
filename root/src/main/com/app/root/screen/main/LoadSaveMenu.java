@@ -4,10 +4,14 @@ import main.com.app.root._save.SaveInfo;
 import main.com.app.root.screen.Screen;
 import main.com.app.root.screen.ScreenController;
 import main.com.app.root.screen.ScreenElement;
-
 import java.util.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.glfwSetScrollCallback;
+import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glScissor;
 
 public class LoadSaveMenu extends Screen {
     public static final String MENU_PATH = DIR + "main/load_save_menu.xml";
@@ -16,10 +20,69 @@ public class LoadSaveMenu extends Screen {
     public List<ScreenElement> saveMenuEl = new ArrayList<>();
     public boolean showSaveMenu = false;
 
+    private int scrollOffset = 0;
+    private int maxScroll = 0;
+    private static final int SCROLL_SPEED = 30;
+    private static final int VISIBLE_AREA_HEIGHT = 500;
+
     public LoadSaveMenu(MainScreen mainScreen) {
         super(MENU_PATH, "load_save_menu");
         this.mainScreen = mainScreen;
         this.active = false;
+        setupScrollCallback();
+    }
+
+    private void setupScrollCallback() {
+        glfwSetScrollCallback(window.getWindow(), (windowHandle, xOffset, yOffset) -> {
+            if(this.active) {
+                handleScroll(xOffset, yOffset);
+            }
+        });
+    }
+
+    /**
+     * Handle Mouse Scroll
+     */
+    public void handleScroll(double xoffset, double yoffset) {
+        if(!active) return;
+        
+        scrollOffset -= (int)(yoffset * SCROLL_SPEED);
+        scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
+        
+        updateElementPositions();
+    }
+    
+    /**
+     * Update Element Positions
+     */
+    private void updateElementPositions() {
+        int windowHeight = window.getHeight();
+        
+        for(ScreenElement element : screenData.elements) {
+            if(element.id.startsWith("save_name_") || 
+            element.id.startsWith("play_time_") || 
+            element.id.startsWith("last_played_") || 
+            element.id.startsWith("load_") || 
+            element.id.startsWith("delete_") ||
+            element.id.startsWith("slot_bg_") ||
+            element.id.equals("noSavesLabel")) {
+                
+                if(!element.attr.containsKey("originalY")) {
+                    element.attr.put("originalY", String.valueOf(element.y));
+                }
+                
+                int originalY = Integer.parseInt(element.attr.get("originalY"));
+                element.y = originalY - scrollOffset;
+                
+                element.visible = true;
+            }
+            
+            if(element.id.equals("scrollbarThumb") && maxScroll > 0) {
+                int scrollbarHeight = (int)(windowHeight * 0.55f);
+                float scrollProgress = (float)scrollOffset / maxScroll;
+                element.y = (int)(windowHeight * 0.25f) + (int)(scrollProgress * scrollbarHeight);
+            }
+        }
     }
 
     /**
@@ -48,6 +111,9 @@ public class LoadSaveMenu extends Screen {
     public void updateSaveSlots() {
         if(screenData == null) return;
         
+        int windowWidth = window.getWidth();
+        int windowHeight = window.getHeight();
+        
         List<ScreenElement> newElements = new ArrayList<>();
         for(ScreenElement el : screenData.elements) {
             boolean isSaveElement = 
@@ -56,6 +122,7 @@ public class LoadSaveMenu extends Screen {
                 el.id.startsWith("last_played_") || 
                 el.id.startsWith("load_") || 
                 el.id.startsWith("delete_") ||
+                el.id.startsWith("slot_bg_") ||
                 el.id.equals("noSavesLabel");
             if(!isSaveElement) {
                 newElements.add(el);
@@ -63,12 +130,27 @@ public class LoadSaveMenu extends Screen {
         }
         
         screenData.elements = newElements;
+        
+        updateResponsiveTitle(windowWidth);
+        
+        ScreenElement saveSlotsContainer = null;
+        for(ScreenElement el : screenData.elements) {
+            if("saveSlots".equals(el.id)) {
+                saveSlotsContainer = el;
+                break;
+            }
+        }
+        
+        if(saveSlotsContainer == null) return;
+        
         if(mainScreen.availableSaves.isEmpty()) {
             ScreenElement noSavesLabel = new ScreenElement(
                 "label",
                 "noSavesLabel",
                 "No save games found",
-                50, 300,
+                "comic_sans",
+                saveSlotsContainer.x + (int)(windowWidth * 0.05f),
+                saveSlotsContainer.y + (int)(windowHeight * 0.10f),
                 200, 30,
                 1.0f,
                 new float[]{0.8f, 0.8f, 0.8f, 1.0f},
@@ -76,25 +158,51 @@ public class LoadSaveMenu extends Screen {
             );
             noSavesLabel.visible = true;
             screenData.elements.add(noSavesLabel);
+            maxScroll = 0;
         } else {
-            int startY = 300;
-            int slotHeight = 100;
-            int infoSpacing = 60;
-            int labelWidth = 400;
+            int startY = saveSlotsContainer.y + (int)(windowHeight * 0.15f);
+            int slotHeight = (int)(windowHeight * 0.2f);
+            int infoSpacing = (int)(windowHeight * 0.055f);
+            int infoSpacingTex = (int)(windowHeight * 0.06f);
+            int labelWidth = (int)(windowWidth * 0.35f);
             int labelHeight = 30;
-            int buttonWidth = 100;
-            int buttonHeight = 40;
+            int buttonWidth = (int)(windowWidth * 0.08f);
+            int buttonHeight = (int)(windowHeight * 0.05f);
+            
+            int loadButtonX = saveSlotsContainer.x + (int)(windowWidth * 0.60f);
+            int deleteButtonX = saveSlotsContainer.x + (int)(windowWidth * 0.70f);
             
             for(int i = 0; i < mainScreen.availableSaves.size(); i++) {
                 SaveInfo save = mainScreen.availableSaves.get(i);
                 int baseY = startY + (i * slotHeight);
+                
+                /* Slot Background */
+                ScreenElement slotBackground = new ScreenElement(
+                    "div",
+                    "slot_bg_" + save.saveId,
+                    "",
+                    "arial",
+                    saveSlotsContainer.x + (int)(windowWidth * 0.03f),
+                    baseY - (int)(windowHeight * 0.008f),
+                    (int)(windowWidth * 0.80f),
+                    slotHeight - (int)(windowHeight * 0.01f),
+                    1.0f,
+                    new float[]{0.0f, 0.0f, 0.0f, 0.7f},
+                    ""
+                );
+                slotBackground.hasBackground = true;
+                slotBackground.borderWidth = 1.0f;
+                slotBackground.borderColor = new float[]{0.3f, 0.3f, 0.3f, 0.8f};
+                screenData.elements.add(slotBackground);
                 
                 /* Save Name */
                 ScreenElement saveNameLabel = new ScreenElement(
                     "label",
                     "save_name_" + save.saveId,
                     save.saveName,
-                    50, baseY,
+                    "comic_sans",
+                    saveSlotsContainer.x + (int)(windowWidth * 0.05f),
+                    baseY,
                     labelWidth, labelHeight,
                     1.0f,
                     new float[]{1.0f, 1.0f, 1.0f, 1.0f},
@@ -107,7 +215,9 @@ public class LoadSaveMenu extends Screen {
                     "label",
                     "play_time_" + save.saveId,
                     "Play Time: " + save.playTime,
-                    50, baseY + infoSpacing,
+                    "comic_sans",
+                    saveSlotsContainer.x + (int)(windowWidth * 0.05f),
+                    baseY + infoSpacingTex,
                     labelWidth, labelHeight,
                     1.0f,
                     new float[]{0.8f, 0.8f, 0.8f, 1.0f},
@@ -120,7 +230,9 @@ public class LoadSaveMenu extends Screen {
                     "label",
                     "last_played_" + save.saveId,
                     "Last Played: " + save.lastPlayed,
-                    50, baseY + (infoSpacing * 2),
+                    "comic_sans",
+                    saveSlotsContainer.x + (int)(windowWidth * 0.05f),
+                    baseY + (infoSpacing * 2),
                     labelWidth, labelHeight,
                     1.0f,
                     new float[]{0.7f, 0.7f, 0.7f, 1.0f},
@@ -133,7 +245,9 @@ public class LoadSaveMenu extends Screen {
                     "button",
                     "load_" + save.saveId,
                     "Load",
-                    800, baseY + 60,
+                    "comic_sans",
+                    loadButtonX,
+                    baseY + (int)(slotHeight * 0.3f),
                     buttonWidth, buttonHeight,
                     1.0f,
                     new float[]{0.2f, 0.8f, 0.2f, 1.0f},
@@ -146,7 +260,9 @@ public class LoadSaveMenu extends Screen {
                     "button",
                     "delete_" + save.saveId,
                     "Delete",
-                    950, baseY + 60,
+                    "comic_sans",
+                    deleteButtonX,
+                    baseY + (int)(slotHeight * 0.3f),
                     buttonWidth, buttonHeight,
                     1.0f,
                     new float[]{0.8f, 0.2f, 0.2f, 1.0f},
@@ -154,6 +270,42 @@ public class LoadSaveMenu extends Screen {
                 );
                 screenData.elements.add(deleteButton);
             }
+
+            int visibleAreaHeight = (int)(windowHeight * 0.65f);
+            int totalContentHeight = startY + (mainScreen.availableSaves.size() * slotHeight);
+            maxScroll = Math.max(0, totalContentHeight - visibleAreaHeight);
+        }
+
+        scrollOffset = 0;
+        updateElementPositions();
+    }
+
+    private void updateResponsiveTitle(int windowWidth) {
+        ScreenElement titleElement = null;
+        for(ScreenElement el : screenData.elements) {
+            if("title".equals(el.id)) {
+                titleElement = el;
+                break;
+            }
+        }
+        
+        if(titleElement != null && textRenderer != null) {
+            String baseText = "Load Game";
+            float baseTextWidth = textRenderer.getTextWidth(baseText, titleElement.scale, titleElement.fontFamily);
+            
+            float availableWidth = windowWidth * 0.85f;
+            float dashWidth = textRenderer.getTextWidth("—", titleElement.scale, titleElement.fontFamily);
+            
+            float remainingWidth = availableWidth - baseTextWidth;
+            if(remainingWidth <= 0) {
+                titleElement.text = baseText;
+                return;
+            }
+            
+            int dashesPerSide = Math.max(1, (int)(remainingWidth / (2 * dashWidth)));
+            dashesPerSide = Math.min(dashesPerSide, 200);
+            String dashes = "—".repeat(dashesPerSide);
+            titleElement.text = dashes + " " + baseText + " " + dashes;
         }
     }
 
@@ -195,7 +347,90 @@ public class LoadSaveMenu extends Screen {
 
     @Override
     public void render() {
-        super.render();
+        if(!active || textRenderer == null) {
+            return;
+        }
+        
+        int windowHeight = window.getHeight();
+        int clipX = (int)(window.getWidth() * 0.03f);
+        int clipY = (int)(windowHeight * 0.25f);
+        int clipWidth = (int)(window.getWidth() * 0.90f);
+        int clipHeight = (int)(windowHeight * 0.68f);
+        
+        for(ScreenElement element : screenData.elements) {
+            if(!element.id.startsWith("save_name_") && 
+            !element.id.startsWith("play_time_") && 
+            !element.id.startsWith("last_played_") && 
+            !element.id.startsWith("load_") && 
+            !element.id.startsWith("delete_") &&
+            !element.id.startsWith("slot_bg_") &&
+            !element.id.equals("noSavesLabel") &&
+            !element.id.equals("scrollbarBg") &&
+            !element.id.equals("scrollbarThumb")) {
+                
+                renderElement(element);
+            }
+        }
+        
+        glEnable(GL_SCISSOR_TEST);
+        int scissorY = windowHeight - clipY - clipHeight;
+        glScissor(clipX, scissorY, clipWidth, clipHeight);
+        
+        for(ScreenElement element : screenData.elements) {
+            if(element.id.startsWith("save_name_") || 
+            element.id.startsWith("play_time_") || 
+            element.id.startsWith("last_played_") || 
+            element.id.startsWith("load_") || 
+            element.id.startsWith("delete_") ||
+            element.id.startsWith("slot_bg_") ||
+            element.id.equals("noSavesLabel")) {
+                
+                renderElement(element);
+            }
+        }
+        
+        glDisable(GL_SCISSOR_TEST);
+        
+        for(ScreenElement element : screenData.elements) {
+            if(element.id.equals("scrollbarBg") || element.id.equals("scrollbarThumb")) {
+                renderElement(element);
+            }
+        }
+    }
+
+    private void renderElement(ScreenElement element) {
+        if(!element.visible) return;
+        
+        if(element.type.equals("div") || element.type.equals("button")) {
+            DocParser.renderUIElement(element, window.getWidth(), window.getHeight(), shaderProgram);
+        }
+        
+        if((element.type.equals("button") || element.type.equals("label")) && 
+        element.text != null && !element.text.isEmpty()) {
+            if(element.hasShadow) {
+                textRenderer.renderTextWithShadow(
+                    element.text,
+                    element.x,
+                    element.y,
+                    element.scale,
+                    element.color,
+                    element.shadowOffsetX,
+                    element.shadowOffsetY,
+                    element.shadowBlur,
+                    element.shadowColor,
+                    element.fontFamily
+                );
+            } else {
+                textRenderer.renderText(
+                    element.text,
+                    element.x,
+                    element.y,
+                    element.scale,
+                    element.color,
+                    element.fontFamily
+                );
+            }
+        }
     }
 
     @Override

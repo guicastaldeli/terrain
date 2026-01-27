@@ -18,8 +18,8 @@ public class MainScreenChunk {
     private int lastProcessedIndex = 0;
     private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
 
-    public static final int CHUNK_SIZE = 90;
-    private static final int RENDER_DISTANCE = 24;
+    public static final int CHUNK_SIZE = 50;
+    private static final int RENDER_DISTANCE = 30;
 
     public MainScreenChunk(
         World world, 
@@ -317,15 +317,15 @@ public class MainScreenChunk {
     /**
      * Update Chunks
      */
-    public void updateChunks(float playerX, float playerZ) {
-        int[] playerChunk = getCoords(playerX, playerZ);
-        int playerChunkX = playerChunk[0];
-        int playerChunkZ = playerChunk[1];
+    public void updateChunks(float cameraX, float cameraZ) {
+        int[] cameraChunk = getCoords(cameraX, cameraZ);
+        int cameraChunkX = cameraChunk[0];
+        int cameraChunkZ = cameraChunk[1];
 
         synchronized(chunkLock) {
             List<String> chunksToUnload = new ArrayList<>();
             for(String chunkId : loadedChunks.keySet()) {
-                if(!isInRange(chunkId, playerChunkX, playerChunkZ)) {
+                if(!isInRange(chunkId, cameraChunkX, cameraChunkZ)) {
                     chunksToUnload.add(chunkId);
                 }
             }
@@ -334,8 +334,8 @@ public class MainScreenChunk {
             }
 
             chunksToLoad.clear();
-            for(int x = playerChunkX - RENDER_DISTANCE; x <= playerChunkX + RENDER_DISTANCE; x++) {
-                for(int z = playerChunkZ - RENDER_DISTANCE; z <= playerChunkZ + RENDER_DISTANCE; z++) {
+            for(int x = cameraChunkX - RENDER_DISTANCE; x <= cameraChunkX + RENDER_DISTANCE; x++) {
+                for(int z = cameraChunkZ - RENDER_DISTANCE; z <= cameraChunkZ + RENDER_DISTANCE; z++) {
                     String chunkId = getId(x, z);
                     if(!loadedChunks.containsKey(chunkId) && isValid(x, z)) {
                         chunksToLoad.add(chunkId);
@@ -353,12 +353,12 @@ public class MainScreenChunk {
                 int z2 = Integer.parseInt(parts2[3]);
                 
                 float dist1 = (float)Math.sqrt(
-                    Math.pow(x1 - playerChunkX, 2) + 
-                    Math.pow(z1 - playerChunkZ, 2)
+                    Math.pow(x1 - cameraChunkX, 2) + 
+                    Math.pow(z1 - cameraChunkZ, 2)
                 );
                 float dist2 = (float)Math.sqrt(
-                    Math.pow(x2 - playerChunkX, 2) + 
-                    Math.pow(z2 - playerChunkZ, 2)
+                    Math.pow(x2 - cameraChunkX, 2) + 
+                    Math.pow(z2 - cameraChunkZ, 2)
                 );
                 
                 return Float.compare(dist1, dist2);

@@ -5,8 +5,11 @@ import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
 import main.com.app.root.screen.ScreenData;
 import main.com.app.root.screen.ScreenElement;
+import javax.script.ScriptException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -14,6 +17,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
 import static org.lwjgl.opengl.GL11.*;
@@ -26,6 +31,8 @@ public class DocParser {
     private static int uiVbo = 0;
     private static int uiEbo = 0;
     private static boolean uiBuffersInitialized = false;
+
+    private static ScriptEngine engine;
     
     /**
      * Parse
@@ -178,7 +185,11 @@ public class DocParser {
                 }
             }
         }
+        boolean hasBackground = 
+            type.equals("div") || 
+            type.equals("container");
         if(element.hasAttribute("background")) {
+            hasBackground = true;
             String bgStr = element.getAttribute("background");
             String[] bgParts = bgStr.split(",");
             if(bgParts.length >= 3) {
@@ -189,6 +200,10 @@ public class DocParser {
                     bgParts.length >= 4 ? Float.parseFloat(bgParts[3]) : 1.0f
                 };
             }
+        }
+        String fontFamily = "arial";
+        if(element.hasAttribute("fontFamily")) {
+            fontFamily = element.getAttribute("fontFamily").toLowerCase();
         }
         
         String action = element
@@ -214,25 +229,62 @@ public class DocParser {
                 };
             }
         }
+        if(element.hasAttribute("text")) {
+            String textAttr = element.getAttribute("text");
+            text = evaluateExpression(textAttr);
+        } else {
+            text = evaluateExpression(text);
+        }
         
         ScreenElement screenElement = new ScreenElement(
             type, 
             id, 
             text, 
+            fontFamily,
             x, y,
             width, height,
             scale, 
             color, 
+            hasBackground,
             action
         );
         
         screenElement.borderWidth = borderWidth;
         screenElement.borderColor = borderColor;
-        if(element.hasAttribute("background")) screenElement.hasBackground = true;
+        screenElement.fontFamily = fontFamily;
         parseAttr(element, screenElement.attr);
         
         if(element.hasAttribute("visible")) {
             screenElement.visible = Boolean.parseBoolean(element.getAttribute("visible"));
+        }
+        if(element.hasAttribute("textShadow")) {
+            String shadowStr = element.getAttribute("textShadow");
+            String[] shadowParts = shadowStr.split(" ");
+            
+            if(shadowParts.length >= 2) {
+                screenElement.hasShadow = true;
+                
+                String[] offsetParts = shadowParts[0].split(",");
+                if(offsetParts.length >= 2) {
+                    screenElement.shadowOffsetX = Float.parseFloat(offsetParts[0].replace("px", "").trim());
+                    screenElement.shadowOffsetY = Float.parseFloat(offsetParts[1].replace("px", "").trim());
+                }
+                
+                if(shadowParts.length >= 2) {
+                    screenElement.shadowBlur = Float.parseFloat(shadowParts[1].replace("px", "").trim());
+                }
+                
+                if(shadowParts.length >= 3) {
+                    String[] colorParts = shadowParts[2].split(",");
+                    if(colorParts.length >= 3) {
+                        screenElement.shadowColor[0] = Float.parseFloat(colorParts[0]);
+                        screenElement.shadowColor[1] = Float.parseFloat(colorParts[1]);
+                        screenElement.shadowColor[2] = Float.parseFloat(colorParts[2]);
+                        screenElement.shadowColor[3] = colorParts.length >= 4 ? 
+                            Float.parseFloat(colorParts[3]) : 0.5f;
+                    }
+                }
+            }
         }
         
         return screenElement;
@@ -275,6 +327,9 @@ public class DocParser {
                 }
             }
         }
+        boolean hasBackground = 
+            type.equals("div") || 
+            type.equals("container");
         if(element.hasAttribute("background")) {
             String bgStr = element.getAttribute("background");
             String[] bgParts = bgStr.split(",");
@@ -286,6 +341,23 @@ public class DocParser {
                     bgParts.length >= 4 ? Float.parseFloat(bgParts[3]) : 1.0f
                 };
             }
+        }
+        float[] textColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+        if(element.hasAttribute("textColor")) {
+            String textColorStr = element.getAttribute("textColor");
+            String[] parts = textColorStr.split(",");
+            if(parts.length >= 3) {
+                textColor[0] = Float.parseFloat(parts[0]);
+                textColor[1] = Float.parseFloat(parts[1]);
+                textColor[2] = Float.parseFloat(parts[2]);
+                if(parts.length >= 4) {
+                    textColor[3] = Float.parseFloat(parts[3]);
+                }
+            }
+        }
+        String fontFamily = "arial";
+        if(element.hasAttribute("fontFamily")) {
+            fontFamily = element.getAttribute("fontFamily").toLowerCase();
         }
         
         String action = element
@@ -311,6 +383,13 @@ public class DocParser {
                 };
             }
         }
+
+        if(element.hasAttribute("text")) {
+            String textAttr = element.getAttribute("text");
+            text = evaluateExpression(textAttr);
+        } else {
+            text = evaluateExpression(text);
+        }
         
         UIElement uiElement = new UIElement(
             type, 
@@ -320,16 +399,47 @@ public class DocParser {
             width, height,
             scale, 
             color, 
+            hasBackground,
             action
         );
         
         uiElement.borderWidth = borderWidth;
         uiElement.borderColor = borderColor;
+        uiElement.fontFamily = fontFamily;
         if(element.hasAttribute("background")) uiElement.hasBackground = true;
         parseAttr(element, uiElement.attr);
         
         if(element.hasAttribute("visible")) {
             uiElement.visible = Boolean.parseBoolean(element.getAttribute("visible"));
+        }
+        if(element.hasAttribute("textShadow")) {
+            String shadowStr = element.getAttribute("textShadow");
+            String[] shadowParts = shadowStr.split(" ");
+            
+            if(shadowParts.length >= 2) {
+                uiElement.hasShadow = true;
+                
+                String[] offsetParts = shadowParts[0].split(",");
+                if(offsetParts.length >= 2) {
+                    uiElement.shadowOffsetX = Float.parseFloat(offsetParts[0].replace("px", "").trim());
+                    uiElement.shadowOffsetY = Float.parseFloat(offsetParts[1].replace("px", "").trim());
+                }
+                
+                if(shadowParts.length >= 2) {
+                    uiElement.shadowBlur = Float.parseFloat(shadowParts[1].replace("px", "").trim());
+                }
+                
+                if(shadowParts.length >= 3) {
+                    String[] colorParts = shadowParts[2].split(",");
+                    if(colorParts.length >= 3) {
+                        uiElement.shadowColor[0] = Float.parseFloat(colorParts[0]);
+                        uiElement.shadowColor[1] = Float.parseFloat(colorParts[1]);
+                        uiElement.shadowColor[2] = Float.parseFloat(colorParts[2]);
+                        uiElement.shadowColor[3] = colorParts.length >= 4 ? 
+                            Float.parseFloat(colorParts[3]) : 0.5f;
+                    }
+                }
+            }
         }
         
         return uiElement;
@@ -578,33 +688,63 @@ public class DocParser {
                 renderUIElement(element, screenWidth, screenHeight, shaderProgram);
             }
         }
-        
         for(ScreenElement element : screenData.elements) {
             if(element.visible && element.type.equals("button")) {
                 renderUIElement(element, screenWidth, screenHeight, shaderProgram);
                 
                 if(textRenderer != null && element.text != null && !element.text.isEmpty()) {
-                    textRenderer.renderText(
-                        element.text,
-                        element.x,
-                        element.y,
-                        element.scale,
-                        element.color
-                    );
+                    if(element.hasShadow) {
+                        textRenderer.renderTextWithShadow(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.shadowOffsetX,
+                            element.shadowOffsetY,
+                            element.shadowBlur,
+                            element.shadowColor,
+                            element.fontFamily
+                        );
+                    } else {
+                        textRenderer.renderText(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.fontFamily
+                        );
+                    }
                 }
             }
         }
-        
         for(ScreenElement element : screenData.elements) {
             if(element.visible && element.type.equals("label")) {
                 if(textRenderer != null && element.text != null && !element.text.isEmpty()) {
-                    textRenderer.renderText(
-                        element.text,
-                        element.x,
-                        element.y,
-                        element.scale,
-                        element.color
-                    );
+                    if(element.hasShadow) {
+                        textRenderer.renderTextWithShadow(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.shadowOffsetX,
+                            element.shadowOffsetY,
+                            element.shadowBlur,
+                            element.shadowColor,
+                            element.fontFamily
+                        );
+                    } else {
+                        textRenderer.renderText(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.fontFamily
+                        );
+                    }
                 }
             }
         }
@@ -629,13 +769,29 @@ public class DocParser {
                 renderUIElement(element, screenWidth, screenHeight, shaderProgram);
                 
                 if(textRenderer != null && element.text != null && !element.text.isEmpty()) {
-                    textRenderer.renderText(
-                        element.text,
-                        element.x,
-                        element.y,
-                        element.scale,
-                        element.color
-                    );
+                    if(element.hasShadow) {
+                        textRenderer.renderTextWithShadow(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.shadowOffsetX,
+                            element.shadowOffsetY,
+                            element.shadowBlur,
+                            element.shadowColor,
+                            element.fontFamily
+                        );
+                    } else {
+                        textRenderer.renderText(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.fontFamily
+                        );
+                    }
                 }
             }
         }
@@ -643,13 +799,29 @@ public class DocParser {
         for(UIElement element : uiData.elements) {
             if(element.visible && element.type.equals("label")) {
                 if(textRenderer != null && element.text != null && !element.text.isEmpty()) {
-                    textRenderer.renderText(
-                        element.text,
-                        element.x,
-                        element.y,
-                        element.scale,
-                        element.color
-                    );
+                    if(element.hasShadow) {
+                        textRenderer.renderTextWithShadow(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.shadowOffsetX,
+                            element.shadowOffsetY,
+                            element.shadowBlur,
+                            element.shadowColor,
+                            element.fontFamily
+                        );
+                    } else {
+                        textRenderer.renderText(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.fontFamily
+                        );
+                    }
                 }
             }
         }
@@ -705,5 +877,69 @@ public class DocParser {
             screenHeight
         );
         return getElementsByType(screenData, "div");
+    }
+
+    /**
+     * Script Engine
+     */
+    private static void initScriptEngine() {
+        if (engine == null) {
+            ScriptEngineManager manager = new ScriptEngineManager();
+            engine = manager.getEngineByName("JavaScript");
+        }
+    }
+
+    private static String evaluateExpression(String text) {
+        if (text == null || !text.contains("${")) {
+            return text;
+        }
+        
+        Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
+        Matcher matcher = pattern.matcher(text);
+        StringBuffer result = new StringBuffer();
+        
+        while (matcher.find()) {
+            String expression = matcher.group(1);
+            String replacement = evaluateSimpleExpression(expression);
+            matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+        }
+        matcher.appendTail(result);
+        
+        return result.toString();
+    }
+    
+    private static String evaluateSimpleExpression(String expression) {
+        expression = expression.trim();
+        
+        Pattern repeatPattern = Pattern.compile("'(.*?)'\\.repeat\\((\\d+)\\)");
+        Matcher repeatMatcher = repeatPattern.matcher(expression);
+        if (repeatMatcher.matches()) {
+            String text = repeatMatcher.group(1);
+            int count = Integer.parseInt(repeatMatcher.group(2));
+            return text.repeat(count);
+        }
+        
+        if(expression.contains("+")) {
+            String[] parts = expression.split("\\+");
+            StringBuilder result = new StringBuilder();
+            for (String part : parts) {
+                part = part.trim().replaceAll("^'|'$", "");
+                result.append(part);
+            }
+            return result.toString();
+        }
+        
+        if(expression.startsWith("'") && expression.endsWith("'")) {
+            return expression.substring(1, expression.length() - 1);
+        }
+        
+        try {
+            initScriptEngine();
+            Object result = engine.eval(expression);
+            return result != null ? result.toString() : expression;
+        } catch (ScriptException e) {
+            System.err.println("Could not evaluate expression: " + expression);
+            return "${" + expression + "}";
+        }
     }
 }

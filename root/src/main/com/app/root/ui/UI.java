@@ -52,8 +52,6 @@ public class UI implements UIHandler {
             this.textRenderer = new TextRenderer(
                 window,
                 shaderProgram,
-                fontConfig.path,
-                fontConfig.size,
                 window.getWidth(),
                 window.getHeight()
             );

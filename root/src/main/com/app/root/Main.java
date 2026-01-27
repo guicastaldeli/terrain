@@ -95,6 +95,7 @@ public class Main {
         screenController = new ScreenController(
             window, 
             tick,
+            scene,
             shaderProgram,
             saveGenerator,
             saveLoader,

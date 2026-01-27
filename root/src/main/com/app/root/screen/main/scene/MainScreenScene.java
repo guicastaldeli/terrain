@@ -1,6 +1,4 @@
 package main.com.app.root.screen.main.scene;
-import main.com.app.root.mesh.Mesh;
-import main.com.app.root.player.Camera;
 import main.com.app.root.DependencyContainer;
 import main.com.app.root.Tick;
 import main.com.app.root.Window;
@@ -9,6 +7,9 @@ import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.EnvRenderer;
+import main.com.app.root.mesh.Mesh;
+import main.com.app.root.player.Camera;
+import org.joml.Vector3f;
 
 public class MainScreenScene {
     private final Window window;
@@ -67,8 +68,9 @@ public class MainScreenScene {
             this.skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
 
             this.camera = new Camera();
-            camera.setPosition(0, 550, 150);
+            camera.setPosition(0, 450, 150);
             camera.setRotation(0, -50);
+
             mesh.getMeshRenderer().setCamera(camera);
             mesh.setCamera(camera);
             
@@ -95,6 +97,10 @@ public class MainScreenScene {
      */
     public void update() {
         if(!init) return;
+
+        Vector3f target = new Vector3f(0.0f, 0.0f, 0.0f);
+        camera.orbitAroundPoint(target, new Vector3f(0.0f, 1.0f, 0.0f), 0.05f);
+        
         mesh.update();
         if(skyboxInstance != null) {
             Object skyboxMesh = EnvCall.callReturn(skyboxInstance, "getMesh");
@@ -115,7 +121,7 @@ public class MainScreenScene {
                 EnvCall.call(skyboxMesh, "render");
             }
         }
-        getWorld().render(0, 0);
+        world.render(camera.getPosition().x, camera.getPosition().z);
         mesh.renderAll();
     }
 

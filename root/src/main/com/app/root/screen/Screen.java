@@ -67,8 +67,6 @@ public class Screen implements ScreenHandler {
             this.textRenderer = new TextRenderer(
                 Screen.window,
                 Screen.shaderProgram,
-                fontConfig.path,
-                fontConfig.size,
                 Screen.window.getWidth(),
                 Screen.window.getHeight()
             );
@@ -154,17 +152,15 @@ public class Screen implements ScreenHandler {
      */
     public void render() {
         if(!active || textRenderer == null) {
-            System.out.println("Screen not rendering: active=" + active + ", textRenderer=" + textRenderer);
             return;
         }
         
-        for(ScreenElement el : screenData.elements) {
-            textRenderer.renderText(
-                el.text,
-                el.x, el.y,
-                el.scale,
-                el.color   
-            );
-        }
+        DocParser.renderScreen(
+            screenData,
+            window.getWidth(),
+            window.getHeight(),
+            shaderProgram,
+            textRenderer
+        );
     }
 }

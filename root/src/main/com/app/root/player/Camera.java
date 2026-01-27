@@ -331,9 +331,95 @@ public class Camera {
         return showCursor;
     }
 
+    /**
+     * 
+     * Rotation Axis
+     * 
+     */
+    public void rotateAroundAxis(Vector3f axis, float angleDegrees) {
+        if(axis.length() == 0) return;
+        axis.normalize();
+
+        float angleRad = (float) Math.toRadians(angleDegrees);
+        Matrix4f rotationMatrix = new Matrix4f();
+        rotationMatrix.rotation(angleRad, axis);
+
+        rotationMatrix.transformDirection(front);
+        front.normalize();
+        front.cross(worldUp, right);
+        right.normalize();
+        right.cross(front, up);
+        up.normalize();
+
+        updateYawPitchFromFront();
+
+        viewMatrixNeedsUpdate = true;
+    }
+
+    private void updateYawPitchFromFront() {
+        pitch = (float) Math.toDegrees(Math.asin(front.y));
+        yaw = (float) Math.toDegrees(Math.atan2(front.z, front.x));
+
+        if(yaw < 0) yaw += 360.0f;
+        if(yaw >= 360.0f) yaw -= 360.0f;
+    }
+
+    public void rotateAroundX(float angleDegrees) {
+        rotateAroundAxis(new Vector3f(1.0f, 0.0f, 0.0f), angleDegrees);
+    }
+    
+    public void rotateAroundY(float angleDegrees) {
+        rotateAroundAxis(new Vector3f(0.0f, 1.0f, 0.0f), angleDegrees);
+    }
+    
+    public void rotateAroundZ(float angleDegrees) {
+        rotateAroundAxis(new Vector3f(0.0f, 0.0f, 1.0f), angleDegrees);
+    }
+
+    /**
+     * 
+     * Orbit Rotation
+     * 
+     */
+    public void orbitAroundPoint(
+        Vector3f point,
+        Vector3f axis,
+        float angleDegrees
+    ) {
+        if(axis.length() == 0) return;
+        axis.normalize();
+        
+        float angleRad = (float) Math.toRadians(angleDegrees);
+        Matrix4f rotationMatrix = new Matrix4f();
+        rotationMatrix.rotate(angleRad, axis);
+
+        Vector3f targetToCamera = new Vector3f(position).sub(point);
+        rotationMatrix.transformPosition(targetToCamera);
+        position.set(point).add(targetToCamera);
+
+        updateVectorsForOrbit(point);
+
+        viewMatrixNeedsUpdate = true;
+    }
+
+    private void updateVectorsForOrbit(Vector3f target) {
+        front.set(target).sub(position).normalize();
+        front.cross(worldUp, right);
+        right.normalize();
+        right.cross(front, up);
+        up.normalize();
+
+        updateYawPitchFromFront();
+
+        viewMatrixNeedsUpdate = true;
+    }
+
     @Override
     public String toString() {
+        return "";
+        /*
         return String.format("Camera[Pos: (%.2f, %.2f, %.2f), Yaw: %.2f, Pitch: %.2f, FOV: %.2f]",
                 position.x, position.y, position.z, yaw, pitch, fov);
+                */
     }
 }

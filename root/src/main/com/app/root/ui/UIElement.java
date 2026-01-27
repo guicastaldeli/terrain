@@ -7,6 +7,7 @@ public class UIElement {
     public String type;
     public String id;
     public String text;
+    public String fontFamily;
     public int x;
     public int y;
     public int width;
@@ -19,6 +20,11 @@ public class UIElement {
     public boolean hasBackground;
     public float borderWidth;
     public float[] borderColor;
+    public boolean hasShadow = false;
+    public float shadowOffsetX = 0f;
+    public float shadowOffsetY = 0f;
+    public float shadowBlur = 0;
+    public float[] shadowColor = new float[]{0f, 0f, 0f, 0.5f};
 
     public UIElement(
         String type,
@@ -35,6 +41,7 @@ public class UIElement {
         this.type = type;
         this.id = id;
         this.text = text;
+        this.fontFamily = "arial";
         this.x = x;
         this.y = y;
         this.width = width;
@@ -44,7 +51,36 @@ public class UIElement {
         this.action = action;
         this.attr = new HashMap<>();
         this.visible = true;
-        this.hasBackground = type.equals("div") || type.equals("button");
+        this.borderWidth = 0.0f;
+        this.borderColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+    }
+    public UIElement(
+        String type,
+        String id,
+        String text,
+        int x,
+        int y,
+        int width,
+        int height,
+        float scale,
+        float[] color,
+        boolean hasBackground,
+        String action
+    ) {
+        this.type = type;
+        this.id = id;
+        this.text = text;
+        this.fontFamily = "arial";
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.scale = scale;
+        this.color = color;
+        this.action = action;
+        this.attr = new HashMap<>();
+        this.visible = true;
+        this.hasBackground = hasBackground;
         this.borderWidth = 0.0f;
         this.borderColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
     }

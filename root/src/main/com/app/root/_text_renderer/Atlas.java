@@ -124,7 +124,7 @@ public class Atlas {
     public boolean addGlyph(FontLoader fontLoader, char c, int padding) {
         Glyph glyph = fontLoader.loadGlyph(c);
         if(glyph == null) {
-            System.out.println("Failed: glyph is null");
+            //System.out.println("Failed: glyph is null");
             return false;
         }
 
