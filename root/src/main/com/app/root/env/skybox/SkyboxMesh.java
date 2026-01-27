@@ -6,7 +6,6 @@ import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.utils.ColorConverter;
-
 import org.lwjgl.opengl.GL11;
 
 public class SkyboxMesh {
@@ -160,8 +159,22 @@ public class SkyboxMesh {
         if(data != null) updateSkyColor(data);
     }
 
+    public float[] getCurrentSkyColor() {
+        if(tick == null || tick.getTimeCycle() == null) {
+            return new float[]{0.5f, 0.5f, 0.5f, 1.0f};
+        }
+
+        float currentTime = tick.getTimeCycle().getCurrentTime();
+        float dayDuration = tick.getTimeCycle().DAY_DURATION;
+        float timePercent = currentTime / dayDuration;
+
+        return getTimeBasedColor(timePercent);
+    }
+
     /**
+     * 
      * Update
+     * 
      */
     private void updateSkyColor(MeshData data) {
         if(tick == null || tick.getTimeCycle() == null) return;
@@ -207,12 +220,15 @@ public class SkyboxMesh {
         }
     }
 
+    /**
+     * Render
+     */
     public void render() {
         try {
             GL11.glDepthMask(false);
             float starBrightness = calcStarBrightness();
 
-            shaderProgram.setUniform("uStarBrightness", 1.0f);
+            shaderProgram.setUniform("uStarBrightness", starBrightness);
             
             mesh.render(SKYBOX_ID, 2);
             GL11.glDepthMask(true);

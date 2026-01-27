@@ -152,6 +152,7 @@ public class Scene {
 
             if(reset || envController == null) {
                 this.envController = new EnvController(dependencyContainer);
+                mesh.getMeshRenderer().setEnvController(envController);
             }
             
             saveGenerator.setEnvController(getEnvController());
@@ -230,6 +231,7 @@ public class Scene {
 
         mesh.renderAll();
         playerController.render();
+        mesh.getMeshRenderer().applyFog();
     }
 
     /**

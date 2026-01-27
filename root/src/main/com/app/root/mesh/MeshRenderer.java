@@ -1,6 +1,9 @@
 package main.com.app.root.mesh;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.env.EnvCall;
+import main.com.app.root.env.EnvController;
+import main.com.app.root.env.EnvData;
 import main.com.app.root.player.Camera;
 import main.com.app.root.player.PlayerController;
 import java.nio.FloatBuffer;
@@ -35,6 +38,7 @@ import static org.lwjgl.system.MemoryUtil.*;
 public class MeshRenderer {
     private final Tick tick;
     private final ShaderProgram shaderProgram;
+    private EnvController envController;
     private MeshData meshData;
     private PlayerController playerController;
     private Camera camera;
@@ -64,7 +68,6 @@ public class MeshRenderer {
 
     /**
      * Set Data
-     
      */
     public void setData(MeshData data) {
         this.meshData = data;
@@ -73,25 +76,53 @@ public class MeshRenderer {
     }
 
     /**
+     * Set Env Controller
+     */
+    public void setEnvController(EnvController envController) {
+        this.envController = envController;
+    }
+
+    private void checkGLError(String location) {
+        int error = glGetError();
+        if(error != GL_NO_ERROR) {
+            System.err.println("OpenGL error at " + location + ": " + error + 
+                " (mesh: " + (meshData != null ? meshData.getId() : "null") + ")");
+        }
+    }
+
+    /**
      * Create Buffers
+     * 
      */
     private void createBuffers() {
+        while(glGetError() != GL_NO_ERROR);
+        
         vao = glGenVertexArrays();
+        checkGLError("after glGenVertexArrays");
+        
         glBindVertexArray(vao);
+        checkGLError("after glBindVertexArray");
 
         /* Vertices */
         float[] vertices = meshData.getVertices();
         if(vertices != null && vertices.length > 0) {
             vbo = glGenBuffers();
+            checkGLError("after glGenBuffers (vertices)");
+            
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            checkGLError("after glBindBuffer (vertices)");
             
             FloatBuffer vertexBuffer = memAllocFloat(vertices.length);
             vertexBuffer.put(vertices).flip();
             glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
+            checkGLError("after glBufferData (vertices)");
             memFree(vertexBuffer);
             
             glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+            checkGLError("after glVertexAttribPointer (vertices)");
+            
             glEnableVertexAttribArray(0);
+            checkGLError("after glEnableVertexAttribArray (vertices)");
             
             vertexCount = vertices.length / 3;
         }
@@ -99,31 +130,45 @@ public class MeshRenderer {
         /* Normals */
         float[] normals = meshData.getNormals();
         if(normals != null && normals.length > 0) {
-            int normalVbo = glGenBuffers();
+            normalVbo = glGenBuffers();
+            checkGLError("after glGenBuffers (normals)");
+            
             glBindBuffer(GL_ARRAY_BUFFER, normalVbo);
+            checkGLError("after glBindBuffer (normals)");
             
             FloatBuffer normalBuffer = memAllocFloat(normals.length);
             normalBuffer.put(normals).flip();
             glBufferData(GL_ARRAY_BUFFER, normalBuffer, GL_STATIC_DRAW);
+            checkGLError("after glBufferData (normals)");
             memFree(normalBuffer);
             
             glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0);
+            checkGLError("after glVertexAttribPointer (normals)");
+            
             glEnableVertexAttribArray(1);
+            checkGLError("after glEnableVertexAttribArray (normals)");
         }
 
         /* Colors */
         float[] colors = meshData.getColors();
         if(colors != null && colors.length > 0) {
             colorVbo = glGenBuffers();
+            checkGLError("after glGenBuffers (colors)");
+            
             glBindBuffer(GL_ARRAY_BUFFER, colorVbo);
+            checkGLError("after glBindBuffer (colors)");
             
             FloatBuffer colorBuffer = memAllocFloat(colors.length);
             colorBuffer.put(colors).flip();
             glBufferData(GL_ARRAY_BUFFER, colorBuffer, GL_DYNAMIC_DRAW);
+            checkGLError("after glBufferData (colors)");
             memFree(colorBuffer);
             
             glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, 0);
+            checkGLError("after glVertexAttribPointer (colors)");
+            
             glEnableVertexAttribArray(2);
+            checkGLError("after glEnableVertexAttribArray (colors)");
             
             hasColors = true;
         }
@@ -132,38 +177,47 @@ public class MeshRenderer {
         float[] texCoords = meshData.getTexCoords();
         if(texCoords != null && texCoords.length > 0) {
             texCoordsVbo = glGenBuffers();
+            checkGLError("after glGenBuffers (texCoords)");
+            
             glBindBuffer(GL_ARRAY_BUFFER, texCoordsVbo);
+            checkGLError("after glBindBuffer (texCoords)");
             
             FloatBuffer texCoordsBuffer = memAllocFloat(texCoords.length);
             texCoordsBuffer.put(texCoords).flip();
             glBufferData(GL_ARRAY_BUFFER, texCoordsBuffer, GL_STATIC_DRAW);
+            checkGLError("after glBufferData (texCoords)");
             memFree(texCoordsBuffer);
             
             glVertexAttribPointer(3, 2, GL_FLOAT, false, 0, 0);
+            checkGLError("after glVertexAttribPointer (texCoords)");
+            
             glEnableVertexAttribArray(3);
+            checkGLError("after glEnableVertexAttribArray (texCoords)");
         }
 
         /* Indices */
         int[] indices = meshData.getIndices();
         if(indices != null && indices.length > 0) {
             ebo = glGenBuffers();
+            checkGLError("after glGenBuffers (indices)");
+            
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+            checkGLError("after glBindBuffer (indices)");
             
             IntBuffer indexBuffer = memAllocInt(indices.length);
             indexBuffer.put(indices).flip();
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
+            checkGLError("after glBufferData (indices)");
             memFree(indexBuffer);
             
             vertexCount = indices.length;
         }
 
         glBindVertexArray(0);
+        checkGLError("after unbind VAO");
+        
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        int error = glGetError();
-        if(error != GL_NO_ERROR) {
-            System.err.println("OpenGL error during buffer creation: " + error);
-        }
+        checkGLError("after unbind VBO");
     }
 
     /**
@@ -177,11 +231,9 @@ public class MeshRenderer {
      * Texture
      */
     public synchronized void setTex(int id) {
-        //System.out.println("setTex() called for renderer of: " + meshData.getId());
         if(id > 0) {
             texId = id;
             hasTex = true;
-            //System.out.println("Texture set with ID: " + id);
         } else {
             texId = -1;
             hasTex = false;
@@ -276,11 +328,13 @@ public class MeshRenderer {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
+
     /**
      * Render
      */
     public void render(int shaderType) {
-        try {            
+        try {       
+                 
             Camera renderCamera;
             if(playerController != null) {
                 renderCamera = playerController.getCamera();
@@ -338,6 +392,38 @@ public class MeshRenderer {
         } catch(Exception err) {
             err.printStackTrace();
         }
+    }
+
+    /**
+     * 
+     * Skybox Color / Fog
+     * 
+     */
+    public void applyFog() {
+        float[] skyColor = getSkyboxColor();
+        Vector3f fogColor = new Vector3f(skyColor[0], skyColor[1], skyColor[2]);
+
+        shaderProgram.setUniform("uRenderDistance", Camera.FOG);
+        shaderProgram.setUniform("uFogColor", fogColor.x, fogColor.y, fogColor.z);
+        shaderProgram.setUniform("uFogDensity", 1.0f);
+    }
+
+    public float[] getSkyboxColor() {
+        if(envController == null) return new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+        
+        try {
+            Object skyboxInstance = envController.getEnv(EnvData.SKYBOX);
+            Object skyboxMesh = EnvCall.callReturn(skyboxInstance, "getMesh");
+            
+            if(skyboxMesh != null) {
+                Object colorObj = EnvCall.callReturn(skyboxMesh, "getCurrentSkyColor");
+                if(colorObj instanceof float[]) return (float[]) colorObj;
+            }
+        } catch(Exception e) {
+            System.err.println("Failed to get skybox color: " + e.getMessage());
+        }
+        
+        return new float[]{0.5f, 0.5f, 0.5f, 1.0f};
     }
 
     public void cleanup() {

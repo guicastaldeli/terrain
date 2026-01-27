@@ -2,6 +2,8 @@ package main.com.app.root.screen.main.scene;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
+import main.com.app.root.player.Camera;
+
 import java.util.*;
 
 public class MainScreenChunk {
@@ -19,7 +21,6 @@ public class MainScreenChunk {
     private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
 
     public static final int CHUNK_SIZE = 50;
-    private static final int RENDER_DISTANCE = 30;
 
     public MainScreenChunk(
         World world, 
@@ -54,8 +55,8 @@ public class MainScreenChunk {
             try {
                 int chunkX = Integer.parseInt(parts[2]);
                 int chunkZ = Integer.parseInt(parts[3]);
-                return Math.abs(chunkX - centerX) <= RENDER_DISTANCE &&
-                    Math.abs(chunkZ - centerZ) <= RENDER_DISTANCE;
+                return Math.abs(chunkX - centerX) <= Camera.RENDER_DISTANCE &&
+                    Math.abs(chunkZ - centerZ) <= Camera.RENDER_DISTANCE;
             } catch (NumberFormatException e) {
                 System.err.println("Invalid chunk ID format: " + chunkId);
                 return false;
@@ -334,8 +335,12 @@ public class MainScreenChunk {
             }
 
             chunksToLoad.clear();
-            for(int x = cameraChunkX - RENDER_DISTANCE; x <= cameraChunkX + RENDER_DISTANCE; x++) {
-                for(int z = cameraChunkZ - RENDER_DISTANCE; z <= cameraChunkZ + RENDER_DISTANCE; z++) {
+            for(int x = cameraChunkX - Camera.RENDER_DISTANCE; 
+                x <= cameraChunkX + Camera.RENDER_DISTANCE; x++
+            ) {
+                for(int z = cameraChunkZ - Camera.RENDER_DISTANCE; 
+                    z <= cameraChunkZ + Camera.RENDER_DISTANCE; z++
+                ) {
                     String chunkId = getId(x, z);
                     if(!loadedChunks.containsKey(chunkId) && isValid(x, z)) {
                         chunksToLoad.add(chunkId);

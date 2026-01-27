@@ -9,7 +9,9 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec2 screenSize;
+
 out vec3 worldPos;
+out float fragDistance;
 
 out vec4 uColor;
 out vec2 texCoord;
@@ -27,6 +29,9 @@ void main() {
     //Mesh
     if(shaderType == 0) {
         setMeshColor();
+
+        vec4 viewPos = view * model * vec4(inPos, 1.0);
+        fragDistance = length(viewPos.xyz);
     }
     //Skybox
     else if(shaderType == 2) {

@@ -71,6 +71,7 @@ public class MainScreenScene {
             camera.setPosition(0, 450, 150);
             camera.setRotation(0, -30);
 
+            mesh.getMeshRenderer().setEnvController(envController);
             mesh.getMeshRenderer().setCamera(camera);
             mesh.setCamera(camera);
             
@@ -98,7 +99,7 @@ public class MainScreenScene {
     public void update() {
         if(!init) return;
 
-        Vector3f target = new Vector3f(0.0f, 0.0f, 0.0f);
+        Vector3f target = new Vector3f(0.0f, 200.0f, 0.0f);
         camera.orbitAroundPoint(target, new Vector3f(0.0f, 1.0f, 0.0f), 0.05f);
         
         mesh.update();
@@ -121,10 +122,11 @@ public class MainScreenScene {
                 EnvCall.call(skyboxMesh, "render");
             }
         }
+
         world.render(camera.getPosition().x, camera.getPosition().z);
         mesh.renderAll();
+        mesh.getMeshRenderer().applyFog();
     }
-
 
     /**
      * Init

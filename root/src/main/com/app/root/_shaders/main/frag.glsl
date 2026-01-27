@@ -2,6 +2,9 @@
 
 in vec4 uColor;
 in vec2 texCoord;
+in vec3 worldPos;
+in float fragDistance;
+
 out vec4 fragColor;
 
 uniform sampler2D texSampler;
@@ -14,7 +17,10 @@ uniform vec3 uSkyColorEnd;
 uniform vec3 uNextColorStart;
 uniform float uBlendFactor;
 uniform float uStarBrightness;
-in vec3 worldPos;
+
+uniform float uRenderDistance;
+uniform vec3 uFogColor;
+uniform float uFogDensity;
 
 #include "text/text_frag.glsl"
 #include "mesh/mesh_tex.glsl"
@@ -25,6 +31,11 @@ void main() {
     //Mesh
     if(shaderType == 0) {
         setMeshTex();
+
+        float fogStart = uRenderDistance * 0.5;
+        float fogEnd = uRenderDistance;
+        float fogFactor = clamp((fragDistance - fogStart) / (fogEnd - fogStart), 0.0, 1.0);
+        fragColor = mix(fragColor, vec4(uFogColor, fragColor.a), fogFactor);
     }
     //Skybox
     if(shaderType == 2) {
