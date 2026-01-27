@@ -36,6 +36,9 @@ public class Screen implements ScreenHandler {
     public String screenName;
     public ScreenData screenData;
 
+    protected int lastMouseX = -1;
+    protected int lastMouseY = -1;
+
     public static void init(
         Window window,
         Tick tick,
@@ -162,5 +165,35 @@ public class Screen implements ScreenHandler {
             shaderProgram,
             textRenderer
         );
+    }
+    
+    /**
+     * Update
+    */
+    public void update() {
+       if(lastMouseX >= 0 && lastMouseY >= 0) {
+           handleMouseMove(lastMouseX, lastMouseY);
+        }
+    }
+
+    /**
+     * Handle Mouse Move
+     */
+    public void handleMouseMove(int mouseX, int mouseY) {
+        this.lastMouseX = mouseX;
+        this.lastMouseY = mouseY;
+        if(screenData == null) return;
+        
+        for(ScreenElement element : screenData.elements) {
+            if(!element.visible || !element.hoverable) continue;
+            
+            boolean mouseOver = element.containsPoint(mouseX, mouseY);
+            element.applyHover();
+            if(mouseOver && !element.isHovered) {
+                element.applyHover();
+            } else if(!mouseOver && element.isHovered) {
+                element.removeHover();
+            }
+        }
     }
 }

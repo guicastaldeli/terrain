@@ -1,5 +1,6 @@
 package main.com.app.root.ui;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,13 +19,26 @@ public class UIElement {
     public Map<String, String> attr;
     public boolean visible;
     public boolean hasBackground;
+
     public float borderWidth;
     public float[] borderColor;
+
     public boolean hasShadow = false;
     public float shadowOffsetX = 0f;
     public float shadowOffsetY = 0f;
     public float shadowBlur = 0;
     public float[] shadowColor = new float[]{0f, 0f, 0f, 0.5f};
+    
+    public boolean hoverable = false;
+    public boolean isHovered = false;
+    public float[] hoverColor = null;
+    public float[] hoverTextColor = null;
+    public float[] hoverBorderColor = null;
+    public float hoverScale = 1.0f;
+    
+    private float[] originalColor;
+    private float[] originalBorderColor;
+    private float originalScale;
 
     public UIElement(
         String type,
@@ -53,6 +67,14 @@ public class UIElement {
         this.visible = true;
         this.borderWidth = 0.0f;
         this.borderColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+
+        this.originalColor = color != null ? color.clone() : new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+        this.originalBorderColor = borderColor.clone();
+        this.originalScale = scale;
+        
+        this.hoverColor = null;
+        this.hoverTextColor = null;
+        this.hoverBorderColor = null;
     }
     public UIElement(
         String type,
@@ -83,6 +105,14 @@ public class UIElement {
         this.hasBackground = hasBackground;
         this.borderWidth = 0.0f;
         this.borderColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+
+        this.originalColor = color != null ? color.clone() : new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+        this.originalBorderColor = borderColor.clone();
+        this.originalScale = scale;
+        
+        this.hoverColor = null;
+        this.hoverTextColor = null;
+        this.hoverBorderColor = null;
     }
     
     public float getRed() { 
@@ -107,5 +137,49 @@ public class UIElement {
         
     public void setVisible(boolean visible) {
         this.visible = visible;
+    }
+
+    /**
+     * Apply Hover
+     */
+    public void applyHover() {
+        if(!hoverable || isHovered) return;
+        
+        isHovered = true;
+        
+        System.out.println("Applying hover to " + id);
+        System.out.println("Original color: " + Arrays.toString(originalColor));
+        System.out.println("Hover color: " + Arrays.toString(hoverColor));
+        
+        if(hoverColor != null) {
+            color = hoverColor;
+            System.out.println("New color: " + Arrays.toString(color));
+        }
+        if(hoverBorderColor != null) {
+            borderColor = hoverBorderColor;
+        }
+        if(hoverScale > 0) {
+            scale = hoverScale;
+        }
+    }
+
+    /**
+     * Remove Hover
+     */
+    public void removeHover() {
+        if(!hoverable || !isHovered) return;
+        
+        isHovered = false;
+        color = originalColor.clone();
+        borderColor = originalBorderColor.clone();
+        scale = originalScale;
+    }
+    
+    /**
+     * Contains Point
+     */
+    public boolean containsPoint(int mouseX, int mouseY) {
+        return mouseX >= x && mouseX <= x + width &&
+               mouseY >= y && mouseY <= y + height;
     }
 }

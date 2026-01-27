@@ -248,4 +248,17 @@ public class ScreenController {
             currentScreen.update();
         }
     }
+
+    /**
+     * Setup Mouse
+     */
+    public void setupMouse() {
+        glfwSetCursorPosCallback(window.getWindow(), (windowHandle, xPos, yPos) -> {
+            int mouseX = (int)xPos;
+            int mouseY = (int)yPos;
+            if(currentScreen != null) {
+                currentScreen.handleMouseMove(mouseX, mouseY);
+            }
+        });
+    }
 }

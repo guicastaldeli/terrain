@@ -5,6 +5,6 @@ public interface ScreenHandler {
     default void update() {};
     default void handleAction(String action) {};
     default void handleKeyPress(int key, int action) {};
-    default void handleMouse() {};
+    default void handleMouseMove(int mouseX, int mouseY) {};
     default void onWindowResize(int width, int height) {};
 }

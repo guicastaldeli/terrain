@@ -89,6 +89,11 @@ public class InputController {
                 if(playerInputMap != null) {
                     playerInputMap.handleMouse(xOffset, yOffset);
                 }
+            } else {
+                ScreenHandler inputHandler = screenController.getCurrentInputHandler();
+                if(inputHandler != null) {
+                    inputHandler.handleMouseMove((int)xPos, (int)yPos);
+                }
             }
 
             lastMouseX = xPos;

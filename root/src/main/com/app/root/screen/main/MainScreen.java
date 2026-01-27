@@ -2,6 +2,7 @@ package main.com.app.root.screen.main;
 import main.com.app.root.DocParser;
 import main.com.app.root._save.SaveInfo;
 import main.com.app.root.screen.Screen;
+import main.com.app.root.screen.ScreenElement;
 import main.com.app.root.screen.main.scene.MainScreenScene;
 import java.util.*;
 
@@ -114,6 +115,10 @@ public class MainScreen extends Screen {
     @Override
     public void update() {
         mainScreenScene.update();
+        if(lastMouseX >= 0 && lastMouseY >= 0) {
+           handleMouseMove(lastMouseX, lastMouseY);
+           System.out.println(lastMouseX);
+        }
     }
 
     /**
@@ -158,5 +163,23 @@ public class MainScreen extends Screen {
 
     public void renderScene() {
         mainScreenScene.render();
+    }
+
+    @Override
+    public void handleMouseMove(int mouseX, int mouseY) {
+        if(!active) return;
+        
+        for(ScreenElement element : screenData.elements) {
+            if(element.visible && element.hoverable) {
+                boolean wasHovered = element.isHovered;
+                boolean isHovered = element.containsPoint(mouseX, mouseY);
+                
+                if(isHovered && !wasHovered) {
+                    element.applyHover();
+                } else if(!isHovered && wasHovered) {
+                    element.removeHover();
+                }
+            }
+        }
     }
 }

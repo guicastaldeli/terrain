@@ -91,6 +91,7 @@ public class LoadSaveMenu extends Screen {
     public void show() {
         this.active = true;
         screenController.switchTo(ScreenController.SCREENS.LOAD_SAVE_MENU);
+        resetHover();
         updateSaveSlots();
     }
 
@@ -103,8 +104,18 @@ public class LoadSaveMenu extends Screen {
 
     public void hide(boolean returnToMain) {
         this.active = false;
+        resetHover();
         if(returnToMain) {
             screenController.switchTo(ScreenController.SCREENS.MAIN);
+        }
+    }
+
+    private void resetHover() {
+        if(screenData == null) return;
+        for(ScreenElement element : screenData.elements) {
+            if(element.hoverable && element.isHovered) {
+                element.removeHover();
+            }
         }
     }
     
@@ -183,16 +194,18 @@ public class LoadSaveMenu extends Screen {
                     "",
                     "arial",
                     saveSlotsContainer.x + (int)(windowWidth * 0.03f),
-                    baseY - (int)(windowHeight * 0.008f),
+                    baseY - (int)(windowHeight * 0.009f),
                     (int)(windowWidth * 0.80f),
                     slotHeight - (int)(windowHeight * 0.01f),
                     1.0f,
                     new float[]{0.0f, 0.0f, 0.0f, 0.7f},
                     ""
                 );
+                slotBackground.hoverable = true;
                 slotBackground.hasBackground = true;
                 slotBackground.borderWidth = 1.0f;
                 slotBackground.borderColor = new float[]{0.3f, 0.3f, 0.3f, 0.8f};
+                slotBackground.hoverColor = new float[]{0.0f, 0.0f, 0.0f, 0.9f};
                 screenData.elements.add(slotBackground);
                 
                 /* Save Name */
@@ -250,9 +263,11 @@ public class LoadSaveMenu extends Screen {
                     baseY + (int)(slotHeight * 0.3f),
                     buttonWidth, buttonHeight,
                     1.0f,
-                    new float[]{0.2f, 0.8f, 0.2f, 1.0f},
+                    new float[]{0.314f, 0.949f, 0.439f},
                     "load_" + save.saveId
                 );
+                loadButton.hoverable = true;
+                loadButton.hoverColor = new float[]{0.827f, 0.890f, 0.839f};
                 screenData.elements.add(loadButton);
                 
                 /* Delete Button */
@@ -265,9 +280,11 @@ public class LoadSaveMenu extends Screen {
                     baseY + (int)(slotHeight * 0.3f),
                     buttonWidth, buttonHeight,
                     1.0f,
-                    new float[]{0.8f, 0.2f, 0.2f, 1.0f},
+                    new float[]{0.890f, 0.196f, 0.290f},
                     "delete_" + save.saveId
                 );
+                deleteButton.hoverable = true;
+                deleteButton.hoverColor = new float[]{0.820f, 0.647f, 0.671f};
                 screenData.elements.add(deleteButton);
             }
 
@@ -449,6 +466,32 @@ public class LoadSaveMenu extends Screen {
             if(active) updateSaveSlots();
         } catch(Exception err) {
             System.err.println("Failed to re-parse save menu on resize: " + err.getMessage());
+        }
+    }
+
+    @Override
+    public void update() {
+       if(lastMouseX >= 0 && lastMouseY >= 0) {
+           handleMouseMove(lastMouseX, lastMouseY);
+           System.out.println(lastMouseX);
+        }
+    }
+
+    @Override
+    public void handleMouseMove(int mouseX, int mouseY) {
+        if(!active) return;
+        
+        for(ScreenElement element : screenData.elements) {
+            if(element.visible && element.hoverable) {
+                boolean wasHovered = element.isHovered;
+                boolean isHovered = element.containsPoint(mouseX, mouseY);
+                
+                if(isHovered && !wasHovered) {
+                    element.applyHover();
+                } else if(!isHovered && wasHovered) {
+                    element.removeHover();
+                }
+            }
         }
     }
 }

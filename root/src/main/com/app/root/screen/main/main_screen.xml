@@ -5,9 +5,9 @@
         x="50" y="100" 
         scale="1.0" 
         color="0.871, 0.580, 0.949"
-        textShadow="3,3 0 0,0,0,1.0"
+        textShadow="2,2 0 0,0,0,1.0"
     >
-        Terrain  Beta
+        Terrain
     </label>
 
     <button 
@@ -17,7 +17,8 @@
         color="1.0,1.0,1.0" 
         action="continue"
         fontFamily="comic_sans"
-        textShadow="3,3 0 0,0,0,1.0"
+        hoverTextColor="0.5, 0.5, 0.5, 1.0"
+        textShadow="2,2 0 0,0,0,1.0"
     >
         Continue
     </button>
@@ -28,7 +29,8 @@
         color="1.0,1.0,1.0" 
         action="start"
         fontFamily="comic_sans"
-        textShadow="3,3 0 0,0,0,1.0"
+        hoverTextColor="0.5, 0.5, 0.5, 1.0"
+        textShadow="2,2 0 0,0,0,1.0"
     >
         Start
     </button>
@@ -39,29 +41,20 @@
         color="1.0,1.0,1.0" 
         action="load"
         fontFamily="comic_sans"
-        textShadow="3,3 0 0,0,0,1.0"
+        hoverTextColor="0.5, 0.5, 0.5, 1.0"
+        textShadow="2,2 0 0,0,0,1.0"
     >
         Load
     </button>
     <button 
-        id="settingsBtn" 
-        x="50" y="450" 
-        scale="1.0" 
-        color="1.0,1.0,1.0" 
-        action="settings"
-        fontFamily="comic_sans"
-        textShadow="3,3 0 0,0,0,1.0"
-    >
-        Settings
-    </button>
-    <button 
         id="exitBtn" 
-        x="50" y="540" 
+        x="50" y="450" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="exit"
         fontFamily="comic_sans"
-        textShadow="3,3 0 0,0,0,1.0"
+        hoverTextColor="0.5, 0.5, 0.5, 1.0"
+        textShadow="2,2 0 0,0,0,1.0"
     >
         Exit
     </button>

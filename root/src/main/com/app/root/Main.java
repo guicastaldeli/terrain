@@ -103,6 +103,7 @@ public class Main {
             dataGetter,
             stateController
         );
+        screenController.setupMouse();
 
         console.init(this, window, screenController);
         console.setScene(scene);

@@ -245,14 +245,65 @@ public class DocParser {
             width, height,
             scale, 
             color, 
-            hasBackground,
             action
         );
         
         screenElement.borderWidth = borderWidth;
         screenElement.borderColor = borderColor;
-        screenElement.fontFamily = fontFamily;
+        if(element.hasAttribute("background")) screenElement.hasBackground = true;
         parseAttr(element, screenElement.attr);
+        
+        if(element.hasAttribute("hoverable")) {
+            screenElement.hoverable = Boolean.parseBoolean(element.getAttribute("hoverable"));
+        }
+        
+        if(type.equals("button")) {
+            screenElement.hoverable = true;
+        }
+        if(type.equals("container")) {
+            screenElement.hoverable = true;
+        }
+        if(type.equals("div")) {
+            screenElement.hoverable = true;
+        }
+        
+        if(element.hasAttribute("hoverColor")) {
+            String hoverColorStr = element.getAttribute("hoverColor");
+            String[] parts = hoverColorStr.split(",");
+            if(parts.length >= 3) {
+                screenElement.hoverColor = new float[]{
+                    Float.parseFloat(parts[0]),
+                    Float.parseFloat(parts[1]),
+                    Float.parseFloat(parts[2]),
+                    parts.length >= 4 ? Float.parseFloat(parts[3]) : 1.0f
+                };
+            }
+        }
+        
+        if(element.hasAttribute("hoverTextColor")) {
+            String hoverTextColorStr = element.getAttribute("hoverTextColor");
+            screenElement.hoverTextColor = parseColor(hoverTextColorStr);
+            if(screenElement.hoverColor == null) {
+                screenElement.hoverColor = screenElement.hoverTextColor.clone();
+            }
+        }
+        
+        if(element.hasAttribute("hoverBorderColor")) {
+            String hoverBorderColorStr = element.getAttribute("hoverBorderColor");
+            String[] parts = hoverBorderColorStr.split(",");
+            if(parts.length >= 3) {
+                screenElement.hoverBorderColor = new float[]{
+                    Float.parseFloat(parts[0]),
+                    Float.parseFloat(parts[1]),
+                    Float.parseFloat(parts[2]),
+                    parts.length >= 4 ? Float.parseFloat(parts[3]) : 1.0f
+                };
+            }
+        }
+        
+        if(element.hasAttribute("hoverScale")) {
+            screenElement.hoverScale = Float.parseFloat(element.getAttribute("hoverScale"));
+        }
         
         if(element.hasAttribute("visible")) {
             screenElement.visible = Boolean.parseBoolean(element.getAttribute("visible"));
@@ -408,6 +459,57 @@ public class DocParser {
         uiElement.fontFamily = fontFamily;
         if(element.hasAttribute("background")) uiElement.hasBackground = true;
         parseAttr(element, uiElement.attr);
+        
+        if(element.hasAttribute("hoverable")) {
+            uiElement.hoverable = Boolean.parseBoolean(element.getAttribute("hoverable"));
+        }
+        
+        if(type.equals("button")) {
+            uiElement.hoverable = true;
+        }
+        
+        if(element.hasAttribute("hoverColor")) {
+            String hoverColorStr = element.getAttribute("hoverColor");
+            String[] parts = hoverColorStr.split(",");
+            if(parts.length >= 3) {
+                uiElement.hoverColor = new float[]{
+                    Float.parseFloat(parts[0]),
+                    Float.parseFloat(parts[1]),
+                    Float.parseFloat(parts[2]),
+                    parts.length >= 4 ? Float.parseFloat(parts[3]) : 1.0f
+                };
+            }
+        }
+        
+        if(element.hasAttribute("hoverTextColor")) {
+            String hoverTextColorStr = element.getAttribute("hoverTextColor");
+            String[] parts = hoverTextColorStr.split(",");
+            if(parts.length >= 3) {
+                uiElement.hoverTextColor = new float[]{
+                    Float.parseFloat(parts[0]),
+                    Float.parseFloat(parts[1]),
+                    Float.parseFloat(parts[2]),
+                    parts.length >= 4 ? Float.parseFloat(parts[3]) : 1.0f
+                };
+            }
+        }
+        
+        if(element.hasAttribute("hoverBorderColor")) {
+            String hoverBorderColorStr = element.getAttribute("hoverBorderColor");
+            String[] parts = hoverBorderColorStr.split(",");
+            if(parts.length >= 3) {
+                uiElement.hoverBorderColor = new float[]{
+                    Float.parseFloat(parts[0]),
+                    Float.parseFloat(parts[1]),
+                    Float.parseFloat(parts[2]),
+                    parts.length >= 4 ? Float.parseFloat(parts[3]) : 1.0f
+                };
+            }
+        }
+        
+        if(element.hasAttribute("hoverScale")) {
+            uiElement.hoverScale = Float.parseFloat(element.getAttribute("hoverScale"));
+        }
         
         if(element.hasAttribute("visible")) {
             uiElement.visible = Boolean.parseBoolean(element.getAttribute("visible"));
@@ -877,6 +979,23 @@ public class DocParser {
             screenHeight
         );
         return getElementsByType(screenData, "div");
+    }
+
+    private static float[] parseColor(String colorStr) {
+        if(colorStr == null || colorStr.trim().isEmpty()) {
+            return null;
+        }
+        
+        String[] parts = colorStr.split(",");
+        if(parts.length >= 3) {
+            return new float[]{
+                Float.parseFloat(parts[0].trim()),
+                Float.parseFloat(parts[1].trim()),
+                Float.parseFloat(parts[2].trim()),
+                parts.length >= 4 ? Float.parseFloat(parts[3].trim()) : 1.0f
+            };
+        }
+        return null;
     }
 
     /**
