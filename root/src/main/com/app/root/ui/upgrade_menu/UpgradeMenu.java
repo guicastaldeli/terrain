@@ -262,14 +262,14 @@ public class UpgradeMenu extends UI {
                 slotWidth,
                 slotHeight,
                 1.0f,
-                HexToVec3.hexToVec3Array("#262626cc"),
+                HexToVec3.hexToRgbaArray("#262626cc"),
                 ""
             );
             slotBackground.hoverable = true;
             slotBackground.hasBackground = true;
             slotBackground.borderWidth = 2.0f;
-            slotBackground.borderColor = HexToVec3.hexToVec3Array("#666666cc"); 
-            slotBackground.hoverColor = HexToVec3.hexToVec3Array("#333333e6");
+            slotBackground.borderColor = HexToVec3.hexToRgbaArray("#666666cc"); 
+            slotBackground.hoverColor = HexToVec3.hexToRgbaArray("#333333e6");
             uiData.elements.add(slotBackground);
             
             /* Axe Level Label */

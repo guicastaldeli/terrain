@@ -4,6 +4,8 @@ import main.com.app.root._save.SaveInfo;
 import main.com.app.root.screen.Screen;
 import main.com.app.root.screen.ScreenController;
 import main.com.app.root.screen.ScreenElement;
+import main.com.app.root.utils.HexToVec3;
+
 import java.util.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
@@ -170,7 +172,7 @@ public class LoadSaveMenu extends Screen {
                 saveSlotsContainer.y + (int)(windowHeight * 0.10f),
                 200, 30,
                 1.0f,
-                new float[]{0.8f, 0.8f, 0.8f, 1.0f},
+                HexToVec3.hexToRgbaArray("#ccccccff"),
                 ""
             );
             noSavesLabel.visible = true;
@@ -204,14 +206,14 @@ public class LoadSaveMenu extends Screen {
                     (int)(windowWidth * 0.80f),
                     slotHeight - (int)(windowHeight * 0.01f),
                     1.0f,
-                    new float[]{0.0f, 0.0f, 0.0f, 0.7f},
+                    HexToVec3.hexToRgbaArray("#000000b3"),
                     ""
                 );
                 slotBackground.hoverable = true;
                 slotBackground.hasBackground = true;
                 slotBackground.borderWidth = 1.0f;
-                slotBackground.borderColor = new float[]{0.3f, 0.3f, 0.3f, 0.8f};
-                slotBackground.hoverColor = new float[]{0.0f, 0.0f, 0.0f, 0.9f};
+                slotBackground.borderColor = HexToVec3.hexToRgbaArray("#4d4d4dcc");
+                slotBackground.hoverColor = HexToVec3.hexToRgbaArray("#000000e6");
                 screenData.elements.add(slotBackground);
                 
                 /* Save Name */
@@ -224,7 +226,7 @@ public class LoadSaveMenu extends Screen {
                     baseY,
                     labelWidth, labelHeight,
                     1.0f,
-                    new float[]{1.0f, 1.0f, 1.0f, 1.0f},
+                    HexToVec3.hexToRgbaArray("#ffffffff"),
                     ""
                 );
                 screenData.elements.add(saveNameLabel);
@@ -239,7 +241,7 @@ public class LoadSaveMenu extends Screen {
                     baseY + infoSpacingTex,
                     labelWidth, labelHeight,
                     1.0f,
-                    new float[]{0.8f, 0.8f, 0.8f, 1.0f},
+                    HexToVec3.hexToRgbaArray("#ccccccff"),
                     ""
                 );
                 screenData.elements.add(playTimeLabel);
@@ -254,7 +256,7 @@ public class LoadSaveMenu extends Screen {
                     baseY + (infoSpacing * 2),
                     labelWidth, labelHeight,
                     1.0f,
-                    new float[]{0.7f, 0.7f, 0.7f, 1.0f},
+                    HexToVec3.hexToRgbaArray("#b3b3b3ff"),
                     ""
                 );
                 screenData.elements.add(lastPlayedLabel);
@@ -269,12 +271,11 @@ public class LoadSaveMenu extends Screen {
                     baseY + (int)(slotHeight * 0.3f),
                     buttonWidth, buttonHeight,
                     1.0f,
-                    new float[]{0.314f, 0.949f, 0.439f},
+                    HexToVec3.hexToRgbaArray("#50f270ff"),
                     "load_" + save.saveId
                 );
                 loadButton.hoverable = true;
-                loadButton.hoverColor = new float[]{0.827f, 0.890f, 0.839f};
-                screenData.elements.add(loadButton);
+                loadButton.hoverColor = HexToVec3.hexToRgbaArray("#d3e3d6ff");
                 
                 /* Delete Button */
                 ScreenElement deleteButton = new ScreenElement(
@@ -286,11 +287,11 @@ public class LoadSaveMenu extends Screen {
                     baseY + (int)(slotHeight * 0.3f),
                     buttonWidth, buttonHeight,
                     1.0f,
-                    new float[]{0.890f, 0.196f, 0.290f},
+                    HexToVec3.hexToRgbaArray("#e3324aff"),
                     "delete_" + save.saveId
                 );
                 deleteButton.hoverable = true;
-                deleteButton.hoverColor = new float[]{0.820f, 0.647f, 0.671f};
+                deleteButton.hoverColor = HexToVec3.hexToRgbaArray("#d1a5abff");
                 screenData.elements.add(deleteButton);
             }
 
