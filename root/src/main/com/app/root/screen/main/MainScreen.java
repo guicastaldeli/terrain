@@ -84,6 +84,7 @@ public class MainScreen extends Screen {
         refreshSaveList();
         loadSaveMenu.show();
         this.active = false;
+        resetHover();
     }
 
     /**
@@ -91,13 +92,6 @@ public class MainScreen extends Screen {
      */
     public void refreshSaveList() {
         availableSaves = saveLoader.listAvailableSaves();
-    }
-
-    /**
-     * Refresh Screem
-     */
-    public void refreshScreen() {
-        
     }
 
     @Override 
@@ -179,6 +173,15 @@ public class MainScreen extends Screen {
                 } else if(!isHovered && wasHovered) {
                     element.removeHover();
                 }
+            }
+        }
+    }
+
+    public void resetHover() {
+        if(screenData == null) return;
+        for(ScreenElement element : screenData.elements) {
+            if(element.hoverable && element.isHovered) {
+                element.removeHover();
             }
         }
     }

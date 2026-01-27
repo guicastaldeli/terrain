@@ -35,7 +35,7 @@
         
         <div 
             id="scrollbarBg" 
-            x="93%" y="25%" 
+            x="93%" y="22.5%" 
             width="1%" height="65%"
             background="0.2,0.2,0.2,0.5"
         />

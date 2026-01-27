@@ -9,6 +9,16 @@ local fonts = {
         size = 24,
         path = "root/src/main/com/app/root/_font/fonts/comic.ttf"
     },
+    comic_sans_small = {
+        name = "Comic Sans",
+        size = 18,
+        path = "root/src/main/com/app/root/_font/fonts/comic.ttf"
+    },
+    comic_sans_small_2 = {
+        name = "Comic Sans",
+        size = 16,
+        path = "root/src/main/com/app/root/_font/fonts/comic.ttf"
+    },
     cocogooselight = {
         name = "Cocogoose Light",
         size = 24,
@@ -41,7 +51,7 @@ local fonts = {
     },
     playpen = {
         name = "Playpen",
-        size = 24,
+        size = 14,
         path = "root/src/main/com/app/root/_font/fonts/playpen.ttf"
     }
 }

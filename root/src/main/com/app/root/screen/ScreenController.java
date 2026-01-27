@@ -105,7 +105,7 @@ public class ScreenController {
         }
     }
 
-        public void switchTo(SCREENS screenType) {
+    public void switchTo(SCREENS screenType) {
         if(screenType == null) {
             for(Screen screen : screens.values()) {
                 if(screen != null) {
@@ -124,6 +124,9 @@ public class ScreenController {
             currentScreen = screen;
             activeScreen = screenType;
             currentScreen.setActive(true);
+            if(screenType == SCREENS.MAIN && screen instanceof MainScreen) {
+                ((MainScreen) screen).resetHover();
+            }
         } 
     }
 

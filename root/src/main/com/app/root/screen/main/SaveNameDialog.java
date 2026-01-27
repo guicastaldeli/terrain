@@ -88,16 +88,41 @@ public class SaveNameDialog extends Screen {
         ScreenElement nameDisplay = DocParser.getElementById(screenData, "nameDisplay");
         if(nameDisplay != null) {
             String currentText = keyboardInputHandler.getText();
-            if(currentText.isEmpty() && nameDisplay.attr.containsKey("placeholder")) {
+            
+            if(currentText.isEmpty()) {
                 nameDisplay.text = nameDisplay.attr.get("placeholder");
+                nameDisplay.color = parseColor(nameDisplay.attr.get("color"));
             } else {
                 if(active && cursorVisible) {
                     nameDisplay.text = currentText + "|";
                 } else {
                     nameDisplay.text = currentText;
                 }
+
+                String activeColorStr = nameDisplay.attr.get("activeColor");
+                if(activeColorStr != null) {
+                    nameDisplay.color = parseColor(activeColorStr);
+                } else {
+                    nameDisplay.color = new float[]{0.0f, 0.0f, 0.0f, 1.0f};
+                }
             }
         }
+    }
+
+    private float[] parseColor(String colorStr) {
+        if(colorStr == null || colorStr.isEmpty()) {
+            return new float[]{0.0f, 0.0f, 0.0f, 1.0f};
+        }
+        
+        String[] components = colorStr.split(",");
+        float[] color = new float[4];
+        for(int i = 0; i < Math.min(components.length, 4); i++) {
+            color[i] = Float.parseFloat(components[i].trim());
+        }
+        
+        if(components.length < 4) color[3] = 1.0f;
+        
+        return color;
     }
 
     /**
@@ -179,6 +204,35 @@ public class SaveNameDialog extends Screen {
             updateNameDisplay();
         } catch(Exception err) {
             System.err.println("Failed to re-parse save menu on resize: " + err.getMessage());
+        }
+    }
+
+    @Override
+    public void update() {
+        if(active) {
+            updateCursor();
+        }
+        if(lastMouseX >= 0 && lastMouseY >= 0) {
+            handleMouseMove(lastMouseX, lastMouseY);
+            System.out.println(lastMouseX);
+        }
+    }
+
+    @Override
+    public void handleMouseMove(int mouseX, int mouseY) {
+        if(!active) return;
+        
+        for(ScreenElement element : screenData.elements) {
+            if(element.visible && element.hoverable) {
+                boolean wasHovered = element.isHovered;
+                boolean isHovered = element.containsPoint(mouseX, mouseY);
+                
+                if(isHovered && !wasHovered) {
+                    element.applyHover();
+                } else if(!isHovered && wasHovered) {
+                    element.removeHover();
+                }
+            }
         }
     }
 }

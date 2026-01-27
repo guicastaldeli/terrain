@@ -69,7 +69,7 @@ public class MainScreenScene {
 
             this.camera = new Camera();
             camera.setPosition(0, 450, 150);
-            camera.setRotation(0, -50);
+            camera.setRotation(0, -30);
 
             mesh.getMeshRenderer().setCamera(camera);
             mesh.setCamera(camera);

@@ -187,7 +187,8 @@ public class DocParser {
         }
         boolean hasBackground = 
             type.equals("div") || 
-            type.equals("container");
+            type.equals("container") ||
+            type.equals("input");
         if(element.hasAttribute("background")) {
             hasBackground = true;
             String bgStr = element.getAttribute("background");
@@ -304,6 +305,12 @@ public class DocParser {
         if(element.hasAttribute("hoverScale")) {
             screenElement.hoverScale = Float.parseFloat(element.getAttribute("hoverScale"));
         }
+        if(type.equals("input")) {
+            screenElement.hasBackground = true;
+            if(!element.hasAttribute("color")) {
+                screenElement.color = new float[]{0.0f, 0.0f, 0.0f, 1.0f};
+            }
+        }
         
         if(element.hasAttribute("visible")) {
             screenElement.visible = Boolean.parseBoolean(element.getAttribute("visible"));
@@ -380,7 +387,8 @@ public class DocParser {
         }
         boolean hasBackground = 
             type.equals("div") || 
-            type.equals("container");
+            type.equals("container") ||
+            type.equals("input");
         if(element.hasAttribute("background")) {
             String bgStr = element.getAttribute("background");
             String[] bgParts = bgStr.split(",");
@@ -511,6 +519,13 @@ public class DocParser {
             uiElement.hoverScale = Float.parseFloat(element.getAttribute("hoverScale"));
         }
         
+        if(type.equals("input")) {
+            uiElement.hasBackground = true;
+            if(!element.hasAttribute("color")) {
+                uiElement.color = new float[]{0.0f, 0.0f, 0.0f, 1.0f};
+            }
+        }
+
         if(element.hasAttribute("visible")) {
             uiElement.visible = Boolean.parseBoolean(element.getAttribute("visible"));
         }
@@ -791,6 +806,19 @@ public class DocParser {
             }
         }
         for(ScreenElement element : screenData.elements) {
+            if(element.visible && element.type.equals("input") && textRenderer != null) {
+                String displayText = element.text;
+                if(displayText != null && !displayText.isEmpty()) {
+                    textRenderer.renderText(
+                        displayText,
+                        element.x,
+                        element.y,
+                        element.scale,
+                        element.color,
+                        element.fontFamily
+                    );
+                }
+            }
             if(element.visible && element.type.equals("button")) {
                 renderUIElement(element, screenWidth, screenHeight, shaderProgram);
                 

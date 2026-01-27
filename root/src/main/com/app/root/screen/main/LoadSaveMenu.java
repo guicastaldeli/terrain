@@ -60,27 +60,33 @@ public class LoadSaveMenu extends Screen {
         
         for(ScreenElement element : screenData.elements) {
             if(element.id.startsWith("save_name_") || 
-            element.id.startsWith("play_time_") || 
-            element.id.startsWith("last_played_") || 
-            element.id.startsWith("load_") || 
-            element.id.startsWith("delete_") ||
-            element.id.startsWith("slot_bg_") ||
-            element.id.equals("noSavesLabel")) {
-                
+                element.id.startsWith("play_time_") || 
+                element.id.startsWith("last_played_") || 
+                element.id.startsWith("load_") || 
+                element.id.startsWith("delete_") ||
+                element.id.startsWith("slot_bg_") ||
+                element.id.equals("noSavesLabel")
+            ) {
                 if(!element.attr.containsKey("originalY")) {
                     element.attr.put("originalY", String.valueOf(element.y));
                 }
                 
                 int originalY = Integer.parseInt(element.attr.get("originalY"));
                 element.y = originalY - scrollOffset;
-                
                 element.visible = true;
             }
             
             if(element.id.equals("scrollbarThumb") && maxScroll > 0) {
-                int scrollbarHeight = (int)(windowHeight * 0.55f);
-                float scrollProgress = (float)scrollOffset / maxScroll;
-                element.y = (int)(windowHeight * 0.25f) + (int)(scrollProgress * scrollbarHeight);
+                int scrollbarBgHeight = (int)(windowHeight * 0.65f);
+                int scrollbarBgY = (int)(windowHeight * 0.25f);
+                
+                float visibleRatio = Math.min(1.0f, (float)VISIBLE_AREA_HEIGHT / (scrollbarBgHeight + maxScroll));
+                int thumbHeight = Math.max(20, (int)(scrollbarBgHeight * visibleRatio));
+                element.height = thumbHeight;
+                
+                float scrollProgress = maxScroll > 0 ? (float)scrollOffset / maxScroll : 0f;
+                int thumbY = scrollbarBgY + (int)(scrollProgress * (scrollbarBgHeight - thumbHeight));
+                element.y = thumbY;
             }
         }
     }
@@ -228,7 +234,7 @@ public class LoadSaveMenu extends Screen {
                     "label",
                     "play_time_" + save.saveId,
                     "Play Time: " + save.playTime,
-                    "comic_sans",
+                    "comic_sans_small",
                     saveSlotsContainer.x + (int)(windowWidth * 0.05f),
                     baseY + infoSpacingTex,
                     labelWidth, labelHeight,
@@ -243,7 +249,7 @@ public class LoadSaveMenu extends Screen {
                     "label",
                     "last_played_" + save.saveId,
                     "Last Played: " + save.lastPlayed,
-                    "comic_sans",
+                    "comic_sans_small",
                     saveSlotsContainer.x + (int)(windowWidth * 0.05f),
                     baseY + (infoSpacing * 2),
                     labelWidth, labelHeight,
@@ -367,6 +373,8 @@ public class LoadSaveMenu extends Screen {
         if(!active || textRenderer == null) {
             return;
         }
+
+        updateResponsiveTitle(window.getWidth());
         
         int windowHeight = window.getHeight();
         int clipX = (int)(window.getWidth() * 0.03f);
