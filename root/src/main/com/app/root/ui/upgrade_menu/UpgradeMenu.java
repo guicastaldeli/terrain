@@ -2,6 +2,7 @@ package main.com.app.root.ui.upgrade_menu;
 import main.com.app.root.ui.UI;
 import main.com.app.root.ui.UIController;
 import main.com.app.root.ui.UIElement;
+import main.com.app.root.utils.HexToVec3;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.env.axe.AxeSlot;
@@ -53,6 +54,7 @@ public class UpgradeMenu extends UI {
         
         this.upgradeMenuActions = new UpgradeMenuActions(this);
         setupScrollCallback();
+        setupResizeCallback();
     }
 
     private void setupScrollCallback() {
@@ -197,7 +199,7 @@ public class UpgradeMenu extends UI {
         }
         uiData.elements.removeAll(toRemove);
 
-        int containerX = (int)(windowWidth * 0.05f);
+        int containerX = (int)(windowWidth * 0.5f);
         int containerY = (int)(windowHeight * 0.20f);
 
         /* Wood Count */
@@ -207,10 +209,10 @@ public class UpgradeMenu extends UI {
             "wood_count",
             "Wood: " + playerWood,
             (int)(windowWidth * 0.08f), 
-            (int)(windowHeight * 0.10f),
+            (int)(windowHeight * 0.4f),
             200, 30,
             1.0f,
-            new float[]{0.9f, 0.8f, 0.6f, 1.0f},
+            HexToVec3.hexToVec3Array("#e6cc99"),
             ""
         );
         woodCountLabel.fontFamily = "comic_sans";
@@ -222,18 +224,23 @@ public class UpgradeMenu extends UI {
             "current_axe",
             "Current Axe: Level " + currentAxeLevel,
             (int)(windowWidth * 0.08f), 
-            (int)(windowHeight * 0.15f),
+            (int)(windowHeight * 0.5f),
             200, 30,
             1.0f,
-            new float[]{0.0f, 1.0f, 0.0f, 1.0f},
+            HexToVec3.hexToVec3Array("#d2dbe3"),
             ""
         );
+        currentAxeLabel.hasShadow = true;
+        currentAxeLabel.shadowOffsetX = 2;
+        currentAxeLabel.shadowOffsetY = 2;
+        currentAxeLabel.shadowBlur = 0; 
+        currentAxeLabel.shadowColor = HexToVec3.hexToVec3Array("#464d54");
         currentAxeLabel.fontFamily = "comic_sans";
         uiData.elements.add(currentAxeLabel);
         
         /* Axe Slots */
-        int startY = containerY + (int)(windowHeight * 0.05f);
-        int slotHeight = (int)(windowHeight * 0.18f);
+        int startY = containerY + (int)(windowHeight * 0.08f);
+        int slotHeight = (int)(windowHeight * 0.19f);
         int slotSpacing = (int)(windowHeight * 0.02f);
         int slotWidth = (int)(windowWidth * 0.70f);
         
@@ -250,19 +257,19 @@ public class UpgradeMenu extends UI {
                 "div",
                 "slot_bg_" + slot.level,
                 "",
-                slotX - (int)(windowWidth * 0.01f),
-                slotY - (int)(windowHeight * 0.02f),
+                slotX - (int)(windowWidth * 0.015f),
+                slotY - (int)(windowHeight * 0.022f),
                 slotWidth,
                 slotHeight,
                 1.0f,
-                new float[]{0.15f, 0.15f, 0.15f, 0.8f},
+                HexToVec3.hexToVec3Array("#262626cc"),
                 ""
             );
             slotBackground.hoverable = true;
             slotBackground.hasBackground = true;
             slotBackground.borderWidth = 2.0f;
-            slotBackground.borderColor = new float[]{0.3f, 0.3f, 0.3f, 0.8f};
-            slotBackground.hoverColor = new float[]{0.2f, 0.2f, 0.2f, 0.9f};
+            slotBackground.borderColor = HexToVec3.hexToVec3Array("#666666cc"); 
+            slotBackground.hoverColor = HexToVec3.hexToVec3Array("#333333e6");
             uiData.elements.add(slotBackground);
             
             /* Axe Level Label */
@@ -275,47 +282,54 @@ public class UpgradeMenu extends UI {
                 slotWidth, 30,
                 1.0f,
                 slot.level == equippedLevel ?
-                    new float[]{0.0f, 1.0f, 0.0f, 1.0f} : 
-                    new float[]{1.0f, 1.0f, 1.0f, 1.0f},
+                    HexToVec3.hexToVec3Array("#7ea5d8") : 
+                    HexToVec3.hexToVec3Array("#ffffff"),
                 ""
             );
-            axeLabel.fontFamily = "comic_sans";
+            axeLabel.fontFamily = "cocogooselightitalic";
             uiData.elements.add(axeLabel);
             
             /* Wood Cost */
             int upgradeCost = upgrader != null ? upgrader.getUpgradeCost(slot.level) : 0;
             boolean canAfford = playerWood >= upgradeCost;
+
+            String reqUpgrade = 
+                upgrader.getData().isAxeLevelUnlocked(slot.level) ? 
+                    "" : 
+                    "Wood Required: " + upgradeCost;
+            String levelEl = slot.level == 0 ? "" : reqUpgrade;
+
             UIElement woodLabel = new UIElement(
                 "label",
                 "wood_cost_" + slot.level,
-                "Wood Required: " + upgradeCost,
+                levelEl,
                 slotX,
                 slotY + (int)(slotHeight * 0.3f),
                 slotWidth, 30,
                 1.0f,
                 canAfford ? 
-                    new float[]{0.2f, 0.8f, 0.2f, 1.0f} : 
-                    new float[]{0.8f, 0.2f, 0.2f, 1.0f},
+                    HexToVec3.hexToVec3Array("#9fbfd8") : 
+                    HexToVec3.hexToVec3Array("#c23f3f"),
                 ""
             );
-            woodLabel.fontFamily = "comic_sans";
+            woodLabel.fontFamily = "cocogooseultralightitalic";
             uiData.elements.add(woodLabel);
             
-            /* Action Button or Status */
+            /* Status */
             if(slot.level == equippedLevel) {
                 UIElement equippedLabel = new UIElement(
                     "label",
                     "equipped_" + slot.level,
                     "EQUIPPED",
                     slotX,
-                    slotY + (int)(slotHeight * 0.6f),
+                    slotY + (int)(slotHeight * 0.35f),
                     (int)(windowWidth * 0.15f), 
                     (int)(windowHeight * 0.05f),
                     1.0f,
-                    new float[]{0.0f, 0.5f, 1.0f, 1.0f},
+                    HexToVec3.hexToVec3Array("#0080ff"),
                     ""
                 );
-                equippedLabel.fontFamily = "comic_sans";
+                equippedLabel.fontFamily = "cocogooselightitalic";
                 uiData.elements.add(equippedLabel);
             } else if(upgrader.getData().isAxeLevelUnlocked(slot.level)) {
                 UIElement equipButton = new UIElement(
@@ -323,16 +337,16 @@ public class UpgradeMenu extends UI {
                     "equip_" + slot.level,
                     "EQUIP",
                     slotX,
-                    slotY + (int)(slotHeight * 0.6f),
+                    slotY + (int)(slotHeight * 0.35f),
                     (int)(windowWidth * 0.10f), 
                     (int)(windowHeight * 0.05f),
                     1.0f,
-                    new float[]{0.2f, 0.6f, 1.0f, 1.0f},
+                    HexToVec3.hexToVec3Array("#3399ff"),
                     "equip_" + slot.level
                 );
-                equipButton.fontFamily = "comic_sans";
+                equipButton.fontFamily = "cocogooselightitalic";
                 equipButton.hoverable = true;
-                equipButton.hoverColor = new float[]{0.4f, 0.7f, 1.0f, 1.0f};
+                equipButton.hoverColor = HexToVec3.hexToVec3Array("#66b3ff");
                 uiData.elements.add(equipButton);
             } else if(canAfford) {
                 UIElement upgradeButton = new UIElement(
@@ -340,31 +354,31 @@ public class UpgradeMenu extends UI {
                     "upgrade_" + slot.level,
                     "UPGRADE",
                     slotX,
-                    slotY + (int)(slotHeight * 0.6f),
+                    slotY + (int)(slotHeight * 0.55f),
                     (int)(windowWidth * 0.10f), 
                     (int)(windowHeight * 0.05f),
                     1.0f,
-                    new float[]{0.2f, 0.8f, 0.2f, 1.0f},
+                    HexToVec3.hexToVec3Array("#54d381"),
                     "upgrade_" + slot.level
                 );
-                upgradeButton.fontFamily = "comic_sans";
+                upgradeButton.fontFamily = "cocogooselightitalic_w";
                 upgradeButton.hoverable = true;
-                upgradeButton.hoverColor = new float[]{0.3f, 0.9f, 0.3f, 1.0f};
+                upgradeButton.hoverColor = HexToVec3.hexToVec3Array("#3c995d");
                 uiData.elements.add(upgradeButton);
             } else {
                 UIElement lockedLabel = new UIElement(
                     "label",
                     "locked_" + slot.level,
-                    "LOCKED - Need more wood",
+                    "LOCKED",
                     slotX,
-                    slotY + (int)(slotHeight * 0.6f),
+                    slotY + (int)(slotHeight * 0.55f),
                     (int)(windowWidth * 0.20f), 
                     (int)(windowHeight * 0.05f),
                     1.0f,
-                    new float[]{0.5f, 0.5f, 0.5f, 1.0f},
+                    HexToVec3.hexToVec3Array("#808080"),
                     ""
                 );
-                lockedLabel.fontFamily = "comic_sans";
+                lockedLabel.fontFamily = "cocogooselightitalic";
                 uiData.elements.add(lockedLabel);
             }
         }
@@ -437,7 +451,7 @@ public class UpgradeMenu extends UI {
             }
         }
         
-        int clipX = (int)(windowWidth * 0.03f);
+        int clipX = (int)(windowWidth * 0.08f);
         int clipY = (int)(windowHeight * 0.25f);
         int clipWidth = (int)(windowWidth * 0.85f);
         int clipHeight = (int)(windowHeight * 0.65f);
@@ -520,6 +534,14 @@ public class UpgradeMenu extends UI {
         } catch(Exception err) {
             System.err.println("Failed to re-parse screen on resize: " + err.getMessage());
         }
+    }
+
+    private void setupResizeCallback() {
+        window.addResizeCallback(() -> {
+            if(this.visible) {
+                onWindowResize(window.getWidth(), window.getHeight());
+            }
+        });
     }
 
     @Override

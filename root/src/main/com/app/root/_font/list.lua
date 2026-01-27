@@ -34,6 +34,11 @@ local fonts = {
         size = 16,
         path = "root/src/main/com/app/root/_font/fonts/cocogooselightitalic.ttf"
     },
+    cocogooselightitalic_w = {
+        name = "Cocogoose Light Italic",
+        size = 18,
+        path = "root/src/main/com/app/root/_font/fonts/cocogooselightitalic.ttf"
+    },
     cocogoosethin = {
         name = "Cocogoose Thin",
         size = 24,

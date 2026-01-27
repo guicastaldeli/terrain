@@ -11,10 +11,11 @@
     >
         <label 
             id="title" 
-            x="40%" y="5%" 
+            x="5%" y="3%" 
             width="280" height="40" 
             scale="1.0" 
-            color="1.0,1.0,1.0,1.0"
+            color="0.710, 0.447, 0.184,1.0"
+            textShadow="2,2 0 0.0,0.0,0.0,1.0"
             hoverable="false"
             fontFamily="comic_sans_large"
         >
@@ -23,14 +24,14 @@
 
         <div 
             id="scrollbarBg" 
-            x="93%" y="25%" 
-            width="1%" height="65%"
+            x="93%" y="23.5%" 
+            width="1%" height="64%"
             background="0.2,0.2,0.2,0.5"
             hasBackground="true"
         />
         <div 
             id="scrollbarThumb" 
-            x="93%" y="25%" 
+            x="93%" y="23%" 
             width="1%" height="10%"
             background="0.6,0.6,0.6,0.8"
             hasBackground="true"
@@ -44,14 +45,14 @@
         
         <button 
             id="close_button" 
-            x="40%" y="88%" 
-            width="20%" height="8%" 
+            x="5%" y="84%" 
+            width="20%" height="86%" 
             scale="1.0" 
             color="0.8,0.2,0.2,1.0" 
             action="close"
             fontFamily="comic_sans"
             hoverable="true"
-            hoverColor="1.0,1.0,1.0,1.0"
+            hoverColor="0.878, 0.643, 0.643,1.0"
         >
             Close (E)
         </button>

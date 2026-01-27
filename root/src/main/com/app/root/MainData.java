@@ -18,7 +18,7 @@ public class MainData implements Serializable {
     private Set<Integer> unlockedAxeLevels;
 
     public MainData() {
-        this.wood = 999999;
+        this.wood = 100;
         this.axeLevel = 0;
         this.currAxe = "axe0";
         this.unlockedAxeLevels = new HashSet<>();
