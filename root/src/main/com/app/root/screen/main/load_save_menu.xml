@@ -18,7 +18,7 @@
             width="21%" height="8%"
             textShadow="2,2 0 0.8,0.8,0.8,1.0"
             hoverable="true"
-            hoverTextColor="1.0, 1.0, 1.0, 1.0"
+            hoverTextColor="0.4, 0.4, 0.4, 1.0"
         >
             &lt;- Back to Menu
         </button>

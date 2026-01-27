@@ -13,7 +13,6 @@ import main.com.app.root.DocParser;
 import main.com.app.root.Scene;
 import main.com.app.root.StateController;
 import main.com.app.root.Tick;
-
 import java.util.*;
 
 public class Screen implements ScreenHandler {
@@ -36,8 +35,8 @@ public class Screen implements ScreenHandler {
     public String screenName;
     public ScreenData screenData;
 
-    protected int lastMouseX = -1;
-    protected int lastMouseY = -1;
+    public int lastMouseX = -1;
+    public int lastMouseY = -1;
 
     public static void init(
         Window window,
@@ -188,7 +187,6 @@ public class Screen implements ScreenHandler {
             if(!element.visible || !element.hoverable) continue;
             
             boolean mouseOver = element.containsPoint(mouseX, mouseY);
-            element.applyHover();
             if(mouseOver && !element.isHovered) {
                 element.applyHover();
             } else if(!mouseOver && element.isHovered) {

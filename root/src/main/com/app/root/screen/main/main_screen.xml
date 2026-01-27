@@ -19,6 +19,7 @@
         fontFamily="comic_sans"
         hoverTextColor="0.5, 0.5, 0.5, 1.0"
         textShadow="2,2 0 0,0,0,1.0"
+        width="11.5%" height="7%"
     >
         Continue
     </button>

@@ -1,47 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pause_screen>
     <label 
-        id="title" 
-        x="300" y="100" 
+        id="paused" 
+        x="50" y="100" 
         scale="1.0" 
-        color="0.0,3.0,0.0"
+        color="0.741, 0.741, 0.741"
+        fontFamily="comic_sans_large"
+        textShadow="2,2 0 0,0,0,1.0"
     >
-        PAUSED!!!!!!!!!!!
+        PAUSED
     </label>
 
     <button 
         id="continueBtn" 
-        x="300" y="200" 
+        x="50" y="200" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="continue"
+        fontFamily="comic_sans"
+        hoverTextColor="0.5, 0.5, 0.5, 1.0"
+        textShadow="2,2 0 0,0,0,1.0"
+        width="11.5%" height="7%"
     >
         Continue
     </button>
     <button 
         id="saveBtn" 
-        x="300" y="280" 
+        x="50" y="280" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="save"
+        fontFamily="comic_sans"
+        hoverTextColor="0.451, 0.620, 0.729, 1.0"
+        textShadow="2,2 0 0,0,0,1.0"
     >
         Save
     </button>
     <button 
-        id="settingsBtn" 
-        x="300" y="360" 
-        scale="1.0" 
-        color="1.0,1.0,1.0" 
-        action="settings"
-    >
-        Settings
-    </button>
-    <button 
         id="exitBtn" 
-        x="300" y="450" 
+        x="50" y="360" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="exit"
+        fontFamily="comic_sans"
+        hoverTextColor="0.5, 0.5, 0.5, 1.0"
+        textShadow="2,2 0 0,0,0,1.0"
+        width="16.5%" height="7%"
     >
         Exit to Menu
     </button>

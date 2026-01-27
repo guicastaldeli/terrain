@@ -78,8 +78,7 @@ public class AxeData {
      * Default Configs
      */
     public void createDefaultConfigs() {
-        //System.out.println("Creating default axe configurations...");
-        for(int l = 0; l <= 10; l++) {
+        for(int l = AxeController.AXE_MIN_LEVEL; l <= AxeController.AXE_MIN_LEVEL; l++) {
             String indexTo = "axe" + l;
 
             AxeData data = new AxeData(
@@ -88,7 +87,7 @@ public class AxeData {
                 10.0f + (l * 5),
                 1.0f + (l * 0.1f),
                 1 + l,
-                100 + (l * 50)
+                l
             );
             configs.put(l, data);
             upgradeCostsByLevel.put(l, data.upgradeCost);

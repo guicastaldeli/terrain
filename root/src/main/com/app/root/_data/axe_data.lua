@@ -5,7 +5,7 @@ return {
         damage = 10,
         speed = 1.0,
         wood_multiplier = 1.0,
-        upgrade_cost = 100,
+        upgrade_cost = 0,
         max_level = 10
     },
     {

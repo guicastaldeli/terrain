@@ -3,6 +3,7 @@ import main.com.app.root.player.PlayerInputMap;
 import main.com.app.root.screen.ScreenController;
 import main.com.app.root.screen.ScreenHandler;
 import main.com.app.root.ui.UIController;
+import main.com.app.root.ui.UIHandler;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -42,7 +43,6 @@ public class InputController {
                 keyPressed[key] = action != GLFW_RELEASE;
             }
 
-            //uiController.handleKeyPress(key, action);
             if(uiController != null && uiController.handleKeyPress(key, action)) {
                 updateCursorState();
                 return;
@@ -90,9 +90,13 @@ public class InputController {
                     playerInputMap.handleMouse(xOffset, yOffset);
                 }
             } else {
-                ScreenHandler inputHandler = screenController.getCurrentInputHandler();
-                if(inputHandler != null) {
-                    inputHandler.handleMouseMove((int)xPos, (int)yPos);
+                if(uiController != null) {
+                    UIHandler uiHandler = uiController.getCurrentInputHandler();
+                    if(uiHandler != null) uiHandler.handleMouseMove((int)xPos, (int)yPos);
+                }
+                if(screenController != null) {
+                    ScreenHandler screenHandler = screenController.getCurrentInputHandler();
+                    if(screenHandler != null) screenHandler.handleMouseMove((int)xPos, (int)yPos);
                 }
             }
 
@@ -149,11 +153,6 @@ public class InputController {
             return;
         }
 
-        /**
-         * 
-         * System cursor showing its only a placeholder!!!!
-         * 
-         */
         if(screenController.shouldCursorBeEnabled()) {
             glfwSetInputMode(
                 window.getWindow(), 

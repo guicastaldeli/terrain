@@ -14,6 +14,11 @@ local fonts = {
         size = 18,
         path = "root/src/main/com/app/root/_font/fonts/comic.ttf"
     },
+    comic_sans_large = {
+        name = "Comic Sans",
+        size = 30,
+        path = "root/src/main/com/app/root/_font/fonts/comic.ttf"
+    },
     comic_sans_small_2 = {
         name = "Comic Sans",
         size = 16,
@@ -21,12 +26,12 @@ local fonts = {
     },
     cocogooselight = {
         name = "Cocogoose Light",
-        size = 24,
+        size = 16,
         path = "root/src/main/com/app/root/_font/fonts/cocogooselight.ttf"
     },
     cocogooselightitalic = {
         name = "Cocogoose Light Italic",
-        size = 24,
+        size = 16,
         path = "root/src/main/com/app/root/_font/fonts/cocogooselightitalic.ttf"
     },
     cocogoosethin = {
@@ -36,12 +41,12 @@ local fonts = {
     },
     cocogooseultralight = {
         name = "Cocogoose Ultra Light",
-        size = 24,
+        size = 16,
         path = "root/src/main/com/app/root/_font/fonts/cocogooseultralight.ttf"
     },
     cocogooseultralightitalic = {
         name = "Cocogoose Ultra Light Italic",
-        size = 24,
+        size = 14,
         path = "root/src/main/com/app/root/_font/fonts/cocogooseultralightitalic.ttf"
     },
     nunito = {

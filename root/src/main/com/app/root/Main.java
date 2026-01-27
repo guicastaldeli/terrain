@@ -6,7 +6,6 @@ import main.com.app.root._shaders.ShaderModuleData;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.screen.Screen;
 import main.com.app.root.screen.ScreenController;
-import main.com.app.root.ui.UIController;
 import org.lwjgl.opengl.GL;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +30,6 @@ public class Main {
     private SaveLoader saveLoader;
 
     private ScreenController screenController;
-    private UIController uiController;
     private InputController inputController;
     private ShaderProgram shaderProgram;
 
@@ -119,9 +117,6 @@ public class Main {
         scene.setSaveGenerator(saveGenerator);
         saveGenerator.setScene(scene);
         saveLoader.setScene(scene);
-        
-        System.out.println("Initialization complete - Upgrader: " + 
-            (scene.getUpgrader() != null ? "Present" : "NULL"));
     }
 
     private void startAutoSaveThread() {
@@ -179,12 +174,6 @@ public class Main {
         }
         
         inputController.update();
-        
-        if(scene.isInit() && 
-            !stateController.isPaused() && 
-            !stateController.isInMenu()
-        ) {
-        }
         scene.update();
         screenController.update();
     }

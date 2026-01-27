@@ -17,14 +17,17 @@ public class UI implements UIHandler {
     public static ShaderProgram shaderProgram;
     public static UIController uiController;
     public static Upgrader upgrader;
-    public TextRenderer textRenderer;
     public static Mesh mesh;
+    public TextRenderer textRenderer;
 
     public String uiName;
     public String filePath;
     public UIData uiData;
     public boolean visible;
     private UIElement uiElement;
+
+    public int lastMouseX = -1;
+    public int lastMouseY = -1;
 
     public static void init(
         Window window, 
@@ -112,5 +115,34 @@ public class UI implements UIHandler {
 
     public TextRenderer getTextRenderer() {
         return textRenderer;
+    }
+
+    /**
+     * Update
+    */
+    public void update() {
+       if(lastMouseX >= 0 && lastMouseY >= 0) {
+           handleMouseMove(lastMouseX, lastMouseY);
+        }
+    }
+
+    /**
+     * Handle Mouse Move
+     */
+    public void handleMouseMove(int mouseX, int mouseY) {
+        this.lastMouseX = mouseX;
+        this.lastMouseY = mouseY;
+        if(uiData == null) return;
+        
+        for(UIElement element : uiData.elements) {
+            if(!element.visible || !element.hoverable) continue;
+            
+            boolean mouseOver = element.containsPoint(mouseX, mouseY);
+            if(mouseOver && !element.isHovered) {
+                element.applyHover();
+            } else if(!mouseOver && element.isHovered) {
+                element.removeHover();
+            }
+        }
     }
 }

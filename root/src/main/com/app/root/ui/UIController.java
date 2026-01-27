@@ -6,6 +6,9 @@ import main.com.app.root.mesh.Mesh;
 import main.com.app.root.ui.upgrade_menu.UpgradeMenu;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.lwjgl.glfw.GLFWCursorPosCallback;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class UIController {
@@ -81,6 +84,10 @@ public class UIController {
         return false;
     }
 
+    public UIHandler getCurrentInputHandler() {
+        return currentUI;
+    }
+
     /**
      * Init UIs
      */
@@ -145,18 +152,25 @@ public class UIController {
     public UI get(UIType uiType) {
         return uis.get(uiType);
     }
+    
+    /**
+     * Render
+     */
+    public void render() {
+        if(currentUI != null) {
+            currentUI.render();
+        }
+    }
 
+    /**
+     * Update
+     */
     public void update() {
         if(currentUI != null) {
             currentUI.update();
         }
     }
 
-    public void render() {
-        if(currentUI != null) {
-            currentUI.render();
-        }
-    }
 
     public void onWindowResize(int width, int height) {
         for(UI ui : uis.values()) {
@@ -166,5 +180,23 @@ public class UIController {
 
     public interface KeyHandler {
         boolean handleKey(int key, int action);
+    }
+
+    /**
+     * Setup Mouse
+     */
+    public void setupMouse() {
+        long windowHandle = window.getWindow();
+        GLFWCursorPosCallback existingCallback = glfwSetCursorPosCallback(windowHandle, null);
+        
+        glfwSetCursorPosCallback(windowHandle, (windowHandle2, xPos, yPos) -> {
+            if(existingCallback != null) existingCallback.invoke(windowHandle2, xPos, yPos);
+            
+            int mouseX = (int)xPos;
+            int mouseY = (int)yPos;
+            if(currentUI != null && isVisible) {
+                currentUI.handleMouseMove(mouseX, mouseY);
+            }
+        });
     }
 }

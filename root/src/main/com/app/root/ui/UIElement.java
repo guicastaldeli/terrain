@@ -1,6 +1,4 @@
 package main.com.app.root.ui;
-
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -147,13 +145,8 @@ public class UIElement {
         
         isHovered = true;
         
-        System.out.println("Applying hover to " + id);
-        System.out.println("Original color: " + Arrays.toString(originalColor));
-        System.out.println("Hover color: " + Arrays.toString(hoverColor));
-        
         if(hoverColor != null) {
             color = hoverColor;
-            System.out.println("New color: " + Arrays.toString(color));
         }
         if(hoverBorderColor != null) {
             borderColor = hoverBorderColor;

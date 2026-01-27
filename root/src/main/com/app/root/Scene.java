@@ -183,6 +183,7 @@ public class Scene {
                 mesh
             );
             inputController.setUiController(uiController);
+            uiController.setupMouse();
 
             mesh.setPlayerController(playerController);
 
@@ -217,6 +218,7 @@ public class Scene {
         mesh.update();
         envRenderer.update();
         spawner.update();
+        if(uiController != null) uiController.update();
         playerController.getInputMap().getTreeInteractor().update();
     }
 
