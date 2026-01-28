@@ -5,6 +5,7 @@ import main.com.app.root.StateController;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;
+import main.com.app.root.collision.types.BoundaryObject;
 import main.com.app.root.collision.types.StaticObject;
 import main.com.app.root.env.NoiseGeneratorWrapper;
 import main.com.app.root.mesh.Mesh;
@@ -22,7 +23,9 @@ public class WorldGenerator {
     private final Chunk chunk;
     private final Spawner spawner;
     private MeshData meshData;
-    private StaticObject collider;
+
+    private StaticObject staticCollider;
+    private BoundaryObject boundaryCollider;
 
     public final NoiseGeneratorWrapper noiseGeneratorWrapper;
     private float[] heightMapData;
@@ -70,7 +73,7 @@ public class WorldGenerator {
             spawner
         );
         Water.addCollider(this, collisionManager);
-        addMapCollider();
+        addCollider();
     }
 
     private float[] createVertices(float[] heightData) {
@@ -94,22 +97,27 @@ public class WorldGenerator {
     private void createCollider(float[] heightData) {
         int width = noiseGeneratorWrapper.getMapWidth();
         int height = noiseGeneratorWrapper.getMapHeight();
-        collider = new StaticObject(heightData, width, height, MAP_ID);
+        staticCollider = new StaticObject(heightData, width, height, MAP_ID);
     }
 
     public StaticObject getCollider() {
-        return collider;
+        return staticCollider;
     }
 
-    public void addMapCollider() {
+    public void addCollider() {
         try {
-            StaticObject coll = (StaticObject) collider;
-            if(coll != null) {
-                collisionManager.addStaticCollider(coll);
-                System.out.println("Map collider added to collision system");
+            /* Static */
+            StaticObject staticObj = (StaticObject) staticCollider;
+            if(staticObj != null) {
+                collisionManager.addStaticCollider(staticObj);
+                System.out.println("World staticCollider added to collision system");
             }
+
+            /* Boundary */
+            this.boundaryCollider = new BoundaryObject();
+            collisionManager.addStaticCollider(boundaryCollider);
         } catch(Exception err) {
-            System.err.println("Failed to add map collider: " + err.getMessage());
+            System.err.println("Failed to add world staticCollider: " + err.getMessage());
         }
     }
 

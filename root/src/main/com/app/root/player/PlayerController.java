@@ -353,6 +353,14 @@ public class PlayerController {
         updateCameraPosition();
         if(playerMesh != null) playerMesh.update();
         updateAxePosition();
+
+        /*
+        System.out.println(
+            "X:" + rigidBody.getPosition().x +
+            "Y:" + rigidBody.getPosition().y +
+            "Z:" + rigidBody.getPosition().z
+        );
+        */
     }
 
     private void updateMeshRotation() {

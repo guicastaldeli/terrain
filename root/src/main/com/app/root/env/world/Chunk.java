@@ -334,6 +334,10 @@ public class Chunk {
         int size = CHUNK_SIZE + 1;
         float[] heightData = new float[size * size];
         
+        /* TEST FLAT MAP BELOW */
+        //Arrays.fill(heightData, 100.0f);
+        /* */
+        
         int worldStartX = chunkX * CHUNK_SIZE;
         int worldStartZ = chunkZ * CHUNK_SIZE;
         

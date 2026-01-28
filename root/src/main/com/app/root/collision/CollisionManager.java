@@ -1,4 +1,5 @@
 package main.com.app.root.collision;
+import main.com.app.root.collision.types.BoundaryObject;
 import main.com.app.root.collision.types.DynamicObject;
 import main.com.app.root.collision.types.StaticObject;
 import main.com.app.root.env.world.Water;
@@ -44,6 +45,25 @@ public class CollisionManager {
     public CollisionResult checkCollision(RigidBody body) {
         BoundingBox bodyBounds = body.getBoundingBox();
         
+        for(Collider collider : staticColliders) {
+            if(collider instanceof BoundaryObject) {
+                BoundaryObject boundaryCollider = (BoundaryObject) collider;
+                Vector3f position = body.getPosition();
+                
+                if(boundaryCollider.isOutsideBoundary(position)) {
+                    Vector3f normal = boundaryCollider.getBoundaryNormal(position);
+                    float penetration = boundaryCollider.getBoundaryFar(position);
+                    
+                    return new CollisionResult(
+                        true,
+                        normal,
+                        penetration,
+                        boundaryCollider,
+                        CollisionType.STATIC_OBJECT
+                    );
+                }
+            }
+        }
         for(Collider collider : staticColliders) {
             if(collider instanceof DynamicObject) {
                 DynamicObject dynamicObj = (DynamicObject) collider;
@@ -109,6 +129,27 @@ public class CollisionManager {
 
         Vector3f position = body.getPosition();
         BoundingBox bBox = body.getBoundingBox();
+
+        if(collision.otherCollider instanceof BoundaryObject) {
+            BoundaryObject boundaryObject = (BoundaryObject) collision.otherCollider;
+            
+            Vector3f newPosition = new Vector3f(position);
+            if(Math.abs(position.x) > boundaryObject.getBoundaryDistance()) {
+                newPosition.x = Math.copySign(boundaryObject.getBoundaryDistance(), position.x);
+            }
+            if(Math.abs(position.z) > boundaryObject.getBoundaryDistance()) {
+                newPosition.z = Math.copySign(boundaryObject.getBoundaryDistance(), position.z);
+            }
+            
+            body.setPosition(newPosition);
+            
+            Vector3f velocity = body.getVelocity();
+            if(collision.normal.x != 0) velocity.x = 0;
+            if(collision.normal.z != 0) velocity.z = 0;
+            body.setVelocity(velocity);
+            
+            return;
+        }
         if(collision.otherCollider instanceof DynamicObject) {
             DynamicObject dynObj = (DynamicObject) collision.otherCollider;
             if("WATER".equals(dynObj.getObjectType())) {
@@ -134,7 +175,6 @@ public class CollisionManager {
             DynamicObject.resolveCollision(position, bBox, body, collision);
             return;
         }
-        
         if(collision.otherCollider instanceof StaticObject) {
             StaticObject.resolveCollision(position, bBox, body, collision);
         } else {

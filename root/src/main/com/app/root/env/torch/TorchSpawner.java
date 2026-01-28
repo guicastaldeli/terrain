@@ -32,8 +32,14 @@ public class TorchSpawner implements SpawnerHandler {
     private Map<String, List<PointLight>> chunkLightMap = new HashMap<>();
     private int currentTorchId = 0;
 
+    private static final float CHUNK_LIMIT = 0.3f;
     private static final float TORCH_COVERAGE = 0.0005f;
-    public static final int MAX_TORCHES_PER_CHUNK = Math.max(1, (int)(Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE * TORCH_COVERAGE));
+    public static final int MAX_TORCHES_PER_CHUNK = 
+        Math.max(1, (int)(
+            Chunk.CHUNK_SIZE * 
+            Chunk.CHUNK_SIZE * 
+            TORCH_COVERAGE
+        ));
 
     public TorchSpawner(
         Tick tick, 
@@ -143,7 +149,7 @@ public class TorchSpawner implements SpawnerHandler {
             SpawnerData.TORCH
         );
 
-        if(random.nextFloat() > 0.3f) return;
+        if(random.nextFloat() > CHUNK_LIMIT) return;
         for(int i = 0; i < MAX_TORCHES_PER_CHUNK; i++) {
             float torchX = worldStartX + random.nextFloat() * Chunk.CHUNK_SIZE;
             float torchZ = worldStartZ + random.nextFloat() * Chunk.CHUNK_SIZE;
