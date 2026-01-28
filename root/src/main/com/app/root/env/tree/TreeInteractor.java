@@ -1,5 +1,7 @@
 package main.com.app.root.env.tree;
 import main.com.app.root.Spawner;
+import main.com.app.root.SpawnerData;
+import main.com.app.root.SpawnerHandler;
 import main.com.app.root.Tick;
 import main.com.app.root.Upgrader;
 import main.com.app.root.env.EnvCall;
@@ -7,6 +9,8 @@ import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.axe.AxeController;
 import main.com.app.root.player.PlayerController;
+
+import java.util.List;
 
 import org.joml.Vector3f;
 
@@ -54,12 +58,16 @@ public class TreeInteractor {
         startSwinging(swingSpeed);
 
         Vector3f playerPos = playerController.getPosition();
-        TreeController nearestTree = spawner.getNearestTree(playerPos, interactionRange);
-        if(nearestTree != null) {
-            breakTree(axe, nearestTree);
-        } else {
-            System.out.println("No trees in range!");
-        }
+        List<SpawnerHandler> treeHandlers = spawner.spawnerData.get(SpawnerData.TREE);
+        if(!treeHandlers.isEmpty()) {
+            TreeSpawner treeSpawner = (TreeSpawner) treeHandlers.get(0);
+            TreeController nearestTree = treeSpawner.getNearestTree(playerPos, interactionRange);
+            if(nearestTree != null) {
+                breakTree(axe, nearestTree);
+            } else {
+                System.out.println("No trees in range!");
+            }
+        }   
     }
 
     /**

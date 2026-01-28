@@ -1,7 +1,11 @@
 package main.com.app.root.env.tree;
 import main.com.app.root.Spawner;
+import main.com.app.root.SpawnerData;
+import main.com.app.root.SpawnerHandler;
 import main.com.app.root._resources.TextureLoader;
 import main.com.app.root.mesh.Mesh;
+
+import java.util.List;
 import java.util.Random;
 import org.joml.Vector3f;
 
@@ -99,11 +103,15 @@ public class TreeGenerator {
 
             System.out.println(treeData.getIndexTo() + " destroyed! Dropping " + woodDrop + " wood.");
             if(spawner != null && treeController != null) {
-                spawner.handleTreeBreak(
-                    treeController, 
-                    new Vector3f(position), 
-                    treeData.getLevel()
-                );
+                List<SpawnerHandler> treeHandlers = spawner.spawnerData.get(SpawnerData.TREE);
+                if(!treeHandlers.isEmpty()) {
+                    TreeSpawner treeSpawner = (TreeSpawner) treeHandlers.get(0);
+                    treeSpawner.handleTreeBreak(
+                        treeController, 
+                        new Vector3f(position), 
+                        treeData.getLevel()
+                    );
+                }
             }
             return woodDrop;
         }

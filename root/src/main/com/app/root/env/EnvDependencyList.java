@@ -6,6 +6,7 @@ import main.com.app.root.StateController;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;
+import main.com.app.root.lightning.LightningController;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshRenderer;
 
@@ -33,4 +34,7 @@ public class EnvDependencyList {
 
     @DependencyValue(required = true)
     public static final Class<?> SPAWNER = Spawner.class;
+
+    @DependencyValue(required = false)
+    public static final Class<?> LIGHTNING_CONTROLLER = LightningController.class;
 }
