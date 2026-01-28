@@ -29,9 +29,10 @@ public class TorchSpawner implements SpawnerHandler {
 
     public List<TorchController> torchData = new ArrayList<>();
     private Map<String, List<TorchController>> chunkTorchMap = new HashMap<>();
+    private Map<String, List<PointLight>> chunkLightMap = new HashMap<>();
     private int currentTorchId = 0;
 
-    private static final float TORCH_COVERAGE = 0.0003f;
+    private static final float TORCH_COVERAGE = 0.0005f;
     public static final int MAX_TORCHES_PER_CHUNK = (int)(Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE * TORCH_COVERAGE);
 
     public TorchSpawner(
@@ -68,28 +69,43 @@ public class TorchSpawner implements SpawnerHandler {
     }
 
     /**
+     * Get chunk ID for a position
+     */
+    private String getChunkIdForPosition(Vector3f position) {
+        int[] coords = Chunk.getCoords(position.x, position.z);
+        return Chunk.getId(coords[0], coords[1]);
+    }
+
+    /**
      * Spawn Torch
      */
-    private void spawnTorch(Vector3f position) {
+    private void spawnTorch(
+        Vector3f position,
+        int chunkX,
+        int chunkZ
+    ) {
         TorchController torchController = new TorchController();
         torchController.createGenerator(position, spawner.mesh, spawner);
 
         TorchGenerator torchGenerator = torchController.getGenerator();
         if(torchGenerator == null) return;
 
-        torchGenerator.mesh = this.mesh;
         String torchId = "torch_" + currentTorchId++;
         torchGenerator.setId(torchId);
 
         PointLight pointLight = new PointLight(
-            "#ff6600",
+            "#ffffff",
             2.0f,
             new Vector3f(position.x, position.y, position.z),
-            15.0f
+            50.0f
         );
         torchGenerator.setLight(pointLight);
 
         lightningController.add(LightningData.POINT, pointLight);
+
+        String chunkId = Chunk.getId(chunkX, chunkZ);
+        chunkTorchMap.computeIfAbsent(chunkId, k -> new ArrayList<>()).add(torchController);
+        chunkLightMap.computeIfAbsent(chunkId, k -> new ArrayList<>()).add(pointLight);
 
         torchGenerator.createMesh();
         torchData.add(torchController);
@@ -100,6 +116,19 @@ public class TorchSpawner implements SpawnerHandler {
      */
     @Override
     public void generate(int chunkX, int chunkZ) {
+        String chunkId = Chunk.getId(chunkX, chunkZ);
+        if(chunkTorchMap.containsKey(chunkId)) {
+            List<PointLight> lights = chunkLightMap.get(chunkId);
+            if(lights != null) {
+                for(PointLight light : lights) {
+                    if(!lightningController.getLights(LightningData.POINT).contains(light)) {
+                        lightningController.add(LightningData.POINT, light);
+                    }
+                }
+            }
+            return;
+        }
+
         Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
         Object worldGenerator = EnvCall.callReturn(mapInstance, "getGenerator");
 
@@ -117,7 +146,11 @@ public class TorchSpawner implements SpawnerHandler {
             
             if(torchY != null && torchY >= Water.LEVEL + 1.0f) {
                 Vector3f torchPos = new Vector3f(torchX, torchY + 2.0f, torchZ);
-                spawnTorch(torchPos);
+                spawnTorch(
+                    torchPos,
+                    chunkX,
+                    chunkZ
+                );
             }
         }
     }
@@ -127,7 +160,23 @@ public class TorchSpawner implements SpawnerHandler {
      */
     @Override
     public void unload(int chunkX, int chunkZ) {
+        String chunkKey = Chunk.getId(chunkX, chunkZ);
         
+        List<TorchController> torches = chunkTorchMap.get(chunkKey);
+        if(torches != null) {
+            for(TorchController torch : torches) {
+                TorchGenerator torchGenerator = torch.getGenerator();
+                if(torchGenerator != null) torchGenerator.cleanup();
+                torchData.remove(torch);
+            }
+        }
+
+        List<PointLight> lights = chunkLightMap.get(chunkKey);
+        if(lights != null) {
+            for(PointLight light : lights) {
+                lightningController.remove(LightningData.POINT, light);
+            }
+        }
     }
 
     /**

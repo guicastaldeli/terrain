@@ -7,7 +7,7 @@ import main.com.app.root.player.Camera;
 import java.util.*;
 
 public class MainScreenChunk {
-    private final World world;
+    private final MainScreenWorld world;
     private final Mesh mesh;
     private MeshData meshData;
 
@@ -20,10 +20,10 @@ public class MainScreenChunk {
     private int lastProcessedIndex = 0;
     private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
 
-    public static final int CHUNK_SIZE = 50;
+    public static final int CHUNK_SIZE = 120;
 
     public MainScreenChunk(
-        World world, 
+        MainScreenWorld world, 
         Mesh mesh,
         MeshData meshData
     ) {
@@ -36,8 +36,8 @@ public class MainScreenChunk {
      * Get Coords
      */
     public static int[] getCoords(float worldX, float worldZ) {
-        int x = (int)Math.floor((worldX + World.WORLD_SIZE / 2) / CHUNK_SIZE);
-        int z = (int)Math.floor((worldZ + World.WORLD_SIZE / 2) / CHUNK_SIZE);
+        int x = (int)Math.floor((worldX + MainScreenWorld.WORLD_SIZE / 2) / CHUNK_SIZE);
+        int z = (int)Math.floor((worldZ + MainScreenWorld.WORLD_SIZE / 2) / CHUNK_SIZE);
         return new int[]{ x, z };
     }
 
@@ -67,9 +67,24 @@ public class MainScreenChunk {
 
 
     public boolean isValid(int chunkX, int chunkZ) {
-        int maxChunks = World.WORLD_SIZE / CHUNK_SIZE;
-        return chunkX >= 0 && chunkX < maxChunks &&
-            chunkZ >= 0 && chunkZ < maxChunks;
+        int maxChunks = MainScreenWorld.WORLD_SIZE / CHUNK_SIZE;
+        int displayChunks = MainScreenWorld.DISPLAY_SIZE / CHUNK_SIZE;
+
+        boolean inWorldBounds = 
+            chunkX >= 0 && 
+            chunkX < maxChunks &&
+            chunkZ >= 0 && 
+            chunkZ < maxChunks;
+
+        int centerChunkX = maxChunks / 2;
+        int centerChunkZ = maxChunks / 2;
+
+        int displayRadius = displayChunks / 2;
+        boolean inDisplayBounds = 
+            Math.abs(chunkX - centerChunkX) <= displayRadius &&
+            Math.abs(chunkZ - centerChunkZ) <= displayRadius;
+        
+        return inWorldBounds && inDisplayBounds;
     }
 
     /**
@@ -241,8 +256,8 @@ public class MainScreenChunk {
     ) {
         meshData = MeshLoader.load(MeshData.MeshType.MAP, getId(chunkX, chunkZ));
 
-        float worldOffsetX = (chunkX * CHUNK_SIZE) - (World.WORLD_SIZE / 2.0f);
-        float worldOffsetZ = (chunkZ * CHUNK_SIZE) - (World.WORLD_SIZE / 2.0f);
+        float worldOffsetX = (chunkX * CHUNK_SIZE) - (MainScreenWorld.WORLD_SIZE / 2.0f);
+        float worldOffsetZ = (chunkZ * CHUNK_SIZE) - (MainScreenWorld.WORLD_SIZE / 2.0f);
         int heightDataSize = CHUNK_SIZE + 1;
         
         float[] vertices = new float[heightDataSize * heightDataSize * 3];
@@ -307,7 +322,7 @@ public class MainScreenChunk {
                     .getHeightAtMainScreen(
                         worldX, 
                         worldZ, 
-                        World.WORLD_SIZE
+                        MainScreenWorld.WORLD_SIZE
                     );
             }
         }
@@ -335,6 +350,23 @@ public class MainScreenChunk {
             }
 
             chunksToLoad.clear();
+
+            int maxChunks = MainScreenWorld.WORLD_SIZE / CHUNK_SIZE;
+            int displayChunks = MainScreenWorld.DISPLAY_SIZE / CHUNK_SIZE;
+            int displayRadius = displayChunks / 2;
+
+            int centerChunkX = maxChunks / 2;
+            int centerChunkZ = maxChunks / 2;
+
+            for(int x = centerChunkX - displayRadius; x <= centerChunkX + displayRadius; x++) {
+                for(int z = centerChunkZ - displayRadius; z <= centerChunkZ + displayRadius; z++) {
+                    String chunkId = getId(x, z);
+                    if(!loadedChunks.containsKey(chunkId) && isValid(x, z)) {
+                        chunksToLoad.add(chunkId);
+                    }
+                }
+            }
+            
             for(int x = cameraChunkX - Camera.RENDER_DISTANCE; 
                 x <= cameraChunkX + Camera.RENDER_DISTANCE; x++
             ) {

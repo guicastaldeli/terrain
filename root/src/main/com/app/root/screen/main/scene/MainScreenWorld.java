@@ -7,7 +7,7 @@ import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshRenderer;
 
-public class World {
+public class MainScreenWorld {
     private final Tick tick;
     private final ShaderProgram shaderProgram;
     private final Mesh mesh;
@@ -29,9 +29,10 @@ public class World {
 
     private static final String MAP_ID = "MAP_ID";
 
-    public static final int WORLD_SIZE = 15000;
+    public static final int WORLD_SIZE = 10000;
+    public static final int DISPLAY_SIZE = 1000;
     
-    public World(
+    public MainScreenWorld(
         Tick tick, 
         Mesh mesh,
         MeshRenderer meshRenderer, 

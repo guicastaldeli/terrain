@@ -13,6 +13,8 @@ import main.com.app.root.lightning.DirectionalLight;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.lightning.LightningData;
 import main.com.app.root.lightning.LightningRenderer;
+import main.com.app.root.lightning.PointLight;
+
 import org.joml.Vector3f;
 
 public class Scene {
@@ -211,7 +213,6 @@ public class Scene {
             mesh.getMeshRenderer().setLightningRenderer(lightningRenderer);
   
             lightningController.add(LightningData.AMBIENT, new AmbientLight());
-           // lightningController.add(LightningData.POINT, new PointLight());
             lightningController.add(LightningData.DIRECTIONAL, new DirectionalLight());
 
             start();
@@ -236,9 +237,11 @@ public class Scene {
         if(!init) return;
         playerController.update();
         collisionManager.updateDynamicColliders(tick.getDeltaTime());
+        
         mesh.update();
         envRenderer.update();
         spawner.update();
+
         if(uiController != null) uiController.update();
         playerController.getInputMap().getTreeInteractor().update();
     }
@@ -249,6 +252,9 @@ public class Scene {
     public void render() {
         if(!init) return;
 
+        Vector3f cameraPosition = playerController.getCamera().getPosition();
+        lightningRenderer.updateShaderUniforms(cameraPosition);
+        
         mesh.renderAll();
         playerController.render();
         mesh.getMeshRenderer().applyFog();

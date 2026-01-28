@@ -12,6 +12,7 @@ import main.com.app.root.lightning.DirectionalLight;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.lightning.LightningData;
 import main.com.app.root.lightning.LightningRenderer;
+import main.com.app.root.lightning.PointLight;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player.Camera;
 import org.joml.Vector3f;
@@ -23,7 +24,7 @@ public class MainScreenScene {
     private Camera camera;
 
     private Mesh mesh;
-    private World world;
+    private MainScreenWorld world;
     private EnvController envController;
     private EnvRenderer envRenderer;
     private DependencyContainer dependencyContainer;
@@ -49,7 +50,7 @@ public class MainScreenScene {
         return init;
     }
 
-    public World getWorld() {
+    public MainScreenWorld getWorld() {
         return world;
     }
 
@@ -90,6 +91,7 @@ public class MainScreenScene {
 
             lightningController.add(LightningData.AMBIENT, new AmbientLight());
             lightningController.add(LightningData.DIRECTIONAL, new DirectionalLight());
+            lightningController.add(LightningData.POINT, new PointLight());
             
             start();
             
@@ -101,7 +103,7 @@ public class MainScreenScene {
      * Start
      */
     private void start() {
-        world = new World(
+        world = new MainScreenWorld(
             tick, 
             mesh, 
             mesh.getMeshRenderer(), 
@@ -140,7 +142,8 @@ public class MainScreenScene {
             }
         }
 
-        lightningRenderer.updateShaderUniforms();
+        Vector3f cameraPosition = camera.getPosition();
+        lightningRenderer.updateShaderUniforms(cameraPosition);
         
         world.render(camera.getPosition().x, camera.getPosition().z);
         mesh.renderAll();

@@ -21,6 +21,9 @@ public class Tick {
 
     private boolean timeUpdatedThisFrame = false;
 
+    private long lastUpdateTime = 0;
+    private static final long GAME_UPDATE_INTERVAL = 16_666_666;
+
     public Tick(Window window) {
         this.window = window;
         this.timeCycle = new TimeCycle();

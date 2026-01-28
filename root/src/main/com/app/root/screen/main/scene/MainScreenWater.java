@@ -18,8 +18,8 @@ public class MainScreenWater {
     public static MeshData createMeshData(int chunkX, int chunkZ) {
         MeshData meshData = MeshLoader.load(MeshData.MeshType.MAP, getId(chunkX, chunkZ));
 
-        float worldOffsetX = (chunkX * MainScreenChunk.CHUNK_SIZE) - (World.WORLD_SIZE / 2.0f);
-        float worldOffsetZ = (chunkZ * MainScreenChunk.CHUNK_SIZE) - (World.WORLD_SIZE / 2.0f);
+        float worldOffsetX = (chunkX * MainScreenChunk.CHUNK_SIZE) - (MainScreenWorld.WORLD_SIZE / 2.0f);
+        float worldOffsetZ = (chunkZ * MainScreenChunk.CHUNK_SIZE) - (MainScreenWorld.WORLD_SIZE / 2.0f);
         int heightDataSize = MainScreenChunk.CHUNK_SIZE + 1;
         
         float[] vertices = new float[heightDataSize * heightDataSize * 3];

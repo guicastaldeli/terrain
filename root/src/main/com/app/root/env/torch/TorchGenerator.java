@@ -107,8 +107,5 @@ public class TorchGenerator {
      */
     public void cleanup() {
         destroyMesh();
-        if(pointLight != null) {
-            lightningController.remove(pointLight.getType(), pointLight);
-        }
     }
 }

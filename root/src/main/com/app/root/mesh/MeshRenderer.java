@@ -148,7 +148,7 @@ public class MeshRenderer {
             checkGLError("after glBufferData (normals)");
             memFree(normalBuffer);
             
-            glVertexAttribPointer(4, 3, GL_FLOAT, false, 0, 0); // CHANGED FROM 1 TO 4
+            glVertexAttribPointer(4, 3, GL_FLOAT, false, 0, 0);
             checkGLError("after glVertexAttribPointer (normals)");
             
             glEnableVertexAttribArray(4);
@@ -369,7 +369,7 @@ public class MeshRenderer {
             shaderProgram.bind();
             shaderProgram.setUniform("shaderType", shaderType);
             if(shaderType == 0 && lightningRenderer != null) {
-                lightningRenderer.updateShaderUniforms();
+                lightningRenderer.updateShaderUniforms(renderCamera.getPosition());
             }
             
             float starBrightness = meshData.getStarBrightness();
@@ -412,8 +412,20 @@ public class MeshRenderer {
         float[] skyColor = getSkyboxColor();
         Vector3f fogColor = new Vector3f(skyColor[0], skyColor[1], skyColor[2]);
 
+        Camera renderCamera;
+        if(playerController != null) {
+            renderCamera = playerController.getCamera();
+        } else if(camera != null) {
+            renderCamera = camera;
+        } else {
+            renderCamera = new Camera();
+        }
+        
+        Vector3f cameraPos = renderCamera.getPosition();
+
         shaderProgram.setUniform("uRenderDistance", Camera.FOG);
         shaderProgram.setUniform("uFogColor", fogColor.x, fogColor.y, fogColor.z);
+        shaderProgram.setUniform("uCameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
         shaderProgram.setUniform("uFogDensity", 1.0f);
     }
 

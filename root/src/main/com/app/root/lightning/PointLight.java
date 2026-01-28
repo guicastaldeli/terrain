@@ -3,16 +3,16 @@ import org.joml.Vector3f;
 import main.com.app.root.utils.HexToVec3;
 
 public class PointLight implements Light, DynamicLight {
-    private Vector3f color;
-    private float intensity;
-    private Vector3f position;
-    private float radius;
-    private float attenuation;
+    public Vector3f color;
+    public float intensity;
+    public Vector3f position;
+    public float radius;
+    public float attenuation;
     
-    private static final Vector3f DEFAULT_COLOR = HexToVec3.hexToVec3("#ffffff");
-    private static final float DEFAULT_INTENSITY = 1.0f;
-    private static final Vector3f DEFAULT_POSITION = new Vector3f(10, 150, 10);
-    private static final float DEFAULT_RADIUS = 20.0f;
+    public static final Vector3f DEFAULT_COLOR = HexToVec3.hexToVec3("#d40bcd");
+    public static final float DEFAULT_INTENSITY = 10.0f;
+    public static final Vector3f DEFAULT_POSITION = new Vector3f(0.0f, 90.0f, 0.0f);
+    public static final float DEFAULT_RADIUS = 200.0f;
 
     public PointLight(
         Vector3f color,
@@ -24,7 +24,7 @@ public class PointLight implements Light, DynamicLight {
         this.intensity = intensity;
         this.position = new Vector3f(position);
         this.radius = radius;
-        this.attenuation = 1.0f;
+        this.attenuation = 0.001f;
     }
     public PointLight(
         String hexColor,

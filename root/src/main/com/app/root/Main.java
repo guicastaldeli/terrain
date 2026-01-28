@@ -123,7 +123,7 @@ public class Main {
         Thread autoSaveThread = new Thread(() -> {
             while(!Thread.currentThread().isInterrupted()) {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(3000);
                     if(stateController.shouldAutoSave() &&
                         stateController.getCurrentSaveId() != null &&
                         !stateController.isSaveInProgress() &&
@@ -143,6 +143,7 @@ public class Main {
                 }
             }
         });
+        autoSaveThread.setPriority(Thread.MIN_PRIORITY);
         autoSaveThread.setDaemon(true);
         autoSaveThread.start();
     }

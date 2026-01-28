@@ -18,10 +18,12 @@ uniform vec3 uSkyColorEnd;
 uniform vec3 uNextColorStart;
 uniform float uBlendFactor;
 uniform float uStarBrightness;
+uniform vec3 uDirectionalLightOrigin;
 
 uniform float uRenderDistance;
-uniform vec3 uFogColor;
 uniform float uFogDensity;
+uniform vec3 uFogColor;
+uniform vec3 uCameraPos;
 
 #include "text/text_frag.glsl"
 #include "mesh/mesh_tex.glsl"
@@ -30,12 +32,13 @@ uniform float uFogDensity;
 #include "lightning/ambient.glsl"
 #include "lightning/directional.glsl"
 #include "lightning/point.glsl"
+#include "fog.glsl"
 
 void main() {
     //Mesh
     if(shaderType == 0) {
         setMeshTex();
-        /*
+        /* TEST NORMALS, for test ONLY :>>
         vec3 finalColor = fragColor.rgb;
         if(length(normal) < 0.001) {
             finalColor = vec3(1.0, 0.0, 0.0);
@@ -48,23 +51,35 @@ void main() {
         */
         
         vec3 finalColor = fragColor.rgb;
+        vec3 normalizedNormal = normalize(normal);
         
-        //Ambient lighting
-        finalColor = calculateAmbientLight(uAmbientLight, finalColor);
+        //Ambient Light
+        vec3 ambientResult = calculateAmbientLight(
+            uAmbientLight, 
+            finalColor
+        );
         
-        //Directional lighting
-        finalColor += calculateDirectionalLight(uDirectionalLight, fragColor.rgb, normalize(normal));
+        //Directional Light
+        vec3 directionalResult = calculateDirectionalLight(
+            uDirectionalLight, 
+            finalColor, 
+            normalizedNormal,
+            worldPos,
+            uDirectionalLightOrigin
+        );
         
-        //Point lighting
-        finalColor += calculatePointLight(uPointLight, fragColor.rgb, normalize(normal), worldPos);
+        //Point Light
+        vec3 pointResult = calculateAllPointLights(
+            fragColor.rgb, 
+            normalizedNormal, 
+            worldPos
+        );
         
+        finalColor = pointResult;
         fragColor = vec4(finalColor, fragColor.a);
 
         //Fog
-        float fogStart = uRenderDistance * 0.7;
-        float fogEnd = uRenderDistance;
-        float fogFactor = clamp((fragDistance - fogStart) / (fogEnd - fogStart), 0.0, 1.0);
-        fragColor = mix(fragColor, vec4(uFogColor, fragColor.a), fogFactor);
+        setFog();
     }
     //Skybox
     else if(shaderType == 2) {

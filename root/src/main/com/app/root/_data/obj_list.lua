@@ -139,20 +139,20 @@ return {
             name = "torch",
             path = "root/src/main/com/app/root/_resources/env/torch.obj",
             texture = "root/src/main/com/app/root/_resources/texture/env/torch.png",
-            scale = { 1.0, 1.0, 1.0 }
+            scale = { 25.0, 25.0, 25.0 }
         },
         -- Clouds
         {
             name = "cloud1",
             path = "root/src/main/com/app/root/_resources/env/cloud1.obj",
             texture = "root/src/main/com/app/root/_resources/texture/env/cloud1.png",
-            scale = { 1.0, 1.0, 1.0 }
+            scale = { 25.0, 25.0, 25.0 }
         },
         {
             name = "cloud2",
             path = "root/src/main/com/app/root/_resources/env/cloud2.obj",
             texture = "root/src/main/com/app/root/_resources/texture/env/cloud2.png",
-            scale = { 1.0, 1.0, 1.0 }
+            scale = { 25.0, 25.0, 25.0 }
         }
     }
 }

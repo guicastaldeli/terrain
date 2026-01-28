@@ -500,7 +500,7 @@ public class Chunk {
             chunkData.isRendered = false;
             cachedChunks.put(chunkId, chunkData);
 
-            if(cachedChunks.size() > 20) removeOldestCachedChunk();
+            if(cachedChunks.size() > 50) removeOldestCachedChunk();
 
             //System.out.println("Unloaded chunk: " + chunkId);
         }
