@@ -33,7 +33,7 @@ public class TorchSpawner implements SpawnerHandler {
     private int currentTorchId = 0;
 
     private static final float TORCH_COVERAGE = 0.0005f;
-    public static final int MAX_TORCHES_PER_CHUNK = (int)(Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE * TORCH_COVERAGE);
+    public static final int MAX_TORCHES_PER_CHUNK = Math.max(1, (int)(Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE * TORCH_COVERAGE));
 
     public TorchSpawner(
         Tick tick, 
@@ -135,8 +135,15 @@ public class TorchSpawner implements SpawnerHandler {
         float worldStartX = chunkX * Chunk.CHUNK_SIZE - WorldGenerator.WORLD_SIZE / 2.0f;
         float worldStartZ = chunkZ * Chunk.CHUNK_SIZE - WorldGenerator.WORLD_SIZE / 2.0f;
 
-        Random random = Spawner.Deterministic(chunkX, chunkZ);
-        
+        long offset = 19562L;
+        Random random = Spawner.Deterministic(
+            chunkX, 
+            chunkZ, 
+            offset,
+            SpawnerData.TORCH
+        );
+
+        if(random.nextFloat() > 0.3f) return;
         for(int i = 0; i < MAX_TORCHES_PER_CHUNK; i++) {
             float torchX = worldStartX + random.nextFloat() * Chunk.CHUNK_SIZE;
             float torchZ = worldStartZ + random.nextFloat() * Chunk.CHUNK_SIZE;
@@ -146,11 +153,10 @@ public class TorchSpawner implements SpawnerHandler {
             
             if(torchY != null && torchY >= Water.LEVEL + 1.0f) {
                 Vector3f torchPos = new Vector3f(torchX, torchY + 2.0f, torchZ);
-                spawnTorch(
-                    torchPos,
-                    chunkX,
-                    chunkZ
-                );
+                if(!spawner.isPositionOccupied(torchPos, chunkX, chunkZ)) {
+                    spawner.registerPosition(torchPos, chunkX, chunkZ);
+                    spawnTorch(torchPos, chunkX, chunkZ);
+                }
             }
         }
     }

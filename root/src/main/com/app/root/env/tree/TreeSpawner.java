@@ -31,7 +31,7 @@ public class TreeSpawner implements SpawnerHandler {
     private Map<String, List<TreeController>> chunkTreeMap = new HashMap<>();
     private static Map<Integer, Float> LEVEL_DISTRIBUTION;
 
-    private static final float TREE_COVERAGE = 0.0000f;
+    private static final float TREE_COVERAGE = 0.0005f;
     public static final int MAX_TREES_PER_CHUNK = (int)(Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE * TREE_COVERAGE);
 
     public TreeSpawner(
@@ -355,6 +355,8 @@ public class TreeSpawner implements SpawnerHandler {
             return;
         }
 
+        spawner.registerPosition(position, chunkX, chunkZ);
+
         TreeController treeController = new TreeController();
         treeController.createGenerator(
             data, 
@@ -406,7 +408,13 @@ public class TreeSpawner implements SpawnerHandler {
         float worldEndX = worldStartX + Chunk.CHUNK_SIZE;
         float worldEndZ = worldStartZ + Chunk.CHUNK_SIZE;
 
-        Random random = Spawner.Deterministic(chunkX, chunkZ);
+        long offset = 64323L;
+        Random random = Spawner.Deterministic(
+            chunkX, 
+            chunkZ,
+            offset,
+            SpawnerData.TREE
+        );
 
         for(int i = 0; i < MAX_TREES_PER_CHUNK; i++) {
             float treeX = worldStartX + random.nextFloat() * Chunk.CHUNK_SIZE;
@@ -442,7 +450,7 @@ public class TreeSpawner implements SpawnerHandler {
                 treeData.trees.remove(tree);
             }
             chunkTreeMap.remove(chunkId);
-            System.out.println("Unloaded " + trees.size() + " trees from chunk " + chunkId);
+            //System.out.println("Unloaded " + trees.size() + " trees from chunk " + chunkId);
         }
     }
 

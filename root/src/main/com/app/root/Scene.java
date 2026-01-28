@@ -13,8 +13,6 @@ import main.com.app.root.lightning.DirectionalLight;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.lightning.LightningData;
 import main.com.app.root.lightning.LightningRenderer;
-import main.com.app.root.lightning.PointLight;
-
 import org.joml.Vector3f;
 
 public class Scene {

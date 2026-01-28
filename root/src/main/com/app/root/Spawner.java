@@ -34,6 +34,9 @@ public class Spawner {
 
     public Map<SpawnerData, List<SpawnerHandler>> spawnerData;
 
+    private Map<String, List<Vector3f>> occupiedPositions = new HashMap<>();
+    private static final float MIN_SPAWN_DISTANCE = 3.0f;
+
     public Spawner(
         Tick tick,
         Mesh mesh,
@@ -55,6 +58,46 @@ public class Spawner {
     
     public void setEnvController(EnvController envController) {
         this.envController = envController;
+    }
+
+    /**
+     * Register Position
+     */
+    public void registerPosition(
+        Vector3f position, 
+        int chunkX, 
+        int chunkZ
+    ) {
+        String chunkId = chunkX + "_" + chunkZ;
+        occupiedPositions.computeIfAbsent(chunkId, k -> new ArrayList<>()).add(new Vector3f(position));
+    }
+
+    /**
+     * 
+     * Occupied Position
+     * 
+     */
+    public boolean isPositionOccupied(
+        Vector3f position,
+        int chunkX,
+        int chunkZ
+    ) {
+        String chunkId = chunkX + "_" + chunkZ;
+        List<Vector3f> positions = occupiedPositions.get(chunkId);
+        if(positions == null) return false;
+
+        for(Vector3f occupied : positions) {
+            if(position.distance(occupied) < MIN_SPAWN_DISTANCE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void clearOccupiedPositions(int chunkX, int chunkZ) {
+        String chunkId = chunkX + "_" + chunkZ;
+        occupiedPositions.remove(chunkId);
     }
 
     /**
@@ -125,8 +168,14 @@ public class Spawner {
         return height != null ? height : Water.LEVEL;
     }
 
-    public static Random Deterministic(int chunkX, int chunkZ) {
-        return new Random(chunkX * 7919L + chunkZ * 131071L);
+    public static Random Deterministic(
+        int chunkX, 
+        int chunkZ,
+        long offset,
+        SpawnerData type
+    ) {
+        long typeSeed = type.ordinal() * offset;
+        return new Random(chunkX * 2813L + chunkZ * 391031L + typeSeed);
     }
 
     /**
@@ -157,6 +206,7 @@ public class Spawner {
      * 
      */
     public void unload(int chunkX, int chunkZ) {
+        clearOccupiedPositions(chunkX, chunkZ);
         for(List<SpawnerHandler> handlers : spawnerData.values()) {
             for(SpawnerHandler handler : handlers) {
                 handler.unload(chunkX, chunkZ);

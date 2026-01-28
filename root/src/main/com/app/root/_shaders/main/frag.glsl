@@ -75,7 +75,7 @@ void main() {
             worldPos
         );
         
-        finalColor = pointResult;
+        finalColor = ambientResult + directionalResult + pointResult;
         fragColor = vec4(finalColor, fragColor.a);
 
         //Fog
