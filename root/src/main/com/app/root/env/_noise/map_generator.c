@@ -14,7 +14,7 @@ void initializeIslands(int worldSize) {
     int gridSize = (int)sqrt(MAX_ISLANDS);
     float cellSize = (float)worldSize / gridSize;
     
-    float gapFactor = 0.8f;
+    float gapFactor = 0.9f;
     float minGap = cellSize * (1.0f - gapFactor);
     
     printf("Island distribution: %dx%d grid, cell size: %.1f, min gap: %.1f\n", 

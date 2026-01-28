@@ -29,7 +29,7 @@ public class World {
 
     private static final String MAP_ID = "MAP_ID";
 
-    public static final int WORLD_SIZE = 3000;
+    public static final int WORLD_SIZE = 15000;
     
     public World(
         Tick tick, 
@@ -71,7 +71,7 @@ public class World {
             initNoise();
             if(!noiseInitialized) {
                 System.err.println("Noise not initialized, returning default height");
-                return 100.0f;
+                return 50.0f;
             }
         }
         
@@ -100,7 +100,7 @@ public class World {
         }
 
         System.err.println("Failed to get height at (" + x + ", " + z + "), returning safe default");
-        return 100.0f;
+        return 50.0f;
     }
 
     private float getHeightFromChunkData(

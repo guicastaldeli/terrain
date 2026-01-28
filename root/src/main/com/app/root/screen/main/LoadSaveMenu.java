@@ -166,10 +166,10 @@ public class LoadSaveMenu extends Screen {
             ScreenElement noSavesLabel = new ScreenElement(
                 "label",
                 "noSavesLabel",
-                "No save games found",
+                "No saves found...",
                 "comic_sans",
-                saveSlotsContainer.x + (int)(windowWidth * 0.05f),
-                saveSlotsContainer.y + (int)(windowHeight * 0.10f),
+                saveSlotsContainer.x + (int)(windowWidth * 0.35f),
+                saveSlotsContainer.y + (int)(windowHeight * 0.4f),
                 200, 30,
                 1.0f,
                 HexToVec3.hexToRgbaArray("#ccccccff"),
@@ -276,7 +276,8 @@ public class LoadSaveMenu extends Screen {
                 );
                 loadButton.hoverable = true;
                 loadButton.hoverColor = HexToVec3.hexToRgbaArray("#d3e3d6ff");
-                
+                screenData.elements.add(loadButton);
+
                 /* Delete Button */
                 ScreenElement deleteButton = new ScreenElement(
                     "button",

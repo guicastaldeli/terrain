@@ -32,7 +32,7 @@ void main() {
     if(shaderType == 0) {
         setMeshTex();
 
-        float fogStart = uRenderDistance * 0.5;
+        float fogStart = uRenderDistance * 0.7;
         float fogEnd = uRenderDistance;
         float fogFactor = clamp((fragDistance - fogStart) / (fogEnd - fogStart), 0.0, 1.0);
         fragColor = mix(fragColor, vec4(uFogColor, fragColor.a), fogFactor);
