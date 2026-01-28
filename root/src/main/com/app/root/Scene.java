@@ -210,7 +210,7 @@ public class Scene {
             mesh.getMeshRenderer().setLightningRenderer(lightningRenderer);
   
             lightningController.add(LightningData.AMBIENT, new AmbientLight());
-            lightningController.add(LightningData.POINT, new PointLight());
+           // lightningController.add(LightningData.POINT, new PointLight());
             lightningController.add(LightningData.DIRECTIONAL, new DirectionalLight());
 
             start();

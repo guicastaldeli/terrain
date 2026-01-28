@@ -21,7 +21,7 @@ import org.joml.Vector3f;
 public class Spawner {
     private enum SpawnType {
         TREE,
-        NULL,
+        TORCH,
         TEST
     }
 

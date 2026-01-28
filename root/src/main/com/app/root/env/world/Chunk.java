@@ -6,7 +6,6 @@ import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.player.Camera;
-
 import java.util.*;
 
 public class Chunk {
@@ -25,7 +24,7 @@ public class Chunk {
     private int lastProcessedIndex = 0;
     private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
 
-    public static final int CHUNK_SIZE = 90;
+    public static final int CHUNK_SIZE = 50;
 
     public Chunk(
         WorldGenerator worldGenerator, 
