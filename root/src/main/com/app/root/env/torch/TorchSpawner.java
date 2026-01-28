@@ -160,9 +160,9 @@ public class TorchSpawner implements SpawnerHandler {
      */
     @Override
     public void unload(int chunkX, int chunkZ) {
-        String chunkKey = Chunk.getId(chunkX, chunkZ);
+        String chunkId = Chunk.getId(chunkX, chunkZ);
         
-        List<TorchController> torches = chunkTorchMap.get(chunkKey);
+        List<TorchController> torches = chunkTorchMap.get(chunkId);
         if(torches != null) {
             for(TorchController torch : torches) {
                 TorchGenerator torchGenerator = torch.getGenerator();
@@ -171,7 +171,7 @@ public class TorchSpawner implements SpawnerHandler {
             }
         }
 
-        List<PointLight> lights = chunkLightMap.get(chunkKey);
+        List<PointLight> lights = chunkLightMap.get(chunkId);
         if(lights != null) {
             for(PointLight light : lights) {
                 lightningController.remove(LightningData.POINT, light);

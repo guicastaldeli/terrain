@@ -471,7 +471,7 @@ public class Chunk {
 
             render(chunkId);
             //System.out.println("Loaded chunk: " + chunkId);
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Failed to load chunk " + chunkId + ": " + err.getMessage());
         }
     }

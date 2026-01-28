@@ -38,7 +38,7 @@ public class LightningRenderer {
 
         /* Directional Lights */
         List<Light> directionalLights = lightningController.getLights(LightningData.DIRECTIONAL);
-        if (!directionalLights.isEmpty()) {
+        if(!directionalLights.isEmpty()) {
             DirectionalLight directional = (DirectionalLight) directionalLights.get(0);
             shaderProgram.setUniform("uDirectionalLight.color", 
                 directional.getColor().x, 

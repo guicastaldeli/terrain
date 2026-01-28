@@ -108,7 +108,7 @@ public class WorldGenerator {
                 collisionManager.addStaticCollider(coll);
                 System.out.println("Map collider added to collision system");
             }
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Failed to add map collider: " + err.getMessage());
         }
     }
@@ -264,7 +264,7 @@ public class WorldGenerator {
         while(attempts < maxWaitAttempts && !isReady) {
             try {
                 Thread.sleep(50);
-            } catch (InterruptedException e) {
+            } catch(InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
             }

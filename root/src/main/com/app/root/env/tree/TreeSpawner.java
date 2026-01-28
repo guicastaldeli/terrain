@@ -371,8 +371,8 @@ public class TreeSpawner implements SpawnerHandler {
             treeGenerator.createMesh();
             treeData.trees.add(treeController);
 
-            String chunkKey = Chunk.getId(chunkX, chunkZ);
-            chunkTreeMap.computeIfAbsent(chunkKey, k -> new ArrayList<>()).add(treeController);
+            String chunkId = Chunk.getId(chunkX, chunkZ);
+            chunkTreeMap.computeIfAbsent(chunkId, k -> new ArrayList<>()).add(treeController);
         } 
     }
 
@@ -432,8 +432,8 @@ public class TreeSpawner implements SpawnerHandler {
      */
     @Override
     public void unload(int chunkX, int chunkZ) {
-        String chunkKey = Chunk.getId(chunkX, chunkZ);
-        List<TreeController> trees = chunkTreeMap.get(chunkKey);
+        String chunkId = Chunk.getId(chunkX, chunkZ);
+        List<TreeController> trees = chunkTreeMap.get(chunkId);
 
         if(trees != null) {
             for(TreeController tree : trees) {
@@ -441,8 +441,8 @@ public class TreeSpawner implements SpawnerHandler {
                 if(treeGenerator != null) treeGenerator.cleanup();
                 treeData.trees.remove(tree);
             }
-            chunkTreeMap.remove(chunkKey);
-            System.out.println("Unloaded " + trees.size() + " trees from chunk " + chunkKey);
+            chunkTreeMap.remove(chunkId);
+            System.out.println("Unloaded " + trees.size() + " trees from chunk " + chunkId);
         }
     }
 
@@ -502,7 +502,7 @@ public class TreeSpawner implements SpawnerHandler {
                     
                     Vector3f position = new Vector3f(x, y, z);
                     int[] coords = Chunk.getCoords(position.x, position.z);
-                    String chunkKey = Chunk.getId(coords[0], coords[1]);
+                    String chunkId = Chunk.getId(coords[0], coords[1]);
                     
                     TreeData treeConfig = getConfigForLevel(level);
                     if(treeConfig != null) {
@@ -528,7 +528,7 @@ public class TreeSpawner implements SpawnerHandler {
                             }
                             
                             addTree(treeController);
-                            chunkTreeMap.computeIfAbsent(chunkKey, k -> new ArrayList<>()).add(treeController);
+                            chunkTreeMap.computeIfAbsent(chunkId, k -> new ArrayList<>()).add(treeController);
                         }
                     }
                 } catch(Exception err) {

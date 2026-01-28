@@ -212,7 +212,7 @@ public class MainScreenWorld {
         while(attempts < maxWaitAttempts && !isReady) {
             try {
                 Thread.sleep(50);
-            } catch (InterruptedException e) {
+            } catch(InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
             }

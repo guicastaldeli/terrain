@@ -51,13 +51,13 @@ public class MainScreenChunk {
     public boolean isInRange(String chunkId, int centerX, int centerZ) {
         String[] parts = chunkId.split("_");
         
-        if (parts.length >= 3 && parts[0].equals("ms") && parts[1].equals("chunk")) {
+        if(parts.length >= 3 && parts[0].equals("ms") && parts[1].equals("chunk")) {
             try {
                 int chunkX = Integer.parseInt(parts[2]);
                 int chunkZ = Integer.parseInt(parts[3]);
                 return Math.abs(chunkX - centerX) <= Camera.RENDER_DISTANCE &&
                     Math.abs(chunkZ - centerZ) <= Camera.RENDER_DISTANCE;
-            } catch (NumberFormatException e) {
+            } catch(NumberFormatException e) {
                 System.err.println("Invalid chunk ID format: " + chunkId);
                 return false;
             }
@@ -458,7 +458,7 @@ public class MainScreenChunk {
             
             render(chunkId);
             //System.out.println("Loaded chunk: " + chunkId);
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Failed to load chunk " + chunkId + ": " + err.getMessage());
         }
     }

@@ -1030,14 +1030,14 @@ public class DocParser {
      * Script Engine
      */
     private static void initScriptEngine() {
-        if (engine == null) {
+        if(engine == null) {
             ScriptEngineManager manager = new ScriptEngineManager();
             engine = manager.getEngineByName("JavaScript");
         }
     }
 
     private static String evaluateExpression(String text) {
-        if (text == null || !text.contains("${")) {
+        if(text == null || !text.contains("${")) {
             return text;
         }
         
@@ -1045,7 +1045,7 @@ public class DocParser {
         Matcher matcher = pattern.matcher(text);
         StringBuffer result = new StringBuffer();
         
-        while (matcher.find()) {
+        while(matcher.find()) {
             String expression = matcher.group(1);
             String replacement = evaluateSimpleExpression(expression);
             matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
@@ -1060,7 +1060,7 @@ public class DocParser {
         
         Pattern repeatPattern = Pattern.compile("'(.*?)'\\.repeat\\((\\d+)\\)");
         Matcher repeatMatcher = repeatPattern.matcher(expression);
-        if (repeatMatcher.matches()) {
+        if(repeatMatcher.matches()) {
             String text = repeatMatcher.group(1);
             int count = Integer.parseInt(repeatMatcher.group(2));
             return text.repeat(count);
@@ -1069,7 +1069,7 @@ public class DocParser {
         if(expression.contains("+")) {
             String[] parts = expression.split("\\+");
             StringBuilder result = new StringBuilder();
-            for (String part : parts) {
+            for(String part : parts) {
                 part = part.trim().replaceAll("^'|'$", "");
                 result.append(part);
             }
@@ -1084,7 +1084,7 @@ public class DocParser {
             initScriptEngine();
             Object result = engine.eval(expression);
             return result != null ? result.toString() : expression;
-        } catch (ScriptException e) {
+        } catch(ScriptException e) {
             System.err.println("Could not evaluate expression: " + expression);
             return "${" + expression + "}";
         }
