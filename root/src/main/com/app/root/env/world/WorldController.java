@@ -41,9 +41,6 @@ public class WorldController implements EnvInstance<WorldController> {
         );
     }
 
-    /**
-     * Get Map Generator
-     */
     public WorldGenerator getGenerator() {
         return worldGenerator;
     }

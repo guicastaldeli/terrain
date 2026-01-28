@@ -39,9 +39,6 @@ public class PauseScreen extends Screen {
             case "save":
                 pauseScreenAction.save();
                 break;
-            case "settings":
-                pauseScreenAction.openSettings();
-                break;
             case "exit":
                 pauseScreenAction.exitToMenu();
                 break;

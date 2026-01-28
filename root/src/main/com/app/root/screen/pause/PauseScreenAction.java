@@ -14,6 +14,9 @@ public class PauseScreenAction {
     private final SaveGenerator saveGenerator;
     private final DataGetter dataGetter;
 
+    private long lastSaveTime = 0;
+    private static final long SAVE_COOLDOWN = 3000;
+
     public PauseScreenAction(
         ScreenController screenController, 
         PauseScreen pauseScreen,
@@ -49,7 +52,9 @@ public class PauseScreenAction {
     }
 
     /**
+     * 
      * Save
+     * 
      */
     public void save() {
         if(dataGetter.playerController == null && Screen.getScene() != null) {
@@ -59,7 +64,8 @@ public class PauseScreenAction {
         if(currentSaveId != null) {
             try {
                 saveGenerator.save(currentSaveId);
-                System.out.println("Game saved successfully!");
+                lastSaveTime = System.currentTimeMillis();
+                System.out.println("Saved successfully!");
             } catch(Exception err) {
                 System.err.println("Failed to save game: " + err.getMessage());
                 err.printStackTrace();
@@ -69,18 +75,21 @@ public class PauseScreenAction {
         }
     }
 
-    /**
-     * Open Settings
-     */
-    public void openSettings() {
-        /////
+    private void saveIfNeeded() {
+        long currentTime = System.currentTimeMillis();
+        long timeSinceLastSave = currentTime - lastSaveTime;
+        if(timeSinceLastSave >= SAVE_COOLDOWN) {
+            save();
+        } else {
+            System.out.println("Skipping save (saved " + timeSinceLastSave + "ms ago)");
+        }
     }
 
     /**
      * Exit to Menu
      */
     public void exitToMenu() {
-        save();
+        saveIfNeeded();
         
         pauseScreen.setActive(false);
         

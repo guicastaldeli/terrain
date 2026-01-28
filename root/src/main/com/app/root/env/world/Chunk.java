@@ -490,6 +490,12 @@ public class Chunk {
             if(chunkData.collider != null) {
                 collisionManager.removeCollider(chunkData.collider);
             }
+            if(spawner != null) {
+                String[] parts = chunkId.split("_");
+                int chunkX = Integer.parseInt(parts[1]);
+                int chunkZ = Integer.parseInt(parts[2]);
+                spawner.unload(chunkX, chunkZ);
+            }
 
             chunkData.isRendered = false;
             cachedChunks.put(chunkId, chunkData);

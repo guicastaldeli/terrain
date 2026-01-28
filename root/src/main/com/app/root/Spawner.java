@@ -2,7 +2,10 @@ package main.com.app.root;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
+import main.com.app.root.env.torch.TorchSpawner;
+import main.com.app.root.env.tree.TreeSpawner;
 import main.com.app.root.env.world.Water;
+import main.com.app.root.lightning.LightningController;
 import main.com.app.root.mesh.Mesh;
 import org.joml.Vector3f;
 
@@ -16,8 +19,6 @@ import java.util.*;
  * 
  */
 public class Spawner {
-    private static Spawner instance;
-
     private Tick tick;
     public Mesh mesh;
     private EnvController envController;
@@ -33,7 +34,6 @@ public class Spawner {
 
     public Map<SpawnerData, List<SpawnerHandler>> spawnerData;
 
-    public Spawner() {}
     public Spawner(
         Tick tick,
         Mesh mesh,
@@ -52,14 +52,29 @@ public class Spawner {
             spawnerData.put(type, new ArrayList<>());
         }
     } 
-
-    public static Spawner getInstance() {
-        if(instance == null) instance = new Spawner();
-        return instance;
-    }
-
+    
     public void setEnvController(EnvController envController) {
         this.envController = envController;
+    }
+
+    /**
+     * 
+     * Register
+     * 
+     */
+    public void registerHandler(SpawnerHandler spawnerHandler) {
+        SpawnerData type = spawnerHandler.getType();
+        if(spawnerData.containsKey(type)) {
+            spawnerData.get(type).add(spawnerHandler);
+        }
+    }
+
+    public void registerHandlers(EnvController envController, LightningController lightningController) {
+        TreeSpawner treeSpawner = new TreeSpawner(tick, mesh, envController, this);
+        registerHandler(treeSpawner);
+        
+        TorchSpawner torchSpawner = new TorchSpawner(tick, envController, this, lightningController);
+        registerHandler(torchSpawner);
     }
 
     /**
@@ -117,8 +132,8 @@ public class Spawner {
     /**
      * Set Mesh
      */
-    public static void setMesh(Mesh mesh) {
-        for(List<SpawnerHandler> handlers : Spawner.getInstance().spawnerData.values()) {
+    public void setMesh(Mesh mesh) {
+        for(List<SpawnerHandler> handlers : spawnerData.values()) {
             for(SpawnerHandler handler : handlers) {
                 handler.setMesh(mesh);
             }
@@ -128,10 +143,23 @@ public class Spawner {
     /**
      * Set Active
      */
-    public static void setActive(boolean active) {
-        for(List<SpawnerHandler> handlers : Spawner.getInstance().spawnerData.values()) {
+    public void setActive(boolean active) {
+        for(List<SpawnerHandler> handlers : spawnerData.values()) {
             for(SpawnerHandler handler : handlers) {
                 handler.setActive(active);
+            }
+        }
+    }
+
+    /**
+     * 
+     * Unload
+     * 
+     */
+    public void unload(int chunkX, int chunkZ) {
+        for(List<SpawnerHandler> handlers : spawnerData.values()) {
+            for(SpawnerHandler handler : handlers) {
+                handler.unload(chunkX, chunkZ);
             }
         }
     }

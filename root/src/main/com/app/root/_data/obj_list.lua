@@ -133,7 +133,7 @@ return {
             path = "root/src/main/com/app/root/_resources/item/axe10.obj",
             texture = "root/src/main/com/app/root/_resources/texture/item/axe10.png",
             scale = { 1.0, 1.0, 1.0 }
-        }
+        },
         -- Torch
         {
             name = "torch",

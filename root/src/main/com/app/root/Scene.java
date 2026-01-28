@@ -137,13 +137,16 @@ public class Scene {
             if(reset || spawner == null) {
                 this.spawner = new Spawner(
                     tick, 
-                    mesh,
-                    new Vector3f(0, 0, 0),
-                    200.0f
+                    mesh, 
+                    new Vector3f(0, 150, 0), 500.0f
                 );
+                this.spawner.setEnvController(envController);
             } else {
-                Spawner.setMesh(mesh);
+                this.spawner.setMesh(mesh);
+                this.spawner.setEnvController(envController);
             }
+
+            this.lightningController = new LightningController();
 
             this.dependencyContainer = new DependencyContainer();
             dependencyContainer.registerAll(
@@ -155,7 +158,8 @@ public class Scene {
                 stateController,
                 collisionManager,
                 spawner,
-                playerController
+                playerController,
+                lightningController
             );
 
             if(reset || envController == null) {
@@ -202,7 +206,6 @@ public class Scene {
                 playerController
             );
 
-            this.lightningController = new LightningController();
             this.lightningRenderer = new LightningRenderer(lightningController, shaderProgram);
             mesh.setLightningRenderer(lightningRenderer);
             mesh.getMeshRenderer().setLightningRenderer(lightningRenderer);
@@ -222,7 +225,8 @@ public class Scene {
      */
     private void start() {
         envRenderer.render();
-        Spawner.setActive(true);
+        spawner.registerHandlers(envController, lightningController);
+        spawner.setActive(true);
     }
 
     /**

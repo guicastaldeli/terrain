@@ -16,6 +16,7 @@ public interface SpawnerHandler {
     void getData(Map<String, Object> data);
 
     void generate(int chunkX, int chunkZ);
+    void unload(int chunkX, int chunkZ);
     void update();
     void render();   
 }

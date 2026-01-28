@@ -75,13 +75,13 @@ public class DataGetter {
             data.put("spawner_center_y", spawnerCenter.y);
             data.put("spawner_center_z", spawnerCenter.z);
             data.put("spawner_radius", spawner.getSpawnRadius());
-            for(List<SpawnerHandler> handlers : Spawner.getInstance().spawnerData.values()) {
+            for(List<SpawnerHandler> handlers : spawner.spawnerData.values()) {
                 for(SpawnerHandler handler : handlers) {
                     data.put("spawner_active", handler.isActive());
                 }
             }
 
-            for(List<SpawnerHandler> handlers : Spawner.getInstance().spawnerData.values()) {
+            for(List<SpawnerHandler> handlers : spawner.spawnerData.values()) {
                 for(SpawnerHandler handler : handlers) {
                     handler.getData(data);
                 }
@@ -171,14 +171,14 @@ public class DataGetter {
         }
         if(data.containsKey("spawner_active") && spawner != null) {
             boolean active = (Boolean) data.get("spawner_active");
-            for(List<SpawnerHandler> handlers : Spawner.getInstance().spawnerData.values()) {
+            for(List<SpawnerHandler> handlers : spawner.spawnerData.values()) {
                 for(SpawnerHandler handler : handlers) {
                     handler.setActive(active);
                 }
             }
         }
         
-        for(List<SpawnerHandler> handlers : Spawner.getInstance().spawnerData.values()) {
+        for(List<SpawnerHandler> handlers : spawner.spawnerData.values()) {
             for(SpawnerHandler handler : handlers) {
                 handler.applyData(data);
             }
