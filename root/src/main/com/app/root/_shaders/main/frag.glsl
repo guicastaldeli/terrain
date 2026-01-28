@@ -4,6 +4,7 @@ in vec4 uColor;
 in vec2 texCoord;
 in vec3 worldPos;
 in float fragDistance;
+in vec3 normal;
 
 out vec4 fragColor;
 
@@ -26,19 +27,36 @@ uniform float uFogDensity;
 #include "mesh/mesh_tex.glsl"
 #include "../env/skybox/shaders/sb_frag.glsl"
 #include "ui/ui_frag.glsl"
+#include "lightning/ambient.glsl"
+#include "lightning/directional.glsl"
+#include "lightning/point.glsl"
 
 void main() {
     //Mesh
     if(shaderType == 0) {
         setMeshTex();
+        
+        vec3 finalColor = fragColor.rgb;
+        
+        // Ambient lighting
+        finalColor = calculateAmbientLight(uAmbientLight, finalColor);
+        
+        // Directional lighting
+        finalColor += calculateDirectionalLight(uDirectionalLight, fragColor.rgb, normalize(normal));
+        
+        // Point lighting
+        finalColor += calculatePointLight(uPointLight, fragColor.rgb, normalize(normal), worldPos);
+        
+        fragColor = vec4(finalColor, fragColor.a);
 
+        // Fog
         float fogStart = uRenderDistance * 0.7;
         float fogEnd = uRenderDistance;
         float fogFactor = clamp((fragDistance - fogStart) / (fogEnd - fogStart), 0.0, 1.0);
         fragColor = mix(fragColor, vec4(uFogColor, fragColor.a), fogFactor);
     }
     //Skybox
-    if(shaderType == 2) {
+    else if(shaderType == 2) {
         setSkyboxFrag();
     }
     //Text

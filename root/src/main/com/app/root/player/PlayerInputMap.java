@@ -53,11 +53,7 @@ public class PlayerInputMap {
     public void handleMouse(float xOffset, float yOffset) {
         if(playerController != null && playerController.getCamera() != null) {
             Camera camera = playerController.getCamera();
-            if(rightMousePressed) {
-                camera.getAimController().handleMouse(xOffset, yOffset);
-            } else {
-                camera.handleMouse(xOffset, yOffset);
-            }
+            camera.handleMouse(xOffset, yOffset);
         }
     }
 
@@ -69,23 +65,6 @@ public class PlayerInputMap {
             if(pressed && treeInteractor != null) {
                 treeInteractor.attemptBreak();
             }
-        }
-        /* Button Right */
-        if(button == GLFW_MOUSE_BUTTON_RIGHT) {
-            rightMousePressed = pressed;
-            playerController
-                .getCamera()
-                .getAimController()
-                .setMode(pressed);
-
-            if(pressed) {
-                playerController.getCamera().setShowCursor(true);
-            } else {
-                playerController.getCamera().setShowCursor(false);
-            }
-
-            PlayerMesh playerMesh = playerController.getPlayerMesh();
-            if(playerMesh != null) playerMesh.setAiming(pressed);
         }
     }
 

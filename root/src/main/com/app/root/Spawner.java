@@ -9,7 +9,6 @@ import main.com.app.root.env.world.Chunk;
 import main.com.app.root.env.world.Water;
 import main.com.app.root.env.world.WorldGenerator;
 import main.com.app.root.mesh.Mesh;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

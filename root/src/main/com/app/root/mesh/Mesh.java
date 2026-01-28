@@ -1,6 +1,7 @@
 package main.com.app.root.mesh;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.lightning.LightningRenderer;
 import main.com.app.root.player.Camera;
 import main.com.app.root.player.PlayerController;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import org.joml.Vector3f;
 public class Mesh {
     private final Tick tick;
     private final ShaderProgram shaderProgram;
+    private LightningRenderer lightningRenderer;
 
     private MeshRenderer meshRenderer;
     private MeshData meshData;
@@ -23,6 +25,15 @@ public class Mesh {
         this.meshRendererMap = new HashMap<>();
         this.meshDataMap = new HashMap<>();
         this.meshRenderer = new MeshRenderer(tick, shaderProgram);
+    }
+
+    public void setLightningRenderer(LightningRenderer lightningRenderer) {
+        this.lightningRenderer = lightningRenderer;
+        this.meshRenderer.setLightningRenderer(lightningRenderer);
+        
+        for(MeshRenderer renderer : meshRendererMap.values()) {
+            renderer.setLightningRenderer(lightningRenderer);
+        }
     }
 
     public MeshRenderer getMeshRenderer() {
@@ -72,6 +83,10 @@ public class Mesh {
 
         MeshRenderer newRenderer = new MeshRenderer(tick, shaderProgram);
         newRenderer.setData(data);
+        
+        if(lightningRenderer != null) {
+            newRenderer.setLightningRenderer(lightningRenderer);
+        }
         if(meshRenderer != null && meshRenderer.getPlayerController() != null) {
             newRenderer.setPlayerController(meshRenderer.getPlayerController());
         }

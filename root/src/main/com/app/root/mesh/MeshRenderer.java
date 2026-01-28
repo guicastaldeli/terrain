@@ -4,6 +4,7 @@ import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
+import main.com.app.root.lightning.LightningRenderer;
 import main.com.app.root.player.Camera;
 import main.com.app.root.player.PlayerController;
 import java.nio.FloatBuffer;
@@ -41,6 +42,7 @@ public class MeshRenderer {
     private EnvController envController;
     private MeshData meshData;
     private PlayerController playerController;
+    private LightningRenderer lightningRenderer;
     private Camera camera;
 
     private int vao;
@@ -64,6 +66,10 @@ public class MeshRenderer {
     public MeshRenderer(Tick tick, ShaderProgram shaderProgram) {
         this.tick = tick;
         this.shaderProgram = shaderProgram;
+    }
+
+    public void setLightningRenderer(LightningRenderer lightningRenderer) {
+        this.lightningRenderer = lightningRenderer;
     }
 
     /**
@@ -362,7 +368,10 @@ public class MeshRenderer {
             
             shaderProgram.bind();
             shaderProgram.setUniform("shaderType", shaderType);
-
+            if(shaderType == 0 && lightningRenderer != null) {
+                lightningRenderer.updateShaderUniforms();
+            }
+            
             float starBrightness = meshData.getStarBrightness();
             shaderProgram.setUniform("uStarBrightness", starBrightness);
             

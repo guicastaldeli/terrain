@@ -31,7 +31,6 @@ public class Camera {
     private Vector3f targetOffset = new Vector3f(0.0f, 1.0f, 0.0f);
 
     private boolean showCursor = false;
-    private AimController aimController;
 
     public float posX = 0.0f;
     public float posY = 150.0f;
@@ -64,8 +63,6 @@ public class Camera {
         this.modelMatrixNeedsUpdate = true;
 
         updateVectors();
-
-        this.aimController = new AimController();
     }
 
     /**
@@ -128,7 +125,6 @@ public class Camera {
      */
     public void handleMouse(float xOffset, float yOffset) {
         //System.out.println("Mouse: " + xOffset + ", " + yOffset);
-        if(aimController.mode) return;
         processRotation(xOffset, yOffset, true);
     }
 
@@ -312,13 +308,6 @@ public class Camera {
 
     public float getPitch() {
         return pitch;
-    }
-
-    /**
-     * Aim Controller
-     */
-    public AimController getAimController() {
-        return aimController;
     }
 
     /**

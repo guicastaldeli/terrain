@@ -71,9 +71,6 @@ public class InputController {
                 return;
             }
 
-            boolean inAimMode = false;
-            if(playerInputMap != null) inAimMode = playerInputMap.isRightMousePressed();
-
             if(!screenController.shouldCursorBeEnabled()) {
                 if(firstMouse) {
                     lastMouseX = xPos;
@@ -138,11 +135,6 @@ public class InputController {
 
     private void updateCursorState() {
         boolean showCursor = false;
-        boolean inAimMode = false;
-        if(playerInputMap != null) {
-            inAimMode = playerInputMap.isRightMousePressed();
-            if(inAimMode) showCursor = true;
-        }
 
         if(uiController != null && uiController.isVisible()) {
             glfwSetInputMode(
@@ -154,12 +146,6 @@ public class InputController {
         }
 
         if(screenController.shouldCursorBeEnabled()) {
-            glfwSetInputMode(
-                window.getWindow(), 
-                GLFW_CURSOR, 
-                GLFW_CURSOR_NORMAL
-            );
-        } else if(inAimMode) {
             glfwSetInputMode(
                 window.getWindow(), 
                 GLFW_CURSOR, 

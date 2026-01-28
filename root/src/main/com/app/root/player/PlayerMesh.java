@@ -126,19 +126,6 @@ public class PlayerMesh {
             .add(meshOffset);
 
         Vector3f rotation = getMeshRotation();
-        if(isAiming() && camera.getAimController().isMode()) {
-            AimController aimController = camera.getAimController();
-            rotation = new Vector3f(
-                -90.0f - aimController.getPitch() * 0.3f,
-                90.0f + aimController.getYaw() * 0.5f,
-                -180.0f
-            );
-            setMeshRotation(
-                rotation.x, 
-                rotation.y, 
-                rotation.z
-            );
-        }
 
         Matrix4f model = new Matrix4f()
             .translate(meshPos)
@@ -148,45 +135,6 @@ public class PlayerMesh {
             .scale(meshScale);
         
         mesh.setModelMatrix(PLAYER_MESH_ID, model);
-    }
-
-    /**
-     * Aim
-     */
-    public void setAiming(boolean aiming) {
-        playerController
-            .getCamera()
-            .getAimController().isAiming = aiming;
-        
-        if(!aiming) {
-            setMeshRotation(
-                -90.0f,
-                90.0f,
-                -180.0f
-            );
-        }
-    }
-
-    public boolean isAiming() {
-        boolean isAiming = 
-            playerController
-                .getCamera()
-                .getAimController().isAiming;
-        
-        return isAiming;
-    }
-
-    public void updateAimRotation(float yaw, float pitch) {
-        AimController aimController = playerController.getCamera().getAimController();
-        Vector3f currentRotation = getMeshRotation();
-
-        float targetYaw = meshRotation.y + yaw * 0.5f;
-        float targetPitch = meshRotation.x - pitch * 0.5f;
-        setMeshRotation(
-            targetPitch, 
-            targetYaw, 
-            meshRotation.z
-        );
     }
 
     public void update() {

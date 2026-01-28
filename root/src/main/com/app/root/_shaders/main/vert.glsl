@@ -4,6 +4,7 @@ layout(location = 0) in vec3 inPos;
 layout(location = 1) in vec2 aPos;
 layout(location = 2) in vec4 aColor;
 layout(location = 3) in vec2 aTexCoord;
+layout(location = 4) in vec3 aNormal;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -12,6 +13,7 @@ uniform vec2 screenSize;
 
 out vec3 worldPos;
 out float fragDistance;
+out vec3 normal;
 
 out vec4 uColor;
 out vec2 texCoord;
@@ -30,8 +32,13 @@ void main() {
     if(shaderType == 0) {
         setMeshColor();
 
-        vec4 viewPos = view * model * vec4(inPos, 1.0);
+        vec4 worldPosition = model * vec4(inPos, 1.0);
+        worldPos = worldPosition.xyz;
+        normal = mat3(transpose(inverse(model))) * aNormal;
+        
+        vec4 viewPos = view * worldPosition;
         fragDistance = length(viewPos.xyz);
+        gl_Position = projection * viewPos;
     }
     //Skybox
     else if(shaderType == 2) {

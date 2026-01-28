@@ -7,6 +7,11 @@ import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.EnvRenderer;
+import main.com.app.root.lightning.AmbientLight;
+import main.com.app.root.lightning.DirectionalLight;
+import main.com.app.root.lightning.LightningController;
+import main.com.app.root.lightning.LightningData;
+import main.com.app.root.lightning.LightningRenderer;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player.Camera;
 import org.joml.Vector3f;
@@ -24,6 +29,9 @@ public class MainScreenScene {
     private DependencyContainer dependencyContainer;
 
     public boolean init = false;
+
+    private LightningController lightningController;
+    private LightningRenderer lightningRenderer;
 
     private Object skyboxInstance;
 
@@ -74,6 +82,14 @@ public class MainScreenScene {
             mesh.getMeshRenderer().setEnvController(envController);
             mesh.getMeshRenderer().setCamera(camera);
             mesh.setCamera(camera);
+
+            this.lightningController = new LightningController();
+            this.lightningRenderer = new LightningRenderer(lightningController, shaderProgram);
+            mesh.setLightningRenderer(lightningRenderer);
+            mesh.getMeshRenderer().setLightningRenderer(lightningRenderer);
+
+            lightningController.add(LightningData.AMBIENT, new AmbientLight());
+            lightningController.add(LightningData.DIRECTIONAL, new DirectionalLight());
             
             start();
             
@@ -103,6 +119,7 @@ public class MainScreenScene {
         camera.orbitAroundPoint(target, new Vector3f(0.0f, 1.0f, 0.0f), 0.05f);
         
         mesh.update();
+        lightningController.update();
         if(skyboxInstance != null) {
             Object skyboxMesh = EnvCall.callReturn(skyboxInstance, "getMesh");
             if(skyboxMesh != null) {
@@ -123,6 +140,8 @@ public class MainScreenScene {
             }
         }
 
+        lightningRenderer.updateShaderUniforms();
+        
         world.render(camera.getPosition().x, camera.getPosition().z);
         mesh.renderAll();
         mesh.getMeshRenderer().applyFog();
