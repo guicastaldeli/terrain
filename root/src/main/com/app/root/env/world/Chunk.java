@@ -171,9 +171,6 @@ public class Chunk {
         int heightDataSize = CHUNK_SIZE + 1;
         float[] normals = new float[heightDataSize * heightDataSize * 3]; 
         
-        for(int i = 0; i < heightDataSize * heightDataSize; i++) {
-            int idx = i * 3;
-        }
         for(int i = 0; i < normals.length; i++) {
             normals[i] = 0.0f;
         }
@@ -182,17 +179,29 @@ public class Chunk {
             int idx2 = indices[i + 1] * 3;
             int idx3 = indices[i + 2] * 3;
             
-            float v1x = vertices[idx2] - vertices[idx1];
-            float v1y = vertices[idx2 + 1] - vertices[idx1 + 1];
-            float v1z = vertices[idx2 + 2] - vertices[idx1 + 2];
+            float v1x = vertices[idx1];
+            float v1y = vertices[idx1 + 1];
+            float v1z = vertices[idx1 + 2];
             
-            float v2x = vertices[idx3] - vertices[idx1];
-            float v2y = vertices[idx3 + 1] - vertices[idx1 + 1];
-            float v2z = vertices[idx3 + 2] - vertices[idx1 + 2];
+            float v2x = vertices[idx2];
+            float v2y = vertices[idx2 + 1];
+            float v2z = vertices[idx2 + 2];
+            
+            float v3x = vertices[idx3];
+            float v3y = vertices[idx3 + 1];
+            float v3z = vertices[idx3 + 2];
+            
+            float edge1x = v2x - v1x;
+            float edge1y = v2y - v1y;
+            float edge1z = v2z - v1z;
+            
+            float edge2x = v3x - v1x;
+            float edge2y = v3y - v1y;
+            float edge2z = v3z - v1z;
 
-            float nx = v1y * v2z - v1z * v2y;
-            float ny = v1z * v2x - v1x * v2z;
-            float nz = v1x * v2y - v1y * v2x;
+            float nx = edge1y * edge2z - edge1z * edge2y;
+            float ny = edge1z * edge2x - edge1x * edge2z;
+            float nz = edge1x * edge2y - edge1y * edge2x;
             
             float len = (float)Math.sqrt(nx * nx + ny * ny + nz * nz);
             if(len > 0) {

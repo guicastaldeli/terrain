@@ -148,10 +148,10 @@ public class MeshRenderer {
             checkGLError("after glBufferData (normals)");
             memFree(normalBuffer);
             
-            glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0);
+            glVertexAttribPointer(4, 3, GL_FLOAT, false, 0, 0); // CHANGED FROM 1 TO 4
             checkGLError("after glVertexAttribPointer (normals)");
             
-            glEnableVertexAttribArray(1);
+            glEnableVertexAttribArray(4);
             checkGLError("after glEnableVertexAttribArray (normals)");
         }
 

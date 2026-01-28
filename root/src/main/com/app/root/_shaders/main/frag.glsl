@@ -35,21 +35,32 @@ void main() {
     //Mesh
     if(shaderType == 0) {
         setMeshTex();
+        /*
+        vec3 finalColor = fragColor.rgb;
+        if(length(normal) < 0.001) {
+            finalColor = vec3(1.0, 0.0, 0.0);
+        } else {
+            vec3 normalizedNormal = normalize(normal);
+            finalColor = normalizedNormal * 0.5 + 0.5;
+        }
+        
+        fragColor = vec4(finalColor, fragColor.a);
+        */
         
         vec3 finalColor = fragColor.rgb;
         
-        // Ambient lighting
+        //Ambient lighting
         finalColor = calculateAmbientLight(uAmbientLight, finalColor);
         
-        // Directional lighting
+        //Directional lighting
         finalColor += calculateDirectionalLight(uDirectionalLight, fragColor.rgb, normalize(normal));
         
-        // Point lighting
+        //Point lighting
         finalColor += calculatePointLight(uPointLight, fragColor.rgb, normalize(normal), worldPos);
         
         fragColor = vec4(finalColor, fragColor.a);
 
-        // Fog
+        //Fog
         float fogStart = uRenderDistance * 0.7;
         float fogEnd = uRenderDistance;
         float fogFactor = clamp((fragDistance - fogStart) / (fogEnd - fogStart), 0.0, 1.0);

@@ -9,9 +9,9 @@ public class PointLight implements Light, DynamicLight {
     private float radius;
     private float attenuation;
     
-    private static final Vector3f DEFAULT_COLOR = HexToVec3.hexToVec3("#ffffff");
-    private static final float DEFAULT_INTENSITY = 1.0f;
-    private static final Vector3f DEFAULT_POSITION = new Vector3f(0, 10, 0);
+    private static final Vector3f DEFAULT_COLOR = HexToVec3.hexToVec3("#a73b3b");
+    private static final float DEFAULT_INTENSITY = 10.0f;
+    private static final Vector3f DEFAULT_POSITION = new Vector3f(10, 150, 10);
     private static final float DEFAULT_RADIUS = 20.0f;
 
     public PointLight(

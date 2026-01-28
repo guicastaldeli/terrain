@@ -11,6 +11,7 @@ vec3 calculateDirectionalLight(
     vec3 surfaceColor, 
     vec3 normal
 ) {
-    float diff = max(dot(normal, normalize(-light.direction)), 0.0);
+    vec3 lightDir = normalize(-light.direction);
+    float diff = max(dot(normal, lightDir), 0.0);
     return surfaceColor * light.color * light.intensity * diff;
 }

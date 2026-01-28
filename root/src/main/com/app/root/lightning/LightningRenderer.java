@@ -35,8 +35,8 @@ public class LightningRenderer {
             shaderProgram.setUniform("uDirectionalLight.direction", directional.getDirection().x, directional.getDirection().y, directional.getDirection().z);
         } else {
             shaderProgram.setUniform("uDirectionalLight.color", 1.0f, 1.0f, 1.0f);
-            shaderProgram.setUniform("uDirectionalLight.intensity", 0.0f);
-            shaderProgram.setUniform("uDirectionalLight.direction", -0.5f, -1.0f, -0.5f);
+            shaderProgram.setUniform("uDirectionalLight.intensity", 5.0f);
+            shaderProgram.setUniform("uDirectionalLight.direction", 0.0f, 0.0f, 0.0f);
         }
         
         List<Light> pointLights = lightningController.getLights(LightningData.POINT);

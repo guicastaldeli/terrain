@@ -34,7 +34,8 @@ void main() {
 
         vec4 worldPosition = model * vec4(inPos, 1.0);
         worldPos = worldPosition.xyz;
-        normal = mat3(transpose(inverse(model))) * aNormal;
+        
+        normal = normalize(mat3(transpose(inverse(model))) * aNormal);
         
         vec4 viewPos = view * worldPosition;
         fragDistance = length(viewPos.xyz);

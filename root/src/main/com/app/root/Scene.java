@@ -8,6 +8,13 @@ import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvRenderer;
+import main.com.app.root.lightning.AmbientLight;
+import main.com.app.root.lightning.DirectionalLight;
+import main.com.app.root.lightning.LightningController;
+import main.com.app.root.lightning.LightningData;
+import main.com.app.root.lightning.LightningRenderer;
+import main.com.app.root.lightning.PointLight;
+
 import org.joml.Vector3f;
 
 public class Scene {
@@ -27,6 +34,9 @@ public class Scene {
     private CollisionManager collisionManager;
     private UIController uiController;
     private InputController inputController;
+
+    private LightningController lightningController;
+    private LightningRenderer lightningRenderer;
 
     private Spawner spawner;
     private Upgrader upgrader;
@@ -193,6 +203,15 @@ public class Scene {
                 collisionManager,
                 playerController
             );
+
+            this.lightningController = new LightningController();
+            this.lightningRenderer = new LightningRenderer(lightningController, shaderProgram);
+            mesh.setLightningRenderer(lightningRenderer);
+            mesh.getMeshRenderer().setLightningRenderer(lightningRenderer);
+  
+            lightningController.add(LightningData.AMBIENT, new AmbientLight());
+            lightningController.add(LightningData.POINT, new PointLight());
+            lightningController.add(LightningData.DIRECTIONAL, new DirectionalLight());
 
             start();
             
