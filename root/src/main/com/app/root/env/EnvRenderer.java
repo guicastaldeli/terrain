@@ -61,8 +61,5 @@ public class EnvRenderer {
     public void update() {
         /* Skybox */
         EnvCall.call(skyboxInstance, "getMesh", "update");
-
-        /* Clouds */
-        EnvCall.call(cloudInstance, "getGenerator", "update");
     }
 }

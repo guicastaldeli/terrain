@@ -1,8 +1,6 @@
 package main.com.app.root.mesh;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.joml.Vector3f;
 
 public class MeshInstance {

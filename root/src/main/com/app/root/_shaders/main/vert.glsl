@@ -5,10 +5,14 @@ layout(location = 1) in vec2 aPos;
 layout(location = 2) in vec4 aColor;
 layout(location = 3) in vec2 aTexCoord;
 layout(location = 4) in vec3 aNormal;
+layout(location = 5) in vec3 instancePosition;
+layout(location = 6) in vec3 instanceRotation;
+layout(location = 7) in float instanceScale;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform int isInstanced;
 uniform vec2 screenSize;
 
 out vec3 worldPos;
@@ -28,14 +32,42 @@ uniform int shaderType;
 #include "ui/ui_vert.glsl"
 
 void main() {
+    vec3 finalPos = inPos;
+    vec3 finalNormal = aNormal;
+    
+    if(isInstanced == 1) {
+        finalPos *= instanceScale;
+        
+        float cosY = cos(instanceRotation.y);
+        float sinY = sin(instanceRotation.y);
+        mat3 rotationMatrix = mat3(
+            cosY, 0.0, sinY,
+            0.0, 1.0, 0.0,
+            -sinY, 0.0, cosY
+        );
+        
+        finalPos = rotationMatrix * finalPos;
+        finalNormal = rotationMatrix * finalNormal;
+        
+        finalPos += instancePosition;
+    }
+    
     //Mesh
     if(shaderType == 0) {
-        setMeshColor();
-
-        vec4 worldPosition = model * vec4(inPos, 1.0);
-        worldPos = worldPosition.xyz;
+        vec4 worldPosition;
         
-        normal = normalize(mat3(transpose(inverse(model))) * aNormal);
+        if(isInstanced == 1) {
+            worldPosition = vec4(finalPos, 1.0);
+            worldPos = finalPos;
+            normal = normalize(finalNormal);
+        } else {
+            worldPosition = model * vec4(finalPos, 1.0);
+            worldPos = worldPosition.xyz;
+            normal = normalize(mat3(transpose(inverse(model))) * finalNormal);
+        }
+        
+        uColor = hasColors > 0 ? aColor : vec4(1.0, 1.0, 1.0, 1.0);
+        texCoord = aTexCoord;
         
         vec4 viewPos = view * worldPosition;
         fragDistance = length(viewPos.xyz);
@@ -49,11 +81,18 @@ void main() {
     else if(shaderType == 1) {
         setTextVert();
     }
+    //UI
     else if(shaderType == 3) {
         setUIVert();
     }
     else {
-        gl_Position  = projection * view * model * vec4(inPos, 1.0);
+        if(isInstanced == 1) {
+            gl_Position = projection * view * vec4(finalPos, 1.0);
+        } else {
+            gl_Position = projection * view * model * vec4(finalPos, 1.0);
+        }
         texCoord = aTexCoord;
+        uColor = aColor;
     }
+
 }

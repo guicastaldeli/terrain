@@ -9,8 +9,14 @@ import main.com.app.root.player.Camera;
 import main.com.app.root.player.PlayerController;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL31.glDrawArraysInstanced;
+import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
+import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
@@ -28,13 +34,12 @@ import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glBufferSubData;
 import static org.lwjgl.opengl.GL15.glDeleteBuffers;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
 public class MeshRenderer {
     private final Tick tick;
@@ -62,6 +67,8 @@ public class MeshRenderer {
     private int texId = -1;
     private boolean hasTex = false;
     private boolean hasColors = false;
+    private int instanceVbo = 0;
+    private boolean instanceBufferNeedsUpdate= true;
 
     public MeshRenderer(Tick tick, ShaderProgram shaderProgram) {
         this.tick = tick;
@@ -133,136 +140,6 @@ public class MeshRenderer {
      */
     public void setIsDynamic(boolean isDynamic) {
         this.isDynamic = isDynamic;
-    }
-
-    /**
-     * Create Buffers
-     * 
-     */
-    private void createBuffers() {
-        while(glGetError() != GL_NO_ERROR);
-        
-        vao = glGenVertexArrays();
-        checkGLError("after glGenVertexArrays");
-        
-        glBindVertexArray(vao);
-        checkGLError("after glBindVertexArray");
-
-        /* Vertices */
-        float[] vertices = meshData.getVertices();
-        if(vertices != null && vertices.length > 0) {
-            vbo = glGenBuffers();
-            checkGLError("after glGenBuffers (vertices)");
-            
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            checkGLError("after glBindBuffer (vertices)");
-            
-            FloatBuffer vertexBuffer = memAllocFloat(vertices.length);
-            vertexBuffer.put(vertices).flip();
-            glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
-            checkGLError("after glBufferData (vertices)");
-            memFree(vertexBuffer);
-            
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-            checkGLError("after glVertexAttribPointer (vertices)");
-            
-            glEnableVertexAttribArray(0);
-            checkGLError("after glEnableVertexAttribArray (vertices)");
-            
-            vertexCount = vertices.length / 3;
-        }
-
-        /* Normals */
-        float[] normals = meshData.getNormals();
-        if(normals != null && normals.length > 0) {
-            normalVbo = glGenBuffers();
-            checkGLError("after glGenBuffers (normals)");
-            
-            glBindBuffer(GL_ARRAY_BUFFER, normalVbo);
-            checkGLError("after glBindBuffer (normals)");
-            
-            FloatBuffer normalBuffer = memAllocFloat(normals.length);
-            normalBuffer.put(normals).flip();
-            glBufferData(GL_ARRAY_BUFFER, normalBuffer, GL_STATIC_DRAW);
-            checkGLError("after glBufferData (normals)");
-            memFree(normalBuffer);
-            
-            glVertexAttribPointer(4, 3, GL_FLOAT, false, 0, 0);
-            checkGLError("after glVertexAttribPointer (normals)");
-            
-            glEnableVertexAttribArray(4);
-            checkGLError("after glEnableVertexAttribArray (normals)");
-        }
-
-        /* Colors */
-        float[] colors = meshData.getColors();
-        if(colors != null && colors.length > 0) {
-            colorVbo = glGenBuffers();
-            checkGLError("after glGenBuffers (colors)");
-            
-            glBindBuffer(GL_ARRAY_BUFFER, colorVbo);
-            checkGLError("after glBindBuffer (colors)");
-            
-            FloatBuffer colorBuffer = memAllocFloat(colors.length);
-            colorBuffer.put(colors).flip();
-            glBufferData(GL_ARRAY_BUFFER, colorBuffer, GL_DYNAMIC_DRAW);
-            checkGLError("after glBufferData (colors)");
-            memFree(colorBuffer);
-            
-            glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, 0);
-            checkGLError("after glVertexAttribPointer (colors)");
-            
-            glEnableVertexAttribArray(2);
-            checkGLError("after glEnableVertexAttribArray (colors)");
-            
-            hasColors = true;
-        }
-
-        /* Texture Coords */
-        float[] texCoords = meshData.getTexCoords();
-        if(texCoords != null && texCoords.length > 0) {
-            texCoordsVbo = glGenBuffers();
-            checkGLError("after glGenBuffers (texCoords)");
-            
-            glBindBuffer(GL_ARRAY_BUFFER, texCoordsVbo);
-            checkGLError("after glBindBuffer (texCoords)");
-            
-            FloatBuffer texCoordsBuffer = memAllocFloat(texCoords.length);
-            texCoordsBuffer.put(texCoords).flip();
-            glBufferData(GL_ARRAY_BUFFER, texCoordsBuffer, GL_STATIC_DRAW);
-            checkGLError("after glBufferData (texCoords)");
-            memFree(texCoordsBuffer);
-            
-            glVertexAttribPointer(3, 2, GL_FLOAT, false, 0, 0);
-            checkGLError("after glVertexAttribPointer (texCoords)");
-            
-            glEnableVertexAttribArray(3);
-            checkGLError("after glEnableVertexAttribArray (texCoords)");
-        }
-
-        /* Indices */
-        int[] indices = meshData.getIndices();
-        if(indices != null && indices.length > 0) {
-            ebo = glGenBuffers();
-            checkGLError("after glGenBuffers (indices)");
-            
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-            checkGLError("after glBindBuffer (indices)");
-            
-            IntBuffer indexBuffer = memAllocInt(indices.length);
-            indexBuffer.put(indices).flip();
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
-            checkGLError("after glBufferData (indices)");
-            memFree(indexBuffer);
-            
-            vertexCount = indices.length;
-        }
-
-        glBindVertexArray(0);
-        checkGLError("after unbind VAO");
-        
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        checkGLError("after unbind VBO");
     }
 
     /**
@@ -405,6 +282,196 @@ public class MeshRenderer {
 
     /**
      * 
+     * Buffers
+     * 
+     */
+    private void createBuffers() {
+        while(glGetError() != GL_NO_ERROR);
+        
+        vao = glGenVertexArrays();
+        checkGLError("after glGenVertexArrays");
+        
+        glBindVertexArray(vao);
+        checkGLError("after glBindVertexArray");
+
+        /* Vertices */
+        float[] vertices = meshData.getVertices();
+        if(vertices != null && vertices.length > 0) {
+            vbo = glGenBuffers();
+            checkGLError("after glGenBuffers (vertices)");
+            
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            checkGLError("after glBindBuffer (vertices)");
+            
+            FloatBuffer vertexBuffer = memAllocFloat(vertices.length);
+            vertexBuffer.put(vertices).flip();
+            glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
+            checkGLError("after glBufferData (vertices)");
+            memFree(vertexBuffer);
+            
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+            checkGLError("after glVertexAttribPointer (vertices)");
+            
+            glEnableVertexAttribArray(0);
+            checkGLError("after glEnableVertexAttribArray (vertices)");
+            
+            vertexCount = vertices.length / 3;
+        }
+
+        /* Normals */
+        float[] normals = meshData.getNormals();
+        if(normals != null && normals.length > 0) {
+            normalVbo = glGenBuffers();
+            checkGLError("after glGenBuffers (normals)");
+            
+            glBindBuffer(GL_ARRAY_BUFFER, normalVbo);
+            checkGLError("after glBindBuffer (normals)");
+            
+            FloatBuffer normalBuffer = memAllocFloat(normals.length);
+            normalBuffer.put(normals).flip();
+            glBufferData(GL_ARRAY_BUFFER, normalBuffer, GL_STATIC_DRAW);
+            checkGLError("after glBufferData (normals)");
+            memFree(normalBuffer);
+            
+            glVertexAttribPointer(4, 3, GL_FLOAT, false, 0, 0);
+            checkGLError("after glVertexAttribPointer (normals)");
+            
+            glEnableVertexAttribArray(4);
+            checkGLError("after glEnableVertexAttribArray (normals)");
+        }
+
+        /* Colors */
+        float[] colors = meshData.getColors();
+        if(colors != null && colors.length > 0) {
+            colorVbo = glGenBuffers();
+            checkGLError("after glGenBuffers (colors)");
+            
+            glBindBuffer(GL_ARRAY_BUFFER, colorVbo);
+            checkGLError("after glBindBuffer (colors)");
+            
+            FloatBuffer colorBuffer = memAllocFloat(colors.length);
+            colorBuffer.put(colors).flip();
+            glBufferData(GL_ARRAY_BUFFER, colorBuffer, GL_DYNAMIC_DRAW);
+            checkGLError("after glBufferData (colors)");
+            memFree(colorBuffer);
+            
+            glVertexAttribPointer(2, 4, GL_FLOAT, false, 0, 0);
+            checkGLError("after glVertexAttribPointer (colors)");
+            
+            glEnableVertexAttribArray(2);
+            checkGLError("after glEnableVertexAttribArray (colors)");
+            
+            hasColors = true;
+        }
+
+        /* Texture Coords */
+        float[] texCoords = meshData.getTexCoords();
+        if(texCoords != null && texCoords.length > 0) {
+            texCoordsVbo = glGenBuffers();
+            checkGLError("after glGenBuffers (texCoords)");
+            
+            glBindBuffer(GL_ARRAY_BUFFER, texCoordsVbo);
+            checkGLError("after glBindBuffer (texCoords)");
+            
+            FloatBuffer texCoordsBuffer = memAllocFloat(texCoords.length);
+            texCoordsBuffer.put(texCoords).flip();
+            glBufferData(GL_ARRAY_BUFFER, texCoordsBuffer, GL_STATIC_DRAW);
+            checkGLError("after glBufferData (texCoords)");
+            memFree(texCoordsBuffer);
+            
+            glVertexAttribPointer(3, 2, GL_FLOAT, false, 0, 0);
+            checkGLError("after glVertexAttribPointer (texCoords)");
+            
+            glEnableVertexAttribArray(3);
+            checkGLError("after glEnableVertexAttribArray (texCoords)");
+        }
+
+        /* Indices */
+        int[] indices = meshData.getIndices();
+        if(indices != null && indices.length > 0) {
+            ebo = glGenBuffers();
+            checkGLError("after glGenBuffers (indices)");
+            
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+            checkGLError("after glBindBuffer (indices)");
+            
+            IntBuffer indexBuffer = memAllocInt(indices.length);
+            indexBuffer.put(indices).flip();
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
+            checkGLError("after glBufferData (indices)");
+            memFree(indexBuffer);
+            
+            vertexCount = indices.length;
+        }
+        createInstanceBuffer();
+
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    private void createInstanceBuffer() {
+        if(!meshData.getMeshInstance().isInstanced()) {
+            return;
+        }
+
+        instanceVbo = glGenBuffers();
+        checkGLError("after glGenBuffers (instance)");
+
+        glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
+        checkGLError("after glBindBuffer (instance)");
+
+        int maxInstances = 200000;
+        int stride = 7;
+        glBufferData(GL_ARRAY_BUFFER, (long) maxInstances * stride * Float.BYTES, GL_DYNAMIC_DRAW);
+        checkGLError("after glBufferData (instance)");
+
+        glVertexAttribPointer(5, 3, GL_FLOAT, false, stride * Float.BYTES, 0);
+        glEnableVertexAttribArray(5);
+        glVertexAttribDivisor(5, 1);
+
+        glVertexAttribPointer(6, 3, GL_FLOAT, false, stride * Float.BYTES, 3 * Float.BYTES);
+        glEnableVertexAttribArray(6);
+        glVertexAttribDivisor(6, 1);
+
+        glVertexAttribPointer(7, 1, GL_FLOAT, false, stride * Float.BYTES, 6 * Float.BYTES);
+        glEnableVertexAttribArray(7);
+        glVertexAttribDivisor(7, 1);
+        
+        System.out.println("Instance buffer created successfully for mesh: " + meshData.getId());
+    }
+
+    private void updateInstanceBuffer() {
+        if(!meshData.getMeshInstance().isInstanced() || !instanceBufferNeedsUpdate) return;
+
+        List<InstanceData> instances = meshData.getMeshInstance().getInstances();
+        if(instances.isEmpty()) return;
+
+        FloatBuffer buffer = memAllocFloat(instances.size() * 7);
+        
+        for(InstanceData inst : instances) {
+            buffer.put(inst.position.x);
+            buffer.put(inst.position.y);
+            buffer.put(inst.position.z);
+            buffer.put(inst.rotation.x);
+            buffer.put(inst.rotation.y);
+            buffer.put(inst.rotation.z);
+            buffer.put(inst.scale);
+        }
+        buffer.flip();
+
+        glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
+        memFree(buffer);
+
+        instanceBufferNeedsUpdate = false;
+    }
+
+    public void markInstanceBuffer() {
+        instanceBufferNeedsUpdate = true;
+    }
+
+    /**
+     * 
      * Render
      * 
      */
@@ -438,6 +505,13 @@ public class MeshRenderer {
             
             shaderProgram.bind();
             shaderProgram.setUniform("shaderType", shaderType);
+            if(meshData.getMeshInstance().isInstanced()) {
+                shaderProgram.setUniform("isInstanced", 1);
+                updateInstanceBuffer();
+            } else {
+                shaderProgram.setUniform("isInstanced", 0);
+            }
+
             if(shaderType == 0 && lightningRenderer != null) {
                 lightningRenderer.updateShaderUniforms(renderCamera.getPosition());
             }
@@ -459,10 +533,21 @@ public class MeshRenderer {
             glBindVertexArray(vao);
             
             int[] indices = meshData.getIndices();
-            if(indices != null) {
-                glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
+            if(meshData.getMeshInstance().isInstanced()) {
+                int instanceCount = meshData.getMeshInstance().getInstanceCount();
+                if(instanceCount > 0) {
+                    if(indices != null) {
+                        glDrawElementsInstanced(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0, instanceCount);
+                    } else {
+                        glDrawArraysInstanced(GL_TRIANGLES, 0, vertexCount, instanceCount);
+                    }
+                }
             } else {
-                glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+                if(indices != null) {
+                    glDrawElements(GL_TRIANGLES, vertexCount, GL_UNSIGNED_INT, 0);
+                } else {
+                    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+                }
             }
             
             glBindVertexArray(0);

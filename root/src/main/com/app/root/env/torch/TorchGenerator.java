@@ -51,6 +51,7 @@ public class TorchGenerator {
         try {
             mesh.addModel(MESH_ID, "torch");
             mesh.setPosition(MESH_ID, position);
+            mesh.getData(MESH_ID).getMeshInstance().setInstanced(true);
             loadTex("torch");
         } catch(Exception err) {
             System.err.println("Failed to create mesh for torch: " + err.getMessage());

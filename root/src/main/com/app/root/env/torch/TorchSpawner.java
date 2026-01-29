@@ -33,7 +33,7 @@ public class TorchSpawner implements SpawnerHandler {
     private int currentTorchId = 0;
 
     private static final float CHUNK_LIMIT = 0.3f;
-    private static final float TORCH_COVERAGE = 0f;//0.0005f;
+    private static final float TORCH_COVERAGE = 0.0005f;
     public static final int MAX_TORCHES_PER_CHUNK = 0;
     /*
         Math.max(1, (int)(

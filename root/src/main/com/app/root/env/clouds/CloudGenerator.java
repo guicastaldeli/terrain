@@ -1,30 +1,46 @@
 package main.com.app.root.env.clouds;
+import main.com.app.root.Spawner;
+import main.com.app.root.SpawnerData;
+import main.com.app.root.SpawnerHandler;
+import main.com.app.root.Tick;
+import main.com.app.root.env.NoiseGeneratorWrapper;
+import main.com.app.root.env.world.Chunk;
+import main.com.app.root.env.world.WorldGenerator;
+import main.com.app.root.mesh.Mesh;
+import main.com.app.root.mesh.MeshData;
+import main.com.app.root.mesh.MeshRenderer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.joml.Vector3f;
 
-import main.com.app.root.Tick;
-import main.com.app.root.env.NoiseGeneratorWrapper;
-import main.com.app.root.env.world.WorldGenerator;
-import main.com.app.root.mesh.Mesh;
-
-public class CloudGenerator {
+public class CloudGenerator implements SpawnerHandler {
     private final Tick tick;
     private final NoiseGeneratorWrapper noiseGeneratorWrapper;
-    private final Mesh mesh;
     private final Random random;
+    private Mesh mesh;
 
-    private static final String CLOUD_MESH_ID_PREFIX = "cloud_";
-    private static final int COUNT = 100;
+    private static final String CLOUD_MESH_ID = "CLOUD_MESH";
+    private static final int COUNT = 1;
+    private static final int MIN_CLOUD_CHUNKS = 10;
+    private static final int MAX_CLOUD_CHUNKS = 15;
+
     private static final float HEIGHT_MIN = 150.0f;
     private static final float HEIGHT_MAX = 250.0f;
     private static final float SCALE_MIN = 10.0f;
-    private static final float SCALE_MAX= 30.0f;
-    private static final float DESTINY_THRESHOLD = 0.4f;
+    private static final float SCALE_MAX = 30.0f;
+    private static final float DENSITY_THRESHOLD = -0.3f;
     
-    private List<String> activeCloudIds;
+    private Map<String, List<Vector3f>> chunkCloudMap;
+    private Map<String, List<Vector3f>> chunkCloudRotations;
+    private Map<String, List<Float>> chunkCloudScales;
+    private Set<String> selectedChunks;
+
     private int cloudCounter = 0;
     private long seed;
     private boolean cloudsGenerated = false;
@@ -35,158 +51,227 @@ public class CloudGenerator {
         this.noiseGeneratorWrapper = new NoiseGeneratorWrapper();
         this.random = new Random();
 
-        this.activeCloudIds = new ArrayList<>();
+        this.chunkCloudMap = new HashMap<>();
+        this.chunkCloudRotations = new HashMap<>();
+        this.chunkCloudScales = new HashMap<>();
+        this.selectedChunks = new HashSet<>();
+
         this.seed = System.currentTimeMillis();
+
+        setMesh();
+    }
+
+    @Override
+    public SpawnerData getType() {
+        return SpawnerData.CLOUD;
+    }
+
+    @Override 
+    public void setMesh(Mesh mesh) {
+        this.mesh = mesh;
     }
 
     public void setSeed(long seed) {
         this.seed = seed;
         this.random.setSeed(seed);
-        regenerate();
     }
 
     /**
-     * Regenerate
+     * Set Mesh
      */
-    public void regenerate() {
-        clear();
-        generate();
-        cloudsGenerated = true;
+    private void setMesh() {
+        mesh.addModel(CLOUD_MESH_ID, "cloud1");
+        
+        MeshData cloudData = mesh.getData(CLOUD_MESH_ID);
+        cloudData.getMeshInstance().setInstanced(true);
+        
+        MeshRenderer renderer = mesh.getMeshRenderer(CLOUD_MESH_ID);
+        renderer.setData(cloudData);
     }
 
     /**
-     * Clear
-     */
-    private void clear() {
-        for(String cloudId : activeCloudIds) {
-            if(mesh.hasMesh(cloudId)) {
-                mesh.remove(cloudId);
-            }
-        }
-        activeCloudIds.clear();
-    }
-
-    /**
-     * Spawn Cloud
-     */
-    private void spawnCloud(
-        float worldX, 
-        float worldZ, 
-        float destiny
-    ) {
-        String cloudId = 
-            CLOUD_MESH_ID_PREFIX + 
-            System.currentTimeMillis() + "_" +
-            activeCloudIds.size();
-
-        float height = HEIGHT_MIN + (destiny * (HEIGHT_MAX - HEIGHT_MIN)) + 90.0f;
-        float scale = SCALE_MIN + destiny * (SCALE_MAX - SCALE_MIN);
-
-        try {
-            mesh.addModel(cloudId, "cloud1");
-            mesh.setPosition(cloudId, new Vector3f(worldX, height, worldZ));
-            mesh.getData(cloudId).setScale(scale);
-            mesh.getData(cloudId).setRotation(
-                new Vector3f(0, random.nextFloat() * 360.0f, 0)
-            );
-            activeCloudIds.add(cloudId);
-        } catch(Exception err) {
-            System.err.println("Failed to spawn cloud at (" + worldX + ", " + worldZ + "): " + err.getMessage());
-        }
-    }
-
-    /**
+     * 
      * Generate
+     *
      */
-    private void generate() {
-        float worldHalfSize = WorldGenerator.WORLD_SIZE / 2.0f;
-        for(int i = 0; i < COUNT; i++) {
-            float x = (random.nextFloat() * WorldGenerator.WORLD_SIZE) - worldHalfSize;
-            float z = (random.nextFloat() * WorldGenerator.WORLD_SIZE) - worldHalfSize;
+    @Override
+    public void generate(int chunkX, int chunkZ) {
+        String chunkId = Chunk.getId(chunkX, chunkZ);
 
-            float destiny = noiseGeneratorWrapper.fractualSimplexNoise(
+        if(chunkCloudMap.containsKey(chunkId)) {
+            addChunkCloudsToInstances(chunkId);
+            return;
+        }
+        if(!shouldChunkHaveClouds(chunkX, chunkZ)) {
+            chunkCloudMap.put(chunkId, new ArrayList<>());
+            chunkCloudRotations.put(chunkId, new ArrayList<>());
+            chunkCloudScales.put(chunkId, new ArrayList<>());
+            return;
+        }
+
+        float worldStartX = chunkX * Chunk.CHUNK_SIZE - WorldGenerator.WORLD_SIZE / 2.0f;
+        float worldStartZ = chunkZ * Chunk.CHUNK_SIZE - WorldGenerator.WORLD_SIZE / 2.0f;
+
+        List<Vector3f> positions = new ArrayList<>();
+        List<Vector3f> rotations = new ArrayList<>();
+        List<Float> scales = new ArrayList<>();
+
+        long offset = 81647L;
+        Random random = Spawner.Deterministic(
+            chunkX, 
+            chunkZ, 
+            offset,
+            SpawnerData.CLOUD
+        );
+
+        for(int i = 0; i < COUNT; i++) {
+            float x = worldStartX + random.nextFloat() * Chunk.CHUNK_SIZE;
+            float z = worldStartZ + random.nextFloat() * Chunk.CHUNK_SIZE;
+
+            float density = noiseGeneratorWrapper.fractualSimplexNoise(
                 x * 0.005f,
                 z * 0.005f,
                 3,
                 0.6f,
                 2.0f
             );
-            if(destiny > DESTINY_THRESHOLD) {
-                spawnCloud(x, z, destiny);
+            density = (density + 1.0f) / 2.0f;
+            
+            if(density > DENSITY_THRESHOLD) {
+                float height = HEIGHT_MIN + (density * (HEIGHT_MAX - HEIGHT_MIN)) + 90.0f;
+                float scale = SCALE_MIN + density * (SCALE_MAX - SCALE_MIN);
+                float randomRotation = random.nextFloat() * 360.0f;
+
+                Vector3f position = new Vector3f(x, height, z);
+                Vector3f rotation = new Vector3f(0, randomRotation, 0);
+
+                positions.add(position);
+                rotations.add(rotation);
+                scales.add(scale);
             }
         }
+
+        chunkCloudMap.put(chunkId, positions);
+        chunkCloudRotations.put(chunkId, rotations);
+        chunkCloudScales.put(chunkId, scales);
+        
+        addChunkCloudsToInstances(chunkId);
     }
 
-    private void generateAdditionalClouds(int count) {
-        float worldHalfSize = WorldGenerator.WORLD_SIZE / 2.0f;
-        for (int i = 0; i < count; i++) {
-            float x = (random.nextFloat() * WorldGenerator.WORLD_SIZE) - worldHalfSize;
-            float z = (random.nextFloat() * WorldGenerator.WORLD_SIZE) - worldHalfSize;
-            
-            float destiny = noiseGeneratorWrapper.fractualSimplexNoise(
-                x * 0.005f,
-                z * 0.005f,
-                3,
-                0.6f,
-                2.0f
+    private void addChunkCloudsToInstances(String chunkId) {
+        List<Vector3f> positions = chunkCloudMap.get(chunkId);
+        List<Vector3f> rotations = chunkCloudRotations.get(chunkId);
+        List<Float> scales = chunkCloudScales.get(chunkId);
+
+        if(positions == null || rotations == null || scales == null) return;
+
+        MeshData cloudData = mesh.getData(CLOUD_MESH_ID);
+        for(int i = 0; i < positions.size(); i++) {
+            cloudData.getMeshInstance().addInstance(
+                positions.get(i), 
+                rotations.get(i), 
+                scales.get(i)
             );
-            if (destiny > DESTINY_THRESHOLD) {
-                spawnCloud(x, z, destiny);
-            }
         }
+        mesh.getMeshRenderer(CLOUD_MESH_ID).markInstanceBuffer();
+    }
+
+    private boolean shouldChunkHaveClouds(int chunkX, int chunkZ) {
+        float noiseValue = noiseGeneratorWrapper.fractualSimplexNoise(
+            chunkX * 0.3f,
+            chunkZ * 0.3f,
+            2,
+            0.5f,
+            2.0f
+        );
+        noiseValue = (noiseValue + 1.0f) / 2.0f;
+        float threshold = 0.7f;
+        return noiseValue > threshold;
     }
 
     /**
      * Update
      */
+    @Override
     public void update() {
-        if(!cloudsGenerated) regenerate();
+        if(!cloudsGenerated) return;
+
+        MeshData cloudData = mesh.getData(CLOUD_MESH_ID);
+        List<Vector3f> allPositions = new ArrayList<>();
+        
+        for(List<Vector3f> chunkPositions : chunkCloudMap.values()) {
+            allPositions.addAll(chunkPositions);
+        }
 
         float worldHalfSize = WorldGenerator.WORLD_SIZE / 2.0f;
-        List<String> cloudsToRemove = new ArrayList<>();
+        
+        for(int i = 0; i < allPositions.size(); i++) {
+            Vector3f currentPos = allPositions.get(i);
+            float speed = 0.1f * tick.getDeltaTime();
+            currentPos.x += speed;
 
-        for(String id : activeCloudIds) {
-            if(mesh.hasMesh(id)) {
-                Vector3f currentPos = mesh.getPosition(id);
-                float speed = 0.1f * tick.getDeltaTime();
-                Vector3f newPos = new Vector3f(
-                    currentPos.x + speed,
-                    currentPos.y,
-                    currentPos.z
-                );
-                
-                if(Math.abs(newPos.x) > worldHalfSize * 1.5f) {
-                    cloudsToRemove.add(id);
-                } else {
-                    mesh.setPosition(id, newPos);
-                }
-            } else {
-                cloudsToRemove.add(id);
+            if(Math.abs(currentPos.x) > worldHalfSize * 1.5f) {
+                currentPos.x = -worldHalfSize * 1.5f;
             }
         }
 
-        for(String id : cloudsToRemove) {
-            if(mesh.hasMesh(id)) mesh.remove(id);
-            activeCloudIds.remove(id);
-        }
-
-        if(activeCloudIds.size() < COUNT * 0.7f) {
-            generateAdditionalClouds(COUNT - activeCloudIds.size());
-        }
+        mesh.getMeshRenderer(CLOUD_MESH_ID).markInstanceBuffer();
     }
 
     /**
      * Render
      */
+    @Override
     public void render() {
-        if(!cloudsGenerated) regenerate();
+        if(!cloudsGenerated) {
+            cloudsGenerated = true;
+            return;
+        }
+        
+        int instanceCount = mesh.getData(CLOUD_MESH_ID).getMeshInstance().getInstanceCount();
+        if(instanceCount > 0) {
+            mesh.render(CLOUD_MESH_ID, 0);
+        }
     }
 
-    public int getCount() {
-        return activeCloudIds.size();
+    /**
+     * Unload
+     */
+    @Override
+    public void unload(int chunkX, int chunkZ) {
+        String chunkId = Chunk.getId(chunkX, chunkZ);
+        
+        List<Vector3f> positions = chunkCloudMap.get(chunkId);
+        if(positions == null) return;
+
+        MeshData cloudData = mesh.getData(CLOUD_MESH_ID);
+        int instancesToRemove = positions.size();
+        
+        for(int i = instancesToRemove - 1; i >= 0; i--) {
+            cloudData.getMeshInstance().removeInstance(
+                cloudData.getMeshInstance().getInstanceCount() - 1
+            );
+        }
+
+        chunkCloudMap.remove(chunkId);
+        chunkCloudRotations.remove(chunkId);
+        chunkCloudScales.remove(chunkId);
+        
+        mesh.getMeshRenderer(CLOUD_MESH_ID).markInstanceBuffer();
     }
 
-    public boolean areCloudsGenerated() {
-        return cloudsGenerated;
+    /**
+     * 
+     * Data
+     * 
+     */
+    @Override
+    public void applyData(Map<String, Object> data) {
+        
+    }
+
+    @Override
+    public void getData(Map<String, Object> data) {
+        
     }
 }

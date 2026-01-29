@@ -341,8 +341,8 @@ public class Chunk {
         int size = CHUNK_SIZE + 1;
         float[] heightData = new float[size * size];
         
-        testFlatMap(heightData);
-        /*
+        //testFlatMap(heightData);
+        
         int worldStartX = chunkX * CHUNK_SIZE;
         int worldStartZ = chunkZ * CHUNK_SIZE;
         
@@ -360,7 +360,6 @@ public class Chunk {
                     );
             }
         }
-            */
         
         return heightData;
     }

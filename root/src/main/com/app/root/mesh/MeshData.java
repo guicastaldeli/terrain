@@ -45,11 +45,18 @@ public class MeshData {
     private int shaderType = 0;
     private float starBrightness = 0.0f;
 
+    private final MeshInstance meshInstance;
+
     public MeshData(String id, MeshType type) {
         this.id = id;
         this.type = type;
         this.data = new HashMap<>();
         this.colors = null;
+        this.meshInstance = new MeshInstance();
+    }
+
+    public MeshInstance getMeshInstance() {
+        return meshInstance;
     }
 
     /**
