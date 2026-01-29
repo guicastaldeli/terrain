@@ -28,8 +28,8 @@ public class CloudSpawner implements SpawnerHandler {
 
     private static final String[] CLOUD_MODELS = { "cloud1", "cloud2" };
     private static final int COUNT = 1;
-    private static final int MIN_CLOUD_CHUNKS = 10;
-    private static final int MAX_CLOUD_CHUNKS = 15;
+    private static final int MIN_CLOUD_CHUNKS = 20;
+    private static final int MAX_CLOUD_CHUNKS = 35;
 
     private static final float HEIGHT_MIN = 500.0f;
     private static final float HEIGHT_MAX = 2000.0f;
@@ -91,8 +91,7 @@ public class CloudSpawner implements SpawnerHandler {
             
             MeshData cloudData = mesh.getData(modelName);
             cloudData.getMeshInstance().setInstanced(true);
-            
-            cloudData.setTransparentColor(0.9f, 0.95f, 1.0f, 0.4f);
+            cloudData.setShaderType(4);
 
             MeshRenderer renderer = mesh.getMeshRenderer(modelName);
             renderer.setData(cloudData);
@@ -271,7 +270,7 @@ public class CloudSpawner implements SpawnerHandler {
         for(String modelName : CLOUD_MODELS) {
             int instanceCount = mesh.getData(modelName).getMeshInstance().getInstanceCount();
             if(instanceCount > 0) {
-                mesh.render(modelName, 0);
+                mesh.render(modelName, 4);
             }
         }
     }

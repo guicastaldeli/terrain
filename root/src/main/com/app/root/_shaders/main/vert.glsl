@@ -30,14 +30,15 @@ uniform int shaderType;
 #include "mesh/mesh_color.glsl"
 #include "../env/skybox/shaders/sb_vert.glsl"
 #include "ui/ui_vert.glsl"
+#include "cloud_vert.glsl"
 
 void main() {
     vec3 finalPos = inPos;
     vec3 finalNormal = aNormal;
-    
+
     if(isInstanced == 1) {
         finalPos *= instanceScale;
-        
+
         float cosY = cos(instanceRotation.y);
         float sinY = sin(instanceRotation.y);
         mat3 rotationMatrix = mat3(
@@ -45,17 +46,17 @@ void main() {
             0.0, 1.0, 0.0,
             -sinY, 0.0, cosY
         );
-        
+
         finalPos = rotationMatrix * finalPos;
         finalNormal = rotationMatrix * finalNormal;
-        
+
         finalPos += instancePosition;
     }
-    
+
     //Mesh
     if(shaderType == 0) {
         vec4 worldPosition;
-        
+
         if(isInstanced == 1) {
             worldPosition = vec4(finalPos, 1.0);
             worldPos = finalPos;
@@ -65,10 +66,10 @@ void main() {
             worldPos = worldPosition.xyz;
             normal = normalize(mat3(transpose(inverse(model))) * finalNormal);
         }
-        
+
         uColor = hasColors > 0 ? aColor : vec4(1.0, 1.0, 1.0, 1.0);
         texCoord = aTexCoord;
-        
+
         vec4 viewPos = view * worldPosition;
         fragDistance = length(viewPos.xyz);
         gl_Position = projection * viewPos;
@@ -85,6 +86,10 @@ void main() {
     else if(shaderType == 3) {
         setUIVert();
     }
+    //Clouds
+    else if(shaderType == 4) {
+        setCloudVert(finalPos, finalNormal);
+    }
     else {
         if(isInstanced == 1) {
             gl_Position = projection * view * vec4(finalPos, 1.0);
@@ -94,5 +99,4 @@ void main() {
         texCoord = aTexCoord;
         uColor = aColor;
     }
-
 }

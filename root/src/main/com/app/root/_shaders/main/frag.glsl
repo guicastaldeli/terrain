@@ -33,22 +33,15 @@ uniform vec3 uCameraPos;
 #include "lightning/directional.glsl"
 #include "lightning/point.glsl"
 #include "fog.glsl"
+#include "cloud_frag.glsl"
+#include "test_normals.glsl"
 
 void main() {
     //Mesh
-    if(shaderType == 0) {
-        setMeshTex();
-        /* TEST NORMALS, for test ONLY :>>
-        vec3 finalColor = fragColor.rgb;
-        if(length(normal) < 0.001) {
-            finalColor = vec3(1.0, 0.0, 0.0);
-        } else {
-            vec3 normalizedNormal = normalize(normal);
-            finalColor = normalizedNormal * 0.5 + 0.5;
-        }
+    if(shaderType == 0 || shaderType == 4) {
+        //testNormals();
         
-        fragColor = vec4(finalColor, fragColor.a);
-        */
+        setMeshTex();
         
         vec3 finalColor = fragColor.rgb;
         vec3 normalizedNormal = normalize(normal);
@@ -93,5 +86,8 @@ void main() {
     //UI
     else if(shaderType == 3) {
         setUIFrag();
+    }
+    else if(shaderType == 4) {
+        setCloudFrag();
     }
 }
