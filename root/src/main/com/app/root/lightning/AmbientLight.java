@@ -6,7 +6,7 @@ public class AmbientLight implements Light {
     private Vector3f color;
     private float intensity;
 
-    private static final Vector3f DEFAULT_COLOR = HexToVec3.hexToVec3("#2a2a2a");
+    private static final Vector3f DEFAULT_COLOR = HexToVec3.hexToVec3("#ffffff");
     private static final float DEFAULT_INTENSITY = 1.0f;
     
     public AmbientLight(Vector3f color, float intensity) {

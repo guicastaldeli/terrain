@@ -92,7 +92,7 @@ public class CloudSpawner implements SpawnerHandler {
             MeshData cloudData = mesh.getData(modelName);
             cloudData.getMeshInstance().setInstanced(true);
             
-            cloudData.setTransparentColor(0.8f, 0.2f, 0.2f, 0.8f);
+            cloudData.setTransparentColor(0.9f, 0.95f, 1.0f, 0.4f);
 
             MeshRenderer renderer = mesh.getMeshRenderer(modelName);
             renderer.setData(cloudData);
@@ -214,7 +214,10 @@ public class CloudSpawner implements SpawnerHandler {
 
     @Override
     public void update() {
-        if(!cloudsGenerated) return;
+        if(!cloudsGenerated) {
+            cloudsGenerated = true;
+            return;
+        }
 
         float worldHalfSize = WorldGenerator.WORLD_SIZE / 2.0f;
         
