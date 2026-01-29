@@ -203,7 +203,8 @@ public class Scene {
             this.envRenderer = new EnvRenderer(
                 envController, 
                 collisionManager,
-                playerController
+                playerController,
+                dataController
             );
 
             this.lightningRenderer = new LightningRenderer(lightningController, shaderProgram);

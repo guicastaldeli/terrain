@@ -68,10 +68,6 @@ public class MeshRenderer {
         this.shaderProgram = shaderProgram;
     }
 
-    public void setLightningRenderer(LightningRenderer lightningRenderer) {
-        this.lightningRenderer = lightningRenderer;
-    }
-
     /**
      * Set Data
      */
@@ -82,7 +78,14 @@ public class MeshRenderer {
     }
 
     /**
-     * Set Env Controller
+     * Lightning Renderer
+     */
+    public void setLightningRenderer(LightningRenderer lightningRenderer) {
+        this.lightningRenderer = lightningRenderer;
+    }
+
+    /**
+     * Env Controller
      */
     public void setEnvController(EnvController envController) {
         this.envController = envController;
@@ -94,6 +97,42 @@ public class MeshRenderer {
             System.err.println("OpenGL error at " + location + ": " + error + 
                 " (mesh: " + (meshData != null ? meshData.getId() : "null") + ")");
         }
+    }
+
+    /**
+     * Player Controller
+     */
+    public void setPlayerController(PlayerController playerController) {
+        this.playerController = playerController;
+    }
+
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
+
+    /**
+     * Camera
+     */
+    public void setCamera(Camera camera) {
+        this.camera = camera;
+    }
+
+    public Camera getCamera() {
+        return camera;
+    }
+
+    /**
+     * Set Model Matrix
+     */
+    public void setModelMatrix(Matrix4f matrix) {
+        this.modelMatrix.set(matrix);
+    }
+
+    /**
+     * Set Id Dynamic
+     */
+    public void setIsDynamic(boolean isDynamic) {
+        this.isDynamic = isDynamic;
     }
 
     /**
@@ -227,14 +266,9 @@ public class MeshRenderer {
     }
 
     /**
-     * Color
-     */
-    public boolean hasColors() {
-        return hasColors;
-    }
-
-    /**
+     * 
      * Texture
+     * 
      */
     public synchronized void setTex(int id) {
         if(id > 0) {
@@ -252,17 +286,26 @@ public class MeshRenderer {
     }
 
     /**
-     * Set Position
+     * 
+     * Position
+     * 
      */
+    public Vector3f getPosition() {
+        return new Vector3f(position);
+    }
+
     public void setPosition(Vector3f position) {
         this.position.set(position);
     }
+
     public void setPosition(float x, float y, float z) {
         modelMatrix.translation(x, y, z);
     }
 
     /**
-     * Set Scale
+     * 
+     * Scale
+     * 
      */
     public void setScale() {
         if(meshData.hasScale()) {
@@ -270,54 +313,27 @@ public class MeshRenderer {
             modelMatrix.scale(scale[0], scale[1], scale[2]);
         }
     }
+
     public void setScale(Vector3f scale) {
         this.scale.set(scale);
         hasCustomScale = true;
     }
+
     public void setScale(float x, float y, float z) {
         modelMatrix.scale(x, y, z);
     }
 
-    /**
-     * Set Model Matrix
-     */
-    public void setModelMatrix(Matrix4f matrix) {
-        this.modelMatrix.set(matrix);
-    }
-
-    public void setIsDynamic(boolean isDynamic) {
-        this.isDynamic = isDynamic;
-    }
-
-    public void updateRotation() {
-        if(meshData.hasRotation()) {
-            float rotationSpeed = meshData.getRotationSpeed();
-            float rotationAmount = rotationSpeed * tick.getDeltaTime();
-            currentRotation += rotationAmount;
-            if(currentRotation > 360.0f) currentRotation -= 360.0f;
-        }
+    public void setScale(float scale) {
+        setScale(new Vector3f(scale, scale, scale));
     }
 
     /**
-     * Player Controller
+     * 
+     * Colors
+     * 
      */
-    public void setPlayerController(PlayerController playerController) {
-        this.playerController = playerController;
-    }
-
-    public PlayerController getPlayerController() {
-        return playerController;
-    }
-
-    /**
-     * Camera
-     */
-    public void setCamera(Camera camera) {
-        this.camera = camera;
-    }
-
-    public Camera getCamera() {
-        return camera;
+    public boolean hasColors() {
+        return hasColors;
     }
 
     public void updateColors(float[] colors) {
@@ -334,9 +350,63 @@ public class MeshRenderer {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
+    public void updateRotation() {
+        if(meshData.hasRotation()) {
+            float rotationSpeed = meshData.getRotationSpeed();
+            float rotationAmount = rotationSpeed * tick.getDeltaTime();
+            currentRotation += rotationAmount;
+            if(currentRotation > 360.0f) currentRotation -= 360.0f;
+        }
+    }
 
     /**
+     * 
+     * Skybox Color / Fog
+     * 
+     */
+    public void applyFog() {
+        float[] skyColor = getSkyboxColor();
+        Vector3f fogColor = new Vector3f(skyColor[0], skyColor[1], skyColor[2]);
+
+        Camera renderCamera;
+        if(playerController != null) {
+            renderCamera = playerController.getCamera();
+        } else if(camera != null) {
+            renderCamera = camera;
+        } else {
+            renderCamera = new Camera();
+        }
+        
+        Vector3f cameraPos = renderCamera.getPosition();
+
+        shaderProgram.setUniform("uRenderDistance", Camera.FOG);
+        shaderProgram.setUniform("uFogColor", fogColor.x, fogColor.y, fogColor.z);
+        shaderProgram.setUniform("uCameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
+        shaderProgram.setUniform("uFogDensity", 1.0f);
+    }
+
+    public float[] getSkyboxColor() {
+        if(envController == null) return new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+        
+        try {
+            Object skyboxInstance = envController.getEnv(EnvData.SKYBOX);
+            Object skyboxMesh = EnvCall.callReturn(skyboxInstance, "getMesh");
+            
+            if(skyboxMesh != null) {
+                Object colorObj = EnvCall.callReturn(skyboxMesh, "getCurrentSkyColor");
+                if(colorObj instanceof float[]) return (float[]) colorObj;
+            }
+        } catch(Exception e) {
+            System.err.println("Failed to get skybox color: " + e.getMessage());
+        }
+        
+        return new float[]{0.5f, 0.5f, 0.5f, 1.0f};
+    }
+
+    /**
+     * 
      * Render
+     * 
      */
     public void render(int shaderType) {
         try {       
@@ -401,50 +471,6 @@ public class MeshRenderer {
         } catch(Exception err) {
             err.printStackTrace();
         }
-    }
-
-    /**
-     * 
-     * Skybox Color / Fog
-     * 
-     */
-    public void applyFog() {
-        float[] skyColor = getSkyboxColor();
-        Vector3f fogColor = new Vector3f(skyColor[0], skyColor[1], skyColor[2]);
-
-        Camera renderCamera;
-        if(playerController != null) {
-            renderCamera = playerController.getCamera();
-        } else if(camera != null) {
-            renderCamera = camera;
-        } else {
-            renderCamera = new Camera();
-        }
-        
-        Vector3f cameraPos = renderCamera.getPosition();
-
-        shaderProgram.setUniform("uRenderDistance", Camera.FOG);
-        shaderProgram.setUniform("uFogColor", fogColor.x, fogColor.y, fogColor.z);
-        shaderProgram.setUniform("uCameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
-        shaderProgram.setUniform("uFogDensity", 1.0f);
-    }
-
-    public float[] getSkyboxColor() {
-        if(envController == null) return new float[]{1.0f, 1.0f, 1.0f, 1.0f};
-        
-        try {
-            Object skyboxInstance = envController.getEnv(EnvData.SKYBOX);
-            Object skyboxMesh = EnvCall.callReturn(skyboxInstance, "getMesh");
-            
-            if(skyboxMesh != null) {
-                Object colorObj = EnvCall.callReturn(skyboxMesh, "getCurrentSkyColor");
-                if(colorObj instanceof float[]) return (float[]) colorObj;
-            }
-        } catch(Exception e) {
-            System.err.println("Failed to get skybox color: " + e.getMessage());
-        }
-        
-        return new float[]{0.5f, 0.5f, 0.5f, 1.0f};
     }
 
     public void cleanup() {

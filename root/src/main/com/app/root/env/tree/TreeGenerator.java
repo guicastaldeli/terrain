@@ -76,7 +76,7 @@ public class TreeGenerator {
 
     public void destroyMesh() {
         if(mesh.hasMesh(MESH_ID)) {
-            mesh.removeMesh(MESH_ID);
+            mesh.remove(MESH_ID);
             //System.out.println("Mesh destroyed for " + MESH_ID);
         }
     }

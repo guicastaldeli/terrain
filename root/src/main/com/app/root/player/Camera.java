@@ -37,7 +37,7 @@ public class Camera {
     public float posZ = 0.0f;
 
     public static final int RENDER_DISTANCE = 16;
-    public static final float FOG = 500.0f;
+    public static final float FOG = 10000f;//500.0f;
 
     public Camera() {
         this.position = new Vector3f(posX, posY, posZ);

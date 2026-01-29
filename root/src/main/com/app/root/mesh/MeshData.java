@@ -3,6 +3,8 @@ import main.com.app.root.utils.ColorConverter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.joml.Vector3f;
+
 public class MeshData {
     /**
      * Data Type
@@ -11,8 +13,10 @@ public class MeshData {
         VERTICES,
         INDICES,
         COLORS,
+        POSITION,
         NORMALS,
         TEX_COORDS,
+        ROTATION,
         ROTATION_AXIS,
         ROTATION_SPEED,
         SCALE
@@ -49,7 +53,9 @@ public class MeshData {
     }
 
     /**
+     * 
      * Vertices
+     * 
      */
     public void setVertices(float[] vertices) {
         addData(DataType.VERTICES, vertices);
@@ -65,7 +71,9 @@ public class MeshData {
     }
 
     /**
+     * 
      * Indices
+     * 
      */
     public void setIndices(int[] indices) {
         addData(DataType.INDICES, indices);
@@ -81,7 +89,9 @@ public class MeshData {
     }
 
     /**
+     * 
      * Colors
+     * 
      */
     public void setColors(float[] c) {
         this.colors = c;
@@ -147,7 +157,9 @@ public class MeshData {
     }
 
     /**
+     * 
      * Normals
+     * 
      */
     public void setNormals(float[] normals) {
         addData(DataType.NORMALS, normals);
@@ -158,7 +170,9 @@ public class MeshData {
     }
 
     /**
+     * 
      * Texture
+     * 
      */
     public void setTexCoords(float[] texCoords) {
         addData(DataType.TEX_COORDS, texCoords);
@@ -176,7 +190,9 @@ public class MeshData {
     }
 
     /**
+     * 
      * Shader Type
+     * 
      */
     public void setShaderType(int type) {
         this.shaderType = type;
@@ -194,8 +210,39 @@ public class MeshData {
     }
 
     /**
-     * Rotation
+     * 
+     * Position
+     * 
      */
+    public void setPosition(Vector3f position) {
+        addData(DataType.POSITION, position);
+    }
+
+    public Vector3f getPosition() {
+        Object position = data.get(DataType.POSITION);
+        if (position instanceof Vector3f) {
+            return (Vector3f) position;
+        }
+        return new Vector3f(0, 0, 0);
+    }
+
+    /**
+     * 
+     * Rotation
+     * 
+     */
+    public void setRotation(Vector3f rotation) {
+        addData(DataType.ROTATION, rotation);
+    }
+
+    public Vector3f getRotation() {
+        Object rotation = data.get(DataType.ROTATION);
+        if (rotation instanceof Vector3f) {
+            return (Vector3f) rotation;
+        }
+        return new Vector3f(0, 0, 0);
+    }
+
     public String getRotationAxis() {
         Object axis = data.get(DataType.ROTATION_AXIS);
         return axis instanceof String ? (String) axis : null;
@@ -211,7 +258,9 @@ public class MeshData {
     }
 
     /**
+     * 
      * Star Brightness
+     * 
      */
     public void setStarBrightness(float brightness) {
         this.starBrightness = brightness;
@@ -222,10 +271,20 @@ public class MeshData {
     }
 
     /**
+     * 
      * Scale
+     * 
      */
     public void setScale(float[] scale) {
         addData(DataType.SCALE, scale);
+    }
+
+    public void setScale(float scale) {
+        setScale(new float[]{scale, scale, scale});
+    }
+
+    public void setScale(float x, float y, float z) {
+        setScale(new float[]{x, y, z});
     }
 
     public float[] getScale() {
@@ -241,7 +300,9 @@ public class MeshData {
     }
 
     /**
+     * 
      * Dynamic
+     * 
      */
     public void setIsDynamic(boolean isDynamic) {
         this.isDynamic = isDynamic;
@@ -252,7 +313,9 @@ public class MeshData {
     }
 
     /**
+     * 
      * Data
+     * 
      */
     public boolean hasData(DataType dataType) {
         return data.containsKey(dataType);

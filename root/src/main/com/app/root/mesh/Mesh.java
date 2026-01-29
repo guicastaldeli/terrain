@@ -27,15 +27,6 @@ public class Mesh {
         this.meshRenderer = new MeshRenderer(tick, shaderProgram);
     }
 
-    public void setLightningRenderer(LightningRenderer lightningRenderer) {
-        this.lightningRenderer = lightningRenderer;
-        this.meshRenderer.setLightningRenderer(lightningRenderer);
-        
-        for(MeshRenderer renderer : meshRendererMap.values()) {
-            renderer.setLightningRenderer(lightningRenderer);
-        }
-    }
-
     public MeshRenderer getMeshRenderer() {
         return meshRenderer;
     }
@@ -48,8 +39,37 @@ public class Mesh {
         return meshRendererMap;
     }
 
+    public boolean hasMesh(String id) {
+        return meshRendererMap.containsKey(id);
+    }
+
+    public void setLightningRenderer(LightningRenderer lightningRenderer) {
+        this.lightningRenderer = lightningRenderer;
+        this.meshRenderer.setLightningRenderer(lightningRenderer);
+        
+        for(MeshRenderer renderer : meshRendererMap.values()) {
+            renderer.setLightningRenderer(lightningRenderer);
+        }
+    }
+
+    public void setPlayerController(PlayerController playerController) {
+        this.meshRenderer.setPlayerController(playerController);
+        for(MeshRenderer renderer : meshRendererMap.values()) {
+            renderer.setPlayerController(playerController);
+        }
+    }
+
+    public void setCamera(Camera camera) {
+        this.meshRenderer.setCamera(camera);
+        for(MeshRenderer renderer : meshRendererMap.values()) {
+            renderer.setCamera(camera);
+        }
+    }
+
     /**
+     * 
      * Add Mesh
+     * 
      */
     public void add(String id, MeshData meshData) {
         addToMap(id, meshData);
@@ -63,19 +83,6 @@ public class Mesh {
     public void addModel(String id, String modelPath) {
         MeshData meshData = MeshLoader.loadModel(modelPath, id);
         addToMap(id, meshData);
-    }
-
-    public float[] getModelSize(String modelName) {
-        return MeshLoader.getModelSize(modelName);
-    }
-
-    public void setTex(String id, int textureId) {
-        MeshRenderer renderer = meshRendererMap.get(id);
-        if(renderer != null) {
-            renderer.setTex(textureId);
-        } else {
-            System.err.println("No renderer found for mesh ID: " + id);
-        }
     }
 
     private void addToMap(String id, MeshData data) {
@@ -96,23 +103,66 @@ public class Mesh {
         
         meshRendererMap.put(id, newRenderer);
     }
-    
-    public void setPlayerController(PlayerController playerController) {
-        this.meshRenderer.setPlayerController(playerController);
-        for(MeshRenderer renderer : meshRendererMap.values()) {
-            renderer.setPlayerController(playerController);
+
+    /**
+     * 
+     * Size
+     * 
+     */
+    public void setScale(String id, Vector3f scale) {
+        MeshRenderer renderer = meshRendererMap.get(id);
+        if(renderer != null) renderer.setScale(scale);
+    }
+
+    public void setScale(String id, float scale) {
+        setScale(id, new Vector3f(scale, scale, scale));
+    }
+
+    public void setScale(String id, float x, float y, float z) {
+        setScale(id, new Vector3f(x, y, z));
+    }
+
+    public float[] getModelSize(String modelName) {
+        return MeshLoader.getModelSize(modelName);
+    }
+
+    /**
+     * 
+     * Position
+     * 
+     */
+    public void setPosition(String id, Vector3f position) {
+        MeshRenderer renderer = meshRendererMap.get(id);
+        if(renderer != null) {
+            renderer.setPosition(position);
         }
     }
 
-    public void setCamera(Camera camera) {
-        this.meshRenderer.setCamera(camera);
-        for(MeshRenderer renderer : meshRendererMap.values()) {
-            renderer.setCamera(camera);
+    public Vector3f getPosition(String id) {
+        MeshRenderer renderer = meshRendererMap.get(id);
+        if(renderer != null) {
+            return renderer.getPosition();
         }
+        return new Vector3f(0, 0, 0);
     }
 
+    /**
+     * Get Data
+     */
     public MeshData getData(String id) {
         return meshDataMap.get(id);
+    }
+    
+    /**
+     * Set Texture
+     */
+    public void setTex(String id, int textureId) {
+        MeshRenderer renderer = meshRendererMap.get(id);
+        if(renderer != null) {
+            renderer.setTex(textureId);
+        } else {
+            System.err.println("No renderer found for mesh ID: " + id);
+        }
     }
 
     public void setModelMatrix(String id, Matrix4f matrix) {
@@ -123,7 +173,9 @@ public class Mesh {
     }
 
     /**
+     * 
      * Update
+     * 
      */
     public void update() {
         for(MeshRenderer meshRenderer : meshRendererMap.values()) {
@@ -139,7 +191,9 @@ public class Mesh {
     }
 
     /**
+     * 
      * Render
+     * 
      */
     public void render(String id, int shaderType) {
         MeshRenderer meshRenderer = meshRendererMap.get(id);
@@ -153,22 +207,13 @@ public class Mesh {
             if(data != null) entry.getValue().render(data.getShaderType());
         }
     }
-
-    public boolean hasMesh(String id) {
-        return meshRendererMap.containsKey(id);
-    }
-
-    public void setPosition(String id, Vector3f position) {
-        MeshRenderer renderer = meshRendererMap.get(id);
-        if(renderer != null) {
-            renderer.setPosition(position);
-        }
-    }
     
     /**
-     * Remove Mesh
+     * 
+     * Remove / Cleanup
+     * 
      */
-    public void removeMesh(String id) {
+    public void remove(String id) {
         MeshRenderer renderer = meshRendererMap.remove(id);
         MeshData data = meshDataMap.remove(id);
         if(renderer != null) {

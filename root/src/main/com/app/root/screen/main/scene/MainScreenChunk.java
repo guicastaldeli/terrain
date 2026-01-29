@@ -471,8 +471,8 @@ public class MainScreenChunk {
         if(chunkData != null) {
             String waterId = chunkId.replace("ms_chunk_", "water_");
             
-            mesh.removeMesh(chunkId);
-            mesh.removeMesh(waterId);
+            mesh.remove(chunkId);
+            mesh.remove(waterId);
 
             chunkData.isRendered = false;
             cachedChunks.put(chunkId, chunkData);

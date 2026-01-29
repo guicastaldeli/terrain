@@ -20,7 +20,7 @@ public class Chunk {
     public Map<String, ChunkData> cachedChunks = new HashMap<>();
     
     private List<String> chunksToLoad = new ArrayList<>();
-    private int chunksPerFrame = 1;
+    private int chunksPerFrame = 3;
     private int lastProcessedIndex = 0;
     private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
 
@@ -328,16 +328,21 @@ public class Chunk {
     }
 
     /**
+     * ***TEST FLAT MAP BELOW
+     */
+    private void testFlatMap(float[] heightData) {
+        Arrays.fill(heightData, 100.0f);
+    }
+
+    /**
      * Generate Height Data
      */
     public float[] generateHeightData(int chunkX, int chunkZ) {
         int size = CHUNK_SIZE + 1;
         float[] heightData = new float[size * size];
         
-        /* TEST FLAT MAP BELOW */
-        //Arrays.fill(heightData, 100.0f);
-        /* */
-        
+        testFlatMap(heightData);
+        /*
         int worldStartX = chunkX * CHUNK_SIZE;
         int worldStartZ = chunkZ * CHUNK_SIZE;
         
@@ -355,6 +360,7 @@ public class Chunk {
                     );
             }
         }
+            */
         
         return heightData;
     }
@@ -488,8 +494,8 @@ public class Chunk {
         if(chunkData != null) {
             String waterId = chunkId.replace("chunk_", "water_");
             
-            mesh.removeMesh(chunkId);
-            mesh.removeMesh(waterId);
+            mesh.remove(chunkId);
+            mesh.remove(waterId);
             
             if(chunkData.collider != null) {
                 collisionManager.removeCollider(chunkData.collider);

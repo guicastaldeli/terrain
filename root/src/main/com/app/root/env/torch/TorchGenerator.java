@@ -71,7 +71,7 @@ public class TorchGenerator {
 
     public void destroyMesh() {
         if(mesh.hasMesh(MESH_ID)) {
-            mesh.removeMesh(MESH_ID);
+            mesh.remove(MESH_ID);
         }
     }
     

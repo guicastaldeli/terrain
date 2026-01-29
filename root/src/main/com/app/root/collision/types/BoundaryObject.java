@@ -12,7 +12,7 @@ public class BoundaryObject implements Collider {
     private float thickness = 100.0f;
 
     public BoundaryObject() {
-        this.distance = WorldGenerator.WORLD_SIZE * 0.4f;
+        this.distance = WorldGenerator.WORLD_SIZE * 0.8f;
         this.bBox = new BoundingBox(
             -distance - thickness,
             -Float.MAX_VALUE,

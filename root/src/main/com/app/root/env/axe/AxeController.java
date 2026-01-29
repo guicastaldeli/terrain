@@ -126,7 +126,7 @@ public class AxeController implements EnvInstance<AxeController> {
 
     public void updateMesh() {
         if(mesh.hasMesh(AXE_ID)) {
-            mesh.removeMesh(AXE_ID);
+            mesh.remove(AXE_ID);
         }
         createMesh();
     }

@@ -14,11 +14,25 @@ public class CloudController implements EnvInstance<CloudController> {
 
     @Override
     public CloudController getInstance() {
-        this.cloudGenerator = new CloudGenerator(tick, mesh);
+        if (this.cloudGenerator == null) {
+            this.cloudGenerator = new CloudGenerator(tick, mesh);
+        }
         return this;
     }
 
     public CloudGenerator getGenerator() {
         return cloudGenerator;
+    }
+
+    public void setSeed(long seed) {
+        if(cloudGenerator != null) {
+            cloudGenerator.setSeed(seed);
+        }
+    }
+
+    public void render() {
+        if(cloudGenerator != null) {
+            cloudGenerator.render();
+        }
     }
 }
