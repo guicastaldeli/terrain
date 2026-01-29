@@ -102,6 +102,10 @@ public class TreeData {
         return level; 
     }
 
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
     public float getHealth() { 
         return health; 
     }

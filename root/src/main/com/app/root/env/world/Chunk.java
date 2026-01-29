@@ -20,7 +20,7 @@ public class Chunk {
     public Map<String, ChunkData> cachedChunks = new HashMap<>();
     
     private List<String> chunksToLoad = new ArrayList<>();
-    private int chunksPerFrame = 3;
+    private int chunksPerFrame = 1;
     private int lastProcessedIndex = 0;
     private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
 
@@ -464,9 +464,11 @@ public class Chunk {
             if(cached.collider != null) {
                 collisionManager.addStaticCollider(cached.collider);
             }
+            /*
             if(spawner != null) {
                 spawner.generate(chunkX, chunkZ);
             }
+                */
             
             render(chunkId);
             return;

@@ -20,8 +20,8 @@ import org.joml.Vector3f;
 
 public class CloudSpawner implements SpawnerHandler {
     private final Tick tick;
-    private Mesh mesh;
     private final Spawner spawner;
+    private Mesh mesh;
 
     private final NoiseGeneratorWrapper noiseGeneratorWrapper;
     private final Random random;
@@ -92,7 +92,8 @@ public class CloudSpawner implements SpawnerHandler {
             MeshData cloudData = mesh.getData(modelName);
             cloudData.getMeshInstance().setInstanced(true);
             cloudData.setShaderType(4);
-
+            cloudData.setColorHex("#d41cd1");
+            
             MeshRenderer renderer = mesh.getMeshRenderer(modelName);
             renderer.setData(cloudData);
         }

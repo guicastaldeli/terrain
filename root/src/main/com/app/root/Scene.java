@@ -142,8 +142,8 @@ public class Scene {
                 );
                 this.spawner.setEnvController(envController);
             } else {
-                this.spawner.setMesh(mesh);
                 this.spawner.setEnvController(envController);
+                this.spawner.setMesh(mesh);
             }
 
             this.lightningController = new LightningController();
@@ -257,6 +257,7 @@ public class Scene {
         mesh.renderAll();
         playerController.render();
         mesh.getMeshRenderer().applyFog();
+        if(spawner != null) spawner.render();
     }
 
     /**
@@ -276,5 +277,6 @@ public class Scene {
         mesh = null;
         envRenderer = null;
         envController = null;
+        spawner = null;
     }
 }

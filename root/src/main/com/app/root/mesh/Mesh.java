@@ -11,11 +11,11 @@ import org.joml.Vector3f;
 
 public class Mesh {
     private final Tick tick;
-    private final ShaderProgram shaderProgram;
+    public final ShaderProgram shaderProgram;
     private LightningRenderer lightningRenderer;
 
-    private MeshRenderer meshRenderer;
-    private MeshData meshData;
+    public MeshRenderer meshRenderer;
+    public MeshData meshData;
     private final Map<String, MeshRenderer> meshRendererMap;
     private final Map<String, MeshData> meshDataMap;
 
@@ -204,7 +204,15 @@ public class Mesh {
         for(Map.Entry<String, MeshRenderer> entry : meshRendererMap.entrySet()) {
             String id = entry.getKey();
             MeshData data = meshDataMap.get(id);
-            if(data != null) entry.getValue().render(data.getShaderType());
+            if(data != null) {
+                if(data.getMeshInstance().isInstanced()) {
+                    if(data.getMeshInstance().getInstanceCount() > 0) {
+                        entry.getValue().render(data.getShaderType());
+                    }
+                } else {
+                    entry.getValue().render(data.getShaderType());
+                }
+            }
         }
     }
     

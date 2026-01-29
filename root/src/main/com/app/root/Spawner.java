@@ -250,10 +250,8 @@ public class Spawner {
      * 
      */
     public void render() {
-        for(List<SpawnerHandler> handlers : spawnerData.values()) {
-            for(SpawnerHandler handler : handlers) {
-                handler.render();
-            }
+        for(SpawnerHandler handler : spawnerData.get(SpawnerData.CLOUD)) {
+            handler.render();
         }
     }
 }

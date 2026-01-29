@@ -6,7 +6,7 @@ import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.utils.ColorConverter;
-import org.lwjgl.opengl.GL11;
+import static org.lwjgl.opengl.GL11.glDepthMask;
 
 public class SkyboxMesh {
     private static final String[][] PERIOD_COLORS_HEX = {
@@ -225,13 +225,13 @@ public class SkyboxMesh {
      */
     public void render() {
         try {
-            GL11.glDepthMask(false);
+            glDepthMask(false);
             float starBrightness = calcStarBrightness();
 
             shaderProgram.setUniform("uStarBrightness", starBrightness);
             
             mesh.render(SKYBOX_ID, 2);
-            GL11.glDepthMask(true);
+            glDepthMask(true);
         } catch(Exception err) {
             System.err.println("Skybox error!" + err.getMessage());
         }

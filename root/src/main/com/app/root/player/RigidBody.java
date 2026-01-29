@@ -164,6 +164,8 @@ public class RigidBody {
      */
     public void update() {
         float deltaTime = tick.getDeltaTime();
+        deltaTime = Math.min(deltaTime, 0.1f);
+        
         if(isStatic) return;
 
         if(gravityEnabled && !onGround) {

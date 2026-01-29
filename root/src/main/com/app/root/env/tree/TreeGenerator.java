@@ -10,13 +10,13 @@ import java.util.Random;
 import org.joml.Vector3f;
 
 public class TreeGenerator {
-    public final TreeData treeData;
+    public TreeData treeData;
     public final Vector3f position;
     public Spawner spawner;
     public TreeController treeController;
 
     public Mesh mesh;
-    public final String MESH_ID;
+    public String MESH_ID;
     public static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/env/";
     
     public String id;
@@ -35,7 +35,7 @@ public class TreeGenerator {
         this.position = position;
         this.mesh = mesh;
         this.spawner = spawner;
-        this.MESH_ID = "tree_" + System.currentTimeMillis() + "_" + treeData.getLevel();
+        this.MESH_ID = null;
 
         this.currHealth = treeData.getHealth();
         this.isAlive = true;
@@ -69,7 +69,8 @@ public class TreeGenerator {
             mesh.setPosition(MESH_ID, position);
             loadTex(treeName);
         } catch(Exception err) {
-            System.err.println("Failed to create mesh for " + treeData.getIndexTo() + ": " + err.getMessage());
+            System.err.println("Failed to create mesh for " + treeData.getIndexTo() + 
+                            ": " + err.getMessage());
             err.printStackTrace();
         }
     }
@@ -121,10 +122,7 @@ public class TreeGenerator {
 
     public void setId(String id) {
         this.id = id;
-    }
-    
-    public String getId() {
-        return id;
+        this.MESH_ID = id + "_mesh_lvl" + treeData.getLevel();
     }
 
     public boolean isAlive() { 

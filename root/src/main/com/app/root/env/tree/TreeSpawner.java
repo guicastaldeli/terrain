@@ -13,7 +13,6 @@ import main.com.app.root.mesh.Mesh;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -253,7 +252,7 @@ public class TreeSpawner implements SpawnerHandler {
         if(treeGenerator == null) return;
         
         treeGenerator.mesh = this.mesh;
-    
+
         String treeId = "tree" + treeData.currentTreeId++;
         treeGenerator.setId(treeId);
         
@@ -262,6 +261,10 @@ public class TreeSpawner implements SpawnerHandler {
         treeGenerator.createMesh();
         
         treeData.trees.add(treeController);
+        
+        int[] coords = Chunk.getCoords(position.x, position.z);
+        String chunkId = Chunk.getId(coords[0], coords[1]);
+        chunkTreeMap.computeIfAbsent(chunkId, k -> new ArrayList<>()).add(treeController);
         
         /*
         System.out.println("DEBUG: Spawned Level " + level + " tree at [" + 
@@ -287,19 +290,23 @@ public class TreeSpawner implements SpawnerHandler {
             treeGenerator.cleanup();
         }
         
+        cleanupTreeAtPos(position);
+        
         int nextLevel = currLevel + 1;
         if(!treeData.configs.containsKey(nextLevel)) nextLevel = 0;
         
         spawnTreeAtLevel(position, nextLevel);
     }
 
+
     /**
      * Cleanup Tree At Pos
      */
     private void cleanupTreeAtPos(Vector3f position) {
-        float cleanupRadius = 5.0f;
-        for(Iterator<TreeController> iterator = treeData.trees.iterator(); iterator.hasNext();) {
-            TreeController tree = iterator.next();
+        float cleanupRadius = 3.0f;
+        List<TreeController> toRemove = new ArrayList<>();
+        
+        for(TreeController tree : treeData.trees) {
             TreeGenerator treeGenerator = tree.getGenerator();
             if(treeGenerator == null) continue;
             
@@ -308,10 +315,16 @@ public class TreeSpawner implements SpawnerHandler {
             
             if(distance <= cleanupRadius) {
                 treeGenerator.cleanup();
-                iterator.remove();
-                System.out.println("Cleaned up tree at position [" + position.x + ", " + position.z + "]");
-                break;
+                toRemove.add(tree);
             }
+        }
+        
+        for(TreeController tree : toRemove) {
+            treeData.trees.remove(tree);
+        }
+        
+        if(!toRemove.isEmpty()) {
+            System.out.println("Cleaned up " + toRemove.size() + " tree(s) at position [" + position.x + ", " + position.z + "]");
         }
     }
 
@@ -399,6 +412,9 @@ public class TreeSpawner implements SpawnerHandler {
     @Override
     public void generate(int chunkX, int chunkZ) {
         if(!isActive) return;
+        
+        String chunkId = Chunk.getId(chunkX, chunkZ);
+        if(chunkTreeMap.containsKey(chunkId)) return;
         
         Object mapInstance = envController.getEnv(EnvData.MAP).getInstance();
         Object worldGenerator = EnvCall.callReturn(mapInstance, "getGenerator");
@@ -498,6 +514,10 @@ public class TreeSpawner implements SpawnerHandler {
             
             for(Map<String, Object> treeData : treesData) {
                 try {
+                    String savedId = treeData.containsKey("id") ? 
+                        (String) treeData.get("id") : 
+                        "tree" + this.treeData.currentTreeId++;
+                        
                     float x = ((Number) treeData.get("position_x")).floatValue();
                     float y = ((Number) treeData.get("position_y")).floatValue();
                     float z = ((Number) treeData.get("position_z")).floatValue();
@@ -509,33 +529,34 @@ public class TreeSpawner implements SpawnerHandler {
                         0f;
                     
                     Vector3f position = new Vector3f(x, y, z);
-                    int[] coords = Chunk.getCoords(position.x, position.z);
-                    String chunkId = Chunk.getId(coords[0], coords[1]);
                     
-                    TreeData treeConfig = getConfigForLevel(level);
-                    if(treeConfig != null) {
+                    TreeData configData = getConfigForLevel(level);
+                    if(configData != null) {
                         TreeController treeController = new TreeController();
-                        treeController.createGenerator(treeConfig, position, spawner.mesh, spawner);
+                        treeController.createGenerator(configData, position, mesh, spawner);
                         
                         TreeGenerator treeGenerator = treeController.getGenerator();
                         if(treeGenerator != null) {
                             treeGenerator.mesh = spawner.mesh;
                             
-                            String treeId = "tree" + this.treeData.currentTreeId++;
-                            treeGenerator.setId(treeId);
+                            treeGenerator.setId(savedId);
                             
                             if(!alive) {
                                 treeGenerator.isAlive = false;
                                 treeGenerator.currHealth = 0;
                                 treeGenerator.respawnTimer = respawnTimer;
-                                treeGenerator.destroyMesh();
                             } else {
                                 treeGenerator.isAlive = true;
-                                treeGenerator.currHealth = treeConfig.getHealth();
+                                treeGenerator.currHealth = configData.getHealth();
+                                if(mesh.hasMesh(treeGenerator.MESH_ID)) {
+                                    mesh.remove(treeGenerator.MESH_ID);
+                                }
                                 treeGenerator.createMesh();
                             }
                             
                             addTree(treeController);
+                            int[] coords = Chunk.getCoords(position.x, position.z);
+                            String chunkId = Chunk.getId(coords[0], coords[1]);
                             chunkTreeMap.computeIfAbsent(chunkId, k -> new ArrayList<>()).add(treeController);
                         }
                     }
@@ -562,6 +583,7 @@ public class TreeSpawner implements SpawnerHandler {
                     boolean isAlive = treeGenerator.isAlive();
                     float respawnTimer = treeGenerator.getRespawnTimer();
                         
+                    treeData.put("id", treeGenerator.id);  // ← ADD THIS
                     treeData.put("position_x", treePos.x);
                     treeData.put("position_y", treePos.y);
                     treeData.put("position_z", treePos.z);

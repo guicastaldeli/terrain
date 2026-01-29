@@ -38,7 +38,7 @@ uniform vec3 uCameraPos;
 
 void main() {
     //Mesh
-    if(shaderType == 0 || shaderType == 4) {
+    if(shaderType == 0) {
         //testNormals();
         
         setMeshTex();
@@ -68,12 +68,16 @@ void main() {
             worldPos
         );
         
-        finalColor = ambientResult + directionalResult + pointResult;
+        finalColor = 
+            ambientResult + 
+            directionalResult + 
+            pointResult;
         
         fragColor = vec4(finalColor, fragColor.a);
 
         //Fog
         setFog();
+        
     }
     //Skybox
     else if(shaderType == 2) {
