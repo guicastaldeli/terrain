@@ -11,7 +11,6 @@ public class EnvRenderer {
     private final DataController dataController;
     
     private final Object skyboxInstance;
-    private final Object cloudInstance;
     private final Object worldInstance;
     private final Object axeInstance;
     
@@ -27,7 +26,6 @@ public class EnvRenderer {
         this.dataController = dataController;
         
         this.skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
-        this.cloudInstance = envController.getEnv(EnvData.CLOUD).getInstance();
         this.worldInstance = envController.getEnv(EnvData.MAP).getInstance();
         this.axeInstance = envController.getEnv(EnvData.AXE).getInstance();
     }
@@ -49,10 +47,6 @@ public class EnvRenderer {
 
         /* Axe */
         EnvCall.call(axeInstance, "render");
-
-        /* Clouds */
-        EnvCall.call(cloudInstance, "render");
-        if(cloudInstance != null) EnvCall.callWithParams(cloudInstance, new Object[]{ dataController.getWorldSeed() }, "setSeed");
     }
     
     /**

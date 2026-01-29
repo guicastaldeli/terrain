@@ -163,6 +163,14 @@ public class MeshData {
         );
     }
 
+    public void setTransparentColor(float alpha) {
+        setColor(1.0f, 1.0f, 1.0f, alpha);
+    }
+
+    public void setTransparentColor(float r, float g, float b, float alpha) {
+        setColor(r, g, b, alpha);
+    }
+
     /**
      * 
      * Normals

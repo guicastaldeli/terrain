@@ -453,15 +453,27 @@ public class Chunk {
         if(cachedChunks.containsKey(chunkId)) {
             ChunkData cached = cachedChunks.remove(chunkId);
             loadedChunks.put(chunkId, cached);
+            
+            if(cached.meshData != null) {
+                mesh.add(chunkId, cached.meshData);
+            }
+
+            MeshData waterMeshData = Water.createMeshData(chunkX, chunkZ);
+            mesh.add(waterId, waterMeshData);
+            
+            if(cached.collider != null) {
+                collisionManager.addStaticCollider(cached.collider);
+            }
+            if(spawner != null) {
+                spawner.generate(chunkX, chunkZ);
+            }
+            
             render(chunkId);
             return;
         }
 
         if(spawner != null) {
-            spawner.generate(
-                chunkX, 
-                chunkZ
-            );
+            spawner.generate(chunkX, chunkZ);
         }
 
         try {
@@ -482,6 +494,7 @@ public class Chunk {
             //System.out.println("Loaded chunk: " + chunkId);
         } catch(Exception err) {
             System.err.println("Failed to load chunk " + chunkId + ": " + err.getMessage());
+            err.printStackTrace();
         }
     }
 
@@ -499,6 +512,8 @@ public class Chunk {
             if(chunkData.collider != null) {
                 collisionManager.removeCollider(chunkData.collider);
             }
+            
+            // Unload spawner content
             if(spawner != null) {
                 String[] parts = chunkId.split("_");
                 int chunkX = Integer.parseInt(parts[1]);
@@ -537,6 +552,7 @@ public class Chunk {
         if(chunkData != null) {
             chunkData.isRendered = true;
             chunkData.lastAccessTime = System.currentTimeMillis();
+            
             if(mesh.hasMesh(chunkId)) {
                 mesh.render(chunkId, 0);
             }
@@ -544,10 +560,6 @@ public class Chunk {
             String waterId = chunkId.replace("chunk_", "water_");
             if(mesh.hasMesh(waterId)) {
                 mesh.render(waterId, 0);
-            }
-
-            if(spawner != null) {
-                spawner.render();
             }
         }
     }

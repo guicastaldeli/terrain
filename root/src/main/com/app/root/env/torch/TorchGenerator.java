@@ -16,7 +16,7 @@ public class TorchGenerator {
     private PointLight pointLight;
     private String id;
 
-    public String MESH_ID;
+    public final String MESH_ID;
     public static final String TEX_PATH ="root/src/main/com/app/root/_resources/texture/env/";
 
     public TorchGenerator(

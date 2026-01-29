@@ -477,7 +477,6 @@ public class MeshRenderer {
      */
     public void render(int shaderType) {
         try {       
-                 
             Camera renderCamera;
             if(playerController != null) {
                 renderCamera = playerController.getCamera();
@@ -505,6 +504,11 @@ public class MeshRenderer {
             
             shaderProgram.bind();
             shaderProgram.setUniform("shaderType", shaderType);
+            if(hasColors && meshData.getColors() != null && meshData.getColors().length >= 4) {
+                float[] colors = meshData.getColors();
+                shaderProgram.setUniform("uColor", colors[0], colors[1], colors[2], colors[3]);
+            }
+
             if(meshData.getMeshInstance().isInstanced()) {
                 shaderProgram.setUniform("isInstanced", 1);
                 updateInstanceBuffer();

@@ -2,7 +2,7 @@ package main.com.app.root;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
-import main.com.app.root.env.clouds.CloudGenerator;
+import main.com.app.root.env.clouds.CloudSpawner;
 import main.com.app.root.env.torch.TorchSpawner;
 import main.com.app.root.env.tree.TreeSpawner;
 import main.com.app.root.env.world.Water;
@@ -120,8 +120,8 @@ public class Spawner {
         TorchSpawner torchSpawner = new TorchSpawner(tick, envController, this, lightningController);
         registerHandler(torchSpawner);
 
-        CloudGenerator cloudGenerator = new CloudGenerator(tick, mesh);
-        registerHandler(cloudGenerator);
+        CloudSpawner cloudSpawner = new CloudSpawner(tick, mesh, this);
+        registerHandler(cloudSpawner);
     }
 
     /**

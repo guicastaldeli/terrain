@@ -122,6 +122,12 @@ public class ShaderProgram {
             glUniform1f(loc, value);
         }
     }
+    public void setUniform(String name, float x, float y, float z, float w) {
+        int loc = getUniformLocation(name);
+        if(loc != -1) {
+            glUniform4f(loc, x, y, z, w);
+        }
+    }
 
     public int getUniformLocation(String name) {
         return uniformLocations.computeIfAbsent(name, k -> {
