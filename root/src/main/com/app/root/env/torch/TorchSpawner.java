@@ -34,12 +34,12 @@ public class TorchSpawner implements SpawnerHandler {
 
     private static final float CHUNK_LIMIT = 0.3f;
     private static final float TORCH_COVERAGE = 0.0005f;
-    public static final int MAX_TORCHES_PER_CHUNK = 0;/*Math.max(
+    public static final int MAX_TORCHES_PER_CHUNK = Math.max(
         1, (int)(
         Chunk.CHUNK_SIZE * 
         Chunk.CHUNK_SIZE * 
         TORCH_COVERAGE
-    ));*/
+    ));
 
     public TorchSpawner(
         Tick tick, 
@@ -234,12 +234,6 @@ public class TorchSpawner implements SpawnerHandler {
                     float x = ((Number) torchData.get("position_x")).floatValue();
                     float y = ((Number) torchData.get("position_y")).floatValue();
                     float z = ((Number) torchData.get("position_z")).floatValue();
-                    int level = ((Number) torchData.get("level")).intValue();
-                    boolean alive = (Boolean) torchData.get("alive");
-                    float respawnTimer = 
-                        torchData.containsKey("respawn_timer") ? 
-                        ((Number) torchData.get("respawn_timer")).floatValue() : 
-                        0f;
                     
                     Vector3f position = new Vector3f(x, y, z);
                     
@@ -247,10 +241,10 @@ public class TorchSpawner implements SpawnerHandler {
                     torchController.createGenerator(position, spawner.mesh, spawner);
                         
                     TorchGenerator torchGenerator = torchController.getGenerator();
-                    if(torchController != null) {
+                    if(torchGenerator != null) {
                         torchGenerator.mesh = spawner.mesh;
                             
-                        String torchId = "torch" + currentTorchId++;
+                        String torchId = "torch_" + currentTorchId++;
                         torchGenerator.setId(torchId);
                             
                         maxTorchId = Math.max(maxTorchId, currentTorchId);
@@ -258,6 +252,7 @@ public class TorchSpawner implements SpawnerHandler {
                         addTorch(torchController);
                     }
                 } catch(Exception err) {
+                    System.err.println("Error loading torch data: " + err.getMessage());
                     err.printStackTrace();
                 }
             }

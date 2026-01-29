@@ -142,8 +142,8 @@ public class Scene {
                 );
                 this.spawner.setEnvController(envController);
             } else {
-                this.spawner.setEnvController(envController);
                 this.spawner.setMesh(mesh);
+                this.spawner.setEnvController(envController);
             }
 
             this.lightningController = new LightningController();

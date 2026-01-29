@@ -92,7 +92,7 @@ public class CloudSpawner implements SpawnerHandler {
             MeshData cloudData = mesh.getData(modelName);
             cloudData.getMeshInstance().setInstanced(true);
             cloudData.setShaderType(4);
-            cloudData.setColorHex("#d41cd1");
+            cloudData.setColorHex("#ffffff69");
             
             MeshRenderer renderer = mesh.getMeshRenderer(modelName);
             renderer.setData(cloudData);

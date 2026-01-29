@@ -30,7 +30,7 @@ public class TreeSpawner implements SpawnerHandler {
     private Map<String, List<TreeController>> chunkTreeMap = new HashMap<>();
     private static Map<Integer, Float> LEVEL_DISTRIBUTION;
 
-    private static final float TREE_COVERAGE = 0.0005f;
+    private static final float TREE_COVERAGE = 0.000f;
     public static final int MAX_TREES_PER_CHUNK = (int)(Chunk.CHUNK_SIZE * Chunk.CHUNK_SIZE * TREE_COVERAGE);
 
     public TreeSpawner(
@@ -583,7 +583,7 @@ public class TreeSpawner implements SpawnerHandler {
                     boolean isAlive = treeGenerator.isAlive();
                     float respawnTimer = treeGenerator.getRespawnTimer();
                         
-                    treeData.put("id", treeGenerator.id);  // ← ADD THIS
+                    treeData.put("id", treeGenerator.id);
                     treeData.put("position_x", treePos.x);
                     treeData.put("position_y", treePos.y);
                     treeData.put("position_z", treePos.z);

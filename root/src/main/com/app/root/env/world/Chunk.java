@@ -515,7 +515,6 @@ public class Chunk {
                 collisionManager.removeCollider(chunkData.collider);
             }
             
-            // Unload spawner content
             if(spawner != null) {
                 String[] parts = chunkId.split("_");
                 int chunkX = Integer.parseInt(parts[1]);

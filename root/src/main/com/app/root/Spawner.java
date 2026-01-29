@@ -114,13 +114,27 @@ public class Spawner {
     }
 
     public void registerHandlers(EnvController envController, LightningController lightningController) {
-        TreeSpawner treeSpawner = new TreeSpawner(tick, mesh, envController, this);
+        TreeSpawner treeSpawner = new TreeSpawner(
+            tick, 
+            mesh, 
+            envController, 
+            this
+        );
         registerHandler(treeSpawner);
         
-        TorchSpawner torchSpawner = new TorchSpawner(tick, envController, this, lightningController);
+        TorchSpawner torchSpawner = new TorchSpawner(
+            tick, 
+            envController, 
+            this, 
+            lightningController
+        );
         registerHandler(torchSpawner);
 
-        CloudSpawner cloudSpawner = new CloudSpawner(tick, mesh, this);
+        CloudSpawner cloudSpawner = new CloudSpawner(
+            tick, 
+            mesh, 
+            this
+        );
         registerHandler(cloudSpawner);
     }
 

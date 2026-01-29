@@ -1,7 +1,7 @@
 void setCloudFrag() {
     vec3 skyColor = uFogColor;
     
-    vec3 cloudColor = mix(skyColor, vec3(1.0), 0.7);
+    vec3 cloudColor = mix(skyColor, uColor.rgb, 0.3);
     
     float heightGradient = texCoord.y;
     cloudColor *= mix(1.2, 0.8, heightGradient);

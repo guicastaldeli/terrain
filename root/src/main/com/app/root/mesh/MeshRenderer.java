@@ -572,7 +572,6 @@ public class MeshRenderer {
             
             glBindVertexArray(0);
             if(hasTex) glBindTexture(GL_TEXTURE_2D, 0);
-            
         } catch(Exception err) {
             err.printStackTrace();
         }
