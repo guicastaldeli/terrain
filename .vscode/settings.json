@@ -41,7 +41,8 @@
         "root/lib/LWJGL/lwjgl-vulkan-javadoc.jar",
         "root/lib/LWJGL/lwjgl-vulkan-sources.jar",
         "root/lib/luaj/luaj-jse-3.0.2.jar",
-        "root/lib/JOML/joml-1.10.7.jar"
+        "root/lib/JOML/joml-1.10.7.jar",
+        "root/lib/json/json-20240303.jar"
     ],
     "java.debug.settings.hotCodeReplace": "auto",
     "java.dependency.packagePresentation": "hierarchical",

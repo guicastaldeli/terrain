@@ -4,27 +4,11 @@ import org.luaj.vm2.lib.jse.*;
 
 public class MeshLoader {
     private static final String DATA_TYPES_DIR = "root/src/main/com/app/root/mesh/types/";
-    private static ModelMap objMap = null;
+    private static ModelMap modelMap = null;
     
-    public static ModelMap getObjMap() {
-        if(objMap == null) objMap = new ModelMap();
-        return objMap;
-    }
-
-    public static MeshData load(MeshData.MeshType type, String id) {
-        String fileName = type.name().toLowerCase() + ".lua";
-        return loadFromFile(fileName, id);
-    }
-
-    public static MeshData loadFromFile(String file, String meshId) {
-        try {
-            Globals globals = JsePlatform.standardGlobals();
-            LuaValue chunk = globals.loadfile(DATA_TYPES_DIR + file);
-            chunk.call();
-            return createMesh(globals, meshId);
-        } catch(Exception err) {
-            throw new RuntimeException("Failed to load mesh !!: " + file, err);
-        }
+    public static ModelMap getModelMap() {
+        if(modelMap == null) modelMap = new ModelMap();
+        return modelMap;
     }
 
     /**
@@ -75,7 +59,7 @@ public class MeshLoader {
         /* Rotation */
         if(globals.get("rotation").istable()) {
             LuaValue rotationTable = globals.get("rotation");
-            loadRotationData(rotationTable, meshData);
+            getRotationData(rotationTable, meshData);
         }
         /* Scale */
         if(globals.get("scale").istable()) {
@@ -89,7 +73,7 @@ public class MeshLoader {
     /**
      * Load Rotation Data
      */
-    private static void loadRotationData(LuaValue table, MeshData data) {
+    private static void getRotationData(LuaValue table, MeshData data) {
         LuaValue axisVal = table.get("axis");
         if(!axisVal.isnil() && axisVal.isstring()) {
             String axis = axisVal.checkjstring();
@@ -121,15 +105,50 @@ public class MeshLoader {
     }
 
     /**
-     * Load Model
+     * 
+     * Load
+     * 
      */
+    public static MeshData load(MeshData.MeshType type, String id) {
+        String fileName = type.name().toLowerCase() + ".lua";
+        return loadFromFile(fileName, id);
+    }
+
+    public static MeshData loadFromFile(String file, String meshId) {
+        try {
+            Globals globals = JsePlatform.standardGlobals();
+            LuaValue chunk = globals.loadfile(DATA_TYPES_DIR + file);
+            chunk.call();
+            return createMesh(globals, meshId);
+        } catch(Exception err) {
+            throw new RuntimeException("Failed to load mesh !!: " + file, err);
+        }
+    }
+
     public static MeshData loadModel(String modelName, String meshId) {
-        String filePath = getObjMap().getObjPath(modelName);
-        if(filePath == null) throw new RuntimeException("Model not found in object map: " + modelName);
+        ModelMap map = getModelMap();
+        if(!map.hasModel(modelName)) {
+            throw new RuntimeException("Model not found in object map: " + modelName);
+        }
         
-        MeshData meshData = ObjLoader.load(filePath, meshId);
+        ModelInfo info = map.getModelInfo(modelName);
+        String filePath = info.getPath();
+        ModelMap.ModelFormat format = info.getFormat();
         
-        float[] size = getObjMap().getObjSize(modelName);
+        MeshData meshData;
+        switch(format) {
+            case OBJ:
+                meshData = ObjLoader.load(filePath, meshId);
+                break;
+            case GLTF:
+            case GLB:
+                meshData = GltfLoader.load(filePath, meshId);
+                break;
+            default:
+                throw new RuntimeException("Unsupported model format: " + format + " for " + modelName);
+        }
+        
+        float[] size = info.getSize();
         if(size != null) {
             meshData.setScale(size);
         }
@@ -139,15 +158,99 @@ public class MeshLoader {
 
     public static MeshData loadModel(String filePath) {
         String meshId = extractMeshIdFromPath(filePath);
-        return ObjLoader.load(filePath, meshId);
+        ModelMap.ModelFormat format = getModelMap().detectFormat(filePath);
+        
+        switch(format) {
+            case OBJ:
+                return ObjLoader.load(filePath, meshId);
+            case GLTF:
+            case GLB:
+                return GltfLoader.load(filePath, meshId);
+            default:
+                throw new RuntimeException("Unsupported file format: " + filePath);
+        }
+    }
+    
+    public static MeshData loadMesh(String modelName, int meshIndex, String meshId) {
+        ModelMap map = getModelMap();
+        ModelInfo info = map.getModelInfo(modelName);
+        
+        if(info == null) {
+            throw new RuntimeException("Model not found: " + modelName);
+        }
+        if(!info.isGltf()) {
+            throw new RuntimeException("Model is not a glTF file: " + modelName);
+        }
+        
+        MeshData meshData = GltfLoader.loadMesh(info.getPath(), meshIndex, meshId);
+        
+        float[] size = info.getSize();
+        if(size != null) {
+            meshData.setScale(size);
+        }
+        
+        return meshData;
+    }
+    
+    public static MeshData loadMesh(String filePath, int meshIndex) {
+        String meshId = extractMeshIdFromPath(filePath) + "_" + meshIndex;
+        return GltfLoader.loadMesh(filePath, meshIndex, meshId);
+    }
+    
+    public static int getMeshCount(String modelName) {
+        ModelMap map = getModelMap();
+        ModelInfo info = map.getModelInfo(modelName);
+        
+        if(info == null) {
+            throw new RuntimeException("Model not found: " + modelName);
+        }
+        
+        if(!info.isGltf()) {
+            throw new RuntimeException("Model is not a glTF file: " + modelName);
+        }
+        
+        return GltfLoader.getMeshCount(info.getPath());
+    }
+    
+    public static int getGltfMeshCount(String filePath) {
+        return GltfLoader.getMeshCount(filePath);
+    }
+    
+    public static MeshData[] loadAllGltfMeshes(String modelName, String meshIdPrefix) {
+        int meshCount = getGltfMeshCount(modelName);
+        MeshData[] meshes = new MeshData[meshCount];
+        
+        for(int i = 0; i < meshCount; i++) {
+            meshes[i] = loadMesh(modelName, i, meshIdPrefix + "_" + i);
+        }
+        
+        return meshes;
     }
     
     public static float[] getModelSize(String modelName) {
-        return getObjMap().getObjSize(modelName);
+        return getModelMap().getModelSize(modelName);
     }
     
+    public static ModelMap.ModelFormat getModelFormat(String modelName) {
+        return getModelMap().getModelFormat(modelName);
+    }
+    
+    public static boolean isGltfModel(String modelName) {
+        ModelInfo info = getModelMap().getModelInfo(modelName);
+        return info != null && info.isGltf();
+    }
+    
+    public static boolean isObjModel(String modelName) {
+        ModelInfo info = getModelMap().getModelInfo(modelName);
+        return info != null && info.isObj();
+    }
+
+    /**
+     * Extract Mesh Id
+     */
     private static String extractMeshIdFromPath(String filePath) {
         String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
-        return fileName.replace(".obj", "");
+        fileName = fileName.replaceAll("\\.(obj|gltf|glb)$", "");
+        return fileName;
     }
 }

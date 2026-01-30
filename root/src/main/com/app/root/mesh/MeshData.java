@@ -32,7 +32,8 @@ public class MeshData {
         WORLD,
         SKYBOX,
         CLOUDS,
-        OBJ
+        OBJ,
+        GLTF
     }
 
     private final Map<DataType, Object> data;

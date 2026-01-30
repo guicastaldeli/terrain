@@ -9,6 +9,13 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
 public class ModelMap {
+    public enum ModelFormat {
+        OBJ,
+        GLTF,
+        GLB,
+        UNKNOWN
+    }
+
     private static final String PATH = "root/src/main/com/app/root/mesh/types/";
     
     private final Map<String, ModelInfo> dataMap;
@@ -17,10 +24,32 @@ public class ModelMap {
     public ModelMap() {
         this.dataMap = new HashMap<>();
         this.categories = new HashMap<>();
-        load();
+        loadData();
     }
 
-    private void load() {
+    /**
+     * 
+     * Load
+     * 
+     */
+    public MeshData load(String name, String meshId) {
+        ModelInfo info = getModelInfo(name);
+        if(info == null) throw new RuntimeException("Model not found: " + name);
+
+        String path = info.getPath();
+        ModelFormat format = info.getFormat();
+        switch(format) {
+            case OBJ:
+                return ObjLoader.load(path, meshId);
+            case GLTF:
+            case GLB:
+                return GltfLoader.load(path, meshId);
+            default:
+                throw new RuntimeException("Unsupported model format: " + format + " for " + name);
+        }
+    }
+
+    private void loadData() {
         try {
             File typesDir = new File(PATH);
             if(!typesDir.exists() || !typesDir.isDirectory()) {
@@ -66,6 +95,8 @@ public class ModelMap {
                                         size[j-1] = (float) sizeTable.get(j).checkdouble();
                                     }
                                 }
+
+                                ModelFormat format = detectFormat(path);
     
                                 dataMap.put(
                                     name.toLowerCase(), 
@@ -73,11 +104,12 @@ public class ModelMap {
                                         name, 
                                         path, 
                                         texture, 
-                                        size
+                                        size,
+                                        format
                                     )
                                 );
                                 
-                                System.out.println("Loaded object: " + name + " from " + path);
+                                System.out.println("Loaded object: " + name + " (" + format + ") from " + path);
                             }
                         }
                     }
@@ -89,25 +121,25 @@ public class ModelMap {
         }
     }
 
-    public ModelInfo getObjInfo(String name) {
+    public ModelInfo getModelInfo(String name) {
         return dataMap.get(name.toLowerCase());
     }
     
-    public String getObjPath(String name) {
-        ModelInfo info = getObjInfo(name);
+    public String getModelPath(String name) {
+        ModelInfo info = getModelInfo(name);
         return info != null ? info.getPath() : null;
     }
     
-    public float[] getObjSize(String name) {
-        ModelInfo info = getObjInfo(name);
+    public float[] getModelSize(String name) {
+        ModelInfo info = getModelInfo(name);
         return info != null ? info.getSize() : new float[]{1.0f, 1.0f, 1.0f};
     }
     
-    public boolean hasObj(String name) {
+    public boolean hasModel(String name) {
         return dataMap.containsKey(name.toLowerCase());
     }
     
-    public List<String> getObjectsInCategory(String category) {
+    public List<String> getDataInCategory(String category) {
         return categories.getOrDefault(category, new ArrayList<>());
     }
     
@@ -115,7 +147,29 @@ public class ModelMap {
         return categories.keySet();
     }
     
-    public Map<String, ModelInfo> getAllObjects() {
+    public Map<String, ModelInfo> getAllData() {
         return new HashMap<>(dataMap);
+    }
+
+    public ModelFormat getModelFormat(String name) {
+        ModelInfo info = getModelInfo(name);
+        return info != null ? info.getFormat() : ModelFormat.UNKNOWN;
+    }
+
+    /**
+     * 
+     * Detect Format
+     * 
+     */
+    public ModelFormat detectFormat(String path) {
+        String lowerPath = path.toLowerCase();
+        if(lowerPath.endsWith(".obj")) {
+            return ModelFormat.OBJ;
+        } else if(lowerPath.endsWith(".gltf")) {
+            return ModelFormat.GLTF;
+        } else if(lowerPath.endsWith(".glb")) {
+            return ModelFormat.GLB;
+        }
+        return ModelFormat.UNKNOWN;
     }
 }
