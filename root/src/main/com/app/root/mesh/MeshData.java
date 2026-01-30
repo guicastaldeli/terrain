@@ -30,7 +30,7 @@ public class MeshData {
         CUBE,
         SPHERE,
         RECTANGLE,
-        MAP,
+        WORLD,
         SKYBOX,
         CLOUDS,
         OBJ

@@ -251,7 +251,7 @@ public class Chunk {
         int chunkX,
         int chunkZ
     ) {
-        meshData = MeshLoader.load(MeshData.MeshType.MAP, getId(chunkX, chunkZ));
+        meshData = MeshLoader.load(MeshData.MeshType.WORLD, getId(chunkX, chunkZ));
 
         float worldOffsetX = (chunkX * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
         float worldOffsetZ = (chunkZ * CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);

@@ -1,4 +1,4 @@
-meshType = "map"
+meshType = "world"
 
 -- Vertices
 vertices = {

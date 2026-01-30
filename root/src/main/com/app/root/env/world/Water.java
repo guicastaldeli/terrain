@@ -56,7 +56,7 @@ public class Water {
      * Create Mesh Data
      */
     public static MeshData createMeshData(int chunkX, int chunkZ) {
-        MeshData meshData = MeshLoader.load(MeshData.MeshType.MAP, getId(chunkX, chunkZ));
+        MeshData meshData = MeshLoader.load(MeshData.MeshType.WORLD, getId(chunkX, chunkZ));
 
         float worldOffsetX = (chunkX * Chunk.CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
         float worldOffsetZ = (chunkZ * Chunk.CHUNK_SIZE) - (WorldGenerator.WORLD_SIZE / 2.0f);
