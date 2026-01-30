@@ -4,10 +4,10 @@ import org.luaj.vm2.lib.jse.*;
 
 public class MeshLoader {
     private static final String DATA_TYPES_DIR = "root/src/main/com/app/root/mesh/types/";
-    private static ObjMap objMap = null;
+    private static ModelMap objMap = null;
     
-    public static ObjMap getObjMap() {
-        if(objMap == null) objMap = new ObjMap();
+    public static ModelMap getObjMap() {
+        if(objMap == null) objMap = new ModelMap();
         return objMap;
     }
 

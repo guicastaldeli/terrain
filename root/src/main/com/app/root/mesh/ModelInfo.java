@@ -1,12 +1,12 @@
 package main.com.app.root.mesh;
 
-public class ObjInfo {
+public class ModelInfo {
     private final String name;
     private final String path;
     private final float[] size;
     private final String texture;
 
-    public ObjInfo(
+    public ModelInfo(
         String name, 
         String path, 
         String texture,
