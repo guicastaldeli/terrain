@@ -3,6 +3,7 @@ import main.com.app.root.ui.UIData;
 import main.com.app.root.ui.UIElement;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root._text_renderer.TextRenderer;
+import main.com.app.root._resources.TextureLoader;
 import main.com.app.root.screen.ScreenData;
 import main.com.app.root.screen.ScreenElement;
 import javax.script.ScriptException;
@@ -27,6 +28,8 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class DocParser {
+    public static final String IMG_PATH = "root/src/main/com/app/root/_resources/img/";
+
     private static int uiVao = 0;
     private static int uiVbo = 0;
     private static int uiEbo = 0;
@@ -254,6 +257,21 @@ public class DocParser {
         if(element.hasAttribute("background")) screenElement.hasBackground = true;
         parseAttr(element, screenElement.attr);
         
+        if(type.equals("img")) {
+            if(element.hasAttribute("src")) {
+                String src = element.getAttribute("src");
+                String fullPath = IMG_PATH + src;
+                int textureId = TextureLoader.load(fullPath);
+                
+                if(textureId != -1) {
+                    screenElement.textureId = textureId;
+                    screenElement.hasTexture = true;
+                } else {
+                    System.err.println("Failed to load texture: " + fullPath);
+                }
+            }
+        }
+        
         if(element.hasAttribute("hoverable")) {
             screenElement.hoverable = Boolean.parseBoolean(element.getAttribute("hoverable"));
         }
@@ -468,6 +486,21 @@ public class DocParser {
         if(element.hasAttribute("background")) uiElement.hasBackground = true;
         parseAttr(element, uiElement.attr);
         
+        if(type.equals("img")) {
+            if(element.hasAttribute("src")) {
+                String src = element.getAttribute("src");
+                String fullPath = IMG_PATH + src;
+                int textureId = TextureLoader.load(fullPath);
+                
+                if(textureId != -1) {
+                    uiElement.textureId = textureId;
+                    uiElement.hasTexture = true;
+                } else {
+                    System.err.println("Failed to load texture: " + fullPath);
+                }
+            }
+        }
+        
         if(element.hasAttribute("hoverable")) {
             uiElement.hoverable = Boolean.parseBoolean(element.getAttribute("hoverable"));
         }
@@ -650,11 +683,14 @@ public class DocParser {
         glBindBuffer(GL_ARRAY_BUFFER, uiVbo);
         glBufferData(GL_ARRAY_BUFFER, 4 * 8 * 4, GL_DYNAMIC_DRAW);
         
-        glVertexAttribPointer(1, 2, GL_FLOAT, false, 6 * 4, 0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, false, 8 * 4, 0);
         glEnableVertexAttribArray(1);
 
-        glVertexAttribPointer(2, 4, GL_FLOAT, false, 6 * 4, 2 * 4);
+        glVertexAttribPointer(2, 4, GL_FLOAT, false, 8 * 4, 2 * 4);
         glEnableVertexAttribArray(2);
+        
+        glVertexAttribPointer(3, 2, GL_FLOAT, false, 8 * 4, 6 * 4);
+        glEnableVertexAttribArray(3);
         
         int[] indices = {0, 1, 2, 2, 3, 0};
         java.nio.IntBuffer indicesBuffer = BufferUtils.createIntBuffer(indices.length);
@@ -674,7 +710,7 @@ public class DocParser {
         int screenHeight,
         ShaderProgram shaderProgram
     ) {
-        if(!element.visible || !element.hasBackground) return;
+        if(!element.visible) return;
         
         initUIRendering();
         
@@ -690,14 +726,26 @@ public class DocParser {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         
         shaderProgram.bind();
-        shaderProgram.setUniform("shaderType", 3);
+        
+        if(element.hasTexture && element.textureId != -1) {
+            shaderProgram.setUniform("shaderType", 3);
+            shaderProgram.setUniform("useTexture", 1);
+            
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, element.textureId);
+            shaderProgram.setUniform("textureSampler", 0);
+        } else {
+            shaderProgram.setUniform("shaderType", 3);
+            shaderProgram.setUniform("useTexture", 0);
+        }
+        
         shaderProgram.setUniform("screenSize", (float) screenWidth, (float) screenHeight);
         
         float[] vertices = {
-            x1, y1, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(),
-            x1, y2, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(),
-            x2, y2, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(),
-            x2, y1, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha()
+            x1, y1, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(), 0.0f, 0.0f,
+            x1, y2, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(), 0.0f, 1.0f,
+            x2, y2, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(), 1.0f, 1.0f,
+            x2, y1, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(), 1.0f, 0.0f
         };
         
         FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length);
@@ -711,6 +759,7 @@ public class DocParser {
     
         
         glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
         shaderProgram.unbind();
         
         if(depthTest) glEnable(GL_DEPTH_TEST);
@@ -722,7 +771,7 @@ public class DocParser {
         int screenHeight,
         ShaderProgram shaderProgram
     ) {
-        if(!element.visible || !element.hasBackground) return;
+        if(!element.visible) return;
         
         initUIRendering();
         
@@ -738,14 +787,26 @@ public class DocParser {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         
         shaderProgram.bind();
-        shaderProgram.setUniform("shaderType", 3);
+        
+        if(element.hasTexture && element.textureId != -1) {
+            shaderProgram.setUniform("shaderType", 3);
+            shaderProgram.setUniform("useTexture", 1);
+            
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, element.textureId);
+            shaderProgram.setUniform("textureSampler", 0);
+        } else {
+            shaderProgram.setUniform("shaderType", 3);
+            shaderProgram.setUniform("useTexture", 0);
+        }
+        
         shaderProgram.setUniform("screenSize", (float) screenWidth, (float) screenHeight);
         
         float[] vertices = {
-            x1, y1, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(),
-            x1, y2, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(),
-            x2, y2, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(),
-            x2, y1, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha()
+            x1, y1, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(), 0.0f, 0.0f,
+            x1, y2, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(), 0.0f, 1.0f,
+            x2, y2, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(), 1.0f, 1.0f,
+            x2, y1, element.getRed(), element.getGreen(), element.getBlue(), element.getAlpha(), 1.0f, 0.0f
         };
         
         FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length);
@@ -759,6 +820,7 @@ public class DocParser {
     
         
         glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
         shaderProgram.unbind();
         
         if(depthTest) glEnable(GL_DEPTH_TEST);
@@ -805,6 +867,13 @@ public class DocParser {
                 renderUIElement(element, screenWidth, screenHeight, shaderProgram);
             }
         }
+        
+        for(ScreenElement element : screenData.elements) {
+            if(element.visible && element.type.equals("img")) {
+                renderUIElement(element, screenWidth, screenHeight, shaderProgram);
+            }
+        }
+        
         for(ScreenElement element : screenData.elements) {
             if(element.visible && element.type.equals("input") && textRenderer != null) {
                 String displayText = element.text;
@@ -819,6 +888,9 @@ public class DocParser {
                     );
                 }
             }
+        }
+        
+        for(ScreenElement element : screenData.elements) {
             if(element.visible && element.type.equals("button")) {
                 renderUIElement(element, screenWidth, screenHeight, shaderProgram);
                 
@@ -849,6 +921,7 @@ public class DocParser {
                 }
             }
         }
+        
         for(ScreenElement element : screenData.elements) {
             if(element.visible && element.type.equals("label")) {
                 if(textRenderer != null && element.text != null && !element.text.isEmpty()) {
@@ -894,6 +967,12 @@ public class DocParser {
             }
         }
         
+        for(UIElement element : uiData.elements) {
+            if(element.visible && element.type.equals("img")) {
+                renderUIElement(element, screenWidth, screenHeight, shaderProgram);
+            }
+        }
+    
         for(UIElement element : uiData.elements) {
             if(element.visible && element.type.equals("button")) {
                 renderUIElement(element, screenWidth, screenHeight, shaderProgram);

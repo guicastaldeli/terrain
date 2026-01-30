@@ -1,3 +1,8 @@
 void setUIFrag() {
-    fragColor = uColor;
+    if(hasTex > 0) {
+        vec4 texColor = texture(texSampler, texCoord);
+        fragColor = texColor * uColor;
+    } {
+        fragColor = uColor;
+    }
 }

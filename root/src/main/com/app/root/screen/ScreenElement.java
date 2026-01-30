@@ -38,6 +38,9 @@ public class ScreenElement {
     private float[] originalBorderColor;
     private float originalScale;
 
+    public int textureId = -1;
+    public boolean hasTexture = false;
+
     public ScreenElement(
         String type,
         String id,

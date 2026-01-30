@@ -38,6 +38,9 @@ public class UIElement {
     private float[] originalBorderColor;
     private float originalScale;
 
+    public int textureId = -1;
+    public boolean hasTexture = false;
+
     public UIElement(
         String type,
         String id,
