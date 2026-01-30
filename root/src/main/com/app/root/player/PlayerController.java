@@ -355,21 +355,6 @@ public class PlayerController {
             newPos.y = Water.LEVEL;
             rigidBody.setPosition(newPos);
         }
-        if(envController != null && envController.getEnv(EnvData.MAP) != null) {
-            Object worldController = envController.getEnv(EnvData.MAP);
-            if(worldController != null) {
-                Object generator = EnvCall.callReturn(worldController, "getGenerator");
-                if(generator != null) {
-                    Object chunkInstance = EnvCall.callReturn(generator, "getChunk");
-                    if(chunkInstance != null) {
-                        Object weatherInstance = EnvCall.callReturn(chunkInstance, "getWeather");
-                        if(weatherInstance != null) {
-                            EnvCall.callWithParams(weatherInstance, new Object[]{System.currentTimeMillis()}, "update");
-                        }
-                    }
-                }
-            }
-        }
     
         position.set(newPos);
         updateCameraPosition();

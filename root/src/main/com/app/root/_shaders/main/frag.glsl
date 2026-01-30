@@ -25,7 +25,6 @@ uniform float uFogDensity;
 uniform vec3 uFogColor;
 uniform vec3 uCameraPos;
 uniform float uWaterLevel;
-uniform float uMountainLevel;
 uniform float uPlayerTerrainHeight;
 
 #include "text/text_frag.glsl"

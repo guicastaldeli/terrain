@@ -5,7 +5,6 @@ import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.world.Water;
-import main.com.app.root.env.world.Weather;
 import main.com.app.root.lightning.LightningRenderer;
 import main.com.app.root.player.Camera;
 import main.com.app.root.player.PlayerController;
@@ -149,6 +148,13 @@ public class MeshRenderer {
      */
     public void setIsDynamic(boolean isDynamic) {
         this.isDynamic = isDynamic;
+    }
+
+    /**
+     * Env Controller
+     */
+    public EnvController getEnvController() {
+        return envController;
     }
 
     /**
@@ -482,7 +488,6 @@ public class MeshRenderer {
             Vector3f cameraPos = renderCamera.getPosition();
             shaderProgram.setUniform("uCameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
 
-            shaderProgram.setUniform("uMountainLevel", Weather.MOUNTAIN_LEVEL);
             shaderProgram.setUniform("uWaterLevel", Water.SHADER_LEVEL);
 
             float playerTerrainHeight = getWorldHeightAt(cameraPos.x, cameraPos.z);

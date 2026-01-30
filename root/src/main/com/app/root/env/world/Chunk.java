@@ -26,7 +26,6 @@ public class Chunk {
 
     public static final int CHUNK_SIZE = 50;
 
-    public final Weather weather;
     public final Water water;
 
     public Chunk(
@@ -42,16 +41,7 @@ public class Chunk {
         this.meshData = meshData;
         this.spawner = spawner;
 
-        this.weather = new Weather(
-            worldGenerator,
-            mesh, 
-            mesh.getMeshRenderer().getPlayerController()
-        );
         this.water = new Water(mesh);
-    }
-
-    public Weather getWeather() {
-        return weather;
     }
 
     /**
