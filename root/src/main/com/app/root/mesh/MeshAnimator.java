@@ -1,4 +1,4 @@
-package main.com.app.root.mesh.animation;
+package main.com.app.root.mesh;
 
 public class MeshAnimator {
     
