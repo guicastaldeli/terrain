@@ -429,7 +429,7 @@ public class LoadSaveMenu extends Screen {
         if(!element.visible) return;
         
         if(element.type.equals("div") || element.type.equals("button")) {
-            DocParser.renderUIElement(element, window.getWidth(), window.getHeight(), shaderProgram);
+            DocParser.renderScreenElement(element, window.getWidth(), window.getHeight(), shaderProgram);
         }
         
         if((element.type.equals("button") || element.type.equals("label")) && 

@@ -9,15 +9,13 @@
     >
         Terrain
     </label>
+
     <img 
         src="a.png"
-        x="300" 
-        y="400" 
+        x="50" 
+        y="160" 
         width="150" 
         height="50"
-        action="start_game"
-        hoverable="true"
-        hoverScale="1.1"
     />
 
     <button 

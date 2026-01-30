@@ -260,6 +260,7 @@ public class DocParser {
         parseAttr(element, screenElement.attr);
         
         if(type.equals("img")) {
+            screenElement.hasBackground = true;
             if(element.hasAttribute("src")) {
                 String src = element.getAttribute("src");
                 String fullPath = IMG_PATH + src;
@@ -489,6 +490,7 @@ public class DocParser {
         parseAttr(element, uiElement.attr);
         
         if(type.equals("img")) {
+            uiElement.hasBackground = true;
             if(element.hasAttribute("src")) {
                 String src = element.getAttribute("src");
                 String fullPath = IMG_PATH + src;
@@ -673,7 +675,7 @@ public class DocParser {
             return null;
         }
         
-        public static void initUIRendering() {
+    public static void initElRendering() {
         if(uiBuffersInitialized) return;
         
         uiVao = glGenVertexArrays();
@@ -706,7 +708,7 @@ public class DocParser {
         uiBuffersInitialized = true;
     }
     
-    public static void renderUIElement(
+    public static void renderScreenElement(
         ScreenElement element,
         int screenWidth,
         int screenHeight,
@@ -714,7 +716,7 @@ public class DocParser {
     ) {
         if(!element.visible || !element.hasBackground) return;
         
-        initUIRendering();
+        initElRendering();
         
         float x1 = element.x;
         float y1 = element.y;
@@ -731,14 +733,14 @@ public class DocParser {
         
         if(element.hasTexture && element.textureId != -1) {
             shaderProgram.setUniform("shaderType", 3);
-            shaderProgram.setUniform("useTexture", 1);
+            shaderProgram.setUniform("hasTex", 1);
             
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, element.textureId);
-            shaderProgram.setUniform("textureSampler", 0);
+            shaderProgram.setUniform("texSampler", 0);
         } else {
             shaderProgram.setUniform("shaderType", 3);
-            shaderProgram.setUniform("useTexture", 0);
+            shaderProgram.setUniform("hasTex", 0);
         }
         
         shaderProgram.setUniform("screenSize", (float) screenWidth, (float) screenHeight);
@@ -775,7 +777,7 @@ public class DocParser {
     ) {
         if(!element.visible || !element.hasBackground) return;
         
-        initUIRendering();
+        initElRendering();
         
         float x1 = element.x;
         float y1 = element.y;
@@ -792,14 +794,14 @@ public class DocParser {
         
         if(element.hasTexture && element.textureId != -1) {
             shaderProgram.setUniform("shaderType", 3);
-            shaderProgram.setUniform("useTexture", 1);
+            shaderProgram.setUniform("hasTex", 1);
             
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, element.textureId);
-            shaderProgram.setUniform("textureSampler", 0);
+            shaderProgram.setUniform("texSampler", 0);
         } else {
             shaderProgram.setUniform("shaderType", 3);
-            shaderProgram.setUniform("useTexture", 0);
+            shaderProgram.setUniform("hasTex", 0);
         }
         
         shaderProgram.setUniform("screenSize", (float) screenWidth, (float) screenHeight);
@@ -866,13 +868,13 @@ public class DocParser {
         
         for(ScreenElement element : screenData.elements) {
             if(element.visible && element.type.equals("div")) {
-                renderUIElement(element, screenWidth, screenHeight, shaderProgram);
+                renderScreenElement(element, screenWidth, screenHeight, shaderProgram);
             }
         }
         
         for(ScreenElement element : screenData.elements) {
             if(element.visible && element.type.equals("img")) {
-                renderUIElement(element, screenWidth, screenHeight, shaderProgram);
+                renderScreenElement(element, screenWidth, screenHeight, shaderProgram);
             }
         }
         
@@ -894,7 +896,7 @@ public class DocParser {
         
         for(ScreenElement element : screenData.elements) {
             if(element.visible && element.type.equals("button")) {
-                renderUIElement(element, screenWidth, screenHeight, shaderProgram);
+                renderScreenElement(element, screenWidth, screenHeight, shaderProgram);
                 
                 if(textRenderer != null && element.text != null && !element.text.isEmpty()) {
                     if(element.hasShadow) {
