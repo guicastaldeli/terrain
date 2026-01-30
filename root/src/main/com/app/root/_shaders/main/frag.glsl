@@ -24,6 +24,9 @@ uniform float uRenderDistance;
 uniform float uFogDensity;
 uniform vec3 uFogColor;
 uniform vec3 uCameraPos;
+uniform float uWaterLevel;
+uniform float uMountainLevel;
+uniform float uPlayerTerrainHeight;
 
 #include "text/text_frag.glsl"
 #include "mesh/mesh_tex.glsl"
@@ -75,10 +78,12 @@ void main() {
             pointResult;
         
         fragColor = vec4(finalColor, fragColor.a);
-
-        //Fog
         setFog();
-        
+
+        if(worldPos.y < uWaterLevel) {
+            vec4 waterColor = vec4(0.3137, 0.4431, 0.8784, 0.4);
+            fragColor.rgb = mix(fragColor.rgb, waterColor.rgb, waterColor.a);
+        }
     }
     //Skybox
     else if(shaderType == 2) {

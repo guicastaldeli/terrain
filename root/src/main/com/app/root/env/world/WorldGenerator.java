@@ -18,7 +18,7 @@ public class WorldGenerator {
     public final DataController dataController;
     private final StateController stateController;
     private final CollisionManager collisionManager;
-    private final Mesh mesh;
+    public final Mesh mesh;
     private final MeshRenderer meshRenderer;
     private final Chunk chunk;
     private final Spawner spawner;

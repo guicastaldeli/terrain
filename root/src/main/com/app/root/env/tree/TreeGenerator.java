@@ -4,6 +4,7 @@ import main.com.app.root.SpawnerData;
 import main.com.app.root.SpawnerHandler;
 import main.com.app.root._resources.TextureLoader;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.player.Camera;
 
 import java.util.List;
 import java.util.Random;
@@ -92,6 +93,13 @@ public class TreeGenerator {
 
         currHealth -= damage;
         System.out.println(treeData.getIndexTo() + " took " + damage + " damage. Health: " + currHealth + "/" + treeData.getHealth());
+        Camera camera = mesh.getMeshRenderer().getPlayerController().getCamera();
+        Vector3f cameraFront = camera.getFront().normalize();
+        Vector3f particleOffset = new Vector3f(cameraFront).mul(-10.0f);
+        Vector3f particlePosition = new Vector3f(position).add(particleOffset);
+    
+        TreeInteractor.createTreeBreakEffect(mesh, particlePosition, axeLevel);
+
         if(currHealth <= 0) {
             isAlive = false;
             destroyMesh();

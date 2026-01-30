@@ -29,6 +29,13 @@ void setSkyboxFrag() {
         }
 
         fragColor = timeColor;
+        if(uCameraPos.y < uWaterLevel + 0.7) {
+        float waterCutoff = 0.5;
+        if(texCoord.y < waterCutoff) {
+            vec4 waterColor = vec4(0.3137, 0.4431, 0.8784, 0.4);
+            fragColor.rgb = mix(fragColor.rgb, waterColor.rgb, waterColor.a);
+        }
+    }
     }
 }
 

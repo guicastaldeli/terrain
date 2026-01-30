@@ -2,11 +2,13 @@ package main.com.app.root.mesh.particle;
 import main.com.app.root.Tick;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
+import main.com.app.root.mesh.MeshData.MeshType;
 import main.com.app.root.mesh.types.Particle;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Supplier;
+
 import org.joml.Vector3f;
 
 public class ParticleSystem {
@@ -14,7 +16,7 @@ public class ParticleSystem {
     private final Mesh mesh;
     private final Random random;
     
-    private List<Particle> particles;
+    public List<Particle> particles;
     private boolean isActive;
     private Vector3f position;
     private Vector3f color;
@@ -23,6 +25,9 @@ public class ParticleSystem {
     private int amount;
     private float lifetime;
     private String particleId;
+
+    private boolean vel;
+    private Vector3f velNum;
 
     public ParticleSystem(Tick tick, Mesh mesh) {
         this.tick = tick;
@@ -36,6 +41,13 @@ public class ParticleSystem {
         this.speed = 1.0f;
         this.amount = 10;
         this.lifetime = 2.0f;
+    }
+
+    /**
+     * Set Vel Num
+     */
+    public void setVelNum(Vector3f velNum) {
+        this.velNum = velNum;
     }
 
     /**
@@ -87,7 +99,13 @@ public class ParticleSystem {
     /**
      * Emit
      */
-    public void emit(Vector3f position) {
+    public void emit(
+        Vector3f position, 
+        boolean vel,
+        Supplier<Vector3f> colorsSupplier
+    ) {
+        this.vel = vel;
+
         this.position.set(position);
         this.isActive = true;
         this.particleId = "particle_" + System.currentTimeMillis();
@@ -102,7 +120,12 @@ public class ParticleSystem {
                 (random.nextFloat() - 0.5f) * 2.0f * speed
             );
 
-            particle.color.set(color);
+            if(colorsSupplier != null) {
+                particle.color.set(colorsSupplier.get());
+            } else {
+                particle.color.set(this.color);
+            }
+
             particle.size = size;
             particle.lifetime = lifetime;
             particle.maxLifetime = lifetime;
@@ -113,21 +136,38 @@ public class ParticleSystem {
         }
     }
 
-    /**
-     * Cretae Mesh
-     */
-    private void createMesh(Particle particle) {
-        MeshData meshData = MeshData.createQuad(particle.id, particle.size);
-        meshData.setColorRgb(
-            (int)(particle.color.x * 255),
-            (int)(particle.color.y * 255),
-            (int)(particle.color.z * 255),
-            255
-        );
-        meshData.setShaderType(5);
+    public void emit(Vector3f position, boolean vel) {
+        emit(position, vel, null);
+    }
 
-        mesh.add(particle.id, meshData);
-        mesh.setPosition(particle.id, particle.position);
+    /**
+     * Create Mesh
+     */
+    public void createMesh(Particle particle) {
+        try {
+            mesh.add(particle.id, MeshType.QUAD);
+            mesh.setPosition(particle.id, particle.position);
+
+            MeshData data = mesh.getData(particle.id);
+            if(data != null) {
+                data.setShaderType(5);
+                
+                float[] colors = new float[16];
+                for(int i = 0; i < 16; i += 4) {
+                    colors[i] = particle.color.x;
+                    colors[i+1] = particle.color.y;
+                    colors[i+2] = particle.color.z;
+                    colors[i+3] = 1.0f;
+                }
+                data.setColors(colors);
+                mesh.getMeshRenderer(particle.id).updateColors(colors);
+            }
+            
+            mesh.setScale(particle.id, particle.size);
+        } catch(Exception err) {
+            System.err.println("Failed to create mesh: " + err.getMessage());
+            err.printStackTrace();
+        }
     }
 
     /**
@@ -145,22 +185,43 @@ public class ParticleSystem {
             }
 
             particle.velocity.y -= 9.8f * tick.getDeltaTime() * speed;
-            particle.position.add(
-                particle.velocity.x * tick.getDeltaTime(),
-                particle.velocity.y * tick.getDeltaTime(),
-                particle.velocity.z * tick.getDeltaTime()
-            );
+            
+            if(vel) {
+                particle.position.add(
+                    particle.velocity.x * tick.getDeltaTime() * velNum.x,
+                    particle.velocity.y * tick.getDeltaTime() * velNum.y,
+                    particle.velocity.z * tick.getDeltaTime() * velNum.z
+                );
+            } else {
+                particle.position.add(
+                    particle.velocity.x * tick.getDeltaTime(),
+                    particle.velocity.y * tick.getDeltaTime(),
+                    particle.velocity.z * tick.getDeltaTime()
+                );
+            }
 
             mesh.setPosition(particle.id, particle.position);
 
             float alpha = particle.lifetime / particle.maxLifetime;
-            mesh.getData(particle.id).setTransparentColor(alpha);
+            MeshData data = mesh.getData(particle.id);
+            if(data != null) {
+                float[] colors = new float[16];
+                for(int i = 0; i < 16; i += 4) {
+                    colors[i] = particle.color.x;
+                    colors[i+1] = particle.color.y;
+                    colors[i+2] = particle.color.z;
+                    colors[i+3] = alpha;
+                }
+                data.setColors(colors);
+            }
         }
 
         for(Particle particle : particlesToRemove) {
             mesh.remove(particle.id);
             particles.remove(particle);
         }
+        particles.removeAll(particlesToRemove);
+        
         if(particles.isEmpty()) {
             isActive = false;
         }
@@ -184,5 +245,6 @@ public class ParticleSystem {
         for(Particle particle : particles) {
             mesh.remove(particle.id);
         }
+        particles.clear();
     }
 }

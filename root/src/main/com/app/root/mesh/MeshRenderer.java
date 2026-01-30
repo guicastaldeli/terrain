@@ -4,6 +4,8 @@ import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
+import main.com.app.root.env.world.Water;
+import main.com.app.root.env.world.Weather;
 import main.com.app.root.lightning.LightningRenderer;
 import main.com.app.root.player.Camera;
 import main.com.app.root.player.PlayerController;
@@ -245,50 +247,6 @@ public class MeshRenderer {
 
     /**
      * 
-     * Skybox Color / Fog
-     * 
-     */
-    public void applyFog() {
-        float[] skyColor = getSkyboxColor();
-        Vector3f fogColor = new Vector3f(skyColor[0], skyColor[1], skyColor[2]);
-
-        Camera renderCamera;
-        if(playerController != null) {
-            renderCamera = playerController.getCamera();
-        } else if(camera != null) {
-            renderCamera = camera;
-        } else {
-            renderCamera = new Camera();
-        }
-        
-        Vector3f cameraPos = renderCamera.getPosition();
-
-        shaderProgram.setUniform("uRenderDistance", Camera.FOG);
-        shaderProgram.setUniform("uFogColor", fogColor.x, fogColor.y, fogColor.z);
-        shaderProgram.setUniform("uCameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
-        shaderProgram.setUniform("uFogDensity", 1.0f);
-    }
-
-    public float[] getSkyboxColor() {
-        if(envController == null) return new float[]{1.0f, 1.0f, 1.0f, 1.0f};
-        
-        try {
-            Object skyboxInstance = envController.getEnv(EnvData.SKYBOX);
-            Object skyboxMesh = EnvCall.callReturn(skyboxInstance, "getMesh");
-            
-            if(skyboxMesh != null) {
-                Object colorObj = EnvCall.callReturn(skyboxMesh, "getCurrentSkyColor");
-                if(colorObj instanceof float[]) return (float[]) colorObj;
-            }
-        } catch(Exception e) {
-            System.err.println("Failed to get skybox color: " + e.getMessage());
-        }
-        
-        return new float[]{0.5f, 0.5f, 0.5f, 1.0f};
-    }
-
-    /**
-     * 
      * Buffers
      * 
      */
@@ -520,6 +478,16 @@ public class MeshRenderer {
             
             shaderProgram.bind();
             shaderProgram.setUniform("shaderType", shaderType);
+            
+            Vector3f cameraPos = renderCamera.getPosition();
+            shaderProgram.setUniform("uCameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
+
+            shaderProgram.setUniform("uMountainLevel", Weather.MOUNTAIN_LEVEL);
+            shaderProgram.setUniform("uWaterLevel", Water.SHADER_LEVEL);
+
+            float playerTerrainHeight = getWorldHeightAt(cameraPos.x, cameraPos.z);
+            shaderProgram.setUniform("uPlayerTerrainHeight", playerTerrainHeight);
+
             if(hasColors && meshData.getColors() != null && meshData.getColors().length >= 4) {
                 float[] colors = meshData.getColors();
                 shaderProgram.setUniform("uColor", colors[0], colors[1], colors[2], colors[3]);
@@ -574,6 +542,88 @@ public class MeshRenderer {
             if(hasTex) glBindTexture(GL_TEXTURE_2D, 0);
         } catch(Exception err) {
             err.printStackTrace();
+        }
+    }
+
+    /**
+     * 
+     * Skybox Color / Fog
+     * 
+     */
+    public void applyFog() {
+        float[] skyColor = getSkyboxColor();
+        Vector3f fogColor = new Vector3f(skyColor[0], skyColor[1], skyColor[2]);
+
+        Camera renderCamera;
+        if(playerController != null) {
+            renderCamera = playerController.getCamera();
+        } else if(camera != null) {
+            renderCamera = camera;
+        } else {
+            renderCamera = new Camera();
+        }
+        
+        Vector3f cameraPos = renderCamera.getPosition();
+
+        shaderProgram.setUniform("uRenderDistance", Camera.FOG);
+        shaderProgram.setUniform("uFogColor", fogColor.x, fogColor.y, fogColor.z);
+        shaderProgram.setUniform("uCameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
+        shaderProgram.setUniform("uFogDensity", 1.0f);
+    }
+
+    public float[] getSkyboxColor() {
+        if(envController == null) return new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+        
+        try {
+            Object skyboxInstance = envController.getEnv(EnvData.SKYBOX);
+            Object skyboxMesh = EnvCall.callReturn(skyboxInstance, "getMesh");
+            
+            if(skyboxMesh != null) {
+                Object colorObj = EnvCall.callReturn(skyboxMesh, "getCurrentSkyColor");
+                if(colorObj instanceof float[]) return (float[]) colorObj;
+            }
+        } catch(Exception e) {
+            System.err.println("Failed to get skybox color: " + e.getMessage());
+        }
+        
+        return new float[]{0.5f, 0.5f, 0.5f, 1.0f};
+    }
+
+    /**
+     * 
+     * World Height
+     * 
+     */
+    private float getWorldHeightAt(float x, float z) {
+        if(envController == null) return 0.0f;
+        
+        try {
+            Object worldInstance = envController.getEnv(EnvData.MAP).getInstance();
+            if(worldInstance == null) {
+                return 0.0f;
+            }
+            
+            Object generator = EnvCall.callReturn(worldInstance, "getGenerator");
+            if(generator == null) {
+                return 0.0f;
+            }
+            
+            Object[] params = { x, z };
+            Object heightObj = EnvCall.callReturnWithParams(generator, params, "getHeightAt");
+            
+            if(heightObj instanceof Float) {
+                return (Float) heightObj;
+            } else if(heightObj instanceof Double) {
+                return ((Double) heightObj).floatValue();
+            } else if(heightObj instanceof Integer) {
+                return ((Integer) heightObj).floatValue();
+            }
+            
+            return 0.0f;
+            
+        } catch(Exception e) {
+            System.err.println("Failed to get terrain height at (" + x + ", " + z + "): " + e.getMessage());
+            return 0.0f;
         }
     }
 

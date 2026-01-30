@@ -2,6 +2,7 @@ package main.com.app.root.mesh;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.lightning.LightningRenderer;
+import main.com.app.root.mesh.particle.ParticleManager;
 import main.com.app.root.player.Camera;
 import main.com.app.root.player.PlayerController;
 import java.util.HashMap;
@@ -10,7 +11,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class Mesh {
-    private final Tick tick;
+    public final Tick tick;
     public final ShaderProgram shaderProgram;
     private LightningRenderer lightningRenderer;
 
@@ -19,12 +20,15 @@ public class Mesh {
     private final Map<String, MeshRenderer> meshRendererMap;
     private final Map<String, MeshData> meshDataMap;
 
+    private final ParticleManager particleManager;
+
     public Mesh(Tick tick, ShaderProgram shaderProgram) {
         this.tick = tick;
         this.shaderProgram = shaderProgram;
         this.meshRendererMap = new HashMap<>();
         this.meshDataMap = new HashMap<>();
         this.meshRenderer = new MeshRenderer(tick, shaderProgram);
+        this.particleManager = new ParticleManager(tick, this);
     }
 
     public MeshRenderer getMeshRenderer() {
@@ -64,6 +68,10 @@ public class Mesh {
         for(MeshRenderer renderer : meshRendererMap.values()) {
             renderer.setCamera(camera);
         }
+    }
+
+    public ParticleManager getParticleManager() {
+        return particleManager;
     }
 
     /**
@@ -181,6 +189,7 @@ public class Mesh {
         for(MeshRenderer meshRenderer : meshRendererMap.values()) {
             //meshRenderer.updateRotation();
         }
+        getParticleManager().update();
     }
 
     public void updateColors(String id, float[] colors) {

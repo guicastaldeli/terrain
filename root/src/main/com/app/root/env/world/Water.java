@@ -2,17 +2,27 @@ package main.com.app.root.env.world;
 import main.com.app.root.Tick;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.types.DynamicObject;
+import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.player.RigidBody;
+
+import java.util.Random;
+
 import org.joml.Vector3f;
 
 public class Water {
+    private final Mesh mesh;
     public static DynamicObject collider;
 
     public static final float LEVEL = 50.0f;
+    public static final float SHADER_LEVEL = LEVEL - 0.00005f;
     public static final float MIN_DEPTH = 5.0f;
     public static final float MIN_Y = LEVEL - MIN_DEPTH;
+
+    public Water(Mesh mesh) {
+        this.mesh = mesh;
+    }
 
     public static String getId(int chunkX, int chunkZ) {
         return "water_" + chunkX + "_" + chunkZ;
@@ -104,5 +114,35 @@ public class Water {
         meshData.setNormals(normals);
 
         return meshData;
+    }
+
+    /**
+     * Water Effect
+     */
+    public void createSwimEffect(Vector3f position) {
+        Random random = new Random();
+        
+        int amount = 20;
+        float size = 0.3f;
+        float speed = 0.01f + (LEVEL * 0.1f);
+        float lifetime = 2.5f + (LEVEL * 0.3f);
+        
+        mesh.getParticleManager()
+            .create(
+                position, 
+                new Vector3f(), 
+                amount, 
+                size, 
+                speed, 
+                lifetime
+            );
+        
+        Vector3f velNum = new Vector3f(20.0f, 5.0f, 20.0f);
+        mesh.getParticleManager().getParticleSystem().setVelNum(velNum);
+        
+        mesh.getParticleManager().getParticleSystem().emit(position, true, () -> {
+            float blueIntensity = 0.2f + random.nextFloat() * 0.8f;
+            return new Vector3f(0.0f, 0.0f, blueIntensity);
+        });
     }
 }

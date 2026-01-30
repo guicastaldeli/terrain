@@ -57,6 +57,13 @@ public class DynamicObject implements Collider {
             Vector3f vel = body.getVelocity();
             if(vel.y < 0) vel.y = 0;
             body.setVelocity(vel);
+
+            if(vel.x != 0 || vel.z != 0) {
+                worldGenerator
+                    .getChunk()
+                    .water
+                    .createSwimEffect(position);
+            }
         }
 
         Vector3f vel = body.getVelocity();
@@ -158,7 +165,6 @@ public class DynamicObject implements Collider {
                 body.setInWater(false, 0.0f);
                 return;
             }
-            
             if(submergedRatio > 0) {
                 dynamicObj.waterAction(
                     position, 

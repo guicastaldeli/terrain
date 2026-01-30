@@ -172,40 +172,6 @@ public class MeshData {
     }
 
     /**
-     * Create Quad
-     */
-    public static MeshData createQuad(String id, float size) {
-        MeshData meshData = new MeshData(id, MeshType.QUAD);
-
-        float halfSize = size / 2.0f;
-    
-        float[] vertices = {
-            -halfSize, -halfSize, 0.0f,
-            halfSize, -halfSize, 0.0f,
-            halfSize,  halfSize, 0.0f,
-            -halfSize,  halfSize, 0.0f
-        };
-        
-        int[] indices = {
-            0, 1, 2,
-            2, 3, 0
-        };
-        
-        float[] texCoords = {
-            0.0f, 0.0f,
-            1.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0f, 1.0f
-        };
-        
-        meshData.setVertices(vertices);
-        meshData.setIndices(indices);
-        meshData.setTexCoords(texCoords);
-        
-        return meshData;
-    }
-
-    /**
      * 
      * Normals
      * 

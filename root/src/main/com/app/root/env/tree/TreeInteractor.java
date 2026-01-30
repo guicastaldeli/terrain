@@ -8,10 +8,9 @@ import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.axe.AxeController;
+import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player.PlayerController;
-
 import java.util.List;
-
 import org.joml.Vector3f;
 
 public class TreeInteractor {
@@ -71,6 +70,36 @@ public class TreeInteractor {
     }
 
     /**
+     * Create Effect
+     */
+    public static void createTreeBreakEffect(
+        Mesh mesh,
+        Vector3f position, 
+        int treeLevel
+    ) {
+        Vector3f color = new Vector3f(0.6f, 0.4f, 0.2f);
+        
+        int amount = 150 + (treeLevel * 2);
+        float size = 1.0f + (treeLevel * 0.01f);
+        float speed = 1.0f + (treeLevel * 0.2f);
+        float lifetime = 2.5f + (treeLevel * 0.3f);
+        
+        mesh.getParticleManager()
+            .create(
+                position, 
+                color, 
+                amount, 
+                size, 
+                speed, 
+                lifetime
+            );
+
+        Vector3f velNum = new Vector3f(10.0f, 10.0f, 10.0f);
+        mesh.getParticleManager().getParticleSystem().setVelNum(velNum);
+        mesh.getParticleManager().getParticleSystem().emit(position, true);
+    }
+
+    /**
      * Break Tree
      */
     private void breakTree(AxeController axe, TreeController tree) {
@@ -97,9 +126,6 @@ public class TreeInteractor {
         isSwinging = true;
         swingCooldown = 1.0f / speed;
         swingTimer = swingCooldown;
-
-        //Do the anim...
-        System.out.println("Swinging axe...");
     }
 
     public boolean isSwinging() {
