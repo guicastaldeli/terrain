@@ -35,6 +35,7 @@ uniform vec3 uCameraPos;
 #include "fog.glsl"
 #include "cloud_frag.glsl"
 #include "test_normals.glsl"
+#include "particle_frag.glsl"
 
 void main() {
     //Mesh
@@ -93,5 +94,8 @@ void main() {
     }
     else if(shaderType == 4) {
         setCloudFrag();
+    }
+    else if(shaderType == 5) {
+        setParticleFrag();
     }
 }

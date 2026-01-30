@@ -1,5 +1,4 @@
 package main.com.app.root.mesh.types;
-
 import org.joml.Vector3f;
 
 public class Particle {

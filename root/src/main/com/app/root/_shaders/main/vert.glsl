@@ -31,6 +31,7 @@ uniform int shaderType;
 #include "../env/skybox/shaders/sb_vert.glsl"
 #include "ui/ui_vert.glsl"
 #include "cloud_vert.glsl"
+#include "particle_vert.glsl"
 
 void main() {
     vec3 finalPos = inPos;
@@ -89,6 +90,10 @@ void main() {
     //Clouds
     else if(shaderType == 4) {
         setCloudVert(finalPos, finalNormal);
+    }
+    //Particles
+    else if(shaderType == 5) {
+        setParticleVert();
     }
     else {
         if(isInstanced == 1) {
