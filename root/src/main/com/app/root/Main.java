@@ -1,4 +1,5 @@
 package main.com.app.root;
+import main.com.app.root._resources.AudioLoader;
 import main.com.app.root._save.DataGetter;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveLoader;
@@ -184,6 +185,7 @@ public class Main {
         inputController.update();
         scene.update();
         screenController.update();
+        if(stateController.isPaused()) AudioLoader.getInstance().stopAll();
     }
     
     /**
@@ -226,6 +228,7 @@ public class Main {
     private void run() {
         loop();
         window.cleanup();
+        AudioLoader.getInstance().cleanup();
         DocParser.cleanup();
     }
 
