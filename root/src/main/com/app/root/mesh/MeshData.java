@@ -1,14 +1,13 @@
 package main.com.app.root.mesh;
 import main.com.app.root.utils.ColorConverter;
+import org.joml.Vector3f;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.joml.Vector3f;
 
 public class MeshData {
     /**
      * Data Type
-    */
+     */
     public enum DataType {
         VERTICES,
         INDICES,
@@ -23,7 +22,7 @@ public class MeshData {
     }
     /**
      * Mesh Type
-    */
+     */
     public enum MeshType {
         TRIANGLE,
         QUAD,
