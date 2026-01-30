@@ -7,6 +7,8 @@ import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.player.Camera;
 import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Chunk {
     private final WorldGenerator worldGenerator;
@@ -15,11 +17,25 @@ public class Chunk {
     private final Mesh mesh;
     private MeshData meshData;
 
-    public final Object chunkLock = new Object();
-    public Map<String, ChunkData> loadedChunks = new HashMap<>();
-    public Map<String, ChunkData> cachedChunks = new HashMap<>();
+    public final ReadWriteLock chunkLock = new ReentrantReadWriteLock();
     
-    private List<String> chunksToLoad = new ArrayList<>();
+    public Map<ChunkKey, ChunkData> loadedChunks = new HashMap<>();
+    public Map<ChunkKey, ChunkData> cachedChunks = new LinkedHashMap<ChunkKey, ChunkData>(50, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<ChunkKey, ChunkData> eldest) {
+            if(size() > 50) {
+                ChunkData data = eldest.getValue();
+                if(data != null && data.collider != null) {
+                    collisionManager.removeCollider(data.collider);
+                }
+                return true;
+            }
+            return false;
+        }
+    };
+    
+    private List<ChunkKey> chunksToLoad = new ArrayList<>();
+    private List<ChunkKey> chunksToUnloadPool = new ArrayList<>();
     private int chunksPerFrame = 1;
     private int lastProcessedIndex = 0;
     private static final long MIN_TIME_BETWEEN_CHUNKS = 16;
@@ -27,6 +43,36 @@ public class Chunk {
     public static final int CHUNK_SIZE = 50;
 
     public final Water water;
+
+    public static class ChunkKey {
+        public final int x;
+        public final int z;
+        private final int hash;
+        
+        public ChunkKey(int x, int z) {
+            this.x = x;
+            this.z = z;
+            this.hash = 31 * x + z;
+        }
+        
+        @Override
+        public int hashCode() {
+            return hash;
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if(this == obj) return true;
+            if(!(obj instanceof ChunkKey)) return false;
+            ChunkKey other = (ChunkKey) obj;
+            return x == other.x && z == other.z;
+        }
+        
+        @Override
+        public String toString() {
+            return "chunk_" + x + "_" + z;
+        }
+    }
 
     public Chunk(
         WorldGenerator worldGenerator, 
@@ -54,25 +100,28 @@ public class Chunk {
     }
 
     /**
+     * Get Key
+     */
+    public static ChunkKey getKey(int chunkX, int chunkZ) {
+        return new ChunkKey(chunkX, chunkZ);
+    }
+
+    /**
      * Get Id
      */
     public static String getId(int chunkX, int chunkZ) {
         return "chunk_" + chunkX + "_" + chunkZ;
     }
 
-    public boolean isInRange(String chunkId, int centerX, int centerZ) {
-        String[] parts = chunkId.split("_");
-        int chunkX = Integer.parseInt(parts[1]);
-        int chunkZ = Integer.parseInt(parts[2]);
-
-        return Math.abs(chunkX - centerX) <= Camera.RENDER_DISTANCE &&
-            Math.abs(chunkZ - centerZ) <= Camera.RENDER_DISTANCE;
+    public boolean isInRange(ChunkKey key, int centerX, int centerZ) {
+        return Math.abs(key.x - centerX) <= Camera.RENDER_DISTANCE &&
+               Math.abs(key.z - centerZ) <= Camera.RENDER_DISTANCE;
     }
 
     public boolean isValid(int chunkX, int chunkZ) {
         int maxChunks = WorldGenerator.WORLD_SIZE / CHUNK_SIZE;
         return chunkX >= 0 && chunkX < maxChunks &&
-            chunkZ >= 0 && chunkZ < maxChunks;
+               chunkZ >= 0 && chunkZ < maxChunks;
     }
 
     /**
@@ -369,71 +418,78 @@ public class Chunk {
     }
 
     /**
-     * Update Chunks
+     * Update ChunkS
      */
     public void updateChunks(float playerX, float playerZ) {
         int[] playerChunk = getCoords(playerX, playerZ);
         int playerChunkX = playerChunk[0];
         int playerChunkZ = playerChunk[1];
 
-        synchronized(chunkLock) {
-            List<String> chunksToUnload = new ArrayList<>();
-            for(String chunkId : loadedChunks.keySet()) {
-                if(!isInRange(chunkId, playerChunkX, playerChunkZ)) {
-                    chunksToUnload.add(chunkId);
+        chunksToUnloadPool.clear();
+        chunkLock.readLock().lock();
+        try {
+            for(ChunkKey key : loadedChunks.keySet()) {
+                if(!isInRange(key, playerChunkX, playerChunkZ)) {
+                    chunksToUnloadPool.add(key);
                 }
             }
-            for(String chunkId : chunksToUnload) {
-                unload(chunkId);
-            }
+        } finally {
+            chunkLock.readLock().unlock();
+        }
 
-            chunksToLoad.clear();
-            for(int x = playerChunkX - Camera.RENDER_DISTANCE; x <= playerChunkX + Camera.RENDER_DISTANCE; x++) {
-                for(int z = playerChunkZ - Camera.RENDER_DISTANCE; z <= playerChunkZ + Camera.RENDER_DISTANCE; z++) {
-                    String chunkId = getId(x, z);
-                    if(!loadedChunks.containsKey(chunkId) && isValid(x, z)) {
-                        chunksToLoad.add(chunkId);
+        if(!chunksToUnloadPool.isEmpty()) {
+            chunkLock.writeLock().lock();
+            try {
+                for(ChunkKey key : chunksToUnloadPool) {
+                    unload(key);
+                }
+            } finally {
+                chunkLock.writeLock().unlock();
+            }
+        }
+
+        chunksToLoad.clear();
+        for(int x = playerChunkX - Camera.RENDER_DISTANCE; x <= playerChunkX + Camera.RENDER_DISTANCE; x++) {
+            for(int z = playerChunkZ - Camera.RENDER_DISTANCE; z <= playerChunkZ + Camera.RENDER_DISTANCE; z++) {
+                if(isValid(x, z)) {
+                    ChunkKey key = new ChunkKey(x, z);
+                    
+                    chunkLock.readLock().lock();
+                    boolean needsLoad = !loadedChunks.containsKey(key);
+                    chunkLock.readLock().unlock();
+                    
+                    if(needsLoad) {
+                        chunksToLoad.add(key);
                     }
                 }
             }
-
-            chunksToLoad.sort((id1, id2) -> {
-                String[] parts1 = id1.split("_");
-                String[] parts2 = id2.split("_");
-                int x1 = Integer.parseInt(parts1[1]);
-                int z1 = Integer.parseInt(parts1[2]);
-                int x2 = Integer.parseInt(parts2[1]);
-                int z2 = Integer.parseInt(parts2[2]);
-                
-                float dist1 = (float)Math.sqrt(
-                    Math.pow(x1 - playerChunkX, 2) + 
-                    Math.pow(z1 - playerChunkZ, 2)
-                );
-                float dist2 = (float)Math.sqrt(
-                    Math.pow(x2 - playerChunkX, 2) + 
-                    Math.pow(z2 - playerChunkZ, 2)
-                );
-                
-                return Float.compare(dist1, dist2);
-            });
-
-            lastProcessedIndex = 0;
         }
+
+        chunksToLoad.sort((key1, key2) -> {
+            int dx1 = key1.x - playerChunkX;
+            int dz1 = key1.z - playerChunkZ;
+            int dx2 = key2.x - playerChunkX;
+            int dz2 = key2.z - playerChunkZ;
+            
+            int dist1Sq = dx1 * dx1 + dz1 * dz1;
+            int dist2Sq = dx2 * dx2 + dz2 * dz2;
+            
+            return Integer.compare(dist1Sq, dist2Sq);
+        });
+
+        lastProcessedIndex = 0;
     }
 
     public void processChunkLoading() {
-        synchronized(chunkLock) {
+        chunkLock.writeLock().lock();
+        try {
             int chunkLoadedThisFrame = 0;
             
             for(int i = lastProcessedIndex; i < chunksToLoad.size() && chunkLoadedThisFrame < chunksPerFrame; i++) {
-                String chunkId = chunksToLoad.get(i);
-                String[] parts = chunkId.split("_");
+                ChunkKey key = chunksToLoad.get(i);
 
-                int chunkX = Integer.parseInt(parts[1]);
-                int chunkZ = Integer.parseInt(parts[2]);
-
-                if(!loadedChunks.containsKey(chunkId) && isValid(chunkX, chunkZ)) {
-                    load(chunkX, chunkZ);
+                if(!loadedChunks.containsKey(key) && isValid(key.x, key.z)) {
+                    load(key.x, key.z);
                     chunkLoadedThisFrame++;
                 }
 
@@ -444,6 +500,8 @@ public class Chunk {
                 chunksToLoad.clear();
                 lastProcessedIndex = 0;
             }
+        } finally {
+            chunkLock.writeLock().unlock();
         }
     }
 
@@ -451,12 +509,13 @@ public class Chunk {
      * Load
      */
     public void load(int chunkX, int chunkZ) {
+        ChunkKey key = new ChunkKey(chunkX, chunkZ);
         String chunkId = getId(chunkX, chunkZ);
         String waterId = Water.getId(chunkX, chunkZ);
         
-        if(cachedChunks.containsKey(chunkId)) {
-            ChunkData cached = cachedChunks.remove(chunkId);
-            loadedChunks.put(chunkId, cached);
+        if(cachedChunks.containsKey(key)) {
+            ChunkData cached = cachedChunks.remove(key);
+            loadedChunks.put(key, cached);
             
             if(cached.meshData != null) {
                 mesh.add(chunkId, cached.meshData);
@@ -468,13 +527,8 @@ public class Chunk {
             if(cached.collider != null) {
                 collisionManager.addStaticCollider(cached.collider);
             }
-            /*
-            if(spawner != null) {
-                spawner.generate(chunkX, chunkZ);
-            }
-                */
             
-            render(chunkId);
+            render(key);
             return;
         }
 
@@ -489,14 +543,14 @@ public class Chunk {
             StaticObject chunkCollider = createCollider(chunkHeightData, chunkX, chunkZ);
 
             ChunkData chunkData = new ChunkData(chunkMeshData, chunkCollider);
-            loadedChunks.put(chunkId, chunkData);
+            loadedChunks.put(key, chunkData);
 
             mesh.add(chunkId, chunkMeshData);
             mesh.add(waterId, waterMeshData);
             
             if(chunkCollider != null) collisionManager.addStaticCollider(chunkCollider);
 
-            render(chunkId);
+            render(key);
             //System.out.println("Loaded chunk: " + chunkId);
         } catch(Exception err) {
             System.err.println("Failed to load chunk " + chunkId + ": " + err.getMessage());
@@ -507,9 +561,10 @@ public class Chunk {
     /**
      * Unload
      */
-    public void unload(String chunkId) {
-        ChunkData chunkData = loadedChunks.remove(chunkId);
+    public void unload(ChunkKey key) {
+        ChunkData chunkData = loadedChunks.remove(key);
         if(chunkData != null) {
+            String chunkId = key.toString();
             String waterId = chunkId.replace("chunk_", "water_");
             
             mesh.remove(chunkId);
@@ -520,44 +575,25 @@ public class Chunk {
             }
             
             if(spawner != null) {
-                String[] parts = chunkId.split("_");
-                int chunkX = Integer.parseInt(parts[1]);
-                int chunkZ = Integer.parseInt(parts[2]);
-                spawner.unload(chunkX, chunkZ);
+                spawner.unload(key.x, key.z);
             }
 
             chunkData.isRendered = false;
-            cachedChunks.put(chunkId, chunkData);
-
-            if(cachedChunks.size() > 50) removeOldestCachedChunk();
-
+            cachedChunks.put(key, chunkData);
             //System.out.println("Unloaded chunk: " + chunkId);
-        }
-    }
-
-    public void removeOldestCachedChunk() {
-        String oldestChunkId = null;
-        long oldestTime = Long.MAX_VALUE;
-        for(Map.Entry<String, ChunkData> entry : cachedChunks.entrySet()) {
-            if(entry.getValue().lastAccessTime < oldestTime) {
-                oldestTime = entry.getValue().lastAccessTime;
-                oldestChunkId = entry.getKey();
-            }
-        }
-        if(oldestChunkId != null) {
-            cachedChunks.remove(oldestChunkId);
         }
     }
 
     /**
      * Render
      */
-    public void render(String chunkId) {
-        ChunkData chunkData = loadedChunks.get(chunkId);
+    public void render(ChunkKey key) {
+        ChunkData chunkData = loadedChunks.get(key);
         if(chunkData != null) {
             chunkData.isRendered = true;
             chunkData.lastAccessTime = System.currentTimeMillis();
             
+            String chunkId = key.toString();
             if(mesh.hasMesh(chunkId)) {
                 mesh.render(chunkId, 0);
             }
@@ -573,23 +609,25 @@ public class Chunk {
      * Clear
      */
     public void clear() {
-        synchronized(chunkLock) {
-            for(String chunkId : new ArrayList<>(loadedChunks.keySet())) {
-                unload(chunkId);
+        chunkLock.writeLock().lock();
+        try {
+            for(ChunkKey key : new ArrayList<>(loadedChunks.keySet())) {
+                unload(key);
             }
             loadedChunks.clear();
     
-            for(String chunkId : new ArrayList<>(cachedChunks.keySet())) {
-                ChunkData chunkData = cachedChunks.get(chunkId);
-                if(chunkData.collider != null) {
+            for(ChunkKey key : new ArrayList<>(cachedChunks.keySet())) {
+                ChunkData chunkData = cachedChunks.get(key);
+                if(chunkData != null && chunkData.collider != null) {
                     collisionManager.removeCollider(chunkData.collider);
                 }
-                cachedChunks.remove(chunkId);
             }
             cachedChunks.clear();
     
             chunksToLoad.clear();
             lastProcessedIndex = 0;
+        } finally {
+            chunkLock.writeLock().unlock();
         }
     }
 }

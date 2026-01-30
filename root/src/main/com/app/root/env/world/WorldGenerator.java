@@ -11,6 +11,8 @@ import main.com.app.root.env.NoiseGeneratorWrapper;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshRenderer;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class WorldGenerator {
     private final Tick tick;
@@ -41,6 +43,13 @@ public class WorldGenerator {
     private static final String MAP_ID = "MAP_ID";
 
     public static final int WORLD_SIZE = 50000;
+    
+    private final Map<Long, Float> heightCache = new LinkedHashMap<Long, Float>(1000, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Long, Float> eldest) {
+            return size() > 1000;
+        }
+    };
     
     public WorldGenerator(
         Tick tick, 
@@ -133,19 +142,37 @@ public class WorldGenerator {
             }
         }
         
+        long cacheKey = ((long)(x * 2) << 32) | ((long)(z * 2) & 0xFFFFFFFFL);
+        Float cachedHeight = heightCache.get(cacheKey);
+        if(cachedHeight != null) {
+            return cachedHeight;
+        }
+        
         int[] chunkCoords = Chunk.getCoords(x, z);
-        String chunkId = Chunk.getId(chunkCoords[0], chunkCoords[1]);
+        Chunk.ChunkKey chunkKey = new Chunk.ChunkKey(chunkCoords[0], chunkCoords[1]);
 
-        if(chunk.loadedChunks.containsKey(chunkId)) {
-            ChunkData chunkData = chunk.loadedChunks.get(chunkId);
+        chunk.chunkLock.readLock().lock();
+        ChunkData chunkData = null;
+        try {
+            chunkData = chunk.loadedChunks.get(chunkKey);
+        } finally {
+            chunk.chunkLock.readLock().unlock();
+        }
+
+        if(chunkData != null) {
             if(chunkData.meshData != null) {
                 int localX = (int)((x + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
                 int localZ = (int)((z + WORLD_SIZE / 2) % Chunk.CHUNK_SIZE);
                 float height = getHeightFromChunkData(chunkData, localX, localZ);
-                if(height > 0.0f) return height;
+                if(height > 0.0f) {
+                    heightCache.put(cacheKey, height);
+                    return height;
+                }
             }
             if(chunkData.collider != null && chunkData.collider.isMap()) {
-                return chunkData.collider.getHeightAtWorld(x, z);
+                float height = chunkData.collider.getHeightAtWorld(x, z);
+                heightCache.put(cacheKey, height);
+                return height;
             }
         }
 
@@ -156,7 +183,9 @@ public class WorldGenerator {
         if(chunkHeightData != null && chunkHeightData.length > 0) {
             int i = localX * Chunk.CHUNK_SIZE + localZ;
             if(i >= 0 && i < chunkHeightData.length) {
-                return chunkHeightData[i];
+                float height = chunkHeightData[i];
+                heightCache.put(cacheKey, height);
+                return height;
             }
         }
 
@@ -193,8 +222,13 @@ public class WorldGenerator {
         chunk.updateChunks(playerX, playerZ);
         chunk.processChunkLoading();
         
-        for(String chunkId : chunk.loadedChunks.keySet()) {
-            mesh.render(chunkId, 0);
+        chunk.chunkLock.readLock().lock();
+        try {
+            for(Chunk.ChunkKey key : chunk.loadedChunks.keySet()) {
+                mesh.render(key.toString(), 0);
+            }
+        } finally {
+            chunk.chunkLock.readLock().unlock();
         }
 
         isReady = true;
@@ -207,8 +241,14 @@ public class WorldGenerator {
     public void update(float playerX, float playerZ) {        
         chunk.updateChunks(playerX, playerZ);
         chunk.processChunkLoading();
-        for(String chunkId : chunk.loadedChunks.keySet()) {
-            mesh.render(chunkId, 0);
+        
+        chunk.chunkLock.readLock().lock();
+        try {
+            for(Chunk.ChunkKey key : chunk.loadedChunks.keySet()) {
+                mesh.render(key.toString(), 0);
+            }
+        } finally {
+            chunk.chunkLock.readLock().unlock();
         }
     }
 
@@ -217,6 +257,8 @@ public class WorldGenerator {
      */
     public void resetSeed(long newSeed) {
         currentSeed = newSeed;
+        
+        heightCache.clear();
         
         if(chunk != null) {
             chunk.clear();
