@@ -118,7 +118,7 @@ public class MainScreenScene {
         if(!init) return;
 
         Vector3f target = new Vector3f(0.0f, 200.0f, 0.0f);
-        camera.orbitAroundPoint(target, new Vector3f(0.0f, 1.0f, 0.0f), 0.05f);
+        camera.orbitAroundPoint(target, new Vector3f(0.0f, 1.0f, 0.0f), 0.002f);
         
         mesh.update();
         lightningController.update();

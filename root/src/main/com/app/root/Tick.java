@@ -10,6 +10,7 @@ public class Tick {
     private float TICK_RATE = 1.0f / TICKS_PER_SECOND;
 
     private float accumulatedTime = 0.0f;
+    private float accumulatedElapsedTime = 0.0f;
     private int tickCount = 0;
 
     public float deltaTime = 0.0f;
@@ -23,6 +24,7 @@ public class Tick {
 
     private long lastUpdateTime = 0;
     private static final long GAME_UPDATE_INTERVAL = 16_666_666;
+    private static final float ELAPSED_TIME = 1_000_000_000.0f;
 
     public Tick(Window window) {
         this.window = window;
@@ -51,6 +53,10 @@ public class Tick {
 
     public float getTickDelta() {
         return TICK_RATE;
+    }
+
+    public float getCurrentTime() {
+        return accumulatedElapsedTime;
     }
 
     public float getTickBasedSpeed(float speed) {
@@ -122,6 +128,8 @@ public class Tick {
         updateTime();
 
         accumulatedTime += deltaTime;
+        accumulatedElapsedTime += deltaTime;
+        
         while(accumulatedTime >= TICK_RATE) {
             tick();
             accumulatedTime -= TICK_RATE;

@@ -28,6 +28,7 @@ uniform int shaderType;
 
 uniform vec3 uCameraPos;
 uniform float uWaterLevel;
+uniform float uTime;
 
 #include "text/text_vert.glsl"
 #include "mesh/mesh_color.glsl"

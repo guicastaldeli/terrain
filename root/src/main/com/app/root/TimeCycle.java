@@ -33,10 +33,11 @@ public class TimeCycle {
     public final float HOUR_DURATION = DAY_DURATION / 24.0f;
 
     private float currentTime = 6.0f * HOUR_DURATION;
-    private float timeSpeed = 60.0f;
+    private float timeSpeed = 10.0f;
     private float timeDayPercentage = 0.25f;
 
     public TimeCycle() {
+        setTime(22, 0);
         updateTime();
     }
 
@@ -44,12 +45,14 @@ public class TimeCycle {
      * Update
      */
     public void update(float deltaTime) {
+        /*
         currentTime += deltaTime * timeSpeed;
         if(currentTime >= DAY_DURATION) {
             currentTime -= DAY_DURATION;
         } else if(currentTime < 0) {
             currentTime += DAY_DURATION;
         }
+            */
         updateTime();
     }
 

@@ -24,6 +24,7 @@ uniform float uRenderDistance;
 uniform float uFogDensity;
 uniform vec3 uFogColor;
 uniform vec3 uCameraPos;
+uniform float uTime;
 uniform float uWaterLevel;
 uniform float uPlayerTerrainHeight;
 
@@ -80,7 +81,7 @@ void main() {
         setFog();
 
         if(worldPos.y < uWaterLevel) {
-            vec4 waterColor = vec4(0.3137, 0.4431, 0.8784, 0.4);
+            vec4 waterColor = vec4(0.0, 0.1, 0.4, 0.4);
             fragColor.rgb = mix(fragColor.rgb, waterColor.rgb, waterColor.a);
         }
     }

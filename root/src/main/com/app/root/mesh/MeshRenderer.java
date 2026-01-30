@@ -243,11 +243,23 @@ public class MeshRenderer {
     }
 
     public void updateRotation() {
-        if(meshData.hasRotation()) {
-            float rotationSpeed = meshData.getRotationSpeed();
-            float rotationAmount = rotationSpeed * tick.getDeltaTime();
-            currentRotation += rotationAmount;
-            if(currentRotation > 360.0f) currentRotation -= 360.0f;
+        if(meshData != null && meshData.hasRotation()) {
+            String axis = meshData.getRotationAxis();
+            float speed = meshData.getRotationSpeed();
+            
+            if(axis != null && speed > 0.0f) {
+                switch(axis.toLowerCase()) {
+                    case "x":
+                        modelMatrix.rotateX((float)Math.toRadians(speed * tick.getDeltaTime()));
+                        break;
+                    case "y":
+                        modelMatrix.rotateY((float)Math.toRadians(speed * tick.getDeltaTime()));
+                        break;
+                    case "z":
+                        modelMatrix.rotateZ((float)Math.toRadians(speed * tick.getDeltaTime()));
+                        break;
+                }
+            }
         }
     }
 
@@ -484,6 +496,8 @@ public class MeshRenderer {
             
             shaderProgram.bind();
             shaderProgram.setUniform("shaderType", shaderType);
+
+            shaderProgram.setUniform("uTime", tick.getCurrentTime());
             
             Vector3f cameraPos = renderCamera.getPosition();
             shaderProgram.setUniform("uCameraPos", cameraPos.x, cameraPos.y, cameraPos.z);

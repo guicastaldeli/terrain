@@ -6,6 +6,9 @@ void setSkyboxVert() {
     
     worldPos = vec3(worldPosition);
 
+    vec4 viewPos = view * worldPosition;
+    fragDistance = length(viewPos.xyz);
+
     float normalizedY = (inPos.y + 1000.0) / 2000.0;
     uColor = aColor;
     texCoord = vec2(0.0, normalizedY);

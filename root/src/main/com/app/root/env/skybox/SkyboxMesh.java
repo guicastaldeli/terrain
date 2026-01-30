@@ -8,6 +8,8 @@ import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.utils.ColorConverter;
 import static org.lwjgl.opengl.GL11.glDepthMask;
 
+import org.joml.Vector3f;
+
 public class SkyboxMesh {
     private static final String[][] PERIOD_COLORS_HEX = {
         //Midnight
@@ -28,6 +30,9 @@ public class SkyboxMesh {
     private final Tick tick;
     private final Mesh mesh;
     private final ShaderProgram shaderProgram;
+
+    private float rotationAgle = 18.0f;
+    private float rotationSpeed = 5.0f;
 
     public SkyboxMesh(Tick tick, Mesh mesh, ShaderProgram shaderProgram) {
         this.tick = tick;
@@ -200,6 +205,16 @@ public class SkyboxMesh {
 
     public void update() {
         if(tick == null || tick.getTimeCycle() == null) return;
+
+        if(rotationSpeed != 0.0f) {
+            rotationAgle += rotationSpeed * tick.getDeltaTime();
+            if(rotationAgle > 360.0f) rotationAgle -= 360.0f;
+
+            MeshData meshData = mesh.getData(SKYBOX_ID);
+            if(meshData != null) {
+                meshData.setRotation(new Vector3f(0, rotationAgle, 0));
+            }
+        }
 
         float currentTime = tick.getTimeCycle().getCurrentTime();
         float dayDuration = tick.getTimeCycle().DAY_DURATION;

@@ -187,7 +187,7 @@ public class Mesh {
      */
     public void update() {
         for(MeshRenderer meshRenderer : meshRendererMap.values()) {
-            //meshRenderer.updateRotation();
+            meshRenderer.updateRotation();
         }
         getParticleManager().update();
     }
