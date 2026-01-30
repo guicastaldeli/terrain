@@ -10,14 +10,6 @@
         Terrain
     </label>
 
-    <img 
-        src="a.png"
-        x="50" 
-        y="160" 
-        width="150" 
-        height="50"
-    />
-
     <button 
         id="continueBtn" 
         x="50" y="200" 
