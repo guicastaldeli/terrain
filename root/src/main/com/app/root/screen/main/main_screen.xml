@@ -9,6 +9,16 @@
     >
         Terrain
     </label>
+    <img 
+        src="a.png"
+        x="300" 
+        y="400" 
+        width="150" 
+        height="50"
+        action="start_game"
+        hoverable="true"
+        hoverScale="1.1"
+    />
 
     <button 
         id="continueBtn" 

@@ -47,6 +47,7 @@
         <button
             id="confirmBtn" 
             x="10%" y="55%" 
+            width="10%" height="7%"
             scale="1.0" 
             color="0.314, 0.949, 0.439" 
             action="confirm"
