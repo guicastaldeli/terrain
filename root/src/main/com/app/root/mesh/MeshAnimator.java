@@ -37,6 +37,13 @@ public class MeshAnimator {
     }
 
     /**
+     * Get Animated Model
+     */
+    public AnimatedModel getAnimatedModel() {
+        return animatedModel;
+    }
+
+    /**
      * Blend Animation
      */
     public void blendAnimation(String animationName, float blendTime) {

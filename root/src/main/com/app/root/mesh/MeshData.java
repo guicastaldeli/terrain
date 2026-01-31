@@ -18,7 +18,9 @@ public class MeshData {
         ROTATION,
         ROTATION_AXIS,
         ROTATION_SPEED,
-        SCALE
+        SCALE,
+        BONE_IDS,
+        BONE_WEIGHTS
     }
     /**
      * Mesh Type

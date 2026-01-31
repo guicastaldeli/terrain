@@ -148,8 +148,8 @@ public class AnimationLoader {
             }
         }
 
-        meshData.addData(MeshData.DataType.valueOf("BONE_IDS"), boneIds);
-        meshData.addData(MeshData.DataType.valueOf("BONE_WEIGHTS"), boneWeights);
+        meshData.addData(MeshData.DataType.BONE_IDS, boneIds);
+        meshData.addData(MeshData.DataType.BONE_WEIGHTS, boneWeights);
         return meshData;
     }
 

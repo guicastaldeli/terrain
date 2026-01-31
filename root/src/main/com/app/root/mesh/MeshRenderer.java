@@ -6,6 +6,7 @@ import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.world.Water;
 import main.com.app.root.lightning.LightningRenderer;
+import main.com.app.root.mesh.MeshData.DataType;
 import main.com.app.root.player.Camera;
 import main.com.app.root.player.PlayerController;
 import java.nio.FloatBuffer;
@@ -57,6 +58,7 @@ public class MeshRenderer {
     private PlayerController playerController;
     private LightningRenderer lightningRenderer;
     private Camera camera;
+    private MeshAnimator meshAnimator;
 
     private int vao;
     private int vbo;
@@ -72,6 +74,9 @@ public class MeshRenderer {
     private int colorVbo;
     private int normalVbo;
     private int texCoordsVbo;
+    private int boneIdsVbo;
+    private int boneWeightsVbo;
+
     private int texId = -1;
     private boolean hasTex = false;
     private boolean hasColors = false;
@@ -155,6 +160,21 @@ public class MeshRenderer {
      */
     public EnvController getEnvController() {
         return envController;
+    }
+
+    /**
+     * Mesh Animator
+     */
+    public void setMeshAnimator(MeshAnimator meshAnimator) {
+        this.meshAnimator = meshAnimator;
+    }
+
+    public MeshAnimator getMeshAnimator() {
+        return meshAnimator;
+    }
+
+    public boolean hasMeshAnimator() {
+        return meshAnimator != null;
     }
 
     /**
@@ -386,7 +406,9 @@ public class MeshRenderer {
             
             vertexCount = indices.length;
         }
+
         createInstanceBuffer();
+        createBoneBuffers();
 
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -453,6 +475,60 @@ public class MeshRenderer {
         instanceBufferNeedsUpdate = true;
     }
 
+    private void createBoneBuffers() {
+        try {
+            int[] boneIds = (int[]) meshData.getData(DataType.BONE_IDS, int[].class);
+            if(boneIds != null && boneIds.length > 0) {
+                boneIdsVbo = glGenBuffers();
+                checkGLError("after genBuffers **boneIds");
+
+                glBindBuffer(GL_ARRAY_BUFFER, boneIdsVbo);
+                checkGLError("after bindBuffer **boneIds");
+
+                IntBuffer boneIdsBuffer = memAllocInt(boneIds.length);
+                boneIdsBuffer.put(boneIds).flip();
+                glBufferData(GL_ARRAY_BUFFER, boneIdsBuffer, GL_STATIC_DRAW);
+                checkGLError("after bufferData **boneIds");
+                memFree(boneIdsBuffer);
+
+                glVertexAttribIPointer(8, 4, GL_INT, 0, 0);
+                checkGLError("after vertexAttribIPointer **boneIds");
+
+                glEnableVertexAttribArray(8);
+                checkGLError("after enableVertexArray **boneIds");
+
+                System.out.println("**boneIds. created bone ids buffer for " + meshData.getId());
+            }
+        } catch(Exception err) {
+            System.out.println("bone ids buffer err: " + err.getMessage());
+        }
+
+        try {
+            float[] boneWeights = (float[]) meshData.getData(DataType.BONE_WEIGHTS, float[].class);
+            boneWeightsVbo = glGenBuffers();
+            checkGLError("after genBuffers **boneWeights");
+
+            glBindBuffer(GL_ARRAY_BUFFER, boneWeightsVbo);
+            checkGLError("bindBuffer **boneWeights");
+
+            FloatBuffer weightsBuffer = memAllocFloat(boneWeights.length);
+            weightsBuffer.put(boneWeights).flip();
+            glBufferData(GL_ARRAY_BUFFER, weightsBuffer, GL_STATIC_DRAW);
+            checkGLError("bufferData **boneWeights");
+            memFree(weightsBuffer);
+
+            glVertexAttribPointer(9, 4, GL_FLOAT, false, 0, 0);
+            checkGLError("vertexAttribPointer **boneWeights");
+
+            glEnableVertexAttribArray(9);
+            checkGLError("enableVertexAttribArray **boneWeights");
+
+            System.out.println("**boneWeights. created bone weights buffer for " + meshData.getId());
+        } catch(Exception err) {
+            System.out.println("bone weights buffer err: " + err.getMessage());
+        }
+    }
+
     /**
      * 
      * Render
@@ -492,6 +568,19 @@ public class MeshRenderer {
                         dataScale[2]
                     );
                 }
+            }
+
+            if(meshAnimator != null && meshAnimator.isPlaying()) {
+                shaderProgram.setUniform("hasAnimation", 1);
+
+                Matrix4f[] boneMatrices = meshAnimator.getBoneMatrices();
+                int maxBones = meshAnimator.getAnimatedModel().getMaxBones();
+
+                for(int i = 0; i < maxBones; i++) {
+                    shaderProgram.setUniform("boneMatrices[" + i + "]", boneMatrices[i]);
+                }
+            } else {
+                shaderProgram.setUniform("hasAnimation", 0);
             }
             
             shaderProgram.bind();

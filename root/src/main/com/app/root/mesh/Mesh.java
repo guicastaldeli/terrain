@@ -14,23 +14,30 @@ public class Mesh {
     public final Tick tick;
     public final ShaderProgram shaderProgram;
     private LightningRenderer lightningRenderer;
+    private AnimationController animationController;
 
-    public MeshRenderer meshRenderer;
     public MeshData meshData;
-    private final Map<String, MeshRenderer> meshRendererMap;
+    public MeshRenderer meshRenderer;
     private final Map<String, MeshData> meshDataMap;
+    private final Map<String, MeshRenderer> meshRendererMap;
 
     private final ParticleManager particleManager;
 
     public Mesh(Tick tick, ShaderProgram shaderProgram) {
         this.tick = tick;
         this.shaderProgram = shaderProgram;
+
         this.meshRendererMap = new HashMap<>();
         this.meshDataMap = new HashMap<>();
         this.meshRenderer = new MeshRenderer(tick, shaderProgram);
+
+        this.animationController = new AnimationController();
         this.particleManager = new ParticleManager(tick, this);
     }
 
+    /**
+     * Mesh Renderer
+     */
     public MeshRenderer getMeshRenderer() {
         return meshRenderer;
     }
@@ -43,10 +50,16 @@ public class Mesh {
         return meshRendererMap;
     }
 
+    /**
+     * Has Mesh
+     */
     public boolean hasMesh(String id) {
         return meshRendererMap.containsKey(id);
     }
 
+    /**
+     * Set Lightning Renderer
+     */
     public void setLightningRenderer(LightningRenderer lightningRenderer) {
         this.lightningRenderer = lightningRenderer;
         this.meshRenderer.setLightningRenderer(lightningRenderer);
@@ -56,6 +69,9 @@ public class Mesh {
         }
     }
 
+    /**
+     * Set PlayerController
+     */
     public void setPlayerController(PlayerController playerController) {
         this.meshRenderer.setPlayerController(playerController);
         for(MeshRenderer renderer : meshRendererMap.values()) {
@@ -63,6 +79,9 @@ public class Mesh {
         }
     }
 
+    /**
+     * Set Camera
+     */
     public void setCamera(Camera camera) {
         this.meshRenderer.setCamera(camera);
         for(MeshRenderer renderer : meshRendererMap.values()) {
@@ -70,13 +89,23 @@ public class Mesh {
         }
     }
 
+    /**
+     * Get Animation Conteroller
+     */
+    public AnimationController getAnimationController() {
+        return animationController;
+    }
+
+    /**
+     * Get Particle Manager
+     */
     public ParticleManager getParticleManager() {
         return particleManager;
     }
 
     /**
      * 
-     * Add Mesh
+     * Add
      * 
      */
     public void add(String id, MeshData meshData) {
@@ -110,6 +139,19 @@ public class Mesh {
         }
         
         meshRendererMap.put(id, newRenderer);
+    }
+
+    public void addAnimatedModel(String id, AnimatedModel animatedModel) {
+        addToMap(id, animatedModel.getMeshData());
+        animationController.registerAnimatedModel(id, animatedModel);
+
+        MeshRenderer meshRenderer = meshRendererMap.get(id);
+        if(meshRenderer != null) {
+            MeshAnimator meshAnimator = animationController.getAnimator(id);
+            meshRenderer.setMeshAnimator(meshAnimator);
+            System.out.println("Animated model added: " + id + " with " + 
+                animatedModel.getAnimationNames().size() + " animations");
+        }
     }
 
     /**
@@ -186,6 +228,7 @@ public class Mesh {
      * 
      */
     public void update() {
+        animationController.updateAll();
         for(MeshRenderer meshRenderer : meshRendererMap.values()) {
             meshRenderer.updateRotation();
         }
@@ -193,10 +236,8 @@ public class Mesh {
     }
 
     public void updateColors(String id, float[] colors) {
-        MeshRenderer renderer = meshRendererMap.get(id);
-        if(renderer != null) {
-            renderer.updateColors(colors);
-        }
+        MeshRenderer meshRenderer = meshRendererMap.get(id);
+        if(meshRenderer != null) meshRenderer.updateColors(colors);
     }
 
     /**

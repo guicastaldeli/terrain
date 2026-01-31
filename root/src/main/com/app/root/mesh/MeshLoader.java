@@ -71,7 +71,7 @@ public class MeshLoader {
     }
 
     /**
-     * Load Rotation Data
+     * Get Rotation Data
      */
     private static void getRotationData(LuaValue table, MeshData data) {
         LuaValue axisVal = table.get("axis");
@@ -191,12 +191,40 @@ public class MeshLoader {
         
         return meshData;
     }
+
+    public static MeshData[] loadAllMeshes(String modelName, String meshIdPrefix) {
+        int meshCount = getMeshCount(modelName);
+        MeshData[] meshes = new MeshData[meshCount];
+        
+        for(int i = 0; i < meshCount; i++) {
+            meshes[i] = loadMesh(modelName, i, meshIdPrefix + "_" + i);
+        }
+        
+        return meshes;
+    }
     
     public static MeshData loadMesh(String filePath, int meshIndex) {
         String meshId = extractMeshIdFromPath(filePath) + "_" + meshIndex;
         return GltfLoader.loadMesh(filePath, meshIndex, meshId);
     }
+
+    public static AnimatedModel loadAnimatedModel(String modelName, String meshId) {
+        ModelMap modelMap = getModelMap();
+        ModelInfo modelInfo = modelMap.getModelInfo(modelName);
+        if(modelInfo == null) throw new RuntimeException("Model not found: " + modelName);
+        if(!modelInfo.isGltf()) throw new RuntimeException("Only glTF/GLB models support animations: " + modelName);
+        
+        AnimatedModel animatedModel = AnimationLoader.loadAnimatedModel(modelInfo.getPath(), meshId);
+
+        float[] size = modelInfo.getSize();
+        if(size != null) animatedModel.getMeshData().setScale(size);
+
+        return animatedModel;
+    }
     
+    /**
+     * Get Mesh Count
+     */
     public static int getMeshCount(String modelName) {
         ModelMap map = getModelMap();
         ModelInfo info = map.getModelInfo(modelName);
@@ -212,25 +240,13 @@ public class MeshLoader {
         return GltfLoader.getMeshCount(info.getPath());
     }
     
-    public static int getGltfMeshCount(String filePath) {
-        return GltfLoader.getMeshCount(filePath);
-    }
-    
-    public static MeshData[] loadAllGltfMeshes(String modelName, String meshIdPrefix) {
-        int meshCount = getGltfMeshCount(modelName);
-        MeshData[] meshes = new MeshData[meshCount];
-        
-        for(int i = 0; i < meshCount; i++) {
-            meshes[i] = loadMesh(modelName, i, meshIdPrefix + "_" + i);
-        }
-        
-        return meshes;
-    }
-    
     public static float[] getModelSize(String modelName) {
         return getModelMap().getModelSize(modelName);
     }
     
+    /**
+     * Format
+     */
     public static ModelMap.ModelFormat getModelFormat(String modelName) {
         return getModelMap().getModelFormat(modelName);
     }
