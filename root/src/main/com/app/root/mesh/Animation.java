@@ -1,5 +1,5 @@
 package main.com.app.root.mesh;
-import org.joml.Quaterniond;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,11 +9,17 @@ import java.util.Map;
 public class Animation {
     private final String name;
     private final float duration;
+    private final float ticksPerSecond;
     private final Map<String, NodeAnimation> nodeAnimations;
 
-    public Animation(String name, float duration) {
+    public Animation(
+        String name, 
+        float duration,
+        float ticksPerSecond
+    ) {
         this.name = name;
         this.duration = duration;
+        this.ticksPerSecond = ticksPerSecond;
         this.nodeAnimations = new HashMap<>();
     }
 
@@ -23,6 +29,10 @@ public class Animation {
 
     public float getDuration() {
         return duration;
+    }
+
+    public float getTicksPerSecond() {
+        return ticksPerSecond;
     }
 
     /**
@@ -49,12 +59,16 @@ public class Animation {
             this.scaleKeyframes = new ArrayList<>();
         }
 
-        public void addPositionKeyframe(float time, Quaterniond rotation) {
-            rotationKeyframes.add(new RotationKeyframe(time, rotation));
+        public void addPositionKeyframe(float time, Vector3f position) {
+            positionKeyframes.add(new PositionKeyframe(time, position));
         }
 
         public void addScalekeyframe(float time, Vector3f scale) {
             scaleKeyframes.add(new ScaleKeyframe(time, scale));
+        }
+
+        public void addRoationKeyframe(float time, Quaternionf rotation) {
+            rotationKeyframes.add(new RotationKeyframe(time, rotation));
         }
 
         /**
@@ -96,12 +110,12 @@ public class Animation {
         /**
          * Get Interpoated Rotation
          */
-        public Quaterniond getInterpoledRotation(float animationTime) {
+        public Quaternionf getInterpoledRotation(float animationTime) {
             if(rotationKeyframes.isEmpty()) {
-                return new Quaterniond(0, 0, 0, 1);
+                return new Quaternionf(0, 0, 0, 1);
             }
             if(rotationKeyframes.size() == 1) {
-                return new Quaterniond(rotationKeyframes.get(0).rotation);
+                return new Quaternionf(rotationKeyframes.get(0).rotation);
             }
 
             int frameIndex = 0;
@@ -124,7 +138,7 @@ public class Animation {
             float factor = deltaTime > 0 ? (animationTime - currentFrame.time) / deltaTime : 0;
             factor = Math.max(0, Math.min(1, factor));
 
-            Quaterniond result = new Quaterniond();
+            Quaternionf result = new Quaternionf();
             currentFrame.rotation.slerp(nextFrame.rotation, factor, result);
             return result;
         }
@@ -200,9 +214,9 @@ public class Animation {
      */
     public static class RotationKeyframe {
         public final float time;
-        public final Quaterniond rotation;
+        public final Quaternionf rotation;
         
-        public RotationKeyframe(float time, Quaterniond rotation) {
+        public RotationKeyframe(float time, Quaternionf rotation) {
             this.time = time;
             this.rotation = rotation;
         }

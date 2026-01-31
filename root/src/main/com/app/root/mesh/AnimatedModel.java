@@ -19,6 +19,10 @@ public class AnimatedModel {
         this.maxBones = maxBones;
     }
 
+    public void addAnimation(String name, Animation animation) {
+        animations.put(name, animation);
+    }
+
     public Animation getAnimation(String name) {
         return animations.get(name);
     }
