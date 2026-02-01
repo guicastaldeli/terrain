@@ -9,6 +9,7 @@ import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvInstance;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshRenderer;
+import main.com.app.root.mesh.particle.ParticleManager;
 
 public class WorldController implements EnvInstance<WorldController> {
     @DependencyValue private Tick tick;
@@ -19,6 +20,7 @@ public class WorldController implements EnvInstance<WorldController> {
     @DependencyValue private StateController stateController;
     @DependencyValue private CollisionManager collisionManager;
     @DependencyValue private Spawner spawner;
+    @DependencyValue private ParticleManager particleManager;
 
     private WorldGenerator worldGenerator;
 
@@ -37,7 +39,8 @@ public class WorldController implements EnvInstance<WorldController> {
             dataController,
             stateController,
             collisionManager,
-            spawner
+            spawner,
+            particleManager
         );
     }
 

@@ -11,8 +11,12 @@ import main.com.app.root.env.NoiseGeneratorWrapper;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshRenderer;
+import main.com.app.root.mesh.particle.ParticleManager;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.joml.Vector3f;
 
 public class WorldGenerator {
     private final Tick tick;
@@ -24,6 +28,7 @@ public class WorldGenerator {
     private final MeshRenderer meshRenderer;
     private final Chunk chunk;
     private final Spawner spawner;
+    private final WorldParticle worldParticle;
     private MeshData meshData;
 
     private StaticObject staticCollider;
@@ -59,7 +64,8 @@ public class WorldGenerator {
         DataController dataController,
         StateController stateController,
         CollisionManager collisionManager,
-        Spawner spawner
+        Spawner spawner,
+        ParticleManager particleManager
     ) {
         this.tick = tick;
         this.shaderProgram = shaderProgram;
@@ -83,6 +89,12 @@ public class WorldGenerator {
         );
         Water.addCollider(this, collisionManager);
         addCollider();
+
+        this.worldParticle = new WorldParticle(
+            tick, 
+            mesh,
+            particleManager
+        );
     }
 
     private float[] createVertices(float[] heightData) {
@@ -233,6 +245,8 @@ public class WorldGenerator {
 
         isReady = true;
         if(onReadyCallback != null) onReadyCallback.run();
+
+        worldParticle.start();
     }
 
     /**
@@ -250,6 +264,9 @@ public class WorldGenerator {
         } finally {
             chunk.chunkLock.readLock().unlock();
         }
+
+        worldParticle.updatePlayerPosition(new Vector3f(playerX, 0, playerZ));
+        worldParticle.update();
     }
 
     /**

@@ -9,6 +9,7 @@ import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshRenderer;
+import main.com.app.root.mesh.particle.ParticleManager;
 
 public class EnvDependencyList {
     @DependencyValue(required = true)
@@ -37,4 +38,7 @@ public class EnvDependencyList {
 
     @DependencyValue(required = false)
     public static final Class<?> LIGHTNING_CONTROLLER = LightningController.class;
+
+    @DependencyValue(required = false)
+    public static final Class<?> PARTICLE_MANAGER = ParticleManager.class;
 }

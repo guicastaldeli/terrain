@@ -29,6 +29,10 @@ public class ParticleSystem {
     private boolean vel;
     private Vector3f velNum;
 
+    private boolean enableMotion;
+    private float swayAmplitude;
+    private float swayFrequency;
+
     public ParticleSystem(Tick tick, Mesh mesh) {
         this.tick = tick;
         this.mesh = mesh;
@@ -41,6 +45,10 @@ public class ParticleSystem {
         this.speed = 1.0f;
         this.amount = 10;
         this.lifetime = 2.0f;
+        this.enableMotion = false;
+        this.swayAmplitude = 2.0f;
+        this.swayFrequency = 1.0f;
+        this.velNum = new Vector3f(1.0f, 1.0f, 1.0f);
     }
 
     /**
@@ -97,6 +105,19 @@ public class ParticleSystem {
     }
 
     /**
+     * Enable Motion
+     */
+    public void setMotion(
+        boolean enable,
+        float swayAmplitude, 
+        float swayFrequency
+    ) {
+        this.enableMotion = enable;
+        this.swayAmplitude = swayAmplitude;
+        this.swayFrequency = swayFrequency;
+    }
+
+    /**
      * Emit
      */
     public void emit(
@@ -114,11 +135,13 @@ public class ParticleSystem {
             Particle particle = new Particle();
             particle.position.set(position);
 
-            particle.velocity.set(
-                (random.nextFloat() - 0.5f) * 2.0f * speed,
-                random.nextFloat() * 3.0f * speed,
-                (random.nextFloat() - 0.5f) * 2.0f * speed
-            );
+            if(!enableMotion) {
+                particle.velocity.set(
+                    (random.nextFloat() - 0.5f) * 2.0f * speed,
+                    random.nextFloat() * 3.0f * speed,
+                    (random.nextFloat() - 0.5f) * 2.0f * speed
+                );
+            }
 
             if(colorsSupplier != null) {
                 particle.color.set(colorsSupplier.get());
@@ -184,7 +207,9 @@ public class ParticleSystem {
                 continue;
             }
 
-            particle.velocity.y -= 9.8f * tick.getDeltaTime() * speed;
+            if(!enableMotion) {
+                particle.velocity.y -= 9.8f * tick.getDeltaTime() * speed;
+            }
             
             if(vel) {
                 particle.position.add(
@@ -201,6 +226,14 @@ public class ParticleSystem {
             }
 
             mesh.setPosition(particle.id, particle.position);
+
+            if(enableMotion) {
+                particle.rotation += particle.rotationSpeed * tick.getDeltaTime();
+                MeshData meshData = mesh.getData(particle.id);
+                if(meshData != null) {
+                    meshData.setRotation(new Vector3f(0, 0, particle.rotation));
+                }
+            }
 
             float alpha = particle.lifetime / particle.maxLifetime;
             MeshData data = mesh.getData(particle.id);

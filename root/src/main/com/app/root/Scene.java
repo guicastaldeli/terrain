@@ -1,5 +1,6 @@
 package main.com.app.root;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.mesh.particle.ParticleManager;
 import main.com.app.root.player.PlayerController;
 import main.com.app.root.ui.UIController;
 import main.com.app.root._save.DataGetter;
@@ -38,6 +39,8 @@ public class Scene {
 
     private Spawner spawner;
     private Upgrader upgrader;
+
+    private ParticleManager particleManager;
 
     public boolean init = false;
 
@@ -148,6 +151,8 @@ public class Scene {
 
             this.lightningController = new LightningController();
 
+            this.particleManager = new ParticleManager(tick, mesh);
+
             this.dependencyContainer = new DependencyContainer();
             dependencyContainer.registerAll(
                 tick,
@@ -159,7 +164,8 @@ public class Scene {
                 collisionManager,
                 spawner,
                 playerController,
-                lightningController
+                lightningController,
+                particleManager
             );
 
             if(reset || envController == null) {
@@ -227,6 +233,7 @@ public class Scene {
         envRenderer.render();
         spawner.registerHandlers(envController, lightningController);
         spawner.setActive(true);
+        particleManager.render();
     }
 
     /**
@@ -240,6 +247,8 @@ public class Scene {
         mesh.update();
         envRenderer.update();
         spawner.update();
+        
+        if(particleManager != null) particleManager.update();
 
         if(uiController != null) uiController.update();
         playerController.getInputMap().getTreeInteractor().update();

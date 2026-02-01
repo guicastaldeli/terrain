@@ -1,6 +1,5 @@
 package main.com.app.root.player;
 import main.com.app.root.mesh.AnimatedModel;
-import main.com.app.root.mesh.AnimationLoader;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;

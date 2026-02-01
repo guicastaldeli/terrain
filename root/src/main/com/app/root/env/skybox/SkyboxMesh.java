@@ -9,7 +9,7 @@ import main.com.app.root.utils.ColorConverter;
 import static org.lwjgl.opengl.GL11.glDepthMask;
 
 public class SkyboxMesh {
-    private static final String[][] PERIOD_COLORS_HEX = {
+    public static final String[][] PERIOD_COLORS_HEX = {
         //Midnight
         { "#1a0010", "#0D0D26" },
         //Dawn
