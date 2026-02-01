@@ -21,6 +21,7 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_INT;
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
@@ -52,7 +53,7 @@ import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 
 public class MeshRenderer {
     private final Tick tick;
-    private final ShaderProgram shaderProgram;
+    public final ShaderProgram shaderProgram;
     private EnvController envController;
     private MeshData meshData;
     private PlayerController playerController;
@@ -505,25 +506,27 @@ public class MeshRenderer {
 
         try {
             float[] boneWeights = (float[]) meshData.getData(DataType.BONE_WEIGHTS, float[].class);
-            boneWeightsVbo = glGenBuffers();
-            checkGLError("after genBuffers **boneWeights");
+            if(boneWeights != null && boneWeights.length > 0) {
+                boneWeightsVbo = glGenBuffers();
+                checkGLError("after genBuffers **boneWeights");
 
-            glBindBuffer(GL_ARRAY_BUFFER, boneWeightsVbo);
-            checkGLError("bindBuffer **boneWeights");
+                glBindBuffer(GL_ARRAY_BUFFER, boneWeightsVbo);
+                checkGLError("bindBuffer **boneWeights");
 
-            FloatBuffer weightsBuffer = memAllocFloat(boneWeights.length);
-            weightsBuffer.put(boneWeights).flip();
-            glBufferData(GL_ARRAY_BUFFER, weightsBuffer, GL_STATIC_DRAW);
-            checkGLError("bufferData **boneWeights");
-            memFree(weightsBuffer);
+                FloatBuffer weightsBuffer = memAllocFloat(boneWeights.length);
+                weightsBuffer.put(boneWeights).flip();
+                glBufferData(GL_ARRAY_BUFFER, weightsBuffer, GL_STATIC_DRAW);
+                checkGLError("bufferData **boneWeights");
+                memFree(weightsBuffer);
 
-            glVertexAttribPointer(9, 4, GL_FLOAT, false, 0, 0);
-            checkGLError("vertexAttribPointer **boneWeights");
+                glVertexAttribPointer(9, 4, GL_FLOAT, false, 0, 0);
+                checkGLError("vertexAttribPointer **boneWeights");
 
-            glEnableVertexAttribArray(9);
-            checkGLError("enableVertexAttribArray **boneWeights");
+                glEnableVertexAttribArray(9);
+                checkGLError("enableVertexAttribArray **boneWeights");
 
-            System.out.println("**boneWeights. created bone weights buffer for " + meshData.getId());
+                System.out.println("**boneWeights. created bone weights buffer for " + meshData.getId());
+            }
         } catch(Exception err) {
             System.out.println("bone weights buffer err: " + err.getMessage());
         }
@@ -554,6 +557,7 @@ public class MeshRenderer {
                 glDepthMask(true);
             }
 
+            // Build base model matrix
             if(!isDynamic) {
                 modelMatrix
                     .identity()
@@ -570,19 +574,14 @@ public class MeshRenderer {
                 }
             }
 
+            Matrix4f finalModelMatrix = new Matrix4f(modelMatrix);
             if(meshAnimator != null && meshAnimator.isPlaying()) {
-                shaderProgram.setUniform("hasAnimation", 1);
-
-                Matrix4f[] boneMatrices = meshAnimator.getBoneMatrices();
-                int maxBones = meshAnimator.getAnimatedModel().getMaxBones();
-
-                for(int i = 0; i < maxBones; i++) {
-                    shaderProgram.setUniform("boneMatrices[" + i + "]", boneMatrices[i]);
-                }
-            } else {
-                shaderProgram.setUniform("hasAnimation", 0);
+                Matrix4f animTransform = meshAnimator.getNodeTransform();
+                finalModelMatrix.mul(animTransform);
             }
             
+            shaderProgram.setUniform("hasAnimation", 0);
+                    
             shaderProgram.bind();
             shaderProgram.setUniform("shaderType", shaderType);
 
@@ -615,12 +614,15 @@ public class MeshRenderer {
             float starBrightness = meshData.getStarBrightness();
             shaderProgram.setUniform("uStarBrightness", starBrightness);
             
-            shaderProgram.setUniform("model", modelMatrix);
+            shaderProgram.setUniform("model", finalModelMatrix);
             shaderProgram.setUniform("view", renderCamera.getViewMatrix());
             shaderProgram.setUniform("projection", renderCamera.getProjectionMatrix());
+            
+            shaderProgram.setUniform("modelMatrix", finalModelMatrix);
             shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
             shaderProgram.setUniform("hasColors", hasColors ? 1 : 0);
             shaderProgram.setUniform("texSampler", 0);
+            
             if(hasTex) {
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, texId);

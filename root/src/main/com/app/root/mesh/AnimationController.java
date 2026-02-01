@@ -1,13 +1,13 @@
 package main.com.app.root.mesh;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.*;
 
 public class AnimationController {
+    private Mesh mesh;
     private final Map<String, MeshAnimator> animators;
     private final Map<String, AnimatedModel> animatedModels;
 
-    public AnimationController() {
+    public AnimationController(Mesh mesh) {
+        this.mesh = mesh;
         this.animators = new HashMap<>();
         this.animatedModels = new HashMap<>();
     }
@@ -26,9 +26,14 @@ public class AnimationController {
      */
     public void registerAnimatedModel(String id, AnimatedModel model) {
         animatedModels.put(id, model);
-        animators.put(id, new MeshAnimator(model));
-        System.out.println("Registered animated model: " + id + " with " + 
-            model.getAnimationNames().size() + " animations");
+        MeshAnimator animator = new MeshAnimator(model);
+        animators.put(id, animator);
+        
+        MeshRenderer renderer = mesh.getMeshRenderer(id);
+        if(renderer != null) {
+            renderer.setMeshAnimator(animator);
+        }
+        System.out.println("Animated model added: " + id + " with " + model.getAnimationNames().size() + " animations");
     }
 
     public void removeAnimatedModel(String id) {
@@ -70,6 +75,8 @@ public class AnimationController {
         MeshAnimator meshAnimator = animators.get(modelId);
         if(meshAnimator != null) {
             meshAnimator.playAnimation(animationName);
+            System.out.println("Player animations: " + animationName);
+            System.out.println("Playing animation: " + meshAnimator.isPlaying());
         } else {
             System.err.println("No animator found for model: " + modelId);
         }

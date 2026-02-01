@@ -176,10 +176,38 @@ public class AnimationLoader {
             }
         }
 
+        if(boneMap.isEmpty()) {
+            System.out.println("No mesh bones found - using node hierarchy for animation");
+            collectAllNodes(rootNode, boneMap, new int[]{0});
+        }
+
+        System.out.println("Skeleton bones (total: " + boneMap.size() + "):");
+        for(Map.Entry<String, BoneInfo> entry : boneMap.entrySet()) {
+            System.out.println("  Bone: " + entry.getKey() + ", ID: " + entry.getValue().id);
+        }
+
         Matrix4f globalInverseTransform = convertMatrix(rootNode.mTransformation()).invert();
         AnimatedModel.Bone rootBone = buildBoneHierarchy(rootNode, null, boneMap);
 
         return new AnimatedModel.Skeleton(rootBone, globalInverseTransform);
+    }
+
+    private static void collectAllNodes(AINode node, Map<String, BoneInfo> boneMap, int[] counter) {
+        String nodeName = node.mName().dataString();
+        if(!boneMap.containsKey(nodeName) && counter[0] < MAX_BONES) {
+            Matrix4f offsetMatrix = new Matrix4f();
+            boneMap.put(nodeName, new BoneInfo(counter[0]++, offsetMatrix));
+        }
+        
+        // Recursively collect child nodes
+        int numChildren = node.mNumChildren();
+        if(numChildren > 0) {
+            PointerBuffer childrenBuffer = node.mChildren();
+            for(int i = 0; i < numChildren; i++) {
+                AINode childNode = AINode.create(childrenBuffer.get(i));
+                collectAllNodes(childNode, boneMap, counter);
+            }
+        }
     }
 
     private static Animation loadAnimation(AIAnimation aiAnimation, AnimatedModel.Skeleton skeleton) {
@@ -264,36 +292,42 @@ public class AnimationLoader {
      * Build Bone Hierarchy
      */
     private static AnimatedModel.Bone buildBoneHierarchy(
-        AINode node,
-        AnimatedModel.Bone parent,
-        Map<String, BoneInfo> boneMap
-    ) {
-        String nodeName = node.mName().dataString();
-        Matrix4f nodeTransform = convertMatrix(node.mTransformation());
+    AINode node,
+    AnimatedModel.Bone parent,
+    Map<String, BoneInfo> boneMap
+) {
+    String nodeName = node.mName().dataString();
+    Matrix4f nodeTransform = convertMatrix(node.mTransformation());
 
-        BoneInfo boneInfo = boneMap.get(nodeName);
-        int boneId = boneInfo != null ? boneInfo.id : -1;
-        Matrix4f offsetMatrix = boneInfo != null ? boneInfo.offsetMatrix : new Matrix4f();
+    BoneInfo boneInfo = boneMap.get(nodeName);
+    int boneId = boneInfo != null ? boneInfo.id : -1;
+    Matrix4f offsetMatrix = boneInfo != null ? boneInfo.offsetMatrix : new Matrix4f();
 
-        AnimatedModel.Bone bone = new AnimatedModel.Bone(
-            nodeName, 
-            boneId, 
-            offsetMatrix, 
-            nodeTransform
-        );
+    AnimatedModel.Bone bone = new AnimatedModel.Bone(
+        nodeName, 
+        boneId, 
+        offsetMatrix, 
+        nodeTransform
+    );
 
-        int numChildren = node.mNumChildren();
-        if(numChildren > 0) {
-            PointerBuffer childrenBuffer = node.mChildren();
-            for(int i = 0; i < numChildren; i++) {
-                AINode childNode = AINode.create(childrenBuffer.get(i));
-                AnimatedModel.Bone childBone = buildBoneHierarchy(childNode, parent, boneMap);
-                bone.addChild(childBone);
-            }
-        }
-
-        return bone;
+    // BUG FIX: Set parent on the bone BEFORE adding children
+    if (parent != null) {
+        bone.setParent(parent);
     }
+
+    int numChildren = node.mNumChildren();
+    if(numChildren > 0) {
+        PointerBuffer childrenBuffer = node.mChildren();
+        for(int i = 0; i < numChildren; i++) {
+            AINode childNode = AINode.create(childrenBuffer.get(i));
+            // BUG FIX: Pass 'bone' as parent, not 'parent'
+            AnimatedModel.Bone childBone = buildBoneHierarchy(childNode, bone, boneMap);
+            bone.addChild(childBone);
+        }
+    }
+
+    return bone;
+}
 
     /**
      * Convert Matrix

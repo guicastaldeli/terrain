@@ -53,9 +53,9 @@ vec4 applyAnim(vec3 position, out vec3 animatedNormal) {
     vec3 totalNormal = vec3(0.0);
 
     for(int i = 0; i < 4; i++) {
-        int boneIds = aBoneIds[i];
+        int boneId = aBoneIds[i];
         float weight = aBoneWeights[i];
-        if(boneIds >= 0 && boneId < MAX_BONES && weight > 0.0) {
+        if(boneId >= 0 && boneId < MAX_BONES && weight > 0.0) {
             mat4 boneTransform = boneMatrices[boneId];
 
             vec4 localPosition = boneTransform * vec4(position, 1.0);

@@ -1,4 +1,6 @@
 package main.com.app.root.player;
+import main.com.app.root.mesh.AnimatedModel;
+import main.com.app.root.mesh.AnimationLoader;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
@@ -11,13 +13,15 @@ public class PlayerMesh {
     private final Tick tick;
     private final PlayerController playerController;
 
-    private static final String PLAYER_MESH_ID = "PLAYER_MESH";
+    public static final String PLAYER_MESH_ID = "PLAYER_MESH";
     private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/misc/dino.png";
     private final Mesh mesh;
     private MeshData meshData;
     private Vector3f meshOffset;
     private Vector3f meshScale;
     private Vector3f meshRotation;
+
+    private AnimatedModel animatedModel;
 
     public PlayerMesh(
         Tick tick, 
@@ -36,6 +40,28 @@ public class PlayerMesh {
     }
 
     /**
+     * Set Mesh
+     */
+    public void setMesh() {
+        animatedModel = MeshLoader.loadAnimatedModel("ball", PLAYER_MESH_ID);
+        if(animatedModel != null) {
+            animatedModel.getMeshData().setIsDynamic(true);
+            mesh.addAnimatedModel(PLAYER_MESH_ID, animatedModel);
+            meshData = animatedModel.getMeshData();
+        }
+        /*
+        MeshData data = MeshLoader.loadModel("cloud3", PLAYER_MESH_ID);
+        if(data != null) {
+            //data.setColorHex("#b45353ff");
+            data.setIsDynamic(true);
+            mesh.add(PLAYER_MESH_ID, data);
+            meshData = data;
+            //loadTex();
+        }
+            */
+    }
+
+    /**
      * Load Texure
      */
     private void loadTex() {
@@ -46,20 +72,6 @@ public class PlayerMesh {
         }
         
         mesh.setTex(PLAYER_MESH_ID, id);
-    }
-
-    /**
-     * Set Mesh
-     */
-    public void setMesh() {
-        MeshData data = MeshLoader.load(MeshData.MeshType.RECTANGLE, PLAYER_MESH_ID);
-        if(data != null) {
-            //data.setColorHex("#b45353ff");
-            data.setIsDynamic(true);
-            mesh.add(PLAYER_MESH_ID, data);
-            meshData = data;
-            loadTex();
-        }
     }
 
     public MeshData getMeshData() {
@@ -141,11 +153,15 @@ public class PlayerMesh {
         if(mesh.getMeshRenderer() != null) {
             updateMeshModelMatrix();
         }
+        if (animatedModel != null && mesh.getAnimationController() != null) {
+            mesh.getAnimationController().update(PLAYER_MESH_ID);
+        }
     }
 
     public void render() {
         if(mesh.getMeshRenderer() != null) {
             updateMeshModelMatrix();
+            mesh.getMeshRenderer().shaderProgram.setUniform("hasAnimation", 1);
             mesh.render(PLAYER_MESH_ID, 0);
         }
     }

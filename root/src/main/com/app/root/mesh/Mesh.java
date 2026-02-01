@@ -31,7 +31,7 @@ public class Mesh {
         this.meshDataMap = new HashMap<>();
         this.meshRenderer = new MeshRenderer(tick, shaderProgram);
 
-        this.animationController = new AnimationController();
+        this.animationController = new AnimationController(this);
         this.particleManager = new ParticleManager(tick, this);
     }
 

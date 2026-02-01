@@ -128,6 +128,10 @@ public class AnimatedModel {
             return id;
         }
 
+        public void setParent(Bone parent) {
+            this.parent = parent;
+        }
+
         public Matrix4f getOffsetMatrix() {
             return offsetMatrix;
         }

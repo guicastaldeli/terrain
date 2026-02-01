@@ -86,6 +86,12 @@ return {
             path = "root/src/main/com/app/root/_resources/env/cloud2.obj",
             texture = "root/src/main/com/app/root/_resources/texture/env/cloud2.png",
             scale = { 25.0, 25.0, 25.0 }
+        },
+        {
+            name = "ball",
+            path = "root/src/main/com/app/root/_resources/player/ball.gltf",
+            texture = "root/src/main/com/app/root/_resources/texture/env/cloud2.png",
+            size = { 25.0, 25.0, 25.0 }
         }
     }
 }

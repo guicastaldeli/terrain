@@ -176,6 +176,8 @@ public class Animation {
 
             Vector3f result = new Vector3f();
             currentFrame.scale.lerp(nextFrame.scale, factor, result);
+
+            
             return result;
         }
 

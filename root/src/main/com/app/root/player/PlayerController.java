@@ -103,6 +103,7 @@ public class PlayerController {
             this,
             mesh
         );
+        mesh.getAnimationController().play(PlayerMesh.PLAYER_MESH_ID, "SphereAction.001");
     }
 
     public void set() {

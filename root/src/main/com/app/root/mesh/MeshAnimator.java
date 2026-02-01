@@ -44,6 +44,16 @@ public class MeshAnimator {
     }
 
     /**
+     * Get Node Transform
+     */
+    public Matrix4f getNodeTransform() {
+        if(boneMatrices != null && boneMatrices.length > 0) {
+            return new Matrix4f(boneMatrices[0]);
+        }
+        return new Matrix4f();
+    }
+
+    /**
      * Blend Animation
      */
     public void blendAnimation(String animationName, float blendTime) {
@@ -60,13 +70,13 @@ public class MeshAnimator {
         Animation animation
     ) {
         Matrix4f nodeTransform = new Matrix4f(bone.getLocalTransform());
-
         Animation.NodeAnimation nodeAnim = animation.getNodeAnimation(bone.getName());
         if(nodeAnim != null) {
             Vector3f position = nodeAnim.getInterpoledPosition(currentTime);
             Quaternionf rotation = nodeAnim.getInterpoledRotation(currentTime);
             Vector3f scale = nodeAnim.getInterpoledScale(currentTime);
-            nodeTransform.identity()
+            
+            nodeTransform = new Matrix4f()
                 .translate(position)
                 .rotate(rotation)
                 .scale(scale);
@@ -76,13 +86,7 @@ public class MeshAnimator {
 
         int boneId = bone.getId();
         if(boneId >= 0 && boneId < boneMatrices.length) {
-            boneMatrices[boneId] = new Matrix4f(
-                animatedModel
-                    .getSkeleton()
-                    .getGlobalInverseTransform()
-                )
-                .mul(globalTransform)
-                .mul(bone.getOffsetMatrix());
+            boneMatrices[boneId] = new Matrix4f(globalTransform);
         }
 
         for(AnimatedModel.Bone child : bone.getChildren()) {
