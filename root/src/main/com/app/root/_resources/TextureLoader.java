@@ -13,7 +13,7 @@ public class TextureLoader {
             IntBuffer height = stack.mallocInt(1);
             IntBuffer channels = stack.mallocInt(1);
             
-            STBImage.stbi_set_flip_vertically_on_load(true);
+            STBImage.stbi_set_flip_vertically_on_load(false);
             ByteBuffer img = STBImage.stbi_load(
                 filePath, 
                 width, 

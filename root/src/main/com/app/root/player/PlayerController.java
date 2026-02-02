@@ -103,7 +103,7 @@ public class PlayerController {
             this,
             mesh
         );
-        mesh.getAnimationController().play(PlayerMesh.PLAYER_MESH_ID, "SphereAction.001");
+        //mesh.getAnimationController().play(PlayerMesh.PLAYER_MESH_ID, "SphereAction.001");
     }
 
     public void set() {
@@ -429,20 +429,20 @@ public class PlayerController {
                 targetRotation = 180.0f - yaw;
                 break;
             case BACKWARD:
-                targetRotation = 360.0f - yaw;
+                targetRotation = 180.0f - yaw;
                 break;
             case LEFT:
-                targetRotation = 270.0f - yaw;
+                targetRotation = 360.0f + yaw;
                 break;
             case RIGHT:
-                targetRotation = 90.0f - yaw;
+                targetRotation = 360.0f - yaw;
                 break;
             default:
-                targetRotation = 180.0f - yaw;
+                targetRotation = yaw;
                 break;
         }
 
-        targetRotation = targetRotation % 360.0f;
+        //targetRotation = targetRotation % 360.0f;
         if(targetRotation < 0) targetRotation += 360.0f;
         playerMesh.setMeshRotation(
             playerMesh.getMeshRotation().x,

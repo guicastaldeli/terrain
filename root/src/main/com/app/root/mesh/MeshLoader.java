@@ -2,6 +2,8 @@ package main.com.app.root.mesh;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.jse.*;
 
+import main.com.app.root._resources.TextureLoader;
+
 public class MeshLoader {
     private static final String DATA_TYPES_DIR = "root/src/main/com/app/root/mesh/types/";
     private static ModelMap modelMap = null;
@@ -151,6 +153,11 @@ public class MeshLoader {
         float[] size = info.getSize();
         if(size != null) {
             meshData.setScale(size);
+        }
+
+        String texPath = info.getTexture();
+        if(texPath != null && !texPath.isEmpty()) {
+            TextureLoader.load(texPath);
         }
         
         return meshData;

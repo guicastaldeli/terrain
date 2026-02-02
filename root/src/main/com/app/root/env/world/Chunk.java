@@ -6,9 +6,9 @@ import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.player.Camera;
-import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.*;
 
 public class Chunk {
     private final WorldGenerator worldGenerator;
@@ -615,16 +615,22 @@ public class Chunk {
                 unload(key);
             }
             loadedChunks.clear();
-    
-            for(ChunkKey key : new ArrayList<>(cachedChunks.keySet())) {
-                ChunkData chunkData = cachedChunks.get(key);
-                if(chunkData != null && chunkData.collider != null) {
-                    collisionManager.removeCollider(chunkData.collider);
+            for(Map.Entry<ChunkKey, ChunkData> entry : cachedChunks.entrySet()) {
+                ChunkData chunkData = entry.getValue();
+                if(chunkData != null) {
+                    String chunkId = entry.getKey().toString();
+                    String waterId = chunkId.replace("chunk_", "water_");
+                    mesh.remove(chunkId);
+                    mesh.remove(waterId);
+                    if(chunkData.collider != null) {
+                        collisionManager.removeCollider(chunkData.collider);
+                    }
                 }
             }
             cachedChunks.clear();
-    
+
             chunksToLoad.clear();
+            chunksToUnloadPool.clear();
             lastProcessedIndex = 0;
         } finally {
             chunkLock.writeLock().unlock();

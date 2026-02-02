@@ -557,7 +557,6 @@ public class MeshRenderer {
                 glDepthMask(true);
             }
 
-            // Build base model matrix
             if(!isDynamic) {
                 modelMatrix
                     .identity()

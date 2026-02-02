@@ -3,6 +3,8 @@ import main.com.app.root.mesh.AnimatedModel;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
+import main.com.app.root.mesh.ModelInfo;
+import main.com.app.root.mesh.ModelMap;
 import main.com.app.root.Tick;
 import main.com.app.root._resources.TextureLoader;
 import org.joml.Matrix4f;
@@ -12,8 +14,6 @@ public class PlayerMesh {
     private final Tick tick;
     private final PlayerController playerController;
 
-    public static final String PLAYER_MESH_ID = "PLAYER_MESH";
-    private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/misc/dino.png";
     private final Mesh mesh;
     private MeshData meshData;
     private Vector3f meshOffset;
@@ -21,6 +21,9 @@ public class PlayerMesh {
     private Vector3f meshRotation;
 
     private AnimatedModel animatedModel;
+
+    public static final String PLAYER_MESH_ID = "susie_flower_base";
+    private static String TEX_PATH;
 
     public PlayerMesh(
         Tick tick, 
@@ -35,35 +38,31 @@ public class PlayerMesh {
         
         this.meshOffset = new Vector3f(0.0f, 0.0f, 0.0f);
         this.meshScale = new Vector3f(1.0f, 1.0f, 1.0f);
-        this.meshRotation = new Vector3f(-90.0f, 90.0f, -180.0f);
+        this.meshRotation = new Vector3f(0.0f, 0.0f, 0.0f);
     }
 
     /**
      * Set Mesh
      */
     public void setMesh() {
-        animatedModel = MeshLoader.loadAnimatedModel("ball", PLAYER_MESH_ID);
+        animatedModel = MeshLoader.loadAnimatedModel("susie", PLAYER_MESH_ID);
         if(animatedModel != null) {
             animatedModel.getMeshData().setIsDynamic(true);
             mesh.addAnimatedModel(PLAYER_MESH_ID, animatedModel);
             meshData = animatedModel.getMeshData();
         }
-        /*
-        MeshData data = MeshLoader.loadModel("cloud3", PLAYER_MESH_ID);
-        if(data != null) {
-            //data.setColorHex("#b45353ff");
-            data.setIsDynamic(true);
-            mesh.add(PLAYER_MESH_ID, data);
-            meshData = data;
-            //loadTex();
-        }
-            */
+        loadTex();
     }
 
     /**
      * Load Texure
      */
     private void loadTex() {
+        ModelMap modelMap = MeshLoader.getModelMap();
+        ModelInfo info = modelMap.getModelInfo(PLAYER_MESH_ID);
+        TEX_PATH = info.getTexture();
+        System.out.println("texture!!: " + info.getTexture());
+
         int id = TextureLoader.load(TEX_PATH);
         if(id <= 0) {
             System.err.println("FAILED to load texture!");
@@ -136,13 +135,15 @@ public class PlayerMesh {
             .add(new Vector3f(forward).mul(distanceFromPlayer))
             .add(meshOffset);
 
-        Vector3f rotation = getMeshRotation();
+        float dirX = meshRotation.x * 2.0f;
+        float dirY = meshRotation.y / 2.0f;
+        float dirZ = meshRotation.z;
 
         Matrix4f model = new Matrix4f()
             .translate(meshPos)
-            .rotateX((float) Math.toRadians(meshRotation.x))
-            .rotateY((float) Math.toRadians(meshRotation.y)) 
-            .rotateZ((float) Math.toRadians(meshRotation.z))
+            .rotateX((float) Math.toRadians(dirX))
+            .rotateY((float) Math.toRadians(dirY)) 
+            .rotateZ((float) Math.toRadians(dirZ))
             .scale(meshScale);
         
         mesh.setModelMatrix(PLAYER_MESH_ID, model);
@@ -159,7 +160,7 @@ public class PlayerMesh {
 
     public void render() {
         if(mesh.getMeshRenderer() != null) {
-            updateMeshModelMatrix();
+            //updateMeshModelMatrix();
             mesh.getMeshRenderer().shaderProgram.setUniform("hasAnimation", 1);
             mesh.render(PLAYER_MESH_ID, 0);
         }

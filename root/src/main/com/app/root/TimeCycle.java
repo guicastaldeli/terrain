@@ -37,7 +37,7 @@ public class TimeCycle {
     private float timeDayPercentage = 0.25f;
 
     public TimeCycle() {
-        setTime(22, 0);
+        setTime(8, 0);
         updateTime();
     }
 
