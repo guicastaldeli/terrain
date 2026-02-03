@@ -71,9 +71,10 @@ public class SkyboxMesh {
 
         float progress = calcProgressInPeriod(currentPeriod, hour);
         TimeCycle.TimePeriod nextPeriod = getNextPeriod(currentPeriod);
-        if(progress > 0.95 && nextPeriod != currentPeriod) {
+        float iTransition = 0.95f;
+        if(progress > iTransition && nextPeriod != currentPeriod) {
             float[][] nextColors = getColorsForPeriod(nextPeriod);
-            float transitionProgress = (progress - 0.95f) / 0.05f;
+            float transitionProgress = (progress - iTransition) / 0.05f;
             endColor = interpolateColor(endColor, nextColors[0], transitionProgress);
         }
         return interpolateColor(startColor, endColor, progress);

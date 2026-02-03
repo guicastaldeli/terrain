@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<info>
+    <!-- Wood Life -->
+    <div id="wood-life">
+        <label id="wood-life-damage">
+            {treeDataIndex} took {damage} damage
+        </label>
+        <label id="wood-life-health">
+            Health: {currHealth}/{treeDataHealth}
+        </label>
+    </div>
+
+    <!-- Axe Level (Low) -->
+    <div id="axe-level-low">
+        <label id="axe-level-low-content">
+            Axe {axeLevel} too low for tree level {treeLevel}
+        </label>
+    </div>
+</info>

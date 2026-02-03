@@ -10,7 +10,6 @@ import main.com.app.root.DocParser;
 import main.com.app.root.Upgrader;
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.lwjgl.glfw.GLFW.glfwSetScrollCallback;
 import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 import static org.lwjgl.opengl.GL11.glDisable;

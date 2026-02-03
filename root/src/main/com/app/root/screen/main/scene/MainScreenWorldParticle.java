@@ -224,7 +224,7 @@ public class MainScreenWorldParticle {
     private void spawnInitialParticles() {
         float y = cameraPos.y - 20.0f;
         float maxY = 2000.0f;
-        int count = 200;
+        int count = 1000;
 
         for(int i = 0; i < count; i++) {
             float angle = random.nextFloat() * (float)Math.PI * 2.0f;
@@ -260,13 +260,11 @@ public class MainScreenWorldParticle {
                     "#D3D3D3",
                     "#FFFFFF"
                 );
-                
             case DUSK:
                 return getRandomColorFromHex(
                     "#D2B48C",
                     "#F5F5DC"
                 );
-                
             case NIGHT:
             case MIDNIGHT:
             case DAWN:
