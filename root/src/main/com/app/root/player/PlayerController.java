@@ -15,6 +15,8 @@ import main.com.app.root.DataController;
 import org.joml.Vector3f;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 
+import java.util.Map;
+
 public class PlayerController {
     public enum MovDir {
         FORWARD,
@@ -103,7 +105,11 @@ public class PlayerController {
             this,
             mesh
         );
-        //mesh.getAnimationController().play(PlayerMesh.PLAYER_MESH_ID, "SphereAction.001");
+        for(Map.Entry<String, Boolean> val : PlayerMesh.PLAYER_MESH_MAP.entrySet()) {
+            if(val.getValue()) {
+                mesh.getAnimationController().play(val.getKey(), "idle_mov");
+            }
+        }
     }
 
     public void set() {

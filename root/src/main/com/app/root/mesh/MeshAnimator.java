@@ -65,34 +65,41 @@ public class MeshAnimator {
      * Calculate Node Transform
      */
     private void calcNodeTransform(
-        AnimatedModel.Bone bone,
-        Matrix4f parentTransform,
-        Animation animation
-    ) {
-        Matrix4f nodeTransform = new Matrix4f(bone.getLocalTransform());
-        Animation.NodeAnimation nodeAnim = animation.getNodeAnimation(bone.getName());
-        if(nodeAnim != null) {
-            Vector3f position = nodeAnim.getInterpoledPosition(currentTime);
-            Quaternionf rotation = nodeAnim.getInterpoledRotation(currentTime);
-            Vector3f scale = nodeAnim.getInterpoledScale(currentTime);
-            
-            nodeTransform = new Matrix4f()
-                .translate(position)
-                .rotate(rotation)
-                .scale(scale);
-        }
-
-        Matrix4f globalTransform = new Matrix4f(parentTransform).mul(nodeTransform);
-
-        int boneId = bone.getId();
-        if(boneId >= 0 && boneId < boneMatrices.length) {
-            boneMatrices[boneId] = new Matrix4f(globalTransform);
-        }
-
-        for(AnimatedModel.Bone child : bone.getChildren()) {
-            calcNodeTransform(child, globalTransform, animation);
-        }
+    AnimatedModel.Bone bone,
+    Matrix4f parentTransform,
+    Animation animation
+) {
+    Matrix4f nodeTransform = new Matrix4f(bone.getLocalTransform());
+    Animation.NodeAnimation nodeAnim = animation.getNodeAnimation(bone.getName());
+    if(nodeAnim != null) {
+        Vector3f position = nodeAnim.getInterpoledPosition(currentTime);
+        Quaternionf rotation = nodeAnim.getInterpoledRotation(currentTime);
+        Vector3f scale = nodeAnim.getInterpoledScale(currentTime);
+        
+        nodeTransform = new Matrix4f()
+            .translate(position)
+            .rotate(rotation)
+            .scale(scale);
     }
+
+    Matrix4f globalTransform = new Matrix4f(parentTransform).mul(nodeTransform);
+
+    int boneId = bone.getId();
+    if(boneId >= 0 && boneId < boneMatrices.length) {
+        // HERE'S THE FIX: Apply global inverse transform and offset matrix
+        Matrix4f finalTransform = new Matrix4f(
+            animatedModel.getSkeleton().getGlobalInverseTransform()
+        )
+        .mul(globalTransform)
+        .mul(bone.getOffsetMatrix());
+        
+        boneMatrices[boneId] = finalTransform;
+    }
+
+    for(AnimatedModel.Bone child : bone.getChildren()) {
+        calcNodeTransform(child, globalTransform, animation);
+    }
+}
 
     /**
      * 

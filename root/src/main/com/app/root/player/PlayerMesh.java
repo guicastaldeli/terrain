@@ -7,6 +7,9 @@ import main.com.app.root.mesh.ModelInfo;
 import main.com.app.root.mesh.ModelMap;
 import main.com.app.root.Tick;
 import main.com.app.root._resources.TextureLoader;
+
+import java.util.Map;
+
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -22,7 +25,11 @@ public class PlayerMesh {
 
     private AnimatedModel animatedModel;
 
-    public static final String PLAYER_MESH_ID = "susie_flower_base";
+    public static final Map<String, Boolean> PLAYER_MESH_MAP = Map.of(
+        "susie", true,
+        "susie_flower_base", false,
+        "susie_flower", false
+    );
     private static String TEX_PATH;
 
     public PlayerMesh(
@@ -45,11 +52,22 @@ public class PlayerMesh {
      * Set Mesh
      */
     public void setMesh() {
-        animatedModel = MeshLoader.loadAnimatedModel("susie", PLAYER_MESH_ID);
-        if(animatedModel != null) {
-            animatedModel.getMeshData().setIsDynamic(true);
-            mesh.addAnimatedModel(PLAYER_MESH_ID, animatedModel);
-            meshData = animatedModel.getMeshData();
+        for(Map.Entry<String, Boolean> val : PLAYER_MESH_MAP.entrySet()) {
+            if(val.getValue() == true) {
+                animatedModel = MeshLoader.loadAnimatedModel(val.getKey(), val.getKey());
+                if(animatedModel != null) {
+                    animatedModel.getMeshData().setIsDynamic(true);
+                    mesh.addAnimatedModel(val.getKey(), animatedModel);
+                    meshData = animatedModel.getMeshData();
+                }
+            } else if(val.getValue() == false) {
+                MeshData data = MeshLoader.loadModel(val.getKey(), val.getKey());
+                if(data != null) {
+                    data.setIsDynamic(true);
+                    mesh.add(val.getKey(), data);
+                    meshData = data;
+                }
+            }
         }
         loadTex();
     }
@@ -58,18 +76,20 @@ public class PlayerMesh {
      * Load Texure
      */
     private void loadTex() {
-        ModelMap modelMap = MeshLoader.getModelMap();
-        ModelInfo info = modelMap.getModelInfo(PLAYER_MESH_ID);
-        TEX_PATH = info.getTexture();
-        System.out.println("texture!!: " + info.getTexture());
-
-        int id = TextureLoader.load(TEX_PATH);
-        if(id <= 0) {
-            System.err.println("FAILED to load texture!");
-            return;
+        for(String val : PLAYER_MESH_MAP.keySet()) {
+            ModelMap modelMap = MeshLoader.getModelMap();
+            ModelInfo info = modelMap.getModelInfo(val);
+            TEX_PATH = info.getTexture();
+            System.out.println("texture!!: " + info.getTexture());
+    
+            int id = TextureLoader.load(TEX_PATH);
+            if(id <= 0) {
+                System.err.println("FAILED to load texture!");
+                return;
+            }
+            
+            mesh.setTex(val, id);
         }
-        
-        mesh.setTex(PLAYER_MESH_ID, id);
     }
 
     public MeshData getMeshData() {
@@ -146,23 +166,32 @@ public class PlayerMesh {
             .rotateZ((float) Math.toRadians(dirZ))
             .scale(meshScale);
         
-        mesh.setModelMatrix(PLAYER_MESH_ID, model);
+        for(String val : PLAYER_MESH_MAP.keySet()) {
+            mesh.setModelMatrix(val, model);
+        }
     }
 
     public void update() {
         if(mesh.getMeshRenderer() != null) {
             updateMeshModelMatrix();
         }
-        if (animatedModel != null && mesh.getAnimationController() != null) {
-            mesh.getAnimationController().update(PLAYER_MESH_ID);
+        if(animatedModel != null && mesh.getAnimationController() != null) {
+            for(Map.Entry<String, Boolean> val : PLAYER_MESH_MAP.entrySet()) {
+                if(val.getValue()) {
+                    mesh.getAnimationController().update(val.getKey());
+                }
+            }
         }
     }
 
     public void render() {
         if(mesh.getMeshRenderer() != null) {
-            //updateMeshModelMatrix();
-            mesh.getMeshRenderer().shaderProgram.setUniform("hasAnimation", 1);
-            mesh.render(PLAYER_MESH_ID, 0);
+            updateMeshModelMatrix();
+            for(Map.Entry<String, Boolean> val : PLAYER_MESH_MAP.entrySet()) {
+                int hasAnimation = val.getValue() ? 1 : 0;
+                mesh.getMeshRenderer().shaderProgram.setUniform("hasAnimation", hasAnimation);
+                mesh.render(val.getKey(), 0);
+            }
         }
     }
 }

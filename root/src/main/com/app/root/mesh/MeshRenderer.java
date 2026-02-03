@@ -579,7 +579,13 @@ public class MeshRenderer {
                 finalModelMatrix.mul(animTransform);
             }
             
-            shaderProgram.setUniform("hasAnimation", 0);
+            if(meshAnimator != null && meshAnimator.isPlaying()) {
+                shaderProgram.setUniform("hasAnimation", 1);
+                float[] boneMatricesArray = meshAnimator.getBoneMatricesArray();
+                shaderProgram.setUniform("boneMatrices", boneMatricesArray);
+            } else {
+                shaderProgram.setUniform("hasAnimation", 0);
+            }
                     
             shaderProgram.bind();
             shaderProgram.setUniform("shaderType", shaderType);

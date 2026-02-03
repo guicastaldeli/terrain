@@ -14,19 +14,19 @@ return {
         },
         {
             name = "susie",
-            path = "root/src/main/com/app/root/_resources/player/susie.gltf",
+            path = "root/src/main/com/app/root/_resources/player/susie2.gltf",
             texture = "root/src/main/com/app/root/_resources/texture/player/susie_df.png",
             size = { 1.0, 1.0, 1.0 }
         },
         {
             name = "susie_flower_base",
-            path = "root/src/main/com/app/root/_resources/player/test.obj",
+            path = "root/src/main/com/app/root/_resources/player/susie_flower_base.obj",
             texture = "root/src/main/com/app/root/_resources/texture/player/susie_flower_base.png",
             size = { 1.0, 1.0, 1.0 }
         },
         {
             name = "susie_flower",
-            path = "root/src/main/com/app/root/_resources/player/susie_flower.gltf",
+            path = "root/src/main/com/app/root/_resources/player/susie_flower.obj",
             texture = "root/src/main/com/app/root/_resources/texture/player/susie_flower.png",
             size = { 1.0, 1.0, 1.0 }
         }

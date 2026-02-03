@@ -10,7 +10,7 @@ import java.util.Map;
 import static org.lwjgl.assimp.Assimp.*;
 
 public class AnimationLoader {
-    private static final int MAX_BONES = 100;
+    private static final int MAX_BONES = 1000;
     private static final int FLAGS = 
         aiProcess_Triangulate |
         aiProcess_FlipUVs |
@@ -199,7 +199,6 @@ public class AnimationLoader {
             boneMap.put(nodeName, new BoneInfo(counter[0]++, offsetMatrix));
         }
         
-        // Recursively collect child nodes
         int numChildren = node.mNumChildren();
         if(numChildren > 0) {
             PointerBuffer childrenBuffer = node.mChildren();
@@ -216,7 +215,7 @@ public class AnimationLoader {
 
         float duration = (float) aiAnimation.mDuration();
         float ticksPerSec = (float) aiAnimation.mTicksPerSecond();
-        if(ticksPerSec == 0) ticksPerSec = 25.0f;
+        if(ticksPerSec == 0) ticksPerSec = 60.0f;
         float durationInSecs = duration / ticksPerSec;
 
         Animation animation = new Animation(
@@ -292,42 +291,39 @@ public class AnimationLoader {
      * Build Bone Hierarchy
      */
     private static AnimatedModel.Bone buildBoneHierarchy(
-    AINode node,
-    AnimatedModel.Bone parent,
-    Map<String, BoneInfo> boneMap
-) {
-    String nodeName = node.mName().dataString();
-    Matrix4f nodeTransform = convertMatrix(node.mTransformation());
+        AINode node,
+        AnimatedModel.Bone parent,
+        Map<String, BoneInfo> boneMap
+    ) {
+        String nodeName = node.mName().dataString();
+        Matrix4f nodeTransform = convertMatrix(node.mTransformation());
 
-    BoneInfo boneInfo = boneMap.get(nodeName);
-    int boneId = boneInfo != null ? boneInfo.id : -1;
-    Matrix4f offsetMatrix = boneInfo != null ? boneInfo.offsetMatrix : new Matrix4f();
+        BoneInfo boneInfo = boneMap.get(nodeName);
+        int boneId = boneInfo != null ? boneInfo.id : -1;
+        Matrix4f offsetMatrix = boneInfo != null ? boneInfo.offsetMatrix : new Matrix4f();
 
-    AnimatedModel.Bone bone = new AnimatedModel.Bone(
-        nodeName, 
-        boneId, 
-        offsetMatrix, 
-        nodeTransform
-    );
-
-    // BUG FIX: Set parent on the bone BEFORE adding children
-    if (parent != null) {
-        bone.setParent(parent);
-    }
-
-    int numChildren = node.mNumChildren();
-    if(numChildren > 0) {
-        PointerBuffer childrenBuffer = node.mChildren();
-        for(int i = 0; i < numChildren; i++) {
-            AINode childNode = AINode.create(childrenBuffer.get(i));
-            // BUG FIX: Pass 'bone' as parent, not 'parent'
-            AnimatedModel.Bone childBone = buildBoneHierarchy(childNode, bone, boneMap);
-            bone.addChild(childBone);
+        AnimatedModel.Bone bone = new AnimatedModel.Bone(
+            nodeName, 
+            boneId, 
+            offsetMatrix, 
+            nodeTransform
+        );
+        if(parent != null) {
+            bone.setParent(parent);
         }
-    }
 
-    return bone;
-}
+        int numChildren = node.mNumChildren();
+        if(numChildren > 0) {
+            PointerBuffer childrenBuffer = node.mChildren();
+            for(int i = 0; i < numChildren; i++) {
+                AINode childNode = AINode.create(childrenBuffer.get(i));
+                AnimatedModel.Bone childBone = buildBoneHierarchy(childNode, bone, boneMap);
+                bone.addChild(childBone);
+            }
+        }
+
+        return bone;
+    }
 
     /**
      * Convert Matrix
