@@ -129,6 +129,13 @@ public class ShaderProgram {
         }
     }
 
+    public void setUniformMatrix4fv(String name, float[] matrices) {
+        int loc = getUniformLocation(name);
+        if(loc != -1) {
+            glUniformMatrix4fv(loc, false, matrices);
+        }
+    }
+
     public int getUniformLocation(String name) {
         return uniformLocations.computeIfAbsent(name, k -> {
             int location = glGetUniformLocation(programId, name);

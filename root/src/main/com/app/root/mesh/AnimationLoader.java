@@ -10,7 +10,7 @@ import java.util.Map;
 import static org.lwjgl.assimp.Assimp.*;
 
 public class AnimationLoader {
-    private static final int MAX_BONES = 1000;
+    private static final int MAX_BONES = 100;
     private static final int FLAGS = 
         aiProcess_Triangulate |
         aiProcess_FlipUVs |

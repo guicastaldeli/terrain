@@ -100,6 +100,7 @@ public class AnimatedModel {
         private final Matrix4f localTransform;
         private final List<Bone> children;
         private Bone parent;
+        private boolean isRoot;
 
         public Bone(
             String name,
@@ -113,6 +114,11 @@ public class AnimatedModel {
             this.localTransform = new Matrix4f(localTransform);
             this.children = new ArrayList<>();
             this.parent = null;
+            this.isRoot = (name.equals("Armature") || parent == null);
+        }
+
+        public boolean isRoot() {
+            return isRoot;
         }
 
         public void addChild(Bone child) {
@@ -130,6 +136,7 @@ public class AnimatedModel {
 
         public void setParent(Bone parent) {
             this.parent = parent;
+            this.isRoot = (parent == null);
         }
 
         public Matrix4f getOffsetMatrix() {

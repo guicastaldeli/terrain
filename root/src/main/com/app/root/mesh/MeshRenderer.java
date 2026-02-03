@@ -572,17 +572,11 @@ public class MeshRenderer {
                     );
                 }
             }
-
-            Matrix4f finalModelMatrix = new Matrix4f(modelMatrix);
-            if(meshAnimator != null && meshAnimator.isPlaying()) {
-                Matrix4f animTransform = meshAnimator.getNodeTransform();
-                finalModelMatrix.mul(animTransform);
-            }
             
             if(meshAnimator != null && meshAnimator.isPlaying()) {
                 shaderProgram.setUniform("hasAnimation", 1);
                 float[] boneMatricesArray = meshAnimator.getBoneMatricesArray();
-                shaderProgram.setUniform("boneMatrices", boneMatricesArray);
+                shaderProgram.setUniformMatrix4fv("boneMatrices", boneMatricesArray);
             } else {
                 shaderProgram.setUniform("hasAnimation", 0);
             }
@@ -619,6 +613,7 @@ public class MeshRenderer {
             float starBrightness = meshData.getStarBrightness();
             shaderProgram.setUniform("uStarBrightness", starBrightness);
             
+            Matrix4f finalModelMatrix = new Matrix4f(modelMatrix);
             shaderProgram.setUniform("model", finalModelMatrix);
             shaderProgram.setUniform("view", renderCamera.getViewMatrix());
             shaderProgram.setUniform("projection", renderCamera.getProjectionMatrix());

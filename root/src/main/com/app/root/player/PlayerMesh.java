@@ -143,31 +143,23 @@ public class PlayerMesh {
     private void updateMeshModelMatrix() {
         if(mesh.getMeshRenderer() == null) return;
 
-        Camera camera = playerController.getCamera();
         Vector3f playerPos = playerController.getPosition();
-        float distanceFromPlayer = camera.distanceFromTarget;
 
-        Vector3f forward = camera.getFront();
-        forward.y = 0.0f;
-        forward.normalize();
+        for(Map.Entry<String, Boolean> val : PLAYER_MESH_MAP.entrySet()) {
+            String meshName = val.getKey();
+            Vector3f meshPos = new Vector3f(playerPos);
+            
+            float dirX = meshRotation.x * 2.0f;
+            float dirY = meshRotation.y / 2.0f;
+            float dirZ = meshRotation.z;
 
-        Vector3f meshPos = new Vector3f(playerPos)
-            .add(new Vector3f(forward).mul(distanceFromPlayer))
-            .add(meshOffset);
-
-        float dirX = meshRotation.x * 2.0f;
-        float dirY = meshRotation.y / 2.0f;
-        float dirZ = meshRotation.z;
-
-        Matrix4f model = new Matrix4f()
-            .translate(meshPos)
-            .rotateX((float) Math.toRadians(dirX))
-            .rotateY((float) Math.toRadians(dirY)) 
-            .rotateZ((float) Math.toRadians(dirZ))
-            .scale(meshScale);
-        
-        for(String val : PLAYER_MESH_MAP.keySet()) {
-            mesh.setModelMatrix(val, model);
+            Matrix4f model = new Matrix4f()
+                .translate(meshPos)
+                .rotateX((float) Math.toRadians(dirX))
+                .rotateY((float) Math.toRadians(dirY)) 
+                .rotateZ((float) Math.toRadians(dirZ));
+            
+            mesh.setModelMatrix(meshName, model);
         }
     }
 
