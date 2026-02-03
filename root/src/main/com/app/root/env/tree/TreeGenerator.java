@@ -6,21 +6,24 @@ import main.com.app.root._resources.AudioLoader;
 import main.com.app.root._resources.TextureLoader;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player.Camera;
-
+import main.com.app.root.ui.UIController;
+import main.com.app.root.ui.UIController.UIType;
+import main.com.app.root.ui.info.Info;
 import java.util.List;
 import java.util.Random;
 import org.joml.Vector3f;
 
 public class TreeGenerator {
-    public TreeData treeData;
-    public final Vector3f position;
-    public Spawner spawner;
     public TreeController treeController;
-
+    public TreeData treeData;
+    public Spawner spawner;
+    private UIController uiController;
+    
     public Mesh mesh;
     public String MESH_ID;
     public static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/env/";
     
+    public final Vector3f position;
     public String id;
     public float currHealth;
     public boolean isAlive;
@@ -37,8 +40,8 @@ public class TreeGenerator {
         this.position = position;
         this.mesh = mesh;
         this.spawner = spawner;
-        this.MESH_ID = null;
 
+        this.MESH_ID = null;
         this.currHealth = treeData.getHealth();
         this.isAlive = true;
         this.respawnTimer = 0;
@@ -47,6 +50,10 @@ public class TreeGenerator {
 
     public void setTreeController(TreeController controller) {
         this.treeController = controller;
+    }
+
+    public void setUIController(UIController uiController) {
+        this.uiController = uiController;
     }
 
     /**
@@ -86,14 +93,20 @@ public class TreeGenerator {
 
     public int takeDamage(int damage, int axeLevel) {
         if(!isAlive) return 0;
-
-        if(axeLevel < treeData.getLevel()) {
-            System.out.println("Axe level " + axeLevel + " too low for tree level " + treeData.getLevel());
-            return 0;
-        }
+        if(axeLevel < treeData.getLevel()) return 0;
 
         currHealth -= damage;
-        System.out.println(treeData.getIndexTo() + " took " + damage + " damage. Health: " + currHealth + "/" + treeData.getHealth());
+        if(uiController != null) {
+            System.out.print("UI activated TAKE DAMAGE");
+            Info info = (Info) uiController.get(UIType.INFO);
+            info.getInfoActions().showTreeDamage(
+                treeData.getIndexTo(),
+                damage,
+                currHealth,
+                treeData.getHealth()
+            );
+        }
+        
         Camera camera = mesh.getMeshRenderer().getPlayerController().getCamera();
         Vector3f cameraFront = camera.getFront().normalize();
         Vector3f particleOffset = new Vector3f(cameraFront).mul(-10.0f);

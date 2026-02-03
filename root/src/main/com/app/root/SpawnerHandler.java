@@ -1,11 +1,13 @@
 package main.com.app.root;
-import java.util.Map;
-
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.ui.UIController;
+import java.util.Map;
 
 public interface SpawnerHandler {
     SpawnerData getType();
     void setMesh(Mesh mesh);
+    
+    default void setUIController(UIController uiController) {};
 
     default void setActive(boolean active) {};
     default boolean isActive() {

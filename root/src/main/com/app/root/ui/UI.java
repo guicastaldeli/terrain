@@ -43,7 +43,6 @@ public class UI implements UIHandler {
             UI.upgrader = upgrader;
             UI.mesh = mesh;
         } catch(Exception e) {
-            //System.err.println("Failed to initialize UI: " + UI.uinam);
             e.printStackTrace();
         }
     }
@@ -118,11 +117,102 @@ public class UI implements UIHandler {
     }
 
     /**
+     * 
      * Update
-    */
+     * 
+     */
     public void update() {
        if(lastMouseX >= 0 && lastMouseY >= 0) {
            handleMouseMove(lastMouseX, lastMouseY);
+        }
+    }
+
+    /**
+     * 
+     * Render
+     * 
+     */
+    @Override
+    public void render() {
+        if(!visible || textRenderer == null) return;
+        
+        for(UIElement element : uiData.elements) {
+            if(element.visible) {
+                if(element.type.equals("div") || element.type.equals("button")) {
+                    DocParser.renderUIElement(
+                        element, 
+                        window.getWidth(), window.getHeight(), 
+                        shaderProgram
+                    );
+                }
+                
+                if((element.type.equals("button") || element.type.equals("label")) && 
+                    element.text != null && !element.text.isEmpty() && textRenderer != null) {
+                    if(element.hasShadow) {
+                        textRenderer.renderTextWithShadow(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.shadowOffsetX,
+                            element.shadowOffsetY,
+                            element.shadowBlur,
+                            element.shadowColor,
+                            element.fontFamily
+                        );
+                    } else {
+                        textRenderer.renderText(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.fontFamily
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void render(UIElement element) {
+        if(!element.visible) return;
+        
+        if(element.type.equals("div") || element.type.equals("button")) {
+            DocParser.renderUIElement(
+                element, 
+                window.getWidth(), window.getHeight(), 
+                shaderProgram
+            );
+        }
+        
+        if((element.type.equals("button") || element.type.equals("label")) && 
+            element.text != null && !element.text.isEmpty() && textRenderer != null) {
+            if(element.hasShadow) {
+                textRenderer.renderTextWithShadow(
+                    element.text,
+                    element.x,
+                    element.y,
+                    element.scale,
+                    element.color,
+                    element.shadowOffsetX,
+                    element.shadowOffsetY,
+                    element.shadowBlur,
+                    element.shadowColor,
+                    element.fontFamily
+                );
+            } else {
+                textRenderer.renderText(
+                    element.text,
+                    element.x,
+                    element.y,
+                    element.scale,
+                    element.color,
+                    element.fontFamily
+                );
+            }
         }
     }
 

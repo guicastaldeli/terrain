@@ -3,18 +3,17 @@ import main.com.app.root.Upgrader;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.ui.info.Info;
 import main.com.app.root.ui.upgrade_menu.UpgradeMenu;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.lwjgl.glfw.GLFWCursorPosCallback;
-
 import static org.lwjgl.glfw.GLFW.*;
 
 public class UIController {
     public enum UIType {
         UPGRADE_MENU,
-        ALERTS
+        INFO
     }
 
     private final Window window;
@@ -48,7 +47,6 @@ public class UIController {
         );
 
         this.uis = new HashMap<>();
-        
         initUI();
     }
 
@@ -92,6 +90,7 @@ public class UIController {
      * Init UIs
      */
     private void initUI() {
+        /* Upgrade Menu */
         UpgradeMenu upgradeMenu = new UpgradeMenu(
             window, 
             shaderProgram, 
@@ -99,6 +98,14 @@ public class UIController {
             upgrader
         );
         uis.put(UIType.UPGRADE_MENU, upgradeMenu);
+    
+        /* Info */
+        Info info = new Info(
+            window, 
+            shaderProgram, 
+            this
+        );
+        uis.put(UIType.INFO, info);
     }
 
     /**
@@ -152,22 +159,29 @@ public class UIController {
     public UI get(UIType uiType) {
         return uis.get(uiType);
     }
-    
-    /**
-     * Render
-     */
-    public void render() {
-        if(currentUI != null) {
-            currentUI.render();
-        }
-    }
 
     /**
+     * 
      * Update
+     * 
      */
     public void update() {
         if(currentUI != null) {
             currentUI.update();
+        }
+    }
+
+    /**
+     * 
+     * Render
+     * 
+     */
+    public void render() {
+        if(UIType.INFO != null) {
+            get(UIType.INFO).render();
+        }
+        if(currentUI != null) {
+            currentUI.render();
         }
     }
 

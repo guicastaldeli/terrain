@@ -165,7 +165,8 @@ public class Scene {
                 spawner,
                 playerController,
                 lightningController,
-                particleManager
+                particleManager,
+                uiController
             );
 
             if(reset || envController == null) {
@@ -203,6 +204,7 @@ public class Scene {
             );
             inputController.setUiController(uiController);
             uiController.setupMouse();
+            playerController.getInputMap().getTreeInteractor().setUIController(uiController);
 
             mesh.setPlayerController(playerController);
 
@@ -234,6 +236,7 @@ public class Scene {
         envRenderer.render();
         spawner.registerHandlers(envController, lightningController);
         spawner.setActive(true);
+        spawner.setUIController(uiController);
         //particleManager.render();
     }
 
@@ -267,6 +270,7 @@ public class Scene {
         mesh.renderAll();
         playerController.render();
         mesh.getMeshRenderer().applyFog();
+        uiController.render();
         if(spawner != null) spawner.render();
     }
 

@@ -426,6 +426,11 @@ public class UpgradeMenu extends UI {
         return upgrader;
     }
 
+    /**
+     * 
+     * Render
+     * 
+     */
     @Override 
     public void render() {
         if(!visible || textRenderer == null) {
@@ -446,7 +451,7 @@ public class UpgradeMenu extends UI {
                 !element.id.equals("scrollbarBg") &&
                 !element.id.equals("scrollbarThumb")) {
                 
-                renderElement(element);
+                super.render(element);
             }
         }
         
@@ -468,7 +473,7 @@ public class UpgradeMenu extends UI {
                 element.id.startsWith("equipped_") ||
                 element.id.startsWith("slot_bg_")) {
                 
-                renderElement(element);
+                super.render(element);
             }
         }
         
@@ -476,46 +481,14 @@ public class UpgradeMenu extends UI {
         
         for(UIElement element : uiData.elements) {
             if(element.id.equals("scrollbarBg") || element.id.equals("scrollbarThumb")) {
-                renderElement(element);
+                super.render(element);
             }
         }
     }
 
-    private void renderElement(UIElement element) {
-        if(!element.visible) return;
-        
-        if(element.type.equals("div") || element.type.equals("button")) {
-            DocParser.renderUIElement(element, window.getWidth(), window.getHeight(), shaderProgram);
-        }
-        
-        if((element.type.equals("button") || element.type.equals("label")) && 
-            element.text != null && !element.text.isEmpty() && textRenderer != null) {
-            if(element.hasShadow) {
-                textRenderer.renderTextWithShadow(
-                    element.text,
-                    element.x,
-                    element.y,
-                    element.scale,
-                    element.color,
-                    element.shadowOffsetX,
-                    element.shadowOffsetY,
-                    element.shadowBlur,
-                    element.shadowColor,
-                    element.fontFamily
-                );
-            } else {
-                textRenderer.renderText(
-                    element.text,
-                    element.x,
-                    element.y,
-                    element.scale,
-                    element.color,
-                    element.fontFamily
-                );
-            }
-        }
-    }
-
+    /**
+     * Window Resize
+     */
     @Override
     public void onWindowResize(int width, int height) {
         if(getTextRenderer() != null) {
@@ -543,6 +516,9 @@ public class UpgradeMenu extends UI {
         });
     }
 
+    /**
+     * Handle Mouse Move
+     */
     @Override
     public void handleMouseMove(int mouseX, int mouseY) {
         if(!visible) return;

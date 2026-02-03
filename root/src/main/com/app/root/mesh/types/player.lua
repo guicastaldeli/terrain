@@ -14,7 +14,7 @@ return {
         },
         {
             name = "susie",
-            path = "root/src/main/com/app/root/_resources/player/susie5.gltf",
+            path = "root/src/main/com/app/root/_resources/player/susie.gltf",
             texture = "root/src/main/com/app/root/_resources/texture/player/susie_df.png",
             size = { 1.0, 1.0, 1.0 }
         },

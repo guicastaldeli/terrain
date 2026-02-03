@@ -1,61 +1,33 @@
 package main.com.app.root.ui.info;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
-
 public class InfoActions {
     private Info info;
-    private Map<String, Consumer<Map<String, Object>>> actionHandlers;
 
     public InfoActions(Info info) {
         this.info = info;
-        this.actionHandlers = new HashMap<>();
-        this.registerActions();
     }
 
     /**
-     * 
-     * Register Actions
-     * 
+     * Show Tree Damage
      */
-    public void registerAction(String actionName, Consumer<Map<String, Object>> handler) {
-        actionHandlers.put(actionName, handler);
+    public void showTreeDamage(String treeIndex, int damage, float currHealth, float maxHealth) {
+        MessageData data = new MessageData(info);
+        data.put("treeDataIndex", treeIndex);
+        data.put("damage", String.valueOf(damage));
+        data.put("currHealth", String.valueOf((int)currHealth));
+        data.put("treeDataHealth", String.valueOf((int)maxHealth));
+        
+        info.showMessage("wood-life", data);
     }
     
-    private void registerActions() {
-        /* Tree Damage */
-        registerAction("tree_damage", p -> {
-            String treeIndex = (String) p.get("treeIndex");
-            int damage = (int) p.get("damage");
-            float currHealth = (float) p.get("currHealth");
-            float maxHealth = (float) p.get("maxHealth");
-            MessageData.showTreeDamage(
-                treeIndex, 
-                damage, 
-                currHealth, 
-                maxHealth
-            );
-        });
-        /* Axe Level (Low) */
-        registerAction("axe_level_low", p -> {
-            int axeLevel = (int) p.get("axeLevel");
-            int treeLevel = (int) p.get("treeLevel");
-            MessageData.showAxeLevelLow(axeLevel, treeLevel);
-        });
-    }
-
     /**
-     * 
-     * Execute Action
-     * 
+     * Show Axe Level (Low)
      */
-    public void executeAction(String actionName, Map<String, Object> params) {
-        Consumer<Map<String, Object>> handler = actionHandlers.get(actionName);
-        if(handler != null) {
-            handler.accept(params);
-        } else {
-            System.err.println("No handler registered for action: " + actionName);
-        }
+    public void showAxeLevelLow(int axeLevel, int treeLevel) {
+        MessageData data = new MessageData(info);
+        data.put("axeLevel", String.valueOf(axeLevel));
+        data.put("treeLevel", String.valueOf(treeLevel));
+        
+        info.showMessage("axe-level-low", data);
     }
 }

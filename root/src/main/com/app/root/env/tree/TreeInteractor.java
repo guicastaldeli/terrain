@@ -10,6 +10,10 @@ import main.com.app.root.env.EnvData;
 import main.com.app.root.env.axe.AxeController;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.player.PlayerController;
+import main.com.app.root.ui.UIController;
+import main.com.app.root.ui.UIController.UIType;
+import main.com.app.root.ui.info.Info;
+
 import java.util.List;
 import org.joml.Vector3f;
 
@@ -19,6 +23,7 @@ public class TreeInteractor {
     private final Spawner spawner;
     private final Upgrader upgrader;
     private final EnvController envController;
+    private UIController uiController;
 
     private float swingTimer = 0f;
     private boolean isSwinging = false;
@@ -37,6 +42,10 @@ public class TreeInteractor {
         this.spawner = spawner;
         this.upgrader = upgrader;
         this.envController = envController;
+    }
+
+    public void setUIController(UIController uiController) {
+        this.uiController = uiController;
     }
 
     /**
@@ -105,10 +114,17 @@ public class TreeInteractor {
     private void breakTree(AxeController axe, TreeController tree) {
         Object treeGenerator = EnvCall.callReturn(tree, "getGenerator");
         if(treeGenerator == null) return;
+        Object[] paramsUI = {uiController};
+        EnvCall.callReturnWithParams(treeGenerator, paramsUI, "setUIController");
+
+        Info info = (Info) uiController.get(UIType.INFO);
 
         int treeLevel = (int) EnvCall.callReturn(treeGenerator, "getLevel");
         if(!axe.canBreakTree(treeLevel)) {
-            System.out.println("Axe level " + axe.getLevel() + " too low for tree level " + treeLevel);
+            if(info != null) {
+                System.out.print("UI activated CANT BREAK TREE");
+                info.getInfoActions().showAxeLevelLow(axe.getLevel(), treeLevel);
+            }
             return;
         }
 

@@ -8,6 +8,8 @@ import main.com.app.root.env.tree.TreeSpawner;
 import main.com.app.root.env.world.Water;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.ui.UIController;
+
 import org.joml.Vector3f;
 
 import java.util.*;
@@ -23,6 +25,7 @@ public class Spawner {
     private Tick tick;
     public Mesh mesh;
     private EnvController envController;
+    private UIController uiController;
 
     private Vector3f centerPosition;
     private float spawnRadius;
@@ -59,6 +62,15 @@ public class Spawner {
     
     public void setEnvController(EnvController envController) {
         this.envController = envController;
+    }
+
+    public void setUIController(UIController uiController) {
+        this.uiController = uiController;
+        for(List<SpawnerHandler> handlers : spawnerData.values()) {
+            for(SpawnerHandler handler : handlers) {
+                handler.setUIController(uiController);
+            }
+        }
     }
 
     /**

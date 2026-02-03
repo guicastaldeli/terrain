@@ -1,4 +1,5 @@
 package main.com.app.root.ui.info;
+import main.com.app.root.DocParser;
 import main.com.app.root.Tick;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
@@ -9,12 +10,12 @@ import main.com.app.root.ui.UIElement;
 import java.util.*;
 
 public class Info extends UI {
-    private static Info instance;
-
     private final Window window;
     private final ShaderProgram shaderProgram;
     private final UIController uiController;
+    private final InfoActions infoActions;
 
+    private MessageData messageData;
     private Map<String, Float> messageTimers;
     private Map<String, MessageData> activeMessages;
 
@@ -27,16 +28,25 @@ public class Info extends UI {
         UIController uiController
     ) {
         super(UI_PATH, "info");
-        instance = this;
 
         this.window = window;
         this.shaderProgram = shaderProgram;
         this.uiController = uiController;
+        this.infoActions = new InfoActions(this);
         
+        this.messageData = new MessageData(this);
         this.messageTimers = new HashMap<>();
         this.activeMessages = new HashMap<>();
         
         hideAllMessages();
+    }
+
+    public InfoActions getInfoActions() {
+        return infoActions;
+    }
+    
+    public MessageData getMessageData() {
+        return messageData;
     }
 
     /**
@@ -44,12 +54,14 @@ public class Info extends UI {
      * Show Message
      * 
      */
-    public static void showMessage(String messageId, MessageData data) {
-        instance.activeMessages.put(messageId, data);
-        instance.messageTimers.put(messageId, MESSAGE_DURATION);
+    public void showMessage(String messageId, MessageData data) {
+        this.visible = true;
+        
+        activeMessages.put(messageId, data);
+        messageTimers.put(messageId, MESSAGE_DURATION);
 
-        instance.updateMessageElements(messageId, data);
-        instance.setElVisibility(messageId, true);
+        updateMessageElements(messageId, data);
+        setElVisibility(messageId, true);
     }
 
     /**
@@ -94,7 +106,13 @@ public class Info extends UI {
         if(uiData == null || uiData.elements == null) return;
 
         for(UIElement el : uiData.elements) {
-            if(el.id.equals(parentId) || el.id.startsWith(parentId + "-")) {
+            if(el.id.equals(parentId)) {
+                el.visible = visible;
+                break;
+            }
+        }
+        for(UIElement el : uiData.elements) {
+            if(el.id.startsWith(parentId + "-")) {
                 el.visible = visible;
             }
         }
@@ -128,5 +146,39 @@ public class Info extends UI {
                 return false;
             }
         });
+    }
+
+    /**
+     * 
+     * Render
+     * 
+     */
+    @Override
+    public void render() {
+        if(!visible || textRenderer == null) {
+            return;
+        }
+        
+        super.render();
+    }
+
+    /**
+     * Window Resize
+     */
+    @Override
+    public void onWindowResize(int width, int height) {
+        if(getTextRenderer() != null) {
+            getTextRenderer().updateScreenSize(width, height);
+        }
+
+        try {
+            this.uiData = DocParser.parseUI(
+                UI_PATH,
+                width,
+                height
+            );
+        } catch(Exception err) {
+            System.err.println("Failed to re-parse screen on resize: " + err.getMessage());
+        }
     }
 }

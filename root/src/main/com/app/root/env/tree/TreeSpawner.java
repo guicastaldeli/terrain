@@ -10,6 +10,7 @@ import main.com.app.root.env.world.Chunk;
 import main.com.app.root.env.world.Water;
 import main.com.app.root.env.world.WorldGenerator;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.ui.UIController;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,7 +24,9 @@ public class TreeSpawner implements SpawnerHandler {
     private final EnvController envController;
     private final Spawner spawner;
     private Mesh mesh;
+    private UIController uiController;
 
+    public TreeGenerator treeGenerator;
     public TreeData treeData;
     private boolean isActive;
 
@@ -60,6 +63,11 @@ public class TreeSpawner implements SpawnerHandler {
     @Override 
     public void setMesh(Mesh mesh) {
         this.mesh = mesh;
+    }
+
+    @Override
+    public void setUIController(UIController uiController) {
+        this.uiController = uiController;
     }
 
     public static void setLevelDistribution() {
@@ -106,8 +114,7 @@ public class TreeSpawner implements SpawnerHandler {
         
         for(TreeController tree : treeData.trees) {
             checked++;
-            TreeGenerator treeGenerator = tree.getGenerator();
-            
+            treeGenerator = tree.getGenerator();    
             if(treeGenerator == null) {
                 System.out.println("  Tree " + checked + ": generator is NULL");
                 continue;
@@ -247,10 +254,8 @@ public class TreeSpawner implements SpawnerHandler {
             mesh, 
             spawner
         );
-        
-        TreeGenerator treeGenerator = treeController.getGenerator();
-        if(treeGenerator == null) return;
-        
+
+        if(treeGenerator == null) return;        
         treeGenerator.mesh = this.mesh;
 
         String treeId = "tree" + treeData.currentTreeId++;
@@ -385,6 +390,7 @@ public class TreeSpawner implements SpawnerHandler {
             treeGenerator.setId(treeId);
             treeGenerator.createMesh();
             treeData.trees.add(treeController);
+            treeGenerator.setUIController(uiController);
 
             String chunkId = Chunk.getId(chunkX, chunkZ);
             chunkTreeMap.computeIfAbsent(chunkId, k -> new ArrayList<>()).add(treeController);
@@ -538,7 +544,6 @@ public class TreeSpawner implements SpawnerHandler {
                         TreeGenerator treeGenerator = treeController.getGenerator();
                         if(treeGenerator != null) {
                             treeGenerator.mesh = spawner.mesh;
-                            
                             treeGenerator.setId(savedId);
                             
                             if(!alive) {
