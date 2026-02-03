@@ -19,7 +19,7 @@ public class Particle {
     public Vector3f initialVelocity;
     public Vector3f swayVelocity;   
 
-    public Particle() {
+    public Particle() {//
         this.position = new Vector3f();
         this.velocity = new Vector3f();
         this.color = new Vector3f();
