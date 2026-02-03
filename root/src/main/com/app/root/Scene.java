@@ -233,7 +233,7 @@ public class Scene {
         envRenderer.render();
         spawner.registerHandlers(envController, lightningController);
         spawner.setActive(true);
-        particleManager.render();
+        //particleManager.render();
     }
 
     /**
@@ -245,10 +245,9 @@ public class Scene {
         collisionManager.updateDynamicColliders(tick.getDeltaTime());
         
         mesh.update();
+        particleManager.update();
         envRenderer.update();
         spawner.update();
-        
-        if(particleManager != null) particleManager.update();
 
         if(uiController != null) uiController.update();
         playerController.getInputMap().getTreeInteractor().update();

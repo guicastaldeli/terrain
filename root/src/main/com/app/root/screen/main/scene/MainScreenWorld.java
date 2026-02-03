@@ -1,4 +1,6 @@
 package main.com.app.root.screen.main.scene;
+import org.joml.Vector3f;
+
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.types.StaticObject;
@@ -6,6 +8,7 @@ import main.com.app.root.env.NoiseGeneratorWrapper;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshRenderer;
+import main.com.app.root.mesh.particle.ParticleManager;
 
 public class MainScreenWorld {
     private final Tick tick;
@@ -13,6 +16,8 @@ public class MainScreenWorld {
     private final Mesh mesh;
     private final MeshRenderer meshRenderer;
     private final MainScreenChunk chunk;
+    private final ParticleManager particleManager;
+    private final MainScreenWorldParticle worldParticle;
     private MeshData meshData;
     private StaticObject collider;
 
@@ -36,17 +41,25 @@ public class MainScreenWorld {
         Tick tick, 
         Mesh mesh,
         MeshRenderer meshRenderer, 
-        ShaderProgram shaderProgram
+        ShaderProgram shaderProgram,
+        ParticleManager particleManager
     ) {
         this.tick = tick;
         this.mesh = mesh;
         this.meshRenderer = meshRenderer;
         this.shaderProgram = shaderProgram;
+        this.particleManager = particleManager;
         this.noiseGeneratorWrapper = new NoiseGeneratorWrapper();
         this.chunk = new MainScreenChunk(this, mesh, meshData);
         
         long seed = System.currentTimeMillis();
         this.noiseGeneratorWrapper.initNoise(seed, WORLD_SIZE);
+
+        this.worldParticle = new MainScreenWorldParticle(
+            tick, 
+            mesh, 
+            particleManager
+        );
     }
 
     private float[] createVertices(float[] heightData) {
@@ -139,17 +152,27 @@ public class MainScreenWorld {
 
         isReady = true;
         if(onReadyCallback != null) onReadyCallback.run();
+
+        worldParticle.start();
     }
 
     /**
      * Update
      */
-    public void update(float cameraX, float cameraZ) {        
+    public void update(float cameraX, float cameraY, float cameraZ) {        
         chunk.updateChunks(cameraX, cameraZ);
         chunk.processChunkLoading();
         for(String chunkId : chunk.loadedChunks.keySet()) {
             mesh.render(chunkId, 0);
         }
+
+        float particleY = cameraY - 400.0f;
+        worldParticle.updateCameraPosition(new Vector3f(
+            cameraX, 
+            particleY, 
+            cameraZ
+        ));
+        worldParticle.update();
     }
 
     /**

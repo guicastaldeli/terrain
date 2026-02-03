@@ -33,6 +33,9 @@ public class ParticleSystem {
     private float swayAmplitude;
     private float swayFrequency;
 
+    private final Vector3f _rotationScratch = new Vector3f();
+    private final float[] _colorBuffer = new float[16];
+
     public ParticleSystem(Tick tick, Mesh mesh) {
         this.tick = tick;
         this.mesh = mesh;
@@ -51,16 +54,10 @@ public class ParticleSystem {
         this.velNum = new Vector3f(1.0f, 1.0f, 1.0f);
     }
 
-    /**
-     * Set Vel Num
-     */
     public void setVelNum(Vector3f velNum) {
         this.velNum = velNum;
     }
 
-    /**
-     * Set Color
-     */
     public void setColor(float r, float g, float b) {
         this.color.set(r, g, b);
     }
@@ -69,49 +66,27 @@ public class ParticleSystem {
         this.color.set(color);
     }
 
-    /**
-     * Set Size
-     */
     public void setSize(float size) {
         this.size = size;
     }
 
-    /**
-     * Set Speed
-     */
     public void setSpeed(float speed) {
         this.speed = speed;
     }
 
-    /**
-     * Set Amount
-     */
     public void setAmount(int amount) {
         this.amount = amount;
     }
 
-    /**
-     * Set Lifetime
-     */
     public void setLifetime(float lifetime) {
         this.lifetime = lifetime;
     }
 
-    /**
-     * Is Active
-     */
     public boolean isActive() {
         return isActive;
     }
 
-    /**
-     * Enable Motion
-     */
-    public void setMotion(
-        boolean enable,
-        float swayAmplitude, 
-        float swayFrequency
-    ) {
+    public void setMotion(boolean enable, float swayAmplitude, float swayFrequency) {
         this.enableMotion = enable;
         this.swayAmplitude = swayAmplitude;
         this.swayFrequency = swayFrequency;
@@ -120,16 +95,11 @@ public class ParticleSystem {
     /**
      * Emit
      */
-    public void emit(
-        Vector3f position, 
-        boolean vel,
-        Supplier<Vector3f> colorsSupplier
-    ) {
+    public void emit(Vector3f position, boolean vel, Supplier<Vector3f> colorsSupplier) {
         this.vel = vel;
-
         this.position.set(position);
         this.isActive = true;
-        this.particleId = "particle_" + System.currentTimeMillis();
+        this.particleId = "particle_" + System.currentTimeMillis() + "_" + random.nextInt(100000);
 
         for(int i = 0; i < amount; i++) {
             Particle particle = new Particle();
@@ -156,6 +126,8 @@ public class ParticleSystem {
             
             particles.add(particle);
             createMesh(particle);
+
+            particle.cachedMeshData = mesh.getData(particle.id);
         }
     }
 
@@ -199,11 +171,13 @@ public class ParticleSystem {
     public void update() {
         if(!isActive) return;
 
-        List<Particle> particlesToRemove = new ArrayList<>();
-        for(Particle particle : particles) {
+        for(int i = particles.size() - 1; i >= 0; i--) {
+            Particle particle = particles.get(i);
             particle.lifetime -= tick.getDeltaTime();
+
             if(particle.lifetime <= 0) {
-                particlesToRemove.add(particle);
+                mesh.remove(particle.id);
+                particles.remove(i);
                 continue;
             }
 
@@ -227,34 +201,24 @@ public class ParticleSystem {
 
             mesh.setPosition(particle.id, particle.position);
 
-            if(enableMotion) {
-                particle.rotation += particle.rotationSpeed * tick.getDeltaTime();
-                MeshData meshData = mesh.getData(particle.id);
-                if(meshData != null) {
-                    meshData.setRotation(new Vector3f(0, 0, particle.rotation));
+            if(particle.cachedMeshData != null) {
+                if(enableMotion) {
+                    particle.rotation += particle.rotationSpeed * tick.getDeltaTime();
+                    _rotationScratch.set(0, 0, particle.rotation);
+                    particle.cachedMeshData.setRotation(_rotationScratch);
                 }
-            }
 
-            float alpha = particle.lifetime / particle.maxLifetime;
-            MeshData data = mesh.getData(particle.id);
-            if(data != null) {
-                float[] colors = new float[16];
-                for(int i = 0; i < 16; i += 4) {
-                    colors[i] = particle.color.x;
-                    colors[i+1] = particle.color.y;
-                    colors[i+2] = particle.color.z;
-                    colors[i+3] = alpha;
+                float alpha = particle.lifetime / particle.maxLifetime;
+                for(int c = 0; c < 16; c += 4) {
+                    _colorBuffer[c]     = particle.color.x;
+                    _colorBuffer[c + 1] = particle.color.y;
+                    _colorBuffer[c + 2] = particle.color.z;
+                    _colorBuffer[c + 3] = alpha;
                 }
-                data.setColors(colors);
+                particle.cachedMeshData.setColors(_colorBuffer);
             }
         }
 
-        for(Particle particle : particlesToRemove) {
-            mesh.remove(particle.id);
-            particles.remove(particle);
-        }
-        particles.removeAll(particlesToRemove);
-        
         if(particles.isEmpty()) {
             isActive = false;
         }

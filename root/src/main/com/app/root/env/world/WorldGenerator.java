@@ -12,10 +12,8 @@ import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshRenderer;
 import main.com.app.root.mesh.particle.ParticleManager;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.joml.Vector3f;
 
 public class WorldGenerator {
@@ -28,6 +26,7 @@ public class WorldGenerator {
     private final MeshRenderer meshRenderer;
     private final Chunk chunk;
     private final Spawner spawner;
+    private final ParticleManager particleManager;
     private final WorldParticle worldParticle;
     private MeshData meshData;
 
@@ -72,6 +71,7 @@ public class WorldGenerator {
         this.mesh = mesh;
         this.meshRenderer = meshRenderer;
         this.spawner = spawner;
+        this.particleManager = particleManager;
 
         this.noiseGeneratorWrapper = new NoiseGeneratorWrapper();
         

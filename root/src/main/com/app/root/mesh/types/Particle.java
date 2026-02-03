@@ -1,6 +1,8 @@
 package main.com.app.root.mesh.types;
 import org.joml.Vector3f;
 
+import main.com.app.root.mesh.MeshData;
+
 public class Particle {
     public Vector3f position;
     public Vector3f basePosition = new Vector3f();
@@ -18,6 +20,7 @@ public class Particle {
     public float swayFrequency;
     public Vector3f initialVelocity;
     public Vector3f swayVelocity;   
+    public MeshData cachedMeshData;
 
     public Particle() {
         this.position = new Vector3f();

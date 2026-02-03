@@ -153,7 +153,7 @@ public class PlayerMesh {
             float dirY = meshRotation.y / 2.0f;
             float dirZ = meshRotation.z;
 
-            Matrix4f model = new Matrix4f()//
+            Matrix4f model = new Matrix4f()
                 .translate(meshPos)
                 .rotateX((float) Math.toRadians(dirX))
                 .rotateY((float) Math.toRadians(dirY)) 

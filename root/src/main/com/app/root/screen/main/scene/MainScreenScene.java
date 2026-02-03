@@ -12,8 +12,8 @@ import main.com.app.root.lightning.DirectionalLight;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.lightning.LightningData;
 import main.com.app.root.lightning.LightningRenderer;
-import main.com.app.root.lightning.PointLight;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.mesh.particle.ParticleManager;
 import main.com.app.root.player.Camera;
 import org.joml.Vector3f;
 
@@ -28,6 +28,7 @@ public class MainScreenScene {
     private EnvController envController;
     private EnvRenderer envRenderer;
     private DependencyContainer dependencyContainer;
+    private ParticleManager particleManager;
 
     public boolean init = false;
 
@@ -35,6 +36,10 @@ public class MainScreenScene {
     private LightningRenderer lightningRenderer;
 
     private Object skyboxInstance;
+
+    private float cameraX = 0.0f;
+    private float cameraY = 450.0f;
+    private float cameraZ = 150.0f;
 
     public MainScreenScene(
         Window window, 
@@ -77,7 +82,7 @@ public class MainScreenScene {
             this.skyboxInstance = envController.getEnv(EnvData.SKYBOX).getInstance();
 
             this.camera = new Camera();
-            camera.setPosition(0, 450, 150);
+            camera.setPosition(cameraX, cameraY, cameraZ);
             camera.setRotation(0, -30);
 
             mesh.getMeshRenderer().setEnvController(envController);
@@ -91,7 +96,8 @@ public class MainScreenScene {
 
             lightningController.add(LightningData.AMBIENT, new AmbientLight());
             lightningController.add(LightningData.DIRECTIONAL, new DirectionalLight());
-            lightningController.add(LightningData.POINT, new PointLight());
+
+            this.particleManager = new ParticleManager(tick, mesh);
             
             start();
             
@@ -107,7 +113,8 @@ public class MainScreenScene {
             tick, 
             mesh, 
             mesh.getMeshRenderer(), 
-            shaderProgram
+            shaderProgram,
+            particleManager
         );
     }
 
@@ -118,9 +125,10 @@ public class MainScreenScene {
         if(!init) return;
 
         Vector3f target = new Vector3f(0.0f, 200.0f, 0.0f);
-        camera.orbitAroundPoint(target, new Vector3f(0.0f, 1.0f, 0.0f), 0.002f);
+        camera.orbitAroundPoint(target, new Vector3f(0.0f, 1.0f, 0.0f), 0.006f);
         
         mesh.update();
+        particleManager.update();
         lightningController.update();
         if(skyboxInstance != null) {
             Object skyboxMesh = EnvCall.callReturn(skyboxInstance, "getMesh");
@@ -128,6 +136,8 @@ public class MainScreenScene {
                 EnvCall.call(skyboxMesh, "update");
             }
         }
+
+        world.update(cameraX, cameraY, cameraZ);
     }
 
     /**
