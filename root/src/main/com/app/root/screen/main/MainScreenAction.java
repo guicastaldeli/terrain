@@ -100,13 +100,6 @@ public class MainScreenAction {
     }
 
     /**
-     * Open Settings
-     */
-    public void openSettings() {
-        /////
-    }
-
-    /**
      * Delete Save
      */
     public void deleteSave(String saveId) {
@@ -120,6 +113,6 @@ public class MainScreenAction {
      * Exit
      */
     public void exit() {
-        ////////
+        System.exit(0);
     }
 }

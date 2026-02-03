@@ -68,11 +68,8 @@ public class MainScreen extends Screen {
             case "load":
                 showSaveMenu();
                 break;
-            case "settings":
-                mainScreenAction.openSettings(); //Implement later
-                break;
             case "exit":
-                System.exit(0);
+                mainScreenAction.exit();
                 break;
         }
     }

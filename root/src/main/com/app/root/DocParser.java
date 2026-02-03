@@ -22,9 +22,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -40,7 +40,9 @@ public class DocParser {
     private static ScriptEngine engine;
     
     /**
+     * 
      * Parse
+     * 
      */
     public static ScreenData parseScreen(String filePath, int screenWidth, int screenHeight) {
         ScreenData screenData = new ScreenData(filePath);
@@ -131,7 +133,7 @@ public class DocParser {
             Element element = (Element) children.item(i);
             String tagName = element.getTagName();
             
-            UIElement uiElement = createScreenElement(
+            UIElement uiElement = createUIElement(
                 element, 
                 tagName,
                 screenWidth,
@@ -151,7 +153,106 @@ public class DocParser {
             }
         }
     }
+
+    private static int parseSize(Element element, String attrName, int currentScreenSize, int originalScreenSize, int defaultValue) {
+        if(!element.hasAttribute(attrName)) return defaultValue;
+        
+        String sizeStr = element.getAttribute(attrName);
+        if(sizeStr.endsWith("%")) {
+            float percentage = Float.parseFloat(sizeStr.replace("%", "")) / 100.0f;
+            return (int)(currentScreenSize * percentage);
+        } else if(sizeStr.equals("auto")) {
+            return defaultValue;
+        } else {
+            int originalSize = Integer.parseInt(sizeStr);
+            float scaleFactor = (float)currentScreenSize / originalScreenSize;
+            return (int)(originalSize * scaleFactor);
+        }
+    }
     
+    private static void parseAttr(Element element, Map<String, String> attributes) {
+        var attributeMap = element.getAttributes();
+        for(int i = 0; i < attributeMap.getLength(); i++) {
+            var attr = attributeMap.item(i);
+            attributes.put(attr.getNodeName(), attr.getNodeValue());
+        }
+    }
+
+    private static int parseCoordinate(Element element, String attrName, int currentScreenSize, int originalScreenSize) {
+        if(!element.hasAttribute(attrName)) return 0;
+        
+        String coordStr = element.getAttribute(attrName);
+        if(coordStr.endsWith("%")) {
+            float percentage = Float.parseFloat(coordStr.replace("%", "")) / 100.0f;
+            return (int)(currentScreenSize * percentage);
+        } else {
+            int originalCoord = Integer.parseInt(coordStr);
+            float scaleFactor = (float)currentScreenSize / originalScreenSize;
+            return (int)(originalCoord * scaleFactor);
+        }
+    }
+
+    public static List<ScreenElement> parseButtons(
+        String xmlFilePath,
+        int screenWidth,
+        int screenHeight
+    ) {
+        ScreenData screenData = parseScreen(
+            xmlFilePath,
+            screenWidth,
+            screenHeight
+        );
+        return getElementsByType(screenData, "button");
+    }
+    
+    public static List<ScreenElement> parseLabels(
+        String xmlFilePath,
+        int screenWidth,
+        int screenHeight
+    ) {
+        ScreenData screenData = parseScreen(
+            xmlFilePath,
+            screenWidth,
+            screenHeight
+        );
+        return getElementsByType(screenData, "label");
+    }
+    
+    public static List<ScreenElement> parseDivs(
+        String xmlFilePath,
+        int screenWidth,
+        int screenHeight
+    ) {
+        ScreenData screenData = parseScreen(
+            xmlFilePath,
+            screenWidth,
+            screenHeight
+        );
+        return getElementsByType(screenData, "div");
+    }
+
+    private static float[] parseColor(String colorStr) {
+        if(colorStr == null || colorStr.trim().isEmpty()) {
+            return null;
+        }
+        
+        String[] parts = colorStr.split(",");
+        if(parts.length >= 3) {
+            return new float[]{
+                Float.parseFloat(parts[0].trim()),
+                Float.parseFloat(parts[1].trim()),
+                Float.parseFloat(parts[2].trim()),
+                parts.length >= 4 ? Float.parseFloat(parts[3].trim()) : 1.0f
+            };
+        }
+        return null;
+    }
+    
+    /**
+     * 
+     * Create Element
+     * 
+     */
     private static ScreenElement createScreenElement(
         Element element, 
         String type, 
@@ -368,7 +469,8 @@ public class DocParser {
         
         return screenElement;
     }
-    private static UIElement createScreenElement(
+
+    private static UIElement createUIElement(
         Element element, 
         String type, 
         int screenWidth, 
@@ -598,47 +700,9 @@ public class DocParser {
         
         return uiElement;
     }
-
-    private static int parseCoordinate(Element element, String attrName, int currentScreenSize, int originalScreenSize) {
-        if(!element.hasAttribute(attrName)) return 0;
-        
-        String coordStr = element.getAttribute(attrName);
-        if(coordStr.endsWith("%")) {
-            float percentage = Float.parseFloat(coordStr.replace("%", "")) / 100.0f;
-            return (int)(currentScreenSize * percentage);
-        } else {
-            int originalCoord = Integer.parseInt(coordStr);
-            float scaleFactor = (float)currentScreenSize / originalScreenSize;
-            return (int)(originalCoord * scaleFactor);
-        }
-    }
-    
-    private static int parseSize(Element element, String attrName, int currentScreenSize, int originalScreenSize, int defaultValue) {
-        if(!element.hasAttribute(attrName)) return defaultValue;
-        
-        String sizeStr = element.getAttribute(attrName);
-        if(sizeStr.endsWith("%")) {
-            float percentage = Float.parseFloat(sizeStr.replace("%", "")) / 100.0f;
-            return (int)(currentScreenSize * percentage);
-        } else if(sizeStr.equals("auto")) {
-            return defaultValue;
-        } else {
-            int originalSize = Integer.parseInt(sizeStr);
-            float scaleFactor = (float)currentScreenSize / originalScreenSize;
-            return (int)(originalSize * scaleFactor);
-        }
-    }
-    
-    private static void parseAttr(Element element, Map<String, String> attributes) {
-        var attributeMap = element.getAttributes();
-        for(int i = 0; i < attributeMap.getLength(); i++) {
-            var attr = attributeMap.item(i);
-            attributes.put(attr.getNodeName(), attr.getNodeValue());
-        }
-    }
     
     /**
-     * Get Elements By Type
+     * Get Elements
      */
     public static List<ScreenElement> getElementsByType(ScreenData screenData, String type) {
         List<ScreenElement> result = new ArrayList<>();
@@ -658,23 +722,28 @@ public class DocParser {
         }
         return result;
     }
-    
+
+    public static ScreenElement getElementById(ScreenData screenData, String id) {
+        for(ScreenElement element : screenData.elements) {
+            if(element.id.equals(id) && element.visible) {
+                return element;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get Div Elements
+     */
     public static List<ScreenElement> getDivElements(ScreenData screenData) {
         return getElementsByType(screenData, "div");
     }
     
     /**
-     * Get Element By Id
+     * 
+     * Render Element
+     * 
      */
-    public static ScreenElement getElementById(ScreenData screenData, String id) {
-        for(ScreenElement element : screenData.elements) {
-            if(element.id.equals(id) && element.visible) {
-                return element;
-                }
-            }
-            return null;
-        }
-        
     public static void initElRendering() {
         if(uiBuffersInitialized) return;
         
@@ -707,7 +776,7 @@ public class DocParser {
         glBindVertexArray(0);
         uiBuffersInitialized = true;
     }
-    
+
     public static void renderScreenElement(
         ScreenElement element,
         int screenWidth,
@@ -769,6 +838,7 @@ public class DocParser {
         if(depthTest) glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
     }
+
     public static void renderUIElement(
         UIElement element,
         int screenWidth,
@@ -857,6 +927,11 @@ public class DocParser {
         glDrawArrays(GL_LINE_LOOP, 0, 5);
     }
     
+    /**
+     * 
+     * Render Screen / UI
+     * 
+     */
     public static void renderScreen(
         ScreenData screenData,
         int screenWidth,
@@ -956,6 +1031,7 @@ public class DocParser {
             }
         }
     }
+
     public static void renderUI(
         UIData uiData,
         int screenWidth,
@@ -1045,68 +1121,6 @@ public class DocParser {
         if(uiVbo != 0) glDeleteBuffers(uiVbo);
         if(uiEbo != 0) glDeleteBuffers(uiEbo);
         uiBuffersInitialized = false;
-    }
-    
-    /**
-     * Parse Buttons
-     */
-    public static List<ScreenElement> parseButtons(
-        String xmlFilePath,
-        int screenWidth,
-        int screenHeight
-    ) {
-        ScreenData screenData = parseScreen(
-            xmlFilePath,
-            screenWidth,
-            screenHeight
-        );
-        return getElementsByType(screenData, "button");
-    }
-    
-    /**
-     * Parse Labels
-     */
-    public static List<ScreenElement> parseLabels(
-        String xmlFilePath,
-        int screenWidth,
-        int screenHeight
-    ) {
-        ScreenData screenData = parseScreen(
-            xmlFilePath,
-            screenWidth,
-            screenHeight
-        );
-        return getElementsByType(screenData, "label");
-    }
-    
-    public static List<ScreenElement> parseDivs(
-        String xmlFilePath,
-        int screenWidth,
-        int screenHeight
-    ) {
-        ScreenData screenData = parseScreen(
-            xmlFilePath,
-            screenWidth,
-            screenHeight
-        );
-        return getElementsByType(screenData, "div");
-    }
-
-    private static float[] parseColor(String colorStr) {
-        if(colorStr == null || colorStr.trim().isEmpty()) {
-            return null;
-        }
-        
-        String[] parts = colorStr.split(",");
-        if(parts.length >= 3) {
-            return new float[]{
-                Float.parseFloat(parts[0].trim()),
-                Float.parseFloat(parts[1].trim()),
-                Float.parseFloat(parts[2].trim()),
-                parts.length >= 4 ? Float.parseFloat(parts[3].trim()) : 1.0f
-            };
-        }
-        return null;
     }
 
     /**

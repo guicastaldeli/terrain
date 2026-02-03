@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <info>
     <!-- Wood Life -->
-    <div id="wood-life" x="50" y="100" visible="false">
+    <div 
+        id="wood-life" 
+        x="35%" y="50%" 
+        visible="false"
+    >
         <label 
             id="wood-life-damage"
             x="0" y="0" 
@@ -24,12 +28,17 @@
     </div>
 
     <!-- Axe Level (Low) -->
-    <div id="axe-level-low" x="50" y="150" visible="false">
+    <div 
+        id="axe-level-low" 
+        x="50%" y="50%" 
+        visible="false"
+    >
         <label 
             id="axe-level-low-content"
             x="0" y="0"
             scale="1.0"
             color="1.0, 0.2, 0.2"
+            textShadow="2,2 0 0,0,0,1.0"
             visible="true"
         >
             Axe {axeLevel} too low for tree level {treeLevel}
