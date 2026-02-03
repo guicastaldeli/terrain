@@ -8,6 +8,7 @@ public class LightningRenderer {
     private final LightningController lightningController;
     private final ShaderProgram shaderProgram;
 
+    private static final int MAX_DIRECTIONAL_LIGHTS = 4;
     private static final int MAX_POINT_LIGHTS = 32;
     
     public LightningRenderer(LightningController lightningController, ShaderProgram shaderProgram) {
@@ -38,31 +39,29 @@ public class LightningRenderer {
 
         /* Directional Lights */
         List<Light> directionalLights = lightningController.getLights(LightningData.DIRECTIONAL);
-        if(!directionalLights.isEmpty()) {
-            DirectionalLight directional = (DirectionalLight) directionalLights.get(0);
-            shaderProgram.setUniform("uDirectionalLight.color", 
+        int directionalLightCount = Math.min(directionalLights.size(), MAX_DIRECTIONAL_LIGHTS);
+        shaderProgram.setUniform("uDirectionalLightCount", directionalLightCount);
+        for(int i = 0; i < directionalLightCount; i++) {
+            DirectionalLight directional = (DirectionalLight) directionalLights.get(i);
+            String uPrefix = "uDirectionalLights[" + i + "].";
+
+            shaderProgram.setUniform(uPrefix + "color", 
                 directional.getColor().x, 
                 directional.getColor().y, 
                 directional.getColor().z
             );
-            shaderProgram.setUniform("uDirectionalLight.intensity", directional.getIntensity());
-            shaderProgram.setUniform("uDirectionalLight.direction", 
+            shaderProgram.setUniform(uPrefix + "intensity", directional.getIntensity());
+            shaderProgram.setUniform(uPrefix + "direction", 
                 directional.getDirection().x, 
                 directional.getDirection().y, 
                 directional.getDirection().z
             );
-            shaderProgram.setUniform("uDirectionalLight.range", directional.getRange());
-            shaderProgram.setUniform("uDirectionalLightOrigin", 
-                DirectionalLight.DEFAULT_DIRECTION.x,
-                DirectionalLight.DEFAULT_DIRECTION.y,
-                DirectionalLight.DEFAULT_DIRECTION.z
-            );
-        } else {
-            shaderProgram.setUniform("uDirectionalLight.color", 1.0f, 1.0f, 1.0f);
-            shaderProgram.setUniform("uDirectionalLight.intensity", 0.0f);
-            shaderProgram.setUniform("uDirectionalLight.direction", 0.0f, -1.0f, 0.0f);
-            shaderProgram.setUniform("uDirectionalLight.range", 100.0f);
-            shaderProgram.setUniform("uDirectionalLightOrigin", 0.0f, 0.0f, 0.0f);
+            shaderProgram.setUniform(uPrefix + "range", directional.getRange());
+        }
+
+        for(int i = directionalLightCount; i < MAX_DIRECTIONAL_LIGHTS; i++) {
+            String uPrefix = "uDirectionalLights[" + i + "].";
+            shaderProgram.setUniform(uPrefix + "intensity", 0.0f);
         }
         
         /* Point Lights */

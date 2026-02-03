@@ -82,7 +82,6 @@ public class WorldParticle {
 
     public void update() {
         if(!isActive) return;
-        recycleSystems();
         spawn();
         List<ParticleSystem> systems = particleManager.getParticleSystems();
         for(int i = 0; i < systems.size(); i++) {
@@ -94,6 +93,7 @@ public class WorldParticle {
                 }
             }
         }
+        recycleSystems();
     }
 
     private void recycleSystems() {

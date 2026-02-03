@@ -10,7 +10,6 @@ import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvRenderer;
 import main.com.app.root.lightning.AmbientLight;
-import main.com.app.root.lightning.DirectionalLight;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.lightning.LightningData;
 import main.com.app.root.lightning.LightningRenderer;
@@ -36,6 +35,7 @@ public class Scene {
 
     private LightningController lightningController;
     private LightningRenderer lightningRenderer;
+    private SceneLight sceneLight;
 
     private Spawner spawner;
     private Upgrader upgrader;
@@ -217,8 +217,9 @@ public class Scene {
             mesh.setLightningRenderer(lightningRenderer);
             mesh.getMeshRenderer().setLightningRenderer(lightningRenderer);
   
+            this.sceneLight = new SceneLight(tick, lightningController, envController);
             lightningController.add(LightningData.AMBIENT, new AmbientLight());
-            lightningController.add(LightningData.DIRECTIONAL, new DirectionalLight());
+            sceneLight.set();
 
             start();
             
@@ -251,6 +252,7 @@ public class Scene {
 
         if(uiController != null) uiController.update();
         playerController.getInputMap().getTreeInteractor().update();
+        sceneLight.updateColors();
     }
 
     /**

@@ -8,7 +8,7 @@ public class DirectionalLight implements Light {
     public Vector3f direction;
     public float range;
     
-    public static final Vector3f DEFAULT_COLOR = HexToVec3.hexToVec3("#00ff51");
+    public static final Vector3f DEFAULT_COLOR = HexToVec3.hexToVec3("#ffffff");
     public static final float DEFAULT_INTENSITY = 10.0f;
     public static final Vector3f DEFAULT_DIRECTION = new Vector3f(10.0f, 80.0f, 0.0f);
     public static final float DEFAULT_RANGE = 100.0f;

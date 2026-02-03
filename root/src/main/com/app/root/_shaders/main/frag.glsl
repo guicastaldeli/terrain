@@ -57,12 +57,9 @@ void main() {
         );
         
         //Directional Light
-        vec3 directionalResult = calculateDirectionalLight(
-            uDirectionalLight, 
-            finalColor, 
-            normalizedNormal,
-            worldPos,
-            uDirectionalLightOrigin
+        vec3 directionalResult = calculateAllDirectionalLights(
+            finalColor,
+            normalizedNormal
         );
         
         //Point Light

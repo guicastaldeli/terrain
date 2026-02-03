@@ -11,7 +11,7 @@ import static org.lwjgl.opengl.GL11.glDepthMask;
 public class SkyboxMesh {
     public static final String[][] PERIOD_COLORS_HEX = {
         //Midnight
-        { "#1a0010", "#0D0D26" },
+        { "#0a0010", "#0a0a1a" },
         //Dawn
         { "#1A0D33", "#331A4D" },
         //Morning

@@ -1,5 +1,6 @@
 package main.com.app.root.screen.main.scene;
 import main.com.app.root.DependencyContainer;
+import main.com.app.root.SceneLight;
 import main.com.app.root.Tick;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
@@ -8,7 +9,6 @@ import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.EnvRenderer;
 import main.com.app.root.lightning.AmbientLight;
-import main.com.app.root.lightning.DirectionalLight;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.lightning.LightningData;
 import main.com.app.root.lightning.LightningRenderer;
@@ -34,6 +34,7 @@ public class MainScreenScene {
 
     private LightningController lightningController;
     private LightningRenderer lightningRenderer;
+    private SceneLight sceneLight;
 
     private Object skyboxInstance;
 
@@ -94,8 +95,9 @@ public class MainScreenScene {
             mesh.setLightningRenderer(lightningRenderer);
             mesh.getMeshRenderer().setLightningRenderer(lightningRenderer);
 
+            this.sceneLight = new SceneLight(tick, lightningController, envController);
             lightningController.add(LightningData.AMBIENT, new AmbientLight());
-            lightningController.add(LightningData.DIRECTIONAL, new DirectionalLight());
+            sceneLight.set();
 
             this.particleManager = new ParticleManager(tick, mesh);
             
@@ -138,6 +140,8 @@ public class MainScreenScene {
         }
 
         world.update(cameraX, cameraY, cameraZ);
+
+        sceneLight.updateColors();
     }
 
     /**

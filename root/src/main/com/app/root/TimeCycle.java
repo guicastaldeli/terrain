@@ -5,12 +5,12 @@ public class TimeCycle {
      * Time Period
      */
     public enum TimePeriod {
+        MIDNIGHT(0, 4),
         DAWN(4, 6),
         MORNING(6, 12),
         AFTERNOON(12, 17),
         DUSK(17, 19),
-        NIGHT(19, 4),
-        MIDNIGHT(0, 0);
+        NIGHT(19, 24);  
 
         public final int startHour;
         public final int endHour;
@@ -32,12 +32,12 @@ public class TimeCycle {
     public final float DAY_DURATION = 10.0f;
     public final float HOUR_DURATION = DAY_DURATION / 24.0f;
 
-    private float currentTime = 6.0f * HOUR_DURATION;
+    private float currentTime = 20.0f * HOUR_DURATION;
     private float timeSpeed = 10.0f;
     private float timeDayPercentage = 0.25f;
 
     public TimeCycle() {
-        setTime(8, 0);
+        setTime(6, 0);
         updateTime();
     }
 
@@ -45,14 +45,12 @@ public class TimeCycle {
      * Update
      */
     public void update(float deltaTime) {
-        /*
         currentTime += deltaTime * timeSpeed;
         if(currentTime >= DAY_DURATION) {
             currentTime -= DAY_DURATION;
         } else if(currentTime < 0) {
             currentTime += DAY_DURATION;
         }
-            */
         updateTime();
     }
 
