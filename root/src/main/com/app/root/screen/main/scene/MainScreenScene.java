@@ -15,6 +15,8 @@ import main.com.app.root.lightning.LightningRenderer;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.particle.ParticleManager;
 import main.com.app.root.player.Camera;
+import main.com.app.root.utils.Fog;
+
 import org.joml.Vector3f;
 
 public class MainScreenScene {
@@ -161,7 +163,12 @@ public class MainScreenScene {
         
         world.render(camera.getPosition().x, camera.getPosition().z);
         mesh.renderAll();
-        mesh.getMeshRenderer().applyFog();
+        Fog.apply(
+            camera, 
+            mesh.getMeshRenderer().getPlayerController(), 
+            shaderProgram, 
+            envController
+        );
     }
 
     /**

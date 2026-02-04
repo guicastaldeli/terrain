@@ -657,50 +657,6 @@ public class MeshRenderer {
 
     /**
      * 
-     * Skybox Color / Fog
-     * 
-     */
-    public void applyFog() {
-        float[] skyColor = getSkyboxColor();
-        Vector3f fogColor = new Vector3f(skyColor[0], skyColor[1], skyColor[2]);
-
-        Camera renderCamera;
-        if(playerController != null) {
-            renderCamera = playerController.getCamera();
-        } else if(camera != null) {
-            renderCamera = camera;
-        } else {
-            renderCamera = new Camera();
-        }
-        
-        Vector3f cameraPos = renderCamera.getPosition();
-
-        shaderProgram.setUniform("uRenderDistance", Camera.FOG);
-        shaderProgram.setUniform("uFogColor", fogColor.x, fogColor.y, fogColor.z);
-        shaderProgram.setUniform("uCameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
-        shaderProgram.setUniform("uFogDensity", 1.0f);
-    }
-
-    public float[] getSkyboxColor() {
-        if(envController == null) return new float[]{1.0f, 1.0f, 1.0f, 1.0f};
-        
-        try {
-            Object skyboxInstance = envController.getEnv(EnvData.SKYBOX);
-            Object skyboxMesh = EnvCall.callReturn(skyboxInstance, "getMesh");
-            
-            if(skyboxMesh != null) {
-                Object colorObj = EnvCall.callReturn(skyboxMesh, "getCurrentSkyColor");
-                if(colorObj instanceof float[]) return (float[]) colorObj;
-            }
-        } catch(Exception e) {
-            System.err.println("Failed to get skybox color: " + e.getMessage());
-        }
-        
-        return new float[]{0.5f, 0.5f, 0.5f, 1.0f};
-    }
-
-    /**
-     * 
      * World Height
      * 
      */

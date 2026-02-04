@@ -3,6 +3,7 @@ import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.particle.ParticleManager;
 import main.com.app.root.player.PlayerController;
 import main.com.app.root.ui.UIController;
+import main.com.app.root.utils.Fog;
 import main.com.app.root._save.DataGetter;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._shaders.ShaderProgram;
@@ -269,7 +270,12 @@ public class Scene {
         
         mesh.renderAll();
         playerController.render();
-        mesh.getMeshRenderer().applyFog();
+        Fog.apply(
+            playerController.getCamera(), 
+            playerController, 
+            shaderProgram, 
+            envController
+        );
         uiController.render();
         if(spawner != null) spawner.render();
     }
