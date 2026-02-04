@@ -25,6 +25,11 @@ public class CharacterController {
     public String meshName;
     private String currentAnimation;
     private MovData currentMovData;
+    private MovData prevMovData = MovData.IDLE_MOV;
+
+    private float temporaryAnimTimer = 0.0f;
+    private boolean isTemporaryAnimPlaying = false;
+    private static final float TEMPORARY_ANIM_DURATION = 2.0f;
 
     public void setMeshForAnimation(String meshName) {
         this.meshName = meshName;
@@ -32,8 +37,19 @@ public class CharacterController {
 
     public void setAnimation(MovData movData) {
         if(mesh != null && meshName != null) {
+            if(currentMovData != null && 
+               currentMovData != MovData.BREAK && 
+               currentMovData != MovData.IDLE
+            ) {
+                prevMovData = currentMovData;
+            }
             mesh.getAnimationController().play(meshName, movData.getAnimName());
             currentMovData = movData;
+
+            if(movData == MovData.BREAK || movData == MovData.IDLE) {
+                isTemporaryAnimPlaying = true;
+                temporaryAnimTimer = 0.0f;
+            }
         }
     }
 
@@ -58,6 +74,7 @@ public class CharacterController {
         IDLE_MOV("idle_mov"),
         WALK("walk"),
         SWIM("swim"),
+        SWIM_IDLE("swim_idle"),
         BREAK("break");
 
         private String animName;
@@ -132,5 +149,14 @@ public class CharacterController {
      */
     public void update() {
         updateBlink();
+        if(isTemporaryAnimPlaying) {
+            temporaryAnimTimer += tick.getDeltaTime();
+            if(temporaryAnimTimer >= TEMPORARY_ANIM_DURATION) {
+                isTemporaryAnimPlaying = false;
+                temporaryAnimTimer = 0.0f;
+                MovData returnTo = (prevMovData != null) ? prevMovData : MovData.IDLE_MOV;
+                setAnimation(returnTo);
+            }
+        }
     }
 }

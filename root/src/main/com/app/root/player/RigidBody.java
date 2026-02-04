@@ -17,7 +17,7 @@ public class RigidBody {
     private boolean isInWater = false;
 
     private boolean gravityEnabled = true;
-    private float gravity = -30.0f;
+    private float gravity = -20.0f;
     private float gravityScale = 3.0f;
     private float drag = 0.1f;
     private float submergedRatio = 0.0f;

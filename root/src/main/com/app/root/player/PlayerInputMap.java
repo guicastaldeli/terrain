@@ -19,6 +19,7 @@ public class PlayerInputMap {
     private boolean rightMousePressed = false;
     private boolean leftMousePressed = false;
     private boolean leftMouseDown = false;
+    private boolean spaceKeyPressed = false;
 
     public PlayerInputMap(
         Tick tick, 
@@ -96,7 +97,13 @@ public class PlayerInputMap {
             playerController.updatePosition(PlayerController.MovDir.UP, keyPressed[GLFW_KEY_SPACE]);
             playerController.updatePosition(PlayerController.MovDir.DOWN, keyPressed[GLFW_KEY_LEFT_SHIFT]);
         } else {
-            playerController.updatePosition(PlayerController.MovDir.UP, keyPressed[GLFW_KEY_SPACE]);
+            if(keyPressed[GLFW_KEY_SPACE] && !spaceKeyPressed) {
+                playerController.updatePosition(PlayerController.MovDir.UP, keyPressed[GLFW_KEY_SPACE]);
+                spaceKeyPressed = true;
+            } else if(!keyPressed[GLFW_KEY_SPACE] && spaceKeyPressed) {
+                playerController.updatePosition(PlayerController.MovDir.UP, keyPressed[GLFW_KEY_SPACE]);
+                spaceKeyPressed = false;
+            }
         }
     }
 

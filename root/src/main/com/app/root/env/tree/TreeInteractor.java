@@ -73,11 +73,13 @@ public class TreeInteractor {
             TreeController nearestTree = treeSpawner.getNearestTree(playerPos, interactionRange);
             if(nearestTree != null) {
                 int treeLevel = nearestTree.getGenerator().getLevel();
+                CharacterController characterController = playerController.getCharacterController();
+                if(characterController == null) return;
+
                 if(axe.canBreakTree(treeLevel)) {
-                    CharacterController characterController = playerController.getCharacterController();
-                    if(characterController != null) {
-                        characterController.setAnimation(CharacterController.MovData.BREAK);
-                    }
+                    characterController.setAnimation(CharacterController.MovData.BREAK);
+                } else {
+                    characterController.setAnimation(CharacterController.MovData.IDLE);
                 }
                 breakTree(axe, nearestTree);
             } else {

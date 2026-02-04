@@ -47,14 +47,14 @@ public class PlayerController {
     private CollisionManager collisionManager;
 
     private float sizeX = 1.0f;
-    private float sizeY = 10.0f;
+    private float sizeY = 5.0f;
     private float sizeZ = 1.0f;
 
     private float xSpeed = 0.0f;
     private float ySpeed = 0.0f;
     private float zSpeed = 0.0f;
 
-    private float jumpForce = 15.0f;
+    private float jumpForce = 20.0f;
     private boolean onJump = false;
 
     private boolean movingForward = false;
@@ -188,7 +188,7 @@ public class PlayerController {
         }
 
         this.velocity = new Vector3f(xSpeed, ySpeed, zSpeed);
-        this.movSpeed = 80.0f;
+        this.movSpeed = 30.0f;
 
         this.rigidBody = new RigidBody(
             tick,
@@ -382,14 +382,25 @@ public class PlayerController {
         rigidBody.update();
         Vector3f newPos = rigidBody.getPosition();
         boolean isInWater = newPos.y < Water.LEVEL;
-        if(isInWater) {
-            newPos.y = Water.SPAWN_LEVEL;
-            rigidBody.setPosition(newPos);
-            if(!characterController.wasInWater) {
-                characterController.setAnimation(CharacterController.MovData.SWIM);
+        if(isInWater != characterController.wasInWater ||
+            (isInWater && isMoving != characterController.wasMoving)
+        ) {
+            if(isInWater) {
+                newPos.y = Water.SPAWN_LEVEL;
+                rigidBody.setPosition(newPos);
+                if(isMoving) {
+                    characterController.setAnimation(CharacterController.MovData.SWIM);
+                } else {
+                    characterController.setAnimation(CharacterController.MovData.SWIM_IDLE);
+                }
+            } else {
+                if(!isMoving) {
+                    characterController.setAnimation(CharacterController.MovData.SWIM_IDLE);
+                }
             }
         }
         characterController.wasInWater = isInWater;
+        characterController.wasMoving = isMoving;
     
         position.set(newPos);
         updateCameraPosition();
