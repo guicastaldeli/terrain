@@ -2,7 +2,7 @@
 <pause_screen>
     <label 
         id="paused" 
-        x="50" y="100" 
+        x="80" y="100" 
         scale="1.0" 
         color="0.741, 0.741, 0.741"
         fontFamily="comic_sans_large"
@@ -13,7 +13,7 @@
 
     <button 
         id="continueBtn" 
-        x="50" y="200" 
+        x="80" y="200" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="continue"
@@ -26,7 +26,7 @@
     </button>
     <button 
         id="saveBtn" 
-        x="50" y="280" 
+        x="80" y="280" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="save"
@@ -38,7 +38,7 @@
     </button>
     <button 
         id="exitBtn" 
-        x="50" y="360" 
+        x="80" y="360" 
         scale="1.0" 
         color="1.0,1.0,1.0" 
         action="exit"
