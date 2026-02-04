@@ -6,7 +6,6 @@ import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.ui.UI;
 import main.com.app.root.ui.UIController;
 import main.com.app.root.ui.UIElement;
-
 import java.util.*;
 
 public class Info extends UI {
@@ -18,9 +17,10 @@ public class Info extends UI {
     private MessageData messageData;
     private Map<String, Float> messageTimers;
     private Map<String, MessageData> activeMessages;
+    private Map<String, String> originalTemplates;
 
     private static final String UI_PATH = DIR + "info/info.xml";
-    private static final float MESSAGE_DURATION = 3.0f;
+    private static final float MESSAGE_DURATION = 200.0f;
 
     public Info(
         Window window,
@@ -37,8 +37,12 @@ public class Info extends UI {
         this.messageData = new MessageData(this);
         this.messageTimers = new HashMap<>();
         this.activeMessages = new HashMap<>();
+
+        this.originalTemplates = new HashMap<>();
+        storeOriginalTemplates();
         
         hideAllMessages();
+        setupResizeCallback();
     }
 
     public InfoActions getInfoActions() {
@@ -47,6 +51,16 @@ public class Info extends UI {
     
     public MessageData getMessageData() {
         return messageData;
+    }
+
+    private void storeOriginalTemplates() {
+        if(uiData == null || uiData.elements == null) return;
+
+        for(UIElement el : uiData.elements) {
+            if(el.text != null && !el.text.isEmpty()) {
+                originalTemplates.put(el.id, el.text);
+            }
+        }
     }
 
     /**
@@ -58,7 +72,7 @@ public class Info extends UI {
         this.visible = true;
         
         activeMessages.put(messageId, data);
-        messageTimers.put(messageId, MESSAGE_DURATION);
+        messageTimers.put(messageId, MESSAGE_DURATION * Tick.getIDeltaTime());
 
         updateMessageElements(messageId, data);
         setElVisibility(messageId, true);
@@ -74,12 +88,10 @@ public class Info extends UI {
 
         for(UIElement el : uiData.elements) {
             if(el.id.startsWith(messageId)) {
-                String originalText = el.attr.get("text");
-                if(originalText == null) {
-                    originalText = el.text;
-                }
+                String template = originalTemplates.get(el.id);
+                if(template == null) template = el.text; 
 
-                String updatedText = replacePlaceholders(originalText, data);
+                String updatedText = replacePlaceholders(template, data);
                 el.text = updatedText;
             }
         }
@@ -119,11 +131,29 @@ public class Info extends UI {
     }
 
     /**
-     * Hide All Messages
+     * Hide Messages
      */
+    private void hideMessages() {
+        hideAllMessages();
+        for(String messageId : activeMessages.keySet()) {
+            setElVisibility(messageId, true);
+        }
+    }
     private void hideAllMessages() {
         setElVisibility("wood-life", false);
         setElVisibility("axe-level-low", false);
+        for(String messageId : activeMessages.keySet()) {
+            setElVisibility(messageId, false);
+        }
+    }
+
+    public void clearMessage(String messageId) {
+        setElVisibility(messageId, false);
+        activeMessages.remove(messageId);
+        messageTimers.remove(messageId);
+        if(activeMessages.isEmpty()) {
+            this.visible = false;
+        }
     }
 
     /**
@@ -134,18 +164,21 @@ public class Info extends UI {
     @Override
     public void update() {
         super.update();
-        messageTimers.entrySet().removeIf(e -> {
-            String messageId = e.getKey();
-            float timeLeft = e.getValue() - Tick.getIDeltaTime();
+
+        List<String> toRemove = new ArrayList<>();
+        for(Map.Entry<String, Float> entry : messageTimers.entrySet()) {
+            String messageId = entry.getKey();
+            float timeLeft = entry.getValue() - Tick.getIDeltaTime();
+            
             if(timeLeft <= 0) {
-                setElVisibility(messageId, false);
-                activeMessages.remove(messageId);
-                return true;
+                toRemove.add(messageId);
             } else {
-                e.setValue(timeLeft);
-                return false;
+                entry.setValue(timeLeft);
             }
-        });
+        }
+        for(String messageId : toRemove) {
+            clearMessage(messageId);
+        }
     }
 
     /**
@@ -155,8 +188,14 @@ public class Info extends UI {
      */
     @Override
     public void render() {
-        if(!visible || textRenderer == null) {
-            return;
+        if(!this.visible) return;
+
+        for(UIElement element : uiData.elements) {
+            if(element.type.equals("div")) {
+                for(UIElement label : uiData.elements) {
+                    label.hasBackground = false;
+                }
+            } 
         }
         
         super.render();
@@ -177,8 +216,20 @@ public class Info extends UI {
                 width,
                 height
             );
+            storeOriginalTemplates();
+
+            for(Map.Entry<String, MessageData> entry : activeMessages.entrySet()) {
+                updateMessageElements(entry.getKey(), entry.getValue());
+            }
+            hideMessages();
         } catch(Exception err) {
             System.err.println("Failed to re-parse screen on resize: " + err.getMessage());
         }
+    }
+
+    private void setupResizeCallback() {
+        window.addResizeCallback(() -> {
+            onWindowResize(window.getWidth(), window.getHeight());
+        });
     }
 }

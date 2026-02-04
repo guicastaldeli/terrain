@@ -166,6 +166,9 @@ public class UIController {
      * 
      */
     public void update() {
+        if(UIType.INFO != null) {
+            get(UIType.INFO).update();
+        }
         if(currentUI != null) {
             currentUI.update();
         }

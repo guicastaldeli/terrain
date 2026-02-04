@@ -61,7 +61,7 @@ local fonts = {
     },
     playpen = {
         name = "Playpen",
-        size = 14,
+        size = 20,
         path = "root/src/main/com/app/root/_font/fonts/playpen.ttf"
     }
 }

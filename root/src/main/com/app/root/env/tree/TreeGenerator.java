@@ -100,7 +100,7 @@ public class TreeGenerator {
             System.out.print("UI activated TAKE DAMAGE");
             Info info = (Info) uiController.get(UIType.INFO);
             info.getInfoActions().showTreeDamage(
-                treeData.getIndexTo(),
+                getLevel(),
                 damage,
                 currHealth,
                 treeData.getHealth()

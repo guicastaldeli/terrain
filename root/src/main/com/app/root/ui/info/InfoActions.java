@@ -10,9 +10,14 @@ public class InfoActions {
     /**
      * Show Tree Damage
      */
-    public void showTreeDamage(String treeIndex, int damage, float currHealth, float maxHealth) {
+    public void showTreeDamage(
+        int treeLevel, 
+        int damage, 
+        float currHealth, 
+        float maxHealth
+    ) {
         MessageData data = new MessageData(info);
-        data.put("treeDataIndex", treeIndex);
+        data.put("treeLevel", String.valueOf(treeLevel));
         data.put("damage", String.valueOf(damage));
         data.put("currHealth", String.valueOf((int)currHealth));
         data.put("treeDataHealth", String.valueOf((int)maxHealth));

@@ -122,7 +122,6 @@ public class TreeInteractor {
         int treeLevel = (int) EnvCall.callReturn(treeGenerator, "getLevel");
         if(!axe.canBreakTree(treeLevel)) {
             if(info != null) {
-                System.out.print("UI activated CANT BREAK TREE");
                 info.getInfoActions().showAxeLevelLow(axe.getLevel(), treeLevel);
             }
             return;

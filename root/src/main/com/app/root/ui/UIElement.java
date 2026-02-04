@@ -67,6 +67,7 @@ public class UIElement {
         this.attr = new HashMap<>();
         this.visible = true;
         this.borderWidth = 0.0f;
+        this.hasBackground = false;
         this.borderColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
 
         this.originalColor = color != null ? color.clone() : new float[]{1.0f, 1.0f, 1.0f, 1.0f};
@@ -128,6 +129,7 @@ public class UIElement {
     public float getAlpha() { 
         return color.length > 3 ? color[3] : 1.0f; 
     }
+    
     public boolean hasBorder() { 
         return borderWidth > 0.0f; 
     }

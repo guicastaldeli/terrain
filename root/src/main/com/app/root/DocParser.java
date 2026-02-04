@@ -63,6 +63,7 @@ public class DocParser {
 
         return screenData;
     }
+
     public static UIData parseUI(String filePath, int screenWidth, int screenHeight) {
         UIData uiData = new UIData(filePath);
         try {
@@ -118,6 +119,7 @@ public class DocParser {
             }
         }
     }
+
     private static void parseEl(
         Element parent, 
         List<UIElement> elements,
@@ -713,6 +715,7 @@ public class DocParser {
         }
         return result;
     }
+
     public static List<UIElement> getElementsByType(UIData uiData, String type) {
         List<UIElement> result = new ArrayList<>();
         for(UIElement element : uiData.elements) {
