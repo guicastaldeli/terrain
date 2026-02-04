@@ -6,7 +6,11 @@ import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.ui.UI;
 import main.com.app.root.ui.UIController;
 import main.com.app.root.ui.UIElement;
+import main.com.app.root.utils.TreeColors;
+
 import java.util.*;
+
+import org.joml.Vector3f;
 
 public class Info extends UI {
     private final Window window;
@@ -18,6 +22,8 @@ public class Info extends UI {
     private Map<String, Float> messageTimers;
     private Map<String, MessageData> activeMessages;
     private Map<String, String> originalTemplates;
+
+    private int level;
 
     private static final String UI_PATH = DIR + "info/info.xml";
     private static final float MESSAGE_DURATION = 200.0f;
@@ -45,6 +51,10 @@ public class Info extends UI {
         setupResizeCallback();
     }
 
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
     public InfoActions getInfoActions() {
         return infoActions;
     }
@@ -69,6 +79,7 @@ public class Info extends UI {
      * 
      */
     public void showMessage(String messageId, MessageData data) {
+        clearAllMessages();
         this.visible = true;
         
         activeMessages.put(messageId, data);
@@ -93,6 +104,16 @@ public class Info extends UI {
 
                 String updatedText = replacePlaceholders(template, data);
                 el.text = updatedText;
+
+                if(el.type.equals("div")) {
+                    for(UIElement label : uiData.elements) {
+                        if(label.id.contains("-c")) {
+                            Vector3f color = TreeColors.getColorForLevel(level);
+                            float[] colorArr = {color.x, color.y, color.z};
+                            label.color = colorArr;
+                        }
+                    }
+                }
             }
         }
     }
@@ -139,20 +160,32 @@ public class Info extends UI {
             setElVisibility(messageId, true);
         }
     }
+    
     private void hideAllMessages() {
-        setElVisibility("wood-life", false);
-        setElVisibility("axe-level-low", false);
+        for(UIElement el : uiData.elements) {
+            setElVisibility(el.id, false);
+        }
         for(String messageId : activeMessages.keySet()) {
             setElVisibility(messageId, false);
         }
     }
 
+    /**
+     * Clear
+     */
     public void clearMessage(String messageId) {
         setElVisibility(messageId, false);
         activeMessages.remove(messageId);
         messageTimers.remove(messageId);
         if(activeMessages.isEmpty()) {
             this.visible = false;
+        }
+    }
+
+    public void clearAllMessages() {
+        List<String> toRemove = new ArrayList<>(activeMessages.keySet());
+        for(String messageId : toRemove) {
+            clearMessage(messageId);
         }
     }
 

@@ -7,10 +7,9 @@
         visible="false"
     >
         <label 
-            id="wood-life-damage"
+            id="wood-life-damage-c"
             x="0" y="0" 
             scale="1.0" 
-            color="0.871, 0.580, 0.949"
             textShadow="2,2 0 0,0,0,1.0"
             visible="true"
             fontFamily="playpen"
@@ -56,10 +55,9 @@
         visible="false"
     >
         <label 
-            id="wood-collected-content"
+            id="wood-collected-content-c"
             x="0" y="0"
             scale="1.0"
-            color="0.761, 0.490, 0.137"
             textShadow="2,2 0 0,0,0,1.0"
             visible="true"
             fontFamily="playpen"

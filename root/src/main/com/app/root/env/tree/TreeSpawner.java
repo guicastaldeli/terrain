@@ -255,6 +255,7 @@ public class TreeSpawner implements SpawnerHandler {
             spawner
         );
 
+        TreeGenerator treeGenerator = treeController.getGenerator();
         if(treeGenerator == null) return;        
         treeGenerator.mesh = this.mesh;
 

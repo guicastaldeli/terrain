@@ -13,6 +13,7 @@ import main.com.app.root.player.PlayerController;
 import main.com.app.root.ui.UIController;
 import main.com.app.root.ui.UIController.UIType;
 import main.com.app.root.ui.info.Info;
+import main.com.app.root.utils.TreeColors;
 
 import java.util.List;
 import org.joml.Vector3f;
@@ -86,7 +87,8 @@ public class TreeInteractor {
         Vector3f position, 
         int treeLevel
     ) {
-        Vector3f color = new Vector3f(0.6f, 0.4f, 0.2f);
+        Vector3f colorLevel = TreeColors.getColorForLevel(treeLevel);
+        Vector3f color = new Vector3f(colorLevel.x, colorLevel.y, colorLevel.z);
         
         int amount = 150 + (treeLevel * 2);
         float size = 1.0f + (treeLevel * 0.01f);
@@ -122,6 +124,7 @@ public class TreeInteractor {
         int treeLevel = (int) EnvCall.callReturn(treeGenerator, "getLevel");
         if(!axe.canBreakTree(treeLevel)) {
             if(info != null) {
+                info.setLevel(treeLevel);
                 info.getInfoActions().showAxeLevelLow(axe.getLevel(), treeLevel);
             }
             return;
@@ -133,7 +136,8 @@ public class TreeInteractor {
         if(woodDropped > 0) {
             int actualWood = axe.calcWoodDrop(woodDropped);
             upgrader.addWood(actualWood);
-            System.out.println("+ " + actualWood + " wood! (Total: " + upgrader.getWood() + ")");
+            info.setLevel(treeLevel);
+            info.getInfoActions().showWoodCollected(actualWood);
         }
     }
 

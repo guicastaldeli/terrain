@@ -222,7 +222,7 @@ public class MainScreenWorldParticle {
     }
 
     private void spawnInitialParticles() {
-        float y = cameraPos.y - 20.0f;
+        float y = cameraPos.y - 10.0f;
         float maxY = 2000.0f;
         int count = 1000;
 

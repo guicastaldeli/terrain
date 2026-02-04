@@ -35,4 +35,14 @@ public class InfoActions {
         
         info.showMessage("axe-level-low", data);
     }
+
+    /**
+     * Wood Collected
+     */
+    public void showWoodCollected(int actualWood) {
+        MessageData data = new MessageData(info);
+        data.put("actualWood", String.valueOf(actualWood));
+        
+        info.showMessage("wood-collected", data);
+    }
 }
