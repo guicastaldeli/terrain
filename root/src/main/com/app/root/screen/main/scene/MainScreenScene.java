@@ -1,6 +1,5 @@
 package main.com.app.root.screen.main.scene;
 import main.com.app.root.DependencyContainer;
-import main.com.app.root.SceneLight;
 import main.com.app.root.Tick;
 import main.com.app.root.Window;
 import main.com.app.root._shaders.ShaderProgram;
@@ -16,6 +15,7 @@ import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.particle.ParticleManager;
 import main.com.app.root.player.Camera;
 import main.com.app.root.utils.Fog;
+import main.com.app.root.utils.SceneLight;
 
 import org.joml.Vector3f;
 

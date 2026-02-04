@@ -405,8 +405,10 @@ public class PlayerController {
                     characterController.setAnimation(CharacterController.MovData.SWIM_IDLE);
                 }
             } else {
-                if(!isMoving) {
-                    characterController.setAnimation(CharacterController.MovData.SWIM_IDLE);
+                if(isMoving) {
+                    characterController.setAnimation(CharacterController.MovData.WALK);
+                } else {
+                    characterController.setAnimation(CharacterController.MovData.IDLE_MOV);
                 }
             }
         }
@@ -429,18 +431,19 @@ public class PlayerController {
     private void updateMeshRotation() {
         if(playerMesh == null) return;
 
+        float cameraYaw = camera.getYaw();
+
         boolean directionChanged = playerDirection.updateDirection(
-            movingForward, 
+            movingForward,
             movingBackward, 
             movingLeft, 
-            movingRight
+            movingRight, 
+            cameraYaw
         );
         
         if(directionChanged || playerDirection.isMoving()) {
-            float cameraYaw = camera.getYaw();
             float targetRotation = playerDirection.getRotationForCamera(cameraYaw);
             
-            System.out.println("Camera Yaw: " + cameraYaw + ", Direction: " + playerDirection.getCurrentDirection() + ", Target Rotation: " + targetRotation);
             playerMesh.setMeshRotation(
                 playerMesh.getMeshRotation().x,
                 targetRotation,

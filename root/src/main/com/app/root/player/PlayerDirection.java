@@ -32,7 +32,7 @@ public class PlayerDirection {
     private float currentAngle;
     private float targetAngle;
     private float displayAngle;
-    private float lerpSpeed = 1000.0f;
+    private float lerpSpeed = 1500.0f;
 
     public PlayerDirection() {
         this.currentDirection = Direction.NORTH;
@@ -61,26 +61,36 @@ public class PlayerDirection {
         boolean movForward,
         boolean movBackward,
         boolean movLeft,
-        boolean movRight
+        boolean movRight,
+        float cameraYaw
     ) {
-        Direction newDirection = calcDirection(
-            movForward,
-            movBackward,
-            movLeft,
-            movRight
+        Direction newDirection = cameraDirection(
+            movForward, 
+            movBackward, 
+            movLeft, 
+            movRight, 
+            cameraYaw
         );
-        if(newDirection == null) {
-            return false;
-        }
+        if(newDirection == null) return false;
 
-        if(newDirection != currentDirection) {
+        float baseAngle = newDirection.getAngle();
+        float adjustedAngle = baseAngle - cameraYaw;
+        
+        while(adjustedAngle > 180.0f) adjustedAngle -= 360.0f;
+        while(adjustedAngle < -180.0f) adjustedAngle += 360.0f;
+        
+        if(newDirection != currentDirection || Math.abs(targetAngle - adjustedAngle) > 1.0f) {
             currentDirection = newDirection;
-            currentAngle = newDirection.getAngle();
-            targetAngle = newDirection.getAngle();
+            currentAngle = adjustedAngle;
+            targetAngle = adjustedAngle;
             return true;
         }
 
         return false;
+    }
+
+    public float getDisplayAngle() {
+        return displayAngle;
     }
 
     /**
@@ -185,6 +195,23 @@ public class PlayerDirection {
         
         return null;
     }
+    public Direction cameraDirection(
+        boolean forward,
+        boolean backward,
+        boolean left,
+        boolean right,
+        float cameraYaw
+    ) {
+        Direction baseDirection = calcDirection(forward, backward, left, right);
+        if(baseDirection == null) return null;
+        
+        float adjustedAngle = baseDirection.getAngle() - cameraYaw;
+        
+        while(adjustedAngle > 180.0f) adjustedAngle -= 360.0f;
+        while(adjustedAngle < -180.0f) adjustedAngle += 360.0f;
+        
+        return baseDirection;
+    }
 
     /**
      * 
@@ -204,8 +231,9 @@ public class PlayerDirection {
      * Get Direction Vector
      * 
      */
-    public Vector3f getDirectionVector() {
-        float radians = (float) Math.toRadians(displayAngle);
+    public Vector3f getDirectionVectorWithCamera(float cameraYaw) {
+        float totalAngle = displayAngle - cameraYaw;
+        float radians = (float) Math.toRadians(totalAngle);
         return new Vector3f(
             (float) Math.sin(radians),
             0.0f,

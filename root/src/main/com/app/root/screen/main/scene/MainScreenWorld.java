@@ -34,7 +34,7 @@ public class MainScreenWorld {
 
     private static final String MAP_ID = "MAP_ID";
 
-    public static final int WORLD_SIZE = 10000;
+    public static final int WORLD_SIZE = 8000;
     public static final int DISPLAY_SIZE = 800;
     
     public MainScreenWorld(

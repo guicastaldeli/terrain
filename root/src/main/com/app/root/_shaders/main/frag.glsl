@@ -55,43 +55,35 @@ uniform float uWaterOpacity;
 void main() {
     //Mesh
     if(shaderType == 0) {
-        //testNormals();
-        
-        if(isWater == 1) {
-            vec4 waterColor = texture(texSampler, texCoord);
-            waterColor.a *= uWaterOpacity;
-            fragColor.rgb = waterColor.rgb;
-        } else {
-            setMeshTex();
-        }
+        setMeshTex();
         
         vec3 finalColor = fragColor.rgb;
         vec3 normalizedNormal = normalize(normal);
         
         //Ambient Light
         vec3 ambientResult = calculateAmbientLight(
-            uAmbientLight, 
+            uAmbientLight,
             finalColor
         );
-        
+
         //Directional Light
         vec3 directionalResult = calculateAllDirectionalLights(
             finalColor,
             normalizedNormal
         );
-        
+
         //Point Light
         vec3 pointResult = calculateAllPointLights(
-            fragColor.rgb, 
-            normalizedNormal, 
+            fragColor.rgb,
+            normalizedNormal,
             worldPos
         );
-        
-        finalColor = 
-            ambientResult + 
-            directionalResult + 
+
+        finalColor =
+            ambientResult +
+            directionalResult +
             pointResult;
-        
+
         fragColor = vec4(finalColor, fragColor.a);
         setFog();
 

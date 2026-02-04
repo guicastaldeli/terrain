@@ -133,8 +133,9 @@ public class WorldTexture {
         boolean isChunk = 
             meshData != null && 
             meshData.getId() != null && 
-            meshData.getId().startsWith("chunk_");
-        
+            meshData.getId().startsWith("chunk_") ||
+            meshData.getId().startsWith("ms_chunk_");
+            
         if(isChunk && hasWorldTextures) {
             shaderProgram.setUniform("hasWorldTex", 1);
             

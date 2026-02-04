@@ -1,8 +1,10 @@
 package main.com.app.root.screen.main.scene;
+import main.com.app.root.env.world.Water;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.player.Camera;
+import main.com.app.root.utils.WorldTexture;
 
 import java.util.*;
 
@@ -27,6 +29,9 @@ public class MainScreenChunk {
         Mesh mesh,
         MeshData meshData
     ) {
+        Map<String, Integer> loadedTex = WorldTexture.load();
+        WorldTexture.setWorldTextures(loadedTex);
+
         this.world = world;
         this.mesh = mesh;
         this.meshData = meshData;
@@ -247,6 +252,58 @@ public class MainScreenChunk {
     }
 
     /**
+     * Generate Textures
+     */
+    private float[] generateTexture(float[] heightData, int chunkX, int chunkZ) {
+        int heightDataSize = CHUNK_SIZE + 1;
+        float[] blends = new float[heightDataSize * heightDataSize * 5];
+        
+        float BEACH_LEVEL = 60.0f;
+        float GRASS_LEVEL = 65.0f;
+        float MOUNTAIN_LEVEL = 250.0f;
+        float BLEND_RANGE = 10.0f;
+        
+        for(int x = 0; x < heightDataSize; x++) {
+            for(int z = 0; z < heightDataSize; z++) {
+                int i = x * heightDataSize + z;
+                int blendIdx = i * 5;
+                
+                float heightVal = heightData[i];
+                
+                for(int t = 0; t < 5; t++) {
+                    blends[blendIdx + t] = 0.0f;
+                }
+                
+                if(heightVal < Water.LEVEL) {
+                    blends[blendIdx + 0] = 1.0f;
+                } else if(heightVal < BEACH_LEVEL) {
+                    blends[blendIdx + 1] = 1.0f;
+                } else if(heightVal < GRASS_LEVEL) {
+                    float t = (heightVal - BEACH_LEVEL) / (GRASS_LEVEL - BEACH_LEVEL);
+                    blends[blendIdx + 1] = 1.0f - t;
+                    blends[blendIdx + 2] = t;
+                } else if(heightVal < MOUNTAIN_LEVEL) {
+
+                    float grassEnd = GRASS_LEVEL + BLEND_RANGE;
+                    if(heightVal < grassEnd) {
+                        float t = (heightVal - GRASS_LEVEL) / BLEND_RANGE;
+                        blends[blendIdx + 2] = 1.0f - t;
+                        blends[blendIdx + 3] = t;
+                    } else {
+                        blends[blendIdx + 3] = 1.0f;
+                    }
+                } else {
+                    float t = Math.min((heightVal - MOUNTAIN_LEVEL) / 20.0f, 1.0f);
+                    blends[blendIdx + 3] = 1.0f - t;
+                    blends[blendIdx + 4] = t;
+                }
+            }
+        }
+        
+        return blends;
+    }
+
+    /**
      * Generate Mesh Data
      */
     public MeshData createMeshData(
@@ -291,13 +348,19 @@ public class MainScreenChunk {
             }
         }
 
-        float[] colors = generateColors(heightData, chunkX, chunkZ);
         float[] normals = generateNormals(vertices, indices);
+        float[] uvs = WorldTexture.generateUVs(chunkX, chunkZ);
+        float[] texBlends = generateTexture(heightData, chunkX, chunkZ);
+        if(!WorldTexture.hasWorldTextures) {
+            float[] colors = generateColors(heightData, chunkX, chunkZ);
+            meshData.setColors(colors);
+        }
 
         meshData.setVertices(vertices);
         meshData.setIndices(indices);
-        meshData.setColors(colors);
         meshData.setNormals(normals);
+        meshData.setTexCoords(uvs);
+        meshData.setTexBlends(texBlends);
 
         return meshData;
     }

@@ -1,16 +1,14 @@
-package main.com.app.root;
-
-import java.util.List;
-
-import org.joml.Vector3f;
-
+package main.com.app.root.utils;
+import main.com.app.root.Tick;
+import main.com.app.root.TimeCycle;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.world.WorldGenerator;
 import main.com.app.root.lightning.DirectionalLight;
 import main.com.app.root.lightning.Light;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.lightning.LightningData;
-import main.com.app.root.utils.HexToVec3;
+import java.util.List;
+import org.joml.Vector3f;
 
 public class SceneLight {
     private final Tick tick;
@@ -85,7 +83,9 @@ public class SceneLight {
     }
 
     /**
+     *
      * Set
+     * 
      */
     public void set() {
         float posX = 50.0f;

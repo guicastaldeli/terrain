@@ -1,5 +1,11 @@
 void setMeshTex() {
-    if(hasWorldTex > 0) {
+    if(isWater == 1) {
+        if(hasTex > 0) {
+            fragColor = texture(texSampler, texCoord);
+        } else {
+            fragColor = uColor;
+        }
+    } else if(hasWorldTex > 0) {
         vec4 color = vec4(0.0);
         
         color += texture(uTexSand, texCoord) * vTexBlend.y;

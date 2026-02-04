@@ -133,7 +133,7 @@ public class Chunk {
     }
 
     /**
-     * Load Textures
+     * Generate Textures
      */
     private float[] generateTexture(float[] heightData, int chunkX, int chunkZ) {
         int heightDataSize = CHUNK_SIZE + 1;
@@ -484,7 +484,7 @@ public class Chunk {
     }
 
     /**
-     * Update ChunkS
+     * Update Chunks
      */
     public void updateChunks(float playerX, float playerZ) {
         int[] playerChunk = getCoords(playerX, playerZ);

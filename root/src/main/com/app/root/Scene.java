@@ -4,6 +4,7 @@ import main.com.app.root.mesh.particle.ParticleManager;
 import main.com.app.root.player.PlayerController;
 import main.com.app.root.ui.UIController;
 import main.com.app.root.utils.Fog;
+import main.com.app.root.utils.SceneLight;
 import main.com.app.root._save.DataGetter;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._shaders.ShaderProgram;
