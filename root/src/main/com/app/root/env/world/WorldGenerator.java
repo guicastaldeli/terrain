@@ -85,7 +85,8 @@ public class WorldGenerator {
             collisionManager, 
             mesh, 
             null,
-            spawner
+            spawner,
+            shaderProgram
         );
         Water.addCollider(this, collisionManager);
         addCollider();

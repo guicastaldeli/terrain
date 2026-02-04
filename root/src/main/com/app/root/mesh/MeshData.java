@@ -48,6 +48,7 @@ public class MeshData {
     private float starBrightness = 0.0f;
 
     private final MeshInstance meshInstance;
+    private float[] textureBlends;
 
     public MeshData(String id, MeshType type) {
         this.id = id;
@@ -197,6 +198,14 @@ public class MeshData {
 
     public float[] getTexCoords() {
         return (float[]) data.get(DataType.TEX_COORDS);
+    }
+
+    public void setTexBlends(float[] textureBlends) {
+        this.textureBlends = textureBlends;
+    }
+
+    public float[] getTexBlends() {
+        return textureBlends;
     }
 
     /**

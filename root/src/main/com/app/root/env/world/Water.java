@@ -1,19 +1,21 @@
 package main.com.app.root.env.world;
 import main.com.app.root.Tick;
+import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.types.DynamicObject;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.player.RigidBody;
-
 import java.util.Random;
-
 import org.joml.Vector3f;
 
 public class Water {
     private final Mesh mesh;
+    private final ShaderProgram shaderProgram;
     public static DynamicObject collider;
+
+    public static int texId = -1;
 
     public static final float LEVEL = 50.0f;
     public static final float SPAWN_LEVEL = 48.0f;
@@ -21,8 +23,9 @@ public class Water {
     public static final float MIN_DEPTH = 5.0f;
     public static final float MIN_Y = LEVEL - MIN_DEPTH;
 
-    public Water(Mesh mesh) {
+    public Water(Mesh mesh, ShaderProgram shaderProgram) {
         this.mesh = mesh;
+        this.shaderProgram = shaderProgram;
     }
 
     public static String getId(int chunkX, int chunkZ) {
@@ -98,7 +101,17 @@ public class Water {
             colors[colorIdx] = 0.0f;
             colors[colorIdx + 1] = 0.1f;
             colors[colorIdx + 2] = 0.4f;
-            colors[colorIdx + 3] = 0.6f;
+            colors[colorIdx + 3] = 0.2f;
+        }
+
+        float[] texCoords = new float[heightDataSize * heightDataSize * 2];
+        float uvScale = 2.0f;
+        for(int x = 0; x < heightDataSize; x++) {
+            for(int z = 0; z < heightDataSize; z++) {
+                int idx = (x * heightDataSize + z) * 2;
+                texCoords[idx] = (x / (float)Chunk.CHUNK_SIZE) * uvScale;
+                texCoords[idx + 1] = (z / (float)Chunk.CHUNK_SIZE) * uvScale;
+            }
         }
 
         float[] normals = new float[heightDataSize * heightDataSize * 3];
@@ -113,6 +126,7 @@ public class Water {
         meshData.setIndices(indices);
         meshData.setColors(colors);
         meshData.setNormals(normals);
+        meshData.setTexCoords(texCoords);
 
         return meshData;
     }

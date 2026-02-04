@@ -9,6 +9,7 @@ import main.com.app.root.lightning.LightningRenderer;
 import main.com.app.root.mesh.MeshData.DataType;
 import main.com.app.root.player.Camera;
 import main.com.app.root.player.PlayerController;
+import main.com.app.root.utils.WorldTexture;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
@@ -410,6 +411,7 @@ public class MeshRenderer {
 
         createInstanceBuffer();
         createBoneBuffers();
+        WorldTexture.buffers(meshData);
 
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -548,7 +550,11 @@ public class MeshRenderer {
                 throw new IllegalStateException("No camera available for rendering");
             }
 
-            if(shaderType == 4) {
+            boolean isWater = 
+                meshData != null && 
+                meshData.getId() != null && 
+                meshData.getId().startsWith("water_");
+            if(shaderType == 4 || isWater) {
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glDepthMask(false);
@@ -622,10 +628,20 @@ public class MeshRenderer {
             shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
             shaderProgram.setUniform("hasColors", hasColors ? 1 : 0);
             shaderProgram.setUniform("texSampler", 0);
-            
-            if(hasTex) {
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, texId);
+
+            if(WorldTexture.hasWorldTextures) {
+                WorldTexture.render(
+                    meshData, 
+                    shaderProgram, 
+                    hasTex,
+                    texId
+                );
+            } else {
+                shaderProgram.setUniform("hasWorldTex", 0);
+                if(hasTex) {
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, texId);
+                }
             }
             
             glBindVertexArray(vao);
@@ -708,5 +724,6 @@ public class MeshRenderer {
         if(texCoordsVbo != 0) glDeleteBuffers(texCoordsVbo);
         if(ebo != 0) glDeleteBuffers(ebo);
         if(vao != 0) glDeleteVertexArrays(vao);
+        WorldTexture.cleanup();
     }
 }

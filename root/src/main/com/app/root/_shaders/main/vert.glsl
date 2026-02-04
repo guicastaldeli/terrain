@@ -10,6 +10,8 @@ layout(location = 6) in vec3 instanceRotation;
 layout(location = 7) in float instanceScale;
 layout(location = 8) in ivec4 aBoneIds;
 layout(location = 9) in vec4 aBoneWeights;
+layout(location = 10) in vec4 aTexBlend;
+layout(location = 11) in float aTexBlend4;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -27,6 +29,9 @@ out vec3 normal;
 
 out vec4 uColor;
 out vec2 texCoord;
+
+out vec4 vTexBlend;
+out float vTexBlend4;
 
 uniform int hasTex;
 uniform int hasColors;
@@ -85,6 +90,9 @@ void main() {
 
     vec3 finalPos = animatedPosition.xyz;
     vec3 finalNormal = animatedNormal;
+
+    vTexBlend = aTexBlend;
+    vTexBlend4 = aTexBlend4;
 
     if(isInstanced == 1) {
         finalPos *= instanceScale;

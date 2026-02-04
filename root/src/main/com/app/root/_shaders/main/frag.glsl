@@ -28,6 +28,19 @@ uniform float uTime;
 uniform float uWaterLevel;
 uniform float uPlayerTerrainHeight;
 
+uniform sampler2D uTexWater;
+uniform sampler2D uTexSand;
+uniform sampler2D uTexGrass;
+uniform sampler2D uTexRock;
+uniform sampler2D uTexSnow;
+uniform int hasWorldTex;
+
+in vec4 vTexBlend;
+in float vTexBlend4;
+
+uniform int isWater;
+uniform float uWaterOpacity;
+
 #include "text/text_frag.glsl"
 #include "mesh/mesh_tex.glsl"
 #include "../env/skybox/shaders/sb_frag.glsl"
@@ -45,7 +58,13 @@ void main() {
     if(shaderType == 0) {
         //testNormals();
         
-        setMeshTex();
+        if(isWater == 1) {
+            vec4 waterColor = texture(texSampler, texCoord);
+            waterColor.a *= uWaterOpacity;
+            fragColor.rgb = waterColor.rgb;
+        } else {
+            setMeshTex();
+        }
         
         vec3 finalColor = fragColor.rgb;
         vec3 normalizedNormal = normalize(normal);
