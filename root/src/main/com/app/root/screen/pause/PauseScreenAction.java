@@ -1,6 +1,7 @@
 package main.com.app.root.screen.pause;
 import main.com.app.root.Console;
 import main.com.app.root.StateController;
+import main.com.app.root.Tick;
 import main.com.app.root._save.DataGetter;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root.screen.Screen;
@@ -8,6 +9,7 @@ import main.com.app.root.screen.ScreenController;
 import main.com.app.root.screen.ScreenController.SCREENS;
 
 public class PauseScreenAction {
+    private final Tick tick;
     private final ScreenController screenController;
     private final PauseScreen pauseScreen;
     private final StateController stateController;
@@ -18,12 +20,14 @@ public class PauseScreenAction {
     private static final long SAVE_COOLDOWN = 3000;
 
     public PauseScreenAction(
+        Tick tick,
         ScreenController screenController, 
         PauseScreen pauseScreen,
         StateController stateController,
         SaveGenerator saveGenerator,
         DataGetter dataGetter
     ) {
+        this.tick = tick;
         this.screenController = screenController;
         this.pauseScreen = pauseScreen;
         this.stateController = stateController;
@@ -38,6 +42,7 @@ public class PauseScreenAction {
         boolean isCurrentlyActive = pauseScreen.isActive();
         pauseScreen.setActive(!isCurrentlyActive);
         
+        tick.setPaused(!isCurrentlyActive);
         if(!isCurrentlyActive) {
             Console.getInstance().pause();
             pauseScreen.setActive(true);

@@ -75,7 +75,7 @@ public class AnimationController {
         MeshAnimator meshAnimator = animators.get(modelId);
         if(meshAnimator != null) {
             meshAnimator.playAnimation(animationName);
-            System.out.println("Player animations: " + animationName);
+           // System.out.println("Player animations: " + animationName);
         } else {
             System.err.println("No animator found for model: " + modelId);
         }

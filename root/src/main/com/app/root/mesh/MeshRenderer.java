@@ -550,11 +550,7 @@ public class MeshRenderer {
                 throw new IllegalStateException("No camera available for rendering");
             }
 
-            boolean isWater = 
-                meshData != null && 
-                meshData.getId() != null && 
-                meshData.getId().startsWith("water_");
-            if(shaderType == 4 || isWater) {
+            if(shaderType == 4 || meshData.isTransparent()) {
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glDepthMask(false);
@@ -628,6 +624,7 @@ public class MeshRenderer {
             shaderProgram.setUniform("hasTex", hasTex ? 1 : 0);
             shaderProgram.setUniform("hasColors", hasColors ? 1 : 0);
             shaderProgram.setUniform("texSampler", 0);
+            shaderProgram.setUniform("isWater", meshData.isTransparent() ? 1 : 0);
 
             if(WorldTexture.hasWorldTextures) {
                 WorldTexture.render(

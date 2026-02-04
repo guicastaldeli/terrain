@@ -42,6 +42,7 @@ public class MeshData {
     private final MeshType type;
     private final String id;
     private boolean isDynamic = false;
+    private boolean isTransparent = false;
 
     private float[] colors;
     private int shaderType = 0;
@@ -353,5 +354,16 @@ public class MeshData {
 
     public void addData(DataType dataType, Object data) {
         this.data.put(dataType, data);
+    }
+
+    /**
+     * Is Transparent
+     */
+    public void setIsTransparent(boolean isTransparent) {
+        this.isTransparent = isTransparent;
+    }
+
+    public boolean isTransparent() {
+        return isTransparent;
     }
 }

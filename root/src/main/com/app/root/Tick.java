@@ -26,6 +26,8 @@ public class Tick {
     private static final long GAME_UPDATE_INTERVAL = 16_666_666;
     private static final float ELAPSED_TIME = 1_000_000_000.0f;
 
+    private boolean paused = false;
+
     public Tick(Window window) {
         this.window = window;
         this.timeCycle = new TimeCycle();
@@ -43,6 +45,44 @@ public class Tick {
                              */
     }
 
+    /**
+     * Get Current Time
+     */
+    public float getCurrentTime() {
+        return accumulatedElapsedTime;
+    }
+
+    /**
+     * Get Fps
+     */
+    public int getFps() {
+        return fps;
+    }
+
+    /**
+     * Get Time Cycle
+     */
+    public TimeCycle getTimeCycle() {
+        return timeCycle;
+    }
+
+    /**
+     * Reset Timing
+     */
+    public void resetTiming() {
+        lastFrameTime = System.nanoTime();
+        lastFpsUpdateTime = System.currentTimeMillis();
+        frameCount = 0;
+        fps = 0;
+        accumulatedTime = 0.0f;
+        timeUpdatedThisFrame = false;
+    }
+
+    /**
+     * 
+     * Get Ticks
+     * 
+     */
     public int getTickCount() {
         return tickCount;
     }
@@ -53,10 +93,6 @@ public class Tick {
 
     public float getTickDelta() {
         return TICK_RATE;
-    }
-
-    public float getCurrentTime() {
-        return accumulatedElapsedTime;
     }
 
     public float getTickBasedSpeed(float speed) {
@@ -72,10 +108,11 @@ public class Tick {
         return TICKS_PER_SECOND;
     }
 
-    public int getFps() {
-        return fps;
-    }
-
+    /**
+     * 
+     * Get Delta Time
+     * 
+     */
     public float getDeltaTime() {
         return deltaTime;
     }
@@ -85,19 +122,24 @@ public class Tick {
         return 0.016f;
     }
 
-    public TimeCycle getTimeCycle() {
-        return timeCycle;
+    /**
+     * 
+     * Paused
+     * 
+     */
+    public void setPaused(boolean paused) {
+        this.paused = paused;
     }
 
-    public void resetTiming() {
-        lastFrameTime = System.nanoTime();
-        lastFpsUpdateTime = System.currentTimeMillis();
-        frameCount = 0;
-        fps = 0;
-        accumulatedTime = 0.0f;
-        timeUpdatedThisFrame = false;
+    public boolean isPaused() {
+        return paused;
     }
 
+    /**
+     * 
+     * Update
+     * 
+     */
     public void updateTime() {
         if(timeUpdatedThisFrame) return;
 
@@ -106,13 +148,18 @@ public class Tick {
             lastFrameTime = currentTime;
             lastFpsUpdateTime = System.currentTimeMillis();
             timeUpdatedThisFrame = true;
+            deltaTime = 0.0f;
             return;
         }
 
-        float secs = 1_000_000_000.0f;
-        deltaTime = (currentTime - lastFrameTime) / secs;
-
-        lastFrameTime = currentTime;
+        if(paused) {
+            deltaTime = 0.0f;
+        } else {
+            float secs = 1_000_000_000.0f;
+            deltaTime = (currentTime - lastFrameTime) / secs;
+            lastFrameTime = currentTime;
+        }
+        
         timeUpdatedThisFrame = true;
 
         long currentWallTime = System.currentTimeMillis();
@@ -126,6 +173,10 @@ public class Tick {
 
     public void update() {
         updateTime();
+        if(paused) {
+            timeUpdatedThisFrame = false;
+            return;
+        }
 
         accumulatedTime += deltaTime;
         accumulatedElapsedTime += deltaTime;

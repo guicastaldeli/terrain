@@ -13,6 +13,7 @@ public class PauseScreen extends Screen {
     public PauseScreen() {
         super(SCREEN_PATH, "pause");
         this.pauseScreenAction = new PauseScreenAction(
+            tick,
             screenController, 
             this,
             stateController,

@@ -87,7 +87,6 @@ public class Chunk {
     ) {
         Map<String, Integer> loadedTex = WorldTexture.load();
         WorldTexture.setWorldTextures(loadedTex);
-        Water.texId = loadedTex.get("water");
 
         this.worldGenerator = worldGenerator;
         this.collisionManager = collisionManager;
@@ -590,9 +589,8 @@ public class Chunk {
 
             MeshData waterMeshData = Water.createMeshData(chunkX, chunkZ);
             mesh.add(waterId, waterMeshData);
-            if(Water.texId > 0) mesh.setTex(waterId, Water.texId);
+            water.loadTex(chunkX, chunkZ);
             
-            System.out.println("Water texture ID: " + Water.texId);
             if(cached.collider != null) {
                 collisionManager.addStaticCollider(cached.collider);
             }
@@ -609,19 +607,19 @@ public class Chunk {
             float[] chunkHeightData = generateHeightData(chunkX, chunkZ);
             MeshData chunkMeshData = createMeshData(chunkHeightData, chunkX, chunkZ);
             MeshData waterMeshData = Water.createMeshData(chunkX, chunkZ);
+            
+            mesh.add(chunkId, chunkMeshData);
+            mesh.add(waterId, waterMeshData);
+            water.loadTex(chunkX, chunkZ);
+            
             StaticObject chunkCollider = createCollider(chunkHeightData, chunkX, chunkZ);
 
             ChunkData chunkData = new ChunkData(chunkMeshData, chunkCollider);
             loadedChunks.put(key, chunkData);
-
-            mesh.add(chunkId, chunkMeshData);
-            mesh.add(waterId, waterMeshData);
-            if(Water.texId > 0) mesh.setTex(waterId, Water.texId);
             
             if(chunkCollider != null) collisionManager.addStaticCollider(chunkCollider);
 
             render(key);
-            //System.out.println("Loaded chunk: " + chunkId);
         } catch(Exception err) {
             System.err.println("Failed to load chunk " + chunkId + ": " + err.getMessage());
             err.printStackTrace();

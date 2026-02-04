@@ -1,5 +1,6 @@
 package main.com.app.root.env.world;
 import main.com.app.root.Tick;
+import main.com.app.root._resources.TextureLoader;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.types.DynamicObject;
@@ -15,7 +16,7 @@ public class Water {
     private final ShaderProgram shaderProgram;
     public static DynamicObject collider;
 
-    public static int texId = -1;
+    public static final String TEX_PATH ="root/src/main/com/app/root/_resources/texture/env/water.png";
 
     public static final float LEVEL = 50.0f;
     public static final float SPAWN_LEVEL = 48.0f;
@@ -54,6 +55,20 @@ public class Water {
             "WATER"
         );
         collisionManager.addStaticCollider(collider);
+    }
+
+    /**
+     * Load Texture
+     */
+    public void loadTex(int chunkX, int chunkZ) {
+        int texId = TextureLoader.load(TEX_PATH);
+        if(texId <= 0) {
+            System.err.println("FAILED to load water texture!");
+            return;
+        }
+        
+        String id = getId(chunkX, chunkZ);
+        mesh.setTex(id, texId);
     }
 
     /**
@@ -101,7 +116,7 @@ public class Water {
             colors[colorIdx] = 0.0f;
             colors[colorIdx + 1] = 0.1f;
             colors[colorIdx + 2] = 0.4f;
-            colors[colorIdx + 3] = 0.2f;
+            colors[colorIdx + 3] = 0.3f;
         }
 
         float[] texCoords = new float[heightDataSize * heightDataSize * 2];
@@ -127,6 +142,7 @@ public class Water {
         meshData.setColors(colors);
         meshData.setNormals(normals);
         meshData.setTexCoords(texCoords);
+        meshData.setIsTransparent(true);
 
         return meshData;
     }

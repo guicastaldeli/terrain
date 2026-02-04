@@ -26,14 +26,12 @@ import static org.lwjgl.system.MemoryUtil.memFree;
 
 public class WorldTexture {
     public static final Map<Integer, String> IndexMap = Map.of(
-        0, "water",
-        1, "sand",
-        2, "grass",
-        3, "rock",
-        4, "snow"
+        0, "sand",
+        1, "grass",
+        2, "rock",
+        3, "snow"
     );
     private static final Map<String, String> TEX_MAP = Map.of(
-        "water", "water.png",
         "sand", "sand.png",
         "grass", "grass.png",
         "rock", "rock1.png",
@@ -137,11 +135,6 @@ public class WorldTexture {
             meshData.getId() != null && 
             meshData.getId().startsWith("chunk_");
         
-        boolean isWater = 
-            meshData != null && 
-            meshData.getId() != null && 
-            meshData.getId().startsWith("water_");
-            
         if(isChunk && hasWorldTextures) {
             shaderProgram.setUniform("hasWorldTex", 1);
             
@@ -153,20 +146,11 @@ public class WorldTexture {
             glBindTexture(GL_TEXTURE_2D, worldTextures[2]);
             glActiveTexture(GL_TEXTURE0 + 3);
             glBindTexture(GL_TEXTURE_2D, worldTextures[3]);
-            glActiveTexture(GL_TEXTURE0 + 4);
-            glBindTexture(GL_TEXTURE_2D, worldTextures[4]);
             
-            shaderProgram.setUniform("uTexWater", 0);
-            shaderProgram.setUniform("uTexSand", 1);
-            shaderProgram.setUniform("uTexGrass", 2);
-            shaderProgram.setUniform("uTexRock", 3);
-            shaderProgram.setUniform("uTexSnow", 4);
-        } else if(isWater && worldTextures[0] > 0) {
-            shaderProgram.setUniform("hasWorldTex", 0);
-            shaderProgram.setUniform("isWater", 1);
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, worldTextures[0]);
-            shaderProgram.setUniform("uWaterOpacity", 0.5f);
+            shaderProgram.setUniform("uTexSand", 0);
+            shaderProgram.setUniform("uTexGrass", 1);
+            shaderProgram.setUniform("uTexRock", 2);
+            shaderProgram.setUniform("uTexSnow", 3);
         } else {
             shaderProgram.setUniform("hasWorldTex", 0);
             shaderProgram.setUniform("isWater", 0);

@@ -37,6 +37,7 @@ public class PlayerController {
     private final DataController dataController;
     private final StateController stateController;
     private final CharacterController characterController;
+    private final PlayerDirection playerDirection;
     
     private Vector3f position;
     private Vector3f velocity;
@@ -88,6 +89,7 @@ public class PlayerController {
         this.envController = envController;
         this.dataController = dataController;
         this.stateController = stateController;
+        this.playerDirection = new PlayerDirection();
         this.playerInputMap = new PlayerInputMap(
             tick,
             this,
@@ -108,6 +110,13 @@ public class PlayerController {
             characterController
         );
         characterController.setAnimation(CharacterController.MovData.IDLE_MOV);
+    }
+
+    /**
+     * Get Player Direction
+     */
+    public PlayerDirection getPlayerDirection() {
+        return playerDirection;
     }
 
     /**
@@ -417,18 +426,24 @@ public class PlayerController {
 
     private void updateMeshRotation() {
         if(playerMesh == null) return;
+
+        boolean directionChanged = playerDirection.updateDirection(
+            movingForward, 
+            movingBackward, 
+            movingLeft, 
+            movingRight
+        );
         
-        if(movingForward && !movingBackward && !movingLeft && !movingRight) {
-            updatePlayerMeshRotation(MovDir.FORWARD);
-        } else if(movingBackward && !movingForward && !movingLeft && !movingRight) {
-            updatePlayerMeshRotation(MovDir.BACKWARD);
-        } else if(movingLeft && !movingRight && !movingForward && !movingBackward) {
-            updatePlayerMeshRotation(MovDir.LEFT);
-        } else if(movingRight && !movingLeft && !movingForward && !movingBackward) {
-            updatePlayerMeshRotation(MovDir.RIGHT);
-        }
-        else if(movingForward) {
-            updatePlayerMeshRotation(MovDir.FORWARD);
+        if(directionChanged || playerDirection.isMoving()) {
+            float cameraYaw = camera.getYaw();
+            float targetRotation = playerDirection.getRotationForCamera(cameraYaw);
+            
+            System.out.println("Camera Yaw: " + cameraYaw + ", Direction: " + playerDirection.getCurrentDirection() + ", Target Rotation: " + targetRotation);
+            playerMesh.setMeshRotation(
+                playerMesh.getMeshRotation().x,
+                targetRotation,
+                playerMesh.getMeshRotation().z
+            );
         }
     }
 

@@ -28,7 +28,6 @@ uniform float uTime;
 uniform float uWaterLevel;
 uniform float uPlayerTerrainHeight;
 
-uniform sampler2D uTexWater;
 uniform sampler2D uTexSand;
 uniform sampler2D uTexGrass;
 uniform sampler2D uTexRock;

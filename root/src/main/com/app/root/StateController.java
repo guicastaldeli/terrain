@@ -37,6 +37,7 @@ public class StateController implements Serializable {
     /* Paused */
     public void setPaused(boolean paused) {
         isPaused = paused;
+        Tick.instance.setPaused(paused);
     }
     public boolean isPaused() {
         return isPaused;

@@ -2,7 +2,6 @@ void setMeshTex() {
     if(hasWorldTex > 0) {
         vec4 color = vec4(0.0);
         
-        color += texture(uTexWater, texCoord) * vTexBlend.x;
         color += texture(uTexSand, texCoord) * vTexBlend.y;
         color += texture(uTexGrass, texCoord) * vTexBlend.z;
         color += texture(uTexRock, texCoord) * vTexBlend.w;
