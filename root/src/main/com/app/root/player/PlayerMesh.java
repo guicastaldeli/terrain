@@ -163,8 +163,8 @@ public class PlayerMesh {
             String meshName = val.getKey();
             Vector3f meshPos = new Vector3f(playerPos);
             
-            float dirX = meshRotation.x * 2.0f;
-            float dirY = meshRotation.y / 2.0f;
+            float dirX = meshRotation.x;
+            float dirY = meshRotation.y;
             float dirZ = meshRotation.z;
 
             Matrix4f model = new Matrix4f()
@@ -196,8 +196,8 @@ public class PlayerMesh {
                         if(bone.getId() < boneMatrices.length) {
                             Matrix4f boneTransform = new Matrix4f(boneMatrices[bone.getId()]);
                             
-                            float dirX = meshRotation.x * 2.0f;
-                            float dirY = meshRotation.y / 2.0f;
+                            float dirX = meshRotation.x;
+                            float dirY = meshRotation.y;
                             float dirZ = meshRotation.z;
 
                             Matrix4f playerWorldMatrix = new Matrix4f()

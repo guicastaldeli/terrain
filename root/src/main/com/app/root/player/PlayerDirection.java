@@ -1,5 +1,4 @@
 package main.com.app.root.player;
-
 import org.joml.Vector3f;
 
 public class PlayerDirection {
@@ -9,14 +8,14 @@ public class PlayerDirection {
      * 
      */
     public enum Direction {
-        NORTH(0.0f), //0
-        NORTHEAST(225.0f),
-        EAST(200.0f), //0
-        SOUTHEAST(135.0f),
-        SOUTH(150.0f),
-        SOUTHWEST(225.0f),
-        WEST(150.0f), //0
-        NORTHWEST(45.0f); //0
+        NORTH(90.0f),
+        NORTHEAST(45.0f),
+        EAST(0.0f),
+        SOUTHEAST(-45.0f),
+        SOUTH(-90.0f),
+        SOUTHWEST(-135.0f),
+        WEST(180.0f),
+        NORTHWEST(135.0f);
 
         private final float angle;
 
@@ -31,10 +30,26 @@ public class PlayerDirection {
 
     private Direction currentDirection;
     private float currentAngle;
+    private float targetAngle;
+    private float displayAngle;
+    private float lerpSpeed = 1000.0f;
 
     public PlayerDirection() {
         this.currentDirection = Direction.NORTH;
         this.currentAngle = Direction.NORTH.getAngle();
+        this.targetAngle = this.currentAngle;
+        this.displayAngle = this.currentAngle;
+    }
+
+    /**
+     * Lerp Speed
+     */
+    public void setLerpSpeed(float speed) {
+        this.lerpSpeed = speed;
+    }
+
+    public float getLerpSpeed() {
+        return lerpSpeed;
     }
 
     /**
@@ -61,10 +76,35 @@ public class PlayerDirection {
         if(newDirection != currentDirection) {
             currentDirection = newDirection;
             currentAngle = newDirection.getAngle();
+            targetAngle = newDirection.getAngle();
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Update Lerp
+     */
+    public void updateLerp(float deltaTime) {
+        if(Math.abs(displayAngle - targetAngle) > 0.1f) {
+            float diff = targetAngle - displayAngle;
+
+            while(diff > 180.0f) diff -= 360.0f;
+            while(diff < -180.0f) diff += 360.0f;
+
+            float step = lerpSpeed * deltaTime;
+            if(Math.abs(diff) < step) {
+                displayAngle = targetAngle;
+            } else {
+                displayAngle += Math.signum(diff) * step;
+            }
+
+            while(displayAngle > 180.0f) displayAngle -= 360.0f;
+            while(displayAngle < -180.0f) displayAngle += 360.0f;
+        } else {
+            displayAngle = targetAngle;
+        }
     }
 
     /**
@@ -152,7 +192,7 @@ public class PlayerDirection {
      * 
      */
     public float getRotationForCamera(float cameraYaw) {
-        float rotation = 180.0f - cameraYaw + currentAngle;
+        float rotation = cameraYaw + displayAngle;
 
         rotation = rotation % 360.0f;
         if(rotation < 0) rotation += 360.0f;
@@ -165,7 +205,7 @@ public class PlayerDirection {
      * 
      */
     public Vector3f getDirectionVector() {
-        float radians = (float) Math.toRadians(currentAngle);
+        float radians = (float) Math.toRadians(displayAngle);
         return new Vector3f(
             (float) Math.sin(radians),
             0.0f,
@@ -181,6 +221,7 @@ public class PlayerDirection {
     public void reset() {
         currentDirection = Direction.NORTH;
         currentAngle = Direction.NORTH.getAngle();
+        targetAngle = Direction.NORTH.getAngle();
     }
 
     @Override

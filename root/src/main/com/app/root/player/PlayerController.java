@@ -355,6 +355,8 @@ public class PlayerController {
     public void update() {
         float deltaTime = tick.getDeltaTime();
 
+        playerDirection.updateLerp(deltaTime);
+
         boolean isMoving = movingForward || movingBackward || movingLeft || movingRight;
         if(isMoving != characterController.wasMoving && !rigidBody.isInWater()) {
             CharacterController.MovData targetAnim = isMoving ? 
