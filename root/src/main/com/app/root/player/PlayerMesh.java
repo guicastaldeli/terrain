@@ -1,6 +1,7 @@
 package main.com.app.root.player;
 import main.com.app.root.mesh.AnimatedModel;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.mesh.MeshAnimator;
 import main.com.app.root.mesh.MeshData;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.mesh.ModelInfo;
@@ -16,6 +17,7 @@ import org.joml.Vector3f;
 public class PlayerMesh {
     private final Tick tick;
     private final PlayerController playerController;
+    private final CharacterController characterController;
 
     private final Mesh mesh;
     private MeshData meshData;
@@ -30,22 +32,26 @@ public class PlayerMesh {
         "susie_flower_base", false,
         "susie_flower", false
     );
+
     private static String TEX_PATH;
 
     public PlayerMesh(
         Tick tick, 
         PlayerController playerController,
-        Mesh mesh
+        Mesh mesh,
+        CharacterController characterController
     ) {
         this.tick = tick;
         this.playerController = playerController;
         this.mesh = mesh;
+        this.characterController = characterController;
 
         setMesh();
         
         this.meshOffset = new Vector3f(0.0f, 0.0f, 0.0f);
         this.meshScale = new Vector3f(1.0f, 1.0f, 1.0f);
         this.meshRotation = new Vector3f(0.0f, 0.0f, 0.0f);
+        setMeshForAnimation();
     }
 
     /**
@@ -72,15 +78,30 @@ public class PlayerMesh {
         loadTex();
     }
 
+    public MeshData getMeshData() {
+        return meshData;
+    }
+    
+    public boolean isMeshLoaded() {
+        return mesh.getMeshRenderer() != null;
+    }
+
+    private void setMeshForAnimation() {
+        for(Map.Entry<String, Boolean> val : PlayerMesh.PLAYER_MESH_MAP.entrySet()) {
+            if(val.getValue()) {
+                characterController.setMeshForAnimation(val.getKey());
+            }
+        }
+    }
+
     /**
-     * Load Texure
+     * Load Texture
      */
     private void loadTex() {
         for(String val : PLAYER_MESH_MAP.keySet()) {
             ModelMap modelMap = MeshLoader.getModelMap();
             ModelInfo info = modelMap.getModelInfo(val);
             TEX_PATH = info.getTexture();
-            System.out.println("texture!!: " + info.getTexture());
     
             int id = TextureLoader.load(TEX_PATH);
             if(id <= 0) {
@@ -89,15 +110,8 @@ public class PlayerMesh {
             }
             
             mesh.setTex(val, id);
+            characterController.replaceTex(val, id, TEX_PATH);
         }
-    }
-
-    public MeshData getMeshData() {
-        return meshData;
-    }
-    
-    public boolean isMeshLoaded() {
-        return mesh.getMeshRenderer() != null;
     }
 
     /**
@@ -163,7 +177,46 @@ public class PlayerMesh {
         }
     }
 
+    /**
+     * Get Bone World Transform
+     */
+    public Matrix4f getBoneWorldTransform(String boneName) {
+        if(mesh.getAnimationController() == null) return null;
+        
+        Vector3f playerPos = playerController.getPosition();
+        
+        for(Map.Entry<String, Boolean> val : PLAYER_MESH_MAP.entrySet()) {
+            if(val.getValue()) {
+                MeshAnimator animator = mesh.getAnimationController().getAnimator(val.getKey());
+                if(animator != null) {
+                    AnimatedModel model = animator.getAnimatedModel();
+                    AnimatedModel.Bone bone = model.getSkeleton().getBone(boneName);
+                    if(bone != null && bone.getId() >= 0) {
+                        Matrix4f[] boneMatrices = animator.getBoneMatrices();
+                        if(bone.getId() < boneMatrices.length) {
+                            Matrix4f boneTransform = new Matrix4f(boneMatrices[bone.getId()]);
+                            
+                            float dirX = meshRotation.x * 2.0f;
+                            float dirY = meshRotation.y / 2.0f;
+                            float dirZ = meshRotation.z;
+
+                            Matrix4f playerWorldMatrix = new Matrix4f()
+                                .translate(playerPos)
+                                .rotateX((float) Math.toRadians(dirX))
+                                .rotateY((float) Math.toRadians(dirY)) 
+                                .rotateZ((float) Math.toRadians(dirZ));
+                            
+                            return new Matrix4f(playerWorldMatrix).mul(boneTransform);
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public void update() {
+        characterController.update();
         if(mesh.getMeshRenderer() != null) {
             updateMeshModelMatrix();
         }
@@ -178,7 +231,7 @@ public class PlayerMesh {
 
     public void render() {
         if(mesh.getMeshRenderer() != null) {
-            updateMeshModelMatrix();
+            //updateMeshModelMatrix();
             for(Map.Entry<String, Boolean> val : PLAYER_MESH_MAP.entrySet()) {
                 int hasAnimation = val.getValue() ? 1 : 0;
                 mesh.getMeshRenderer().shaderProgram.setUniform("hasAnimation", hasAnimation);

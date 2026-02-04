@@ -16,6 +16,7 @@ public class Water {
     public static DynamicObject collider;
 
     public static final float LEVEL = 50.0f;
+    public static final float SPAWN_LEVEL = 48.0f;
     public static final float SHADER_LEVEL = LEVEL - 0.00005f;
     public static final float MIN_DEPTH = 5.0f;
     public static final float MIN_Y = LEVEL - MIN_DEPTH;

@@ -4,6 +4,10 @@ import main.com.app.root._resources.TextureLoader;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.lightning.PointLight;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.mesh.MeshLoader;
+import main.com.app.root.mesh.ModelInfo;
+import main.com.app.root.mesh.ModelMap;
+
 import org.joml.Vector3f;
 
 public class TorchGenerator {
@@ -17,7 +21,6 @@ public class TorchGenerator {
     private String id;
 
     public final String MESH_ID;
-    public static final String TEX_PATH ="root/src/main/com/app/root/_resources/texture/env/";
 
     public TorchGenerator(
         Vector3f position,
@@ -51,7 +54,7 @@ public class TorchGenerator {
         try {
             mesh.addModel(MESH_ID, "torch");
             mesh.setPosition(MESH_ID, position);
-            loadTex("torch");
+            loadTex(MESH_ID, "torch");
         } catch(Exception err) {
             System.err.println("Failed to create mesh for torch: " + err.getMessage());
         }
@@ -60,13 +63,18 @@ public class TorchGenerator {
     /**
      * Load texture
      */
-    public void loadTex(String name) {
-        int texId = TextureLoader.load(TEX_PATH + name + ".png");
-        if(texId <= 0) {
-            System.err.println("FAILED to load torch texture!");
+    public void loadTex(String meshId, String name) {
+        ModelMap modelMap = MeshLoader.getModelMap();
+        ModelInfo info = modelMap.getModelInfo(name);
+        String texPath = info.getTexture();
+    
+        int id = TextureLoader.load(texPath);
+        if(id <= 0) {
+            System.err.println("FAILED to load texture!");
             return;
         }
-        mesh.setTex(MESH_ID, texId);
+            
+        mesh.setTex(meshId, id);
     }
 
     public void destroyMesh() {

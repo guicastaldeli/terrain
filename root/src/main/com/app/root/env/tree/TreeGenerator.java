@@ -5,6 +5,9 @@ import main.com.app.root.SpawnerHandler;
 import main.com.app.root._resources.AudioLoader;
 import main.com.app.root._resources.TextureLoader;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.mesh.MeshLoader;
+import main.com.app.root.mesh.ModelInfo;
+import main.com.app.root.mesh.ModelMap;
 import main.com.app.root.player.Camera;
 import main.com.app.root.ui.UIController;
 import main.com.app.root.ui.UIController.UIType;
@@ -18,12 +21,10 @@ public class TreeGenerator {
     public TreeData treeData;
     public Spawner spawner;
     private UIController uiController;
-    
     public Mesh mesh;
-    public String MESH_ID;
-    public static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/env/";
     
     public final Vector3f position;
+    public String MESH_ID;
     public String id;
     public float currHealth;
     public boolean isAlive;
@@ -57,18 +58,6 @@ public class TreeGenerator {
     }
 
     /**
-     * Load Texure
-     */
-    public void loadTex(String name) {
-        int id = TextureLoader.load(TEX_PATH + name + ".png");
-        if(id <= 0) {
-            System.err.println("FAILED to load texture!");
-            return;
-        }
-        mesh.setTex(MESH_ID, id);
-    }
-
-    /**
      * Mesh
      */
     public void createMesh() {
@@ -76,7 +65,7 @@ public class TreeGenerator {
             String treeName = "tree" + treeData.getLevel();
             mesh.addModel(MESH_ID, treeName);
             mesh.setPosition(MESH_ID, position);
-            loadTex(treeName);
+            loadTex(MESH_ID, treeName);
         } catch(Exception err) {
             System.err.println("Failed to create mesh for " + treeData.getIndexTo() + 
                             ": " + err.getMessage());
@@ -89,6 +78,23 @@ public class TreeGenerator {
             mesh.remove(MESH_ID);
             //System.out.println("Mesh destroyed for " + MESH_ID);
         }
+    }
+
+    /**
+     * Load Texure
+     */
+    public void loadTex(String meshId, String name) {
+        ModelMap modelMap = MeshLoader.getModelMap();
+        ModelInfo info = modelMap.getModelInfo(name);
+        String texPath = info.getTexture();
+    
+        int id = TextureLoader.load(texPath);
+        if(id <= 0) {
+            System.err.println("FAILED to load texture!");
+            return;
+        }
+            
+        mesh.setTex(meshId, id);
     }
 
     public int takeDamage(int damage, int axeLevel) {

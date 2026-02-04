@@ -3,6 +3,12 @@ import main.com.app.root.DependencyValue;
 import main.com.app.root._resources.TextureLoader;
 import main.com.app.root.env.EnvInstance;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.mesh.MeshLoader;
+import main.com.app.root.mesh.MeshRenderer;
+import main.com.app.root.mesh.ModelInfo;
+import main.com.app.root.mesh.ModelMap;
+
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class AxeController implements EnvInstance<AxeController> {
@@ -11,11 +17,13 @@ public class AxeController implements EnvInstance<AxeController> {
     private static AxeController instance;
     private AxeData axeData;
 
-    private final String AXE_ID = "AXE"; 
-    public static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/item/";
-
     public static final int AXE_MIN_LEVEL = 0;
     public static final int AXE_MAX_LEVEL = 10;
+
+    private final String AXE_ID = "AXE"; 
+
+    private Vector3f handOffset = new Vector3f(-1.0f, 1.5f, 0.5f);
+    private Vector3f handRotation = new Vector3f(0.0f, 0.0f, 0.0f);
 
     @Override
     public AxeController getInstance() {
@@ -42,26 +50,39 @@ public class AxeController implements EnvInstance<AxeController> {
         updateMesh();
     }
 
-    /**
-     * Load Texure
-     */
-    private void loadTex(String name) {
-        int id = TextureLoader.load(TEX_PATH + name + ".png");
-        if(id <= 0) {
-            System.err.println("FAILED to load texture!");
-            return;
-        }
-        mesh.setTex(AXE_ID, id);
-    }
-
     private void createMesh() {
         try {
             String axeName = "axe" + axeData.level;
             mesh.addModel(AXE_ID, axeName);
-            loadTex(axeName);
+            loadTex(AXE_ID, axeName);
+            
+            MeshRenderer renderer = mesh.getMeshRenderer(AXE_ID);
+            if(renderer != null) {
+                renderer.setIsDynamic(true);
+                System.out.println("Axe mesh created and set to dynamic mode");
+            } else {
+                System.err.println("Failed to get axe renderer!");
+            }
         } catch(Exception err) {
             System.err.println("Failed to load axe model: " + axeData + ": " + err.getMessage());
         }
+    }
+
+    /**
+     * Load Texure
+     */
+    public void loadTex(String meshId, String name) {
+        ModelMap modelMap = MeshLoader.getModelMap();
+        ModelInfo info = modelMap.getModelInfo(name);
+        String texPath = info.getTexture();
+    
+        int id = TextureLoader.load(texPath);
+        if(id <= 0) {
+            System.err.println("FAILED to load texture!");
+            return;
+        }
+            
+        mesh.setTex(meshId, id);
     }
 
     public int calcDamage() {
@@ -104,6 +125,35 @@ public class AxeController implements EnvInstance<AxeController> {
         if(mesh.hasMesh(AXE_ID)) {
             mesh.setPosition(AXE_ID, position);
         }
+    }
+
+    /**
+     * Set Bone Transform
+     */
+    public void setBoneTransform(Matrix4f boneTransform) {
+        if(!mesh.hasMesh(AXE_ID)) {
+            System.err.println("Cannot set bone transform - AXE mesh not found!");
+            return;
+        }
+
+        Matrix4f finalTransform = new Matrix4f(boneTransform)
+            .translate(handOffset)
+            .rotateX((float) Math.toRadians(handRotation.x))
+            .rotateY((float) Math.toRadians(handRotation.y))
+            .rotateZ((float) Math.toRadians(handRotation.z));
+            
+        mesh.setModelMatrix(AXE_ID, finalTransform);
+    }
+
+    /**
+     * Set Hand
+     */
+    public void setHandOffset(float x, float y, float z) {
+        handOffset.set(x, y, z);
+    }
+
+    public void setHandRotation(float x, float y, float z) {
+        handRotation.set(x, y, z);
     }
 
     /**

@@ -11,7 +11,6 @@ public class AxeData {
     private static final String DATA_PATH = "root/src/main/com/app/root/_data/axe_data.lua";
     private static final String OBJ_LIST_PATH = "root/src/main/com/app/root/_data/obj_list.lua";
     private static final String OBJ_PATH = "root/src/main/com/app/root/_resources/item/";
-    private static final String TEX_PATH = "root/src/main/com/app/root/_resources/texture/item/";
 
     public String indexTo;
     public int level;

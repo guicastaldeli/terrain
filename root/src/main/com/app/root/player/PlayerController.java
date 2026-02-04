@@ -12,10 +12,9 @@ import main.com.app.root.env.EnvData;
 import main.com.app.root.env.world.Water;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.DataController;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
-
-import java.util.Map;
 
 public class PlayerController {
     public enum MovDir {
@@ -37,6 +36,7 @@ public class PlayerController {
     private final EnvController envController;
     private final DataController dataController;
     private final StateController stateController;
+    private final CharacterController characterController;
     
     private Vector3f position;
     private Vector3f velocity;
@@ -47,7 +47,7 @@ public class PlayerController {
     private CollisionManager collisionManager;
 
     private float sizeX = 1.0f;
-    private float sizeY = 15.0f;
+    private float sizeY = 10.0f;
     private float sizeZ = 1.0f;
 
     private float xSpeed = 0.0f;
@@ -99,19 +99,64 @@ public class PlayerController {
 
         if(autoSet) this.set();
 
+        this.characterController = new CharacterController(tick, mesh);
         this.camera.setAspectRatio(window.getAspectRatio());
         this.playerMesh = new PlayerMesh(
             tick, 
             this,
-            mesh
+            mesh,
+            characterController
         );
-        for(Map.Entry<String, Boolean> val : PlayerMesh.PLAYER_MESH_MAP.entrySet()) {
-            if(val.getValue()) {
-                mesh.getAnimationController().play(val.getKey(), "idle_mov");
-            }
-        }
+        characterController.setAnimation(CharacterController.MovData.IDLE_MOV);
     }
 
+    /**
+     * Get Character Controller
+     */
+    public CharacterController getCharacterController() {
+        return characterController;
+    }
+
+    /**
+     * Get Camera
+     */
+    public Camera getCamera() {
+        return camera;
+    } 
+
+    /**
+     * Get Mesh
+     */
+    public Mesh getMesh() {
+        return mesh;
+    }
+
+    /**
+     * Get Input Map
+     */
+    public PlayerInputMap getInputMap() {
+        return playerInputMap;
+    }
+
+    /**
+     * Get Player Mesh
+     */
+    public PlayerMesh getPlayerMesh() {
+        return playerMesh;
+    }
+
+    /**
+     * Get Rigid Body
+     */
+    public RigidBody getRigidBody() {
+        return rigidBody;
+    }
+
+    /**
+     * 
+     * Set
+     * 
+     */
     public void set() {
         Vector3f savedPos = dataController.getPlayerPos();
         System.out.println("DataController saved position: " + savedPos);
@@ -156,11 +201,13 @@ public class PlayerController {
         );
 
         addCollider();
-        updateCameraPosition(); 
+        updateCameraPosition();
     }
 
     /**
+     * 
      * Position
+     * 
      */
     public Vector3f getPosition() {
         if(position == null) {
@@ -184,27 +231,6 @@ public class PlayerController {
             dataController.setPlayerPos(new Vector3f(position));
         }
         updateCameraPosition();
-    }
-
-    /**
-     * Get Camera
-     */
-    public Camera getCamera() {
-        return camera;
-    } 
-
-    /**
-     * Get Mesh
-     */
-    public Mesh getMesh() {
-        return mesh;
-    }
-
-    /**
-     * Get Input Map
-     */
-    public PlayerInputMap getInputMap() {
-        return playerInputMap;
     }
 
     private void applyMov() {
@@ -282,20 +308,6 @@ public class PlayerController {
     }
 
     /**
-     * Get Player Mesh
-     */
-    public PlayerMesh getPlayerMesh() {
-        return playerMesh;
-    }
-
-    /**
-     * Get Rigid Body
-     */
-    public RigidBody getRigidBody() {
-        return rigidBody;
-    }
-
-    /**
      * Fly Mode
      */
     public void toggleFlyMode() {
@@ -327,10 +339,21 @@ public class PlayerController {
     }
  
     /**
+     * 
      * Update
+     * 
      */
     public void update() {
         float deltaTime = tick.getDeltaTime();
+
+        boolean isMoving = movingForward || movingBackward || movingLeft || movingRight;
+        if(isMoving != characterController.wasMoving && !rigidBody.isInWater()) {
+            CharacterController.MovData targetAnim = isMoving ? 
+                CharacterController.MovData.WALK : 
+                CharacterController.MovData.IDLE_MOV;
+            characterController.setAnimation(targetAnim);
+            characterController.wasMoving = isMoving;
+        }
 
         applyMov();
 
@@ -358,10 +381,15 @@ public class PlayerController {
 
         rigidBody.update();
         Vector3f newPos = rigidBody.getPosition();
-        if(newPos.y < Water.LEVEL) {
-            newPos.y = Water.LEVEL;
+        boolean isInWater = newPos.y < Water.LEVEL;
+        if(isInWater) {
+            newPos.y = Water.SPAWN_LEVEL;
             rigidBody.setPosition(newPos);
+            if(!characterController.wasInWater) {
+                characterController.setAnimation(CharacterController.MovData.SWIM);
+            }
         }
+        characterController.wasInWater = isInWater;
     
         position.set(newPos);
         updateCameraPosition();
@@ -478,21 +506,31 @@ public class PlayerController {
     public void updateAxePosition() {
         if(envController != null && envController.getEnv(EnvData.AXE) != null) {
             Object axeInstance = envController.getEnv(EnvData.AXE).getInstance();
-            if(axeInstance != null) {
-                EnvCall.callWithParams(axeInstance, new Object[]{getPosition()}, "setPosition");
+            if(axeInstance != null && playerMesh != null) {
+                Matrix4f boneTransform = playerMesh.getBoneWorldTransform("Bone.RightArm");
+                
+                if(boneTransform != null) {
+                    EnvCall.callWithParams(axeInstance, new Object[]{boneTransform}, "setBoneTransform");
+                } else {
+                    EnvCall.callWithParams(axeInstance, new Object[]{getPosition()}, "setPosition");
+                }
             }
         }
     }
 
     /**
+     * 
      * Render
+     * 
      */
     public void render() {
         if(playerMesh != null) playerMesh.render();
     }
 
     /**
+     * 
      * Reset
+     * 
      */
     public void reset() {
         Object axeController = envController != null ? envController.getEnv(EnvData.AXE) : null;

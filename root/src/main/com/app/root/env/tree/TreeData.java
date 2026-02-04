@@ -47,7 +47,9 @@ public class TreeData {
     }
 
     /**
+     * 
      * Load Config Data
+     * 
      */
     public void loadConfigData() {
         try {
@@ -75,7 +77,9 @@ public class TreeData {
     }
 
     /**
+     * 
      * Default Configs
+     * 
      */
     public void createDefaultConfigs() {
         System.out.println("Creating default tree configurations...");
@@ -98,18 +102,33 @@ public class TreeData {
         return indexTo; 
     }
 
+    /**
+     * 
+     * Level
+     * 
+     */
     public int getLevel() { 
         return level; 
     }
-
+    
     public void setLevel(int level) {
         this.level = level;
     }
 
+    /**
+     * 
+     * Health
+     * 
+     */
     public float getHealth() { 
         return health; 
     }
 
+    /**
+     * 
+     * Wood Min/Max
+     * 
+     */
     public int getWoodMin() { 
         return woodMin; 
     }
@@ -117,6 +136,11 @@ public class TreeData {
         return woodMax; 
     }
 
+    /**
+     * 
+     * Respawn Time
+     * 
+     */
     public float getRespawnTime() { 
         return respawnTime; 
     }

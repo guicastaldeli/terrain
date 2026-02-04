@@ -64,6 +64,7 @@ public class PlayerInputMap {
             leftMouseDown = pressed;
             if(pressed && treeInteractor != null) {
                 treeInteractor.attemptBreak();
+                
             }
         }
     }

@@ -9,12 +9,12 @@ import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
 import main.com.app.root.env.axe.AxeController;
 import main.com.app.root.mesh.Mesh;
+import main.com.app.root.player.CharacterController;
 import main.com.app.root.player.PlayerController;
 import main.com.app.root.ui.UIController;
 import main.com.app.root.ui.UIController.UIType;
 import main.com.app.root.ui.info.Info;
 import main.com.app.root.utils.TreeColors;
-
 import java.util.List;
 import org.joml.Vector3f;
 
@@ -72,6 +72,13 @@ public class TreeInteractor {
             TreeSpawner treeSpawner = (TreeSpawner) treeHandlers.get(0);
             TreeController nearestTree = treeSpawner.getNearestTree(playerPos, interactionRange);
             if(nearestTree != null) {
+                int treeLevel = nearestTree.getGenerator().getLevel();
+                if(axe.canBreakTree(treeLevel)) {
+                    CharacterController characterController = playerController.getCharacterController();
+                    if(characterController != null) {
+                        characterController.setAnimation(CharacterController.MovData.BREAK);
+                    }
+                }
                 breakTree(axe, nearestTree);
             } else {
                 System.out.println("No trees in range!");
