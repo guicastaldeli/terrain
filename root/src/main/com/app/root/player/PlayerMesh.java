@@ -48,7 +48,7 @@ public class PlayerMesh {
 
         setMesh();
         
-        this.meshOffset = new Vector3f(0.0f, 0.0f, 0.0f);
+        this.meshOffset = new Vector3f(0.0f, -2.2f, 0.0f);
         this.meshScale = new Vector3f(1.0f, 1.0f, 1.0f);
         this.meshRotation = new Vector3f(0.0f, 0.0f, 0.0f);
         setMeshForAnimation();
@@ -161,7 +161,7 @@ public class PlayerMesh {
 
         for(Map.Entry<String, Boolean> val : PLAYER_MESH_MAP.entrySet()) {
             String meshName = val.getKey();
-            Vector3f meshPos = new Vector3f(playerPos);
+            Vector3f meshPos = new Vector3f(playerPos).add(meshOffset);
             
             float dirX = meshRotation.x;
             float dirY = meshRotation.y;
@@ -183,7 +183,7 @@ public class PlayerMesh {
     public Matrix4f getBoneWorldTransform(String boneName) {
         if(mesh.getAnimationController() == null) return null;
         
-        Vector3f playerPos = playerController.getPosition();
+        Vector3f playerPos = playerController.getPosition().add(meshOffset);
         
         for(Map.Entry<String, Boolean> val : PLAYER_MESH_MAP.entrySet()) {
             if(val.getValue()) {

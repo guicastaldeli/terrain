@@ -19,9 +19,9 @@ public class Water {
     public static final String TEX_PATH ="root/src/main/com/app/root/_resources/texture/env/water.png";
 
     public static final float LEVEL = 50.0f;
-    public static final float SPAWN_LEVEL = 48.0f;
+    public static final float SPAWN_LEVEL = 48.5f;
     public static final float SHADER_LEVEL = LEVEL - 0.00005f;
-    public static final float MIN_DEPTH = 5.0f;
+    public static final float MIN_DEPTH = 2.5f;
     public static final float MIN_Y = LEVEL - MIN_DEPTH;
 
     public Water(Mesh mesh, ShaderProgram shaderProgram) {

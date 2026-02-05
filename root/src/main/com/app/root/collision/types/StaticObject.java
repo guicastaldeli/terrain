@@ -143,8 +143,8 @@ public class StaticObject implements Collider {
         }
 
         float playerBottom = box.minY;
-        float groundMargin = 10.0f;
-        float maxStepHeight = 10.0f;
+        float groundMargin = 1.0f;
+        float maxStepHeight = 1.0f;
 
         boolean isOnGround = false;
         float targetHeight = heightestTerrainHeight;
@@ -221,40 +221,89 @@ public class StaticObject implements Collider {
         CollisionResult collision
     ) {
         StaticObject staticObj = (StaticObject) collision.otherCollider;
+        
         if(staticObj.isMap()) {
+            Vector3f terrainNormal = collision.normal;
             float terrainHeight = getHeightAtPos(position, staticObj);
             float playerBottom = bBox.minY;
-
+            float playerHeight = bBox.getSizeY();
+            
             boolean wasInWater = body.isInWater();
             boolean isAboveWater = playerBottom > Water.LEVEL;
+            
             if(wasInWater && isAboveWater && terrainHeight > Water.LEVEL) {
-                float targetY = terrainHeight + bBox.getSizeY() / 2.0f;
+                float targetY = terrainHeight + playerHeight / 2.0f;
                 position.y = targetY;
                 body.setPosition(position);
                 body.setOnGround(true);
                 body.setInWater(false, 0.0f);
-
+                
                 Vector3f vel = body.getVelocity();
                 if(vel.y < 0) vel.y = 0;
                 body.setVelocity(vel);
-
                 return;
             }
-            if(playerBottom <= terrainHeight + 5.0f && body.getVelocity().y <= 0) {
-                float targetY = terrainHeight + bBox.getSizeY() / 2.0f;
-                if(playerBottom <= terrainHeight + 2.0f) {
-                    position.y = targetY;
-                    body.setPosition(position);
-                    body.setOnGround(true);
-    
-                    Vector3f vel = body.getVelocity();
-                    if(vel.y < 0) vel.y = 0;
-                    body.setVelocity(vel);
-                }
-            }
+            
+            float slopeAngle = (float) Math.acos(terrainNormal.y);
+            float maxWalkableSlope = (float) Math.toRadians(45.0f);
+            
 
+            if(slopeAngle > maxWalkableSlope && body.getVelocity().y <= 0) {
+                Vector3f velocity = body.getVelocity();
+                Vector3f slideVelocity = calculateSlideVelocity(velocity, terrainNormal);
+                
+                float slideFactor = 0.1f + (slopeAngle - maxWalkableSlope) * 2.0f;
+                slideVelocity.mul(slideFactor);
+                
+                slideVelocity.y = Math.min(slideVelocity.y, -2.0f);
+                body.setVelocity(slideVelocity);
+                body.setOnGround(false);
+                return;
+            }
+            
+            if(playerBottom <= terrainHeight + 1.0f && body.getVelocity().y <= 0) {
+                float targetHeight = terrainHeight + playerHeight / 2.0f;
+                
+                float currentY = position.y;
+                float smoothFactor = 0.3f;
+                position.y = currentY + (targetHeight - currentY) * smoothFactor;
+                
+                if(body.isOnGround()) {
+                    Vector3f velocity = body.getVelocity();
+                    velocity = projectOntoPlane(velocity, terrainNormal);
+                    velocity.y = 0;
+                    body.setVelocity(velocity);
+                }
+                
+                body.setPosition(position);
+                body.setOnGround(true);
+                
+                Vector3f vel = body.getVelocity();
+                if(vel.y < 0) vel.y = 0;
+                body.setVelocity(vel);
+            }
             return;
         }
+    }
+
+    private static Vector3f projectOntoPlane(Vector3f vector, Vector3f planeNormal) {
+        Vector3f projection = new Vector3f();
+        float dot = vector.dot(planeNormal);
+        projection.set(vector).sub(new Vector3f(planeNormal).mul(dot));
+        return projection;
+    }
+
+    private static Vector3f calculateSlideVelocity(Vector3f velocity, Vector3f normal) {
+        Vector3f slideVelocity = new Vector3f();
+        
+        float dot = velocity.dot(normal);
+        if(dot < 0) {
+            slideVelocity.set(velocity).sub(new Vector3f(normal).mul(dot));
+        }
+        
+        slideVelocity.y -= 9.8f * 0.1f;
+        
+        return slideVelocity;
     }
 
     public static float getHeightAtPos(Vector3f position, StaticObject obj) {

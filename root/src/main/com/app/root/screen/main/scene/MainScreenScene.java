@@ -128,7 +128,7 @@ public class MainScreenScene {
     public void update() {
         if(!init) return;
 
-        Vector3f target = new Vector3f(0.0f, 200.0f, 0.0f);
+        Vector3f target = new Vector3f(0.0f, 300.0f, 0.0f);
         camera.orbitAroundPoint(target, new Vector3f(0.0f, 1.0f, 0.0f), 0.006f);
         
         mesh.update();
