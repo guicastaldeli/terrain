@@ -22,7 +22,7 @@ public class AxeController implements EnvInstance<AxeController> {
 
     private final String AXE_ID = "AXE"; 
 
-    private Vector3f handOffset = new Vector3f(-1.0f, 1.5f, 0.5f);
+    private Vector3f handOffset = new Vector3f(-1.0f, 1.5f, 0.3f);
     private Vector3f handRotation = new Vector3f(0.0f, 0.0f, 0.0f);
 
     @Override
@@ -138,6 +138,7 @@ public class AxeController implements EnvInstance<AxeController> {
 
         Matrix4f finalTransform = new Matrix4f(boneTransform)
             .translate(handOffset)
+            .rotateY((float) Math.toRadians(180.0f))
             .rotateX((float) Math.toRadians(handRotation.x))
             .rotateY((float) Math.toRadians(handRotation.y))
             .rotateZ((float) Math.toRadians(handRotation.z));
