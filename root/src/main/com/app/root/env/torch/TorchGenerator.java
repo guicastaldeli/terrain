@@ -1,6 +1,9 @@
 package main.com.app.root.env.torch;
 import main.com.app.root.Spawner;
 import main.com.app.root._resources.TextureLoader;
+import main.com.app.root.collision.BoundingBox;
+import main.com.app.root.collision.CollisionManager;
+import main.com.app.root.collision.types.StaticObject;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.lightning.PointLight;
 import main.com.app.root.mesh.Mesh;
@@ -15,6 +18,8 @@ public class TorchGenerator {
     public final Spawner spawner;
     public TorchController torchController;
     public Mesh mesh;
+    private StaticObject collider;
+    private CollisionManager collisionManager;
 
     private final LightningController lightningController;
     private PointLight pointLight;
@@ -26,12 +31,14 @@ public class TorchGenerator {
         Vector3f position,
         Mesh mesh,
         Spawner spawner,
-        LightningController lightningController
+        LightningController lightningController,
+        CollisionManager collisionManager
     ) {
         this.position = position;
         this.spawner = spawner;
         this.lightningController = lightningController;
         this.mesh = mesh;
+        this.collisionManager = collisionManager;
 
         this.MESH_ID = "torch_" + System.currentTimeMillis();
     }
@@ -45,6 +52,38 @@ public class TorchGenerator {
     
     public PointLight getLight() {
         return pointLight;
+    }
+
+    /**
+     * Collider
+     */
+    public void createCollider(CollisionManager collisionManager) {
+        if(collisionManager == null || position == null) return;
+        
+        this.collisionManager = collisionManager;
+        
+        float colliderWidth = 15.0f; 
+        float colliderHeight = 15.0f;
+        float colliderDepth = 15.0f;
+        
+        BoundingBox bbox = new BoundingBox(
+            position.x - colliderWidth / 2.0f,
+            position.y - 2.0f,
+            position.z - colliderDepth / 2.0f,
+            position.x + colliderWidth / 2.0f,
+            position.y + colliderHeight,
+            position.z + colliderDepth / 2.0f
+        );
+        
+        collider = new StaticObject(bbox, "torch");
+        collisionManager.addStaticCollider(collider);
+    }
+
+    public void removeCollider() {
+        if(collisionManager != null && collider != null) {
+            collisionManager.removeCollider(collider);
+            collider = null;
+        }
     }
 
     /**

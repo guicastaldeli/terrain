@@ -4,6 +4,9 @@ import main.com.app.root.SpawnerData;
 import main.com.app.root.SpawnerHandler;
 import main.com.app.root._resources.AudioLoader;
 import main.com.app.root._resources.TextureLoader;
+import main.com.app.root.collision.BoundingBox;
+import main.com.app.root.collision.CollisionManager;
+import main.com.app.root.collision.types.StaticObject;
 import main.com.app.root.mesh.Mesh;
 import main.com.app.root.mesh.MeshLoader;
 import main.com.app.root.mesh.ModelInfo;
@@ -22,6 +25,8 @@ public class TreeGenerator {
     public Spawner spawner;
     private UIController uiController;
     public Mesh mesh;
+    private StaticObject collider;
+    private CollisionManager collisionManager;
     
     public final Vector3f position;
     public String MESH_ID;
@@ -35,7 +40,8 @@ public class TreeGenerator {
         TreeData treeData, 
         Vector3f position, 
         Mesh mesh, 
-        Spawner spawner
+        Spawner spawner,
+        CollisionManager collisionManager
     ) {
         this.treeData = treeData;
         this.position = position;
@@ -47,6 +53,7 @@ public class TreeGenerator {
         this.isAlive = true;
         this.respawnTimer = 0;
         this.random = new Random();
+        this.collisionManager = collisionManager;
     }
 
     public void setTreeController(TreeController controller) {
@@ -55,6 +62,45 @@ public class TreeGenerator {
 
     public void setUIController(UIController uiController) {
         this.uiController = uiController;
+    }
+
+    /**
+     * 
+     * Collider
+     * 
+     */
+    public void createCollider(CollisionManager collisionManager) {
+        if(collisionManager == null || position == null) return;
+        
+        this.collisionManager = collisionManager;
+        
+        float baseWidth = 10.0f;
+        float baseHeight = 10.0f;
+        float baseDepth = 10.0f;
+        
+        float scale = 1.0f + (treeData.getLevel() * 0.3f);
+        float colliderWidth = baseWidth * scale;
+        float colliderHeight = baseHeight * scale;
+        float colliderDepth = baseDepth * scale;
+        
+        BoundingBox bbox = new BoundingBox(
+            position.x - colliderWidth / 2.0f,
+            position.y,
+            position.z - colliderDepth / 2.0f,
+            position.x + colliderWidth / 2.0f,
+            position.y + colliderHeight,
+            position.z + colliderDepth / 2.0f
+        );
+        
+        collider = new StaticObject(bbox, MESH_ID);
+        collisionManager.addStaticCollider(collider);
+    }
+
+    public void removeCollider() {
+        if(collisionManager != null && collider != null) {
+            collisionManager.removeCollider(collider);
+            collider = null;
+        }
     }
 
     /**
@@ -179,6 +225,7 @@ public class TreeGenerator {
     }
 
     public void cleanup() {
+        removeCollider();
         destroyMesh();
         isAlive = false;
     }

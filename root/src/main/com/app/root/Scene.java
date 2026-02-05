@@ -143,6 +143,7 @@ public class Scene {
                 this.spawner = new Spawner(
                     tick, 
                     mesh, 
+                    collisionManager,
                     new Vector3f(0, 150, 0), 500.0f
                 );
                 this.spawner.setEnvController(envController);

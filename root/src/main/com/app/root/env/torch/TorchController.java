@@ -3,6 +3,7 @@ import main.com.app.root.DependencyValue;
 import main.com.app.root.Spawner;
 import main.com.app.root.Tick;
 import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvInstance;
 import main.com.app.root.lightning.LightningController;
 import main.com.app.root.mesh.Mesh;
@@ -16,6 +17,7 @@ public class TorchController implements EnvInstance<TorchController> {
     @DependencyValue private MeshRenderer meshRenderer;
     @DependencyValue private LightningController lightningController;
     @DependencyValue private Spawner spawner;
+    @DependencyValue private CollisionManager collisionManager;
 
     private TorchGenerator torchGenerator;
 
@@ -33,7 +35,8 @@ public class TorchController implements EnvInstance<TorchController> {
             position,
             mesh, 
             spawner, 
-            lightningController
+            lightningController,
+            collisionManager
         );
     }
 

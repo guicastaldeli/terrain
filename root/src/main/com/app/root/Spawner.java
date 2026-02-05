@@ -1,4 +1,5 @@
 package main.com.app.root;
+import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
@@ -26,6 +27,7 @@ public class Spawner {
     public Mesh mesh;
     private EnvController envController;
     private UIController uiController;
+    private CollisionManager collisionManager;
 
     private Vector3f centerPosition;
     private float spawnRadius;
@@ -44,11 +46,13 @@ public class Spawner {
     public Spawner(
         Tick tick,
         Mesh mesh,
+        CollisionManager collisionManager,
         Vector3f centerPosition,
         float spawnRadius
     ) {
         this.tick = tick;
         this.mesh = mesh;
+        this.collisionManager = collisionManager;
 
         this.centerPosition = centerPosition;
         this.spawnRadius = spawnRadius;
@@ -130,7 +134,8 @@ public class Spawner {
             tick, 
             mesh, 
             envController, 
-            this
+            this,
+            collisionManager
         );
         registerHandler(treeSpawner);
         
@@ -138,7 +143,8 @@ public class Spawner {
             tick, 
             envController, 
             this, 
-            lightningController
+            lightningController,
+            collisionManager
         );
         registerHandler(torchSpawner);
 

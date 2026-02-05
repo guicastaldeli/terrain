@@ -3,6 +3,7 @@ import main.com.app.root.Spawner;
 import main.com.app.root.SpawnerData;
 import main.com.app.root.SpawnerHandler;
 import main.com.app.root.Tick;
+import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
@@ -25,6 +26,7 @@ public class TreeSpawner implements SpawnerHandler {
     private final Spawner spawner;
     private Mesh mesh;
     private UIController uiController;
+    private CollisionManager collisionManager;
 
     public TreeGenerator treeGenerator;
     public TreeData treeData;
@@ -40,7 +42,8 @@ public class TreeSpawner implements SpawnerHandler {
         Tick tick, 
         Mesh mesh,
         EnvController envController,
-        Spawner spawner
+        Spawner spawner,
+        CollisionManager collisionManager
     ) {
         this.tick = tick;
         this.mesh = mesh;
@@ -53,6 +56,7 @@ public class TreeSpawner implements SpawnerHandler {
         this.treeData = new TreeData();
         this.treeData.createDefaultConfigs();
         this.isActive = true;
+        this.collisionManager = collisionManager;
     }
 
     @Override
@@ -167,6 +171,7 @@ public class TreeSpawner implements SpawnerHandler {
             
             TreeGenerator treeGenerator = treeController.getGenerator();
             treeGenerator.setId("tree_" + treeData.currentTreeId++);
+            treeGenerator.createCollider(collisionManager);
             treeData.trees.add(treeController);
 
             /*
@@ -185,6 +190,7 @@ public class TreeSpawner implements SpawnerHandler {
             
             TreeGenerator treeGenerator = treeController.getGenerator();
             treeGenerator.setId("tree_" + treeData.currentTreeId++);
+            treeGenerator.createCollider(collisionManager);
             treeData.trees.add(treeController);
 
             /*
@@ -265,6 +271,8 @@ public class TreeSpawner implements SpawnerHandler {
         treeGenerator.isAlive = true;
         treeGenerator.currHealth = data.getHealth();
         treeGenerator.createMesh();
+
+        treeGenerator.createCollider(collisionManager);
         
         treeData.trees.add(treeController);
         
@@ -390,6 +398,8 @@ public class TreeSpawner implements SpawnerHandler {
             String treeId = "tree_" + chunkX + "_" + chunkZ + "_" + treeData.trees.size();
             treeGenerator.setId(treeId);
             treeGenerator.createMesh();
+            treeGenerator.createCollider(collisionManager);
+
             treeData.trees.add(treeController);
             treeGenerator.setUIController(uiController);
 
@@ -558,6 +568,7 @@ public class TreeSpawner implements SpawnerHandler {
                                     mesh.remove(treeGenerator.MESH_ID);
                                 }
                                 treeGenerator.createMesh();
+                                treeGenerator.createCollider(collisionManager);
                             }
                             
                             addTree(treeController);

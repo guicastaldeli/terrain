@@ -16,7 +16,6 @@ public class StaticObject implements Collider {
     private float[] heightMapData;
     private int mapWidth;
     private int mapHeight;
-    private float maxHeight = 1.0f;
 
     public StaticObject(BoundingBox bBox, String type) {
         this.bBox = bBox;
@@ -44,8 +43,6 @@ public class StaticObject implements Collider {
             minY = Math.min(minY, heightVal);
             maxY = Math.max(maxY, heightVal);
         }
-
-        this.maxHeight = maxY;
 
         this.bBox = calcMapBounds(minY, maxY);
     }

@@ -155,9 +155,7 @@ public class Chunk {
                     blends[blendIdx + t] = 0.0f;
                 }
                 
-                if(heightVal < Water.LEVEL) {
-                    blends[blendIdx + 0] = 1.0f;
-                } else if(heightVal < BEACH_LEVEL) {
+                if(heightVal < BEACH_LEVEL) {
                     blends[blendIdx + 1] = 1.0f;
                 } else if(heightVal < GRASS_LEVEL) {
                     float t = (heightVal - BEACH_LEVEL) / (GRASS_LEVEL - BEACH_LEVEL);

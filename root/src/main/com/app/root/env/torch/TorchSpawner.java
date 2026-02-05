@@ -3,6 +3,7 @@ import main.com.app.root.Spawner;
 import main.com.app.root.SpawnerData;
 import main.com.app.root.SpawnerHandler;
 import main.com.app.root.Tick;
+import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
@@ -25,6 +26,7 @@ public class TorchSpawner implements SpawnerHandler {
     private final EnvController envController;
     private final Spawner spawner;
     private final LightningController lightningController;
+    private final CollisionManager collisionManager;
     private Mesh mesh;
 
     public List<TorchController> torchData = new ArrayList<>();
@@ -45,12 +47,14 @@ public class TorchSpawner implements SpawnerHandler {
         Tick tick, 
         EnvController envController,
         Spawner spawner,
-        LightningController lightningController
+        LightningController lightningController,
+        CollisionManager collisionManager
     ) {
         this.tick = tick;
         this.envController = envController;
         this.spawner = spawner;
         this.lightningController = lightningController;
+        this.collisionManager = collisionManager;
 
         this.torchData = new ArrayList<>();
         this.currentTorchId = 0;
@@ -98,6 +102,8 @@ public class TorchSpawner implements SpawnerHandler {
 
         String torchId = "torch_" + currentTorchId++;
         torchGenerator.setId(torchId);
+
+        torchGenerator.createCollider(collisionManager);
 
         PointLight pointLight = new PointLight(
             "#ffffff",
@@ -246,6 +252,8 @@ public class TorchSpawner implements SpawnerHandler {
                             
                         String torchId = "torch_" + currentTorchId++;
                         torchGenerator.setId(torchId);
+
+                        torchGenerator.createCollider(collisionManager);
                             
                         maxTorchId = Math.max(maxTorchId, currentTorchId);
                             
