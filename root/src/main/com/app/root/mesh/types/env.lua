@@ -3,14 +3,14 @@ return {
         -- Trees
         {
             name = "tree0",
-            path = "root/src/main/com/app/root/_resources/env/tree0.obj",
-            texture = "root/src/main/com/app/root/_resources/texture/env/tree0.png",
-            scale = { 25.0, 25.0, 25.0 }
+            path = "root/src/main/com/app/root/_resources/env/tree/tree0.obj",
+            texture = "root/src/main/com/app/root/_resources/texture/env/tree/tree0.png",
+            scale = { 7.0, 7.0, 7.0 }
         },
         {
             name = "tree1",
-            path = "root/src/main/com/app/root/_resources/env/tree1.obj",
-            texture = "root/src/main/com/app/root/_resources/texture/env/tree1.png",
+            path = "root/src/main/com/app/root/_resources/env/tree/tree1.obj",
+            texture = "root/src/main/com/app/root/_resources/texture/env/tree/tree1.png",
             scale = { 25.0, 25.0, 25.0 }
         },
         {

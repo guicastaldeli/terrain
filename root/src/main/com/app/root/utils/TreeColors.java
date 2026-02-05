@@ -6,7 +6,7 @@ public class TreeColors {
         switch(level) {
             case 0:  return HexToVec3.hexToVec3("#65c767");
             case 1:  return HexToVec3.hexToVec3("#e3b81e");
-            case 2:  return HexToVec3.hexToVec3("#1a7fba");
+            case 2:  return HexToVec3.hexToVec3("#1a65ba");
             case 3:  return HexToVec3.hexToVec3("#a91dc2");
             case 4:  return HexToVec3.hexToVec3("#34c2a8");
             case 5:  return HexToVec3.hexToVec3("#e309c2");
