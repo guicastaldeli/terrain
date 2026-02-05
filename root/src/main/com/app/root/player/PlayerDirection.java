@@ -8,14 +8,14 @@ public class PlayerDirection {
      * 
      */
     public enum Direction {
-        NORTH(90.0f),
-        NORTHEAST(45.0f),
-        EAST(0.0f),
-        SOUTHEAST(-45.0f),
-        SOUTH(-90.0f),
-        SOUTHWEST(-135.0f),
-        WEST(180.0f),
-        NORTHWEST(135.0f);
+        NORTH(-90.0f),
+        NORTHEAST(-135.0f),
+        EAST(-180.0f),
+        SOUTHEAST(135.0f),
+        SOUTH(90.0f),
+        SOUTHWEST(45.0f),
+        WEST(0.0f),
+        NORTHWEST(-45.0f);
 
         private final float angle;
 

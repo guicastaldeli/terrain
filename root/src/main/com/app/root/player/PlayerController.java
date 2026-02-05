@@ -197,7 +197,7 @@ public class PlayerController {
         }
 
         this.velocity = new Vector3f(xSpeed, ySpeed, zSpeed);
-        this.movSpeed = 30.0f;
+        this.movSpeed = 8.0f;
 
         this.rigidBody = new RigidBody(
             tick,
