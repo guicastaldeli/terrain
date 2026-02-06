@@ -4,6 +4,7 @@ import main.com.app.root.SpawnerData;
 import main.com.app.root.SpawnerHandler;
 import main.com.app.root.Tick;
 import main.com.app.root.Upgrader;
+import main.com.app.root._resources.AudioLoader;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
@@ -78,6 +79,7 @@ public class TreeInteractor {
 
                 if(axe.canBreakTree(treeLevel)) {
                     characterController.setAnimation(CharacterController.MovData.BREAK);
+                    AudioLoader.getInstance().play("tree/break.wav", 0.35f, 1000);
                 } else {
                     characterController.setAnimation(CharacterController.MovData.IDLE);
                 }

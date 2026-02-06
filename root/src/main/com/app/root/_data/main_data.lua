@@ -1,10 +1,10 @@
 return {
     player = {
-        wood = 6249,
-        axe_level = 10,
-        current_axe = "axe10",
+        wood = 12,
+        axe_level = 0,
+        current_axe = "axe0",
         inventory = {
-            wood = 6249
+            wood = 12
         }
     },
     upgrades = {

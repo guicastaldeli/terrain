@@ -3,6 +3,7 @@ import main.com.app.root.Spawner;
 import main.com.app.root.SpawnerData;
 import main.com.app.root.SpawnerHandler;
 import main.com.app.root.Tick;
+import main.com.app.root._resources.AudioLoader;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
@@ -307,6 +308,7 @@ public class TreeSpawner implements SpawnerHandler {
         cleanupTreeAtPos(position);
         
         int nextLevel = currLevel + 1;
+        AudioLoader.getInstance().play("tree/break_complete.wav", 0.35f, 1000);
         if(!treeData.configs.containsKey(nextLevel)) nextLevel = 0;
         
         spawnTreeAtLevel(position, nextLevel);

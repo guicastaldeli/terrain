@@ -2,7 +2,6 @@ package main.com.app.root.env.tree;
 import main.com.app.root.Spawner;
 import main.com.app.root.SpawnerData;
 import main.com.app.root.SpawnerHandler;
-import main.com.app.root._resources.AudioLoader;
 import main.com.app.root._resources.TextureLoader;
 import main.com.app.root.collision.BoundingBox;
 import main.com.app.root.collision.CollisionManager;
@@ -165,7 +164,6 @@ public class TreeGenerator {
         Vector3f particlePosition = new Vector3f(position).add(particleOffset);
     
         TreeInteractor.createTreeBreakEffect(mesh, particlePosition, axeLevel);
-        AudioLoader.getInstance().play("test.wav");
 
         if(currHealth <= 0) {
             isAlive = false;
