@@ -203,6 +203,35 @@ public class AudioLoader {
         }
     }
 
+    public void play(String fileName, float volume, long durationMs) {
+        if(muted) return;
+
+        if(!soundClips.containsKey(fileName)) {
+            if(!load(fileName)) return;
+        }
+
+        try {
+            Clip clip = soundClips.get(fileName);
+            if(clip.isRunning()) clip.stop();
+
+            clip.setFramePosition(0);
+            setClipVolume(clip, volume * globalVolume);
+            clip.start();
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if(clip.isRunning()) {
+                        clip.stop();
+                    }
+                }
+            }, durationMs);
+        } catch (Exception err) {
+            System.err.println("Error playing sound " + fileName + ": " + err.getMessage());
+        }
+    }
+
     /**
      * 
      * Stop

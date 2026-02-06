@@ -4,6 +4,7 @@ import main.com.app.root.ui.UIController;
 import main.com.app.root.ui.UIElement;
 import main.com.app.root.utils.HexToVec3;
 import main.com.app.root.Window;
+import main.com.app.root._resources.AudioLoader;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.env.axe.AxeSlot;
 import main.com.app.root.DocParser;
@@ -366,7 +367,7 @@ public class UpgradeMenu extends UI {
                 uiData.elements.add(upgradeButton);
             } else {
                 UIElement lockedLabel = new UIElement(
-                    "label",
+                    "button",
                     "locked_" + slot.level,
                     "LOCKED",
                     slotX,
@@ -375,9 +376,11 @@ public class UpgradeMenu extends UI {
                     (int)(windowHeight * 0.05f),
                     1.0f,
                     HexToVec3.hexToVec3Array("#808080"),
-                    ""
+                    "locked_" + slot.level
                 );
                 lockedLabel.fontFamily = "cocogooselightitalic";
+                lockedLabel.hoverable = true;
+                lockedLabel.hoverColor = HexToVec3.hexToVec3Array("#999999");
                 uiData.elements.add(lockedLabel);
             }
         }
@@ -393,13 +396,17 @@ public class UpgradeMenu extends UI {
     @Override
     public void handleAction(String action) {
         if(action.startsWith("equip_")) {
+            setSound("equip");
             int level = Integer.parseInt(action.substring(6));
             upgradeMenuActions.equipAxe(level);
             refreshAxeSlots();
         } else if(action.startsWith("upgrade_")) {
+            setSound("upgrade");
             int level = Integer.parseInt(action.substring(8));
             upgradeMenuActions.upgradeAxe(level);
             refreshAxeSlots();
+        } else if(action.startsWith("locked_")) {
+            setSound("denied");
         } else if(action.equals("close")) {
             System.out.print(action);
             uiController.hide();
@@ -424,6 +431,33 @@ public class UpgradeMenu extends UI {
     
     public Upgrader getUpgrader() {
         return upgrader;
+    }
+
+    /**
+     * Sounds
+     */
+    public void setSound(String type) {
+        String soundFile = "";
+        float vol = 1.0f;
+
+        switch(type) {
+            case "upgrade":
+                soundFile = "main/upgrade.wav";
+                vol = 0.1f;
+                break;
+            case "denied":
+                soundFile = "main/denied.wav";
+                vol = 0.1f;
+                break;
+            case "equip":
+                soundFile = "player/equip.wav";
+                vol = 0.1f;
+                AudioLoader.getInstance().play(soundFile, vol, 1000);
+                return;
+        }
+
+        AudioLoader.getInstance().stop(soundFile);
+        AudioLoader.getInstance().play(soundFile, vol);
     }
 
     /**
@@ -480,7 +514,9 @@ public class UpgradeMenu extends UI {
         glDisable(GL_SCISSOR_TEST);
         
         for(UIElement element : uiData.elements) {
-            if(element.id.equals("scrollbarBg") || element.id.equals("scrollbarThumb")) {
+            if(element.id.equals("scrollbarBg") || 
+                element.id.equals("scrollbarThumb")
+            ) {
                 super.render(element);
             }
         }

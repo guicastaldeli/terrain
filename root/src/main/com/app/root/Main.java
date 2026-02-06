@@ -185,7 +185,6 @@ public class Main {
         inputController.update();
         scene.update();
         screenController.update();
-        if(stateController.isPaused()) AudioLoader.getInstance().stopAll();
     }
     
     /**
