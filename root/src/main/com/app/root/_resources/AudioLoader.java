@@ -2,7 +2,6 @@ package main.com.app.root._resources;
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.*;
 
 public class AudioLoader {
@@ -33,7 +32,7 @@ public class AudioLoader {
         }
     }
 
-    private void setClipVolume(Clip clip, float volume) {
+    public void setClipVolume(Clip clip, float volume) {
         try {
             if(clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
@@ -48,6 +47,32 @@ public class AudioLoader {
         } catch(Exception err) {
             System.err.println("Error setting volume: " + err.getMessage());
         } 
+    }
+
+    /**
+     * Volume
+     */
+    public void setVolume(String fileName, float volume) {
+        if(soundClips.containsKey(fileName)) {
+            Clip clip = soundClips.get(fileName);
+            setClipVolume(clip, volume * globalVolume);
+        }
+    }
+
+    public float getVolume(String fileName) {
+        if(soundClips.containsKey(fileName)) {
+            Clip clip = soundClips.get(fileName);
+            try {
+                if(clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                    FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                    float dB = gainControl.getValue();
+                    return (float) Math.pow(10.0, dB / 20.0);
+                }
+            } catch(Exception err) {
+                System.err.println("Error getting volume: " + err.getMessage());
+            }
+        }
+        return 0.0f;
     }
 
     /**
@@ -69,9 +94,26 @@ public class AudioLoader {
             }
 
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile);
-            AudioFormat format = audioInputStream.getFormat();
+            AudioFormat sourceFormat = audioInputStream.getFormat();
+            
+            DataLine.Info info = new DataLine.Info(Clip.class, sourceFormat);
+            if(!AudioSystem.isLineSupported(info)) {
+                AudioFormat targetFormat = new AudioFormat(
+                    AudioFormat.Encoding.PCM_SIGNED,
+                    44100,
+                    16,
+                    sourceFormat.getChannels(),
+                    sourceFormat.getChannels() * 2,
+                    44100,
+                    false
+                );
+                
+                audioInputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
+                System.out.println("Converted audio format from " + sourceFormat + " to " + targetFormat);
+            }
 
-            DataLine.Info info = new DataLine.Info(Clip.class, format);
+            AudioFormat format = audioInputStream.getFormat();
+            info = new DataLine.Info(Clip.class, format);
             Clip clip = (Clip) AudioSystem.getLine(info);
 
             clip.open(audioInputStream);
@@ -133,6 +175,27 @@ public class AudioLoader {
             } else {
                 clip.loop(0);
             }
+
+            clip.start();
+        } catch (Exception err) {
+            System.err.println("Error playing sound " + fileName + ": " + err.getMessage());
+        }
+    }
+
+    public void play(String fileName, float volume) {
+        if(muted) return;
+
+        if(!soundClips.containsKey(fileName)) {
+            if(!load(fileName)) return;
+        }
+
+        try {
+            Clip clip = soundClips.get(fileName);
+            if(clip.isRunning()) clip.stop();
+
+            clip.setFramePosition(0);
+
+            setClipVolume(clip, volume * globalVolume);
 
             clip.start();
         } catch (Exception err) {

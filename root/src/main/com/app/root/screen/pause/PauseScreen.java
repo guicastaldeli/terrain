@@ -44,6 +44,7 @@ public class PauseScreen extends Screen {
                 pauseScreenAction.exitToMenu();
                 break;
         }
+        setSound("select");
     }
 
     @Override
@@ -93,6 +94,7 @@ public class PauseScreen extends Screen {
                 
                 if(isHovered && !wasHovered) {
                     element.applyHover();
+                    setSound("hover");
                 } else if(!isHovered && wasHovered) {
                     element.removeHover();
                 }

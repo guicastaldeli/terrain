@@ -160,6 +160,7 @@ public class SaveNameDialog extends Screen {
                 updateNameDisplay();
                 break;
         }
+        setSound("select");
     }
 
     @Override
@@ -229,6 +230,7 @@ public class SaveNameDialog extends Screen {
                 
                 if(isHovered && !wasHovered) {
                     element.applyHover();
+                    setSound("hover");
                 } else if(!isHovered && wasHovered) {
                     element.removeHover();
                 }

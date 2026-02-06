@@ -5,7 +5,6 @@ import main.com.app.root.screen.Screen;
 import main.com.app.root.screen.ScreenController;
 import main.com.app.root.screen.ScreenElement;
 import main.com.app.root.utils.HexToVec3;
-
 import java.util.*;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
@@ -108,6 +107,7 @@ public class LoadSaveMenu extends Screen {
      */
     public void hide() {
         hide(true);
+        setSound("select");
     }
 
     public void hide(boolean returnToMain) {
@@ -498,6 +498,7 @@ public class LoadSaveMenu extends Screen {
                 
                 if(isHovered && !wasHovered) {
                     element.applyHover();
+                    setSound("hover");
                 } else if(!isHovered && wasHovered) {
                     element.removeHover();
                 }

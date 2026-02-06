@@ -2,6 +2,7 @@ package main.com.app.root.screen.main.scene;
 import main.com.app.root.DependencyContainer;
 import main.com.app.root.Tick;
 import main.com.app.root.Window;
+import main.com.app.root._resources.AudioLoader;
 import main.com.app.root._shaders.ShaderProgram;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
@@ -109,6 +110,12 @@ public class MainScreenScene {
         }
     }
 
+    private void setSound() {
+        String file = "main/env_menu.wav";
+        AudioLoader.getInstance().play(file);
+        AudioLoader.getInstance().setVolume(file, 0.15f);
+    }
+
     /**
      * Start
      */
@@ -120,6 +127,7 @@ public class MainScreenScene {
             shaderProgram,
             particleManager
         );
+        setSound();
     }
 
     /**

@@ -33,6 +33,9 @@ public class MainScreen extends Screen {
         initScene();
     }
 
+    /**
+     * Handle Action
+     */
     @Override
     public void handleAction(String action) {
         if(saveNameDialog.isActive()) {
@@ -44,6 +47,7 @@ public class MainScreen extends Screen {
         } else {
             handleMainMenuAction(action);
         }
+        if(!stateController.isLoadInProgress()) setSound("select");
     }
 
     @Override
@@ -156,6 +160,9 @@ public class MainScreen extends Screen {
         mainScreenScene.render();
     }
 
+    /**
+     * Handle Mouse Move
+     */
     @Override
     public void handleMouseMove(int mouseX, int mouseY) {
         if(!active) return;
@@ -167,6 +174,7 @@ public class MainScreen extends Screen {
                 
                 if(isHovered && !wasHovered) {
                     element.applyHover();
+                    setSound("hover");
                 } else if(!isHovered && wasHovered) {
                     element.removeHover();
                 }

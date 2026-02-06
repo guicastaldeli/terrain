@@ -2,6 +2,7 @@ package main.com.app.root.screen;
 import main.com.app.root.Window;
 import main.com.app.root._font.FontConfig;
 import main.com.app.root._font.FontMap;
+import main.com.app.root._resources.AudioLoader;
 import main.com.app.root._save.DataGetter;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveLoader;
@@ -147,6 +148,32 @@ public class Screen implements ScreenHandler {
 
     public TextRenderer getTextRenderer() {
         return textRenderer;
+    }
+
+    /**
+     * Sounds
+     */
+    public void setSound(String type) {
+        String soundFile = "";
+        float vol = 1.0f;
+
+        switch(type) {
+            case "select":
+                soundFile = "main/select_default.wav";
+                vol = 0.1f;
+                break;
+            case "hover":
+                soundFile = "main/hover.wav";
+                vol = 0.1f;
+                break;
+            case "select_world":
+                soundFile = "main/select_world.wav";
+                vol = 0.1f;
+                break;
+        }
+
+        AudioLoader.getInstance().stop(soundFile);
+        AudioLoader.getInstance().play(soundFile, vol);
     }
     
     /**

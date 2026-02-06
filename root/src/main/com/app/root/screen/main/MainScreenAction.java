@@ -1,6 +1,7 @@
 package main.com.app.root.screen.main;
 import main.com.app.root.Scene;
 import main.com.app.root.StateController;
+import main.com.app.root._resources.AudioLoader;
 import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveInfo;
 import main.com.app.root._save.SaveLoader;
@@ -37,6 +38,7 @@ public class MainScreenAction {
      */
     public void start(String saveName) {
         try {
+            AudioLoader.getInstance().stopAll();
             scene.init(true);
             if(scene.getDataGetter() != null) {
                 scene.getDataGetter().setEnvController(scene.getEnvController());
@@ -65,6 +67,8 @@ public class MainScreenAction {
      * Load
      */
     public void load(String saveId) {
+        AudioLoader.getInstance().stopAll();
+        AudioLoader.getInstance().play("main/select_world.wav", 0.1f);
         scene.init(false);
         if(scene.getDataGetter() != null) {
             scene.getDataGetter().setEnvController(scene.getEnvController());
