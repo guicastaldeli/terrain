@@ -6,6 +6,7 @@ import main.com.app.root.Upgrader;
 import main.com.app.root.Window;
 import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.types.DynamicObject;
+import main.com.app.root.collision.types.StaticObject;
 import main.com.app.root.env.EnvCall;
 import main.com.app.root.env.EnvController;
 import main.com.app.root.env.EnvData;
@@ -38,6 +39,7 @@ public class PlayerController {
     private final StateController stateController;
     private final CharacterController characterController;
     private final PlayerDirection playerDirection;
+    private final StepSoundManager stepSoundManager;
     
     private Vector3f position;
     private Vector3f velocity;
@@ -98,6 +100,7 @@ public class PlayerController {
             envController
         );
         this.collisionManager = collisionManager;
+        this.stepSoundManager = new StepSoundManager();
 
         if(autoSet) this.set();
 
@@ -282,6 +285,27 @@ public class PlayerController {
         onJump = true;
     }
 
+    private StaticObject getTerrainCollider() {
+        if(envController != null && envController.getEnv(EnvData.MAP) != null) {
+            Object worldController = envController.getEnv(EnvData.MAP);
+            if(worldController != null) {
+                Object generator = EnvCall.callReturn(worldController, "getGenerator");
+                if(generator != null) {
+                    Object chunk = EnvCall.callReturn(generator, "getChunk");
+                    if(chunk != null) {
+                        Vector3f pos = getPosition();
+                        Object[] params = { pos.x, pos.z };
+                        Object collider = EnvCall.callReturnWithParams(chunk, params, "getColliderAt");
+                        if(collider instanceof StaticObject) {
+                            return (StaticObject) collider;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Apply Movement Forces
      */
@@ -387,6 +411,7 @@ public class PlayerController {
                 currVel.y = jumpForce;
                 rigidBody.setVelocity(currVel);
                 onJump = false;
+                stepSoundManager.reset();
             }
         }
 
@@ -419,6 +444,18 @@ public class PlayerController {
         updateCameraPosition();
         if(playerMesh != null) playerMesh.update();
         updateAxePosition();
+
+        StaticObject terrainCollider = getTerrainCollider();
+        stepSoundManager.update(
+            isMoving && !flyMode,
+            rigidBody.isOnGround(),
+            newPos,
+            terrainCollider
+        );
+        if(isMoving) {
+            float currentSpeed = rigidBody.getVelocity().length();
+            stepSoundManager.adjustIntervalForSpeed(currentSpeed, movSpeed);
+        }
         /*
         System.out.println(
             "X:" + rigidBody.getPosition().x +
@@ -566,5 +603,6 @@ public class PlayerController {
     public void reset() {
         Object axeController = envController != null ? envController.getEnv(EnvData.AXE) : null;
         if(axeController != null) EnvCall.call(axeController, "reset");
+        stepSoundManager.reset();
     }
 }

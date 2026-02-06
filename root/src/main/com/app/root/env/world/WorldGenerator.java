@@ -17,6 +17,14 @@ import java.util.Map;
 import org.joml.Vector3f;
 
 public class WorldGenerator {
+    public static enum TerrainType {
+        SAND,
+        GRASS,
+        ROCK,
+        SNOW,
+        WATER
+    };
+
     private final Tick tick;
     private final ShaderProgram shaderProgram;
     public final DataController dataController;
@@ -30,7 +38,7 @@ public class WorldGenerator {
     private final WorldParticle worldParticle;
     private MeshData meshData;
 
-    private StaticObject staticCollider;
+    public StaticObject staticCollider;
     private BoundaryObject boundaryCollider;
 
     public final NoiseGeneratorWrapper noiseGeneratorWrapper;

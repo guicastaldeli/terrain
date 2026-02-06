@@ -481,6 +481,23 @@ public class Chunk {
         return heightData;
     }
 
+    public StaticObject getColliderAt(float worldX, float worldZ) {
+        int[] coords = getCoords(worldX, worldZ);
+        ChunkKey key = new ChunkKey(coords[0], coords[1]);
+        
+        chunkLock.readLock().lock();
+        try {
+            ChunkData chunkData = loadedChunks.get(key);
+            if(chunkData != null && chunkData.collider != null) {
+                return chunkData.collider;
+            }
+        } finally {
+            chunkLock.readLock().unlock();
+        }
+        
+        return null;
+    }
+
     /**
      * Update Chunks
      */

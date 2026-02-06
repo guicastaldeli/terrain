@@ -5,6 +5,7 @@ import main.com.app.root.collision.CollisionManager;
 import main.com.app.root.collision.CollisionResult;
 import main.com.app.root.collision.CollisionManager.CollisionType;
 import main.com.app.root.env.world.Water;
+import main.com.app.root.env.world.WorldGenerator;
 import main.com.app.root.player.RigidBody;
 import org.joml.Vector3f;
 
@@ -58,7 +59,9 @@ public class StaticObject implements Collider {
     }
 
     /**
+     * 
      * Get Height
+     * 
      */
     private float getHeightAt(int x, int z) {
         if(x < 0 || 
@@ -87,6 +90,40 @@ public class StaticObject implements Collider {
         return getHeightAt(x, z);
     }
 
+    public WorldGenerator.TerrainType getTerrainTypeAt(float worldX, float worldZ) {
+        float height = getHeightAtWorld(worldX, worldZ);
+        
+        float BEACH_LEVEL = 60.0f;
+        float GRASS_LEVEL = 65.0f;
+        float MOUNTAIN_LEVEL = 250.0f;
+        float BLEND_RANGE = 10.0f;
+        
+        if(height < Water.LEVEL) {
+            return WorldGenerator.TerrainType.WATER;
+        }
+        else if(height < BEACH_LEVEL) {
+            return WorldGenerator.TerrainType.SAND;
+        }
+        else if(height < GRASS_LEVEL) {
+            float t = (height - BEACH_LEVEL) / (GRASS_LEVEL - BEACH_LEVEL);
+            return t > 0.5f ? WorldGenerator.TerrainType.GRASS : WorldGenerator.TerrainType.SAND;
+        }
+        else if(height < MOUNTAIN_LEVEL) {
+            float grassEnd = GRASS_LEVEL + BLEND_RANGE;
+            
+            if(height < grassEnd) {
+                float t = (height - GRASS_LEVEL) / BLEND_RANGE;
+                return t > 0.5f ? WorldGenerator.TerrainType.ROCK : WorldGenerator.TerrainType.GRASS;
+            } else {
+                return WorldGenerator.TerrainType.ROCK;
+            }
+        }
+        else {
+            float t = Math.min((height - MOUNTAIN_LEVEL) / 20.0f, 1.0f);
+            return t > 0.5f ? WorldGenerator.TerrainType.SNOW : WorldGenerator.TerrainType.ROCK;
+        }
+    }
+
     @Override
     public BoundingBox getBoundingBox() {
         return bBox;
@@ -98,11 +135,7 @@ public class StaticObject implements Collider {
     }
 
     @Override
-    public void onCollision(CollisionResult col) {
-        if(isMap) {
-            //Sounds
-        }
-    }
+    public void onCollision(CollisionResult col) {}
 
     /**
      * Check Map Collison

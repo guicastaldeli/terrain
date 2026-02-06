@@ -191,15 +191,137 @@ public class AudioLoader {
 
         try {
             Clip clip = soundClips.get(fileName);
-            if(clip.isRunning()) clip.stop();
-
-            clip.setFramePosition(0);
-
-            setClipVolume(clip, volume * globalVolume);
-
-            clip.start();
+            
+            if(!clip.isRunning()) {
+                clip.setFramePosition(0);
+                setClipVolume(clip, volume * globalVolume);
+                clip.start();
+            } else {
+                clip.setFramePosition(0);
+            }
         } catch (Exception err) {
             System.err.println("Error playing sound " + fileName + ": " + err.getMessage());
+        }
+    }
+
+    public void playOverlapping(String fileName, float volume, long durationMs) {
+        if(muted) return;
+
+        try {
+            String filePath = AudioLoader.SOUND_PATH + fileName;
+            File audioFile = new File(filePath);
+            if(!audioFile.exists()) {
+                System.err.println("Audio file not found: " + filePath);
+                return;
+            }
+
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile);
+            AudioFormat sourceFormat = audioInputStream.getFormat();
+            
+            DataLine.Info info = new DataLine.Info(Clip.class, sourceFormat);
+            if(!AudioSystem.isLineSupported(info)) {
+                AudioFormat targetFormat = new AudioFormat(
+                    AudioFormat.Encoding.PCM_SIGNED,
+                    44100,
+                    16,
+                    sourceFormat.getChannels(),
+                    sourceFormat.getChannels() * 2,
+                    44100,
+                    false
+                );
+                
+                audioInputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
+            }
+
+            AudioFormat format = audioInputStream.getFormat();
+            info = new DataLine.Info(Clip.class, format);
+            Clip clip = (Clip) AudioSystem.getLine(info);
+
+            clip.open(audioInputStream);
+            setClipVolume(clip, volume * globalVolume);
+            
+            final AudioInputStream streamToClose = audioInputStream;
+            
+            clip.addLineListener(event -> {
+                if(event.getType() == LineEvent.Type.STOP) {
+                    clip.close();
+                    try {
+                        streamToClose.close();
+                    } catch(IOException e) {
+                        System.out.println(e);
+                    }
+                }
+            });
+            
+            clip.start();
+            
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if(clip.isRunning()) {
+                        clip.stop();
+                    }
+                }
+            }, durationMs);
+            
+        } catch (Exception err) {
+            System.err.println("Error playing overlapping sound " + fileName + ": " + err.getMessage());
+        }
+    }
+    
+    public void playOverlapping(String fileName, float volume) {
+        if(muted) return;
+
+        try {
+            String filePath = AudioLoader.SOUND_PATH + fileName;
+            File audioFile = new File(filePath);
+            if(!audioFile.exists()) {
+                System.err.println("Audio file not found: " + filePath);
+                return;
+            }
+
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile);
+            AudioFormat sourceFormat = audioInputStream.getFormat();
+            
+            DataLine.Info info = new DataLine.Info(Clip.class, sourceFormat);
+            if(!AudioSystem.isLineSupported(info)) {
+                AudioFormat targetFormat = new AudioFormat(
+                    AudioFormat.Encoding.PCM_SIGNED,
+                    44100,
+                    16,
+                    sourceFormat.getChannels(),
+                    sourceFormat.getChannels() * 2,
+                    44100,
+                    false
+                );
+                
+                audioInputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
+            }
+
+            AudioFormat format = audioInputStream.getFormat();
+            info = new DataLine.Info(Clip.class, format);
+            Clip clip = (Clip) AudioSystem.getLine(info);
+
+            clip.open(audioInputStream);
+            setClipVolume(clip, volume * globalVolume);
+            
+            final AudioInputStream streamToClose = audioInputStream;
+            
+            clip.addLineListener(event -> {
+                if(event.getType() == LineEvent.Type.STOP) {
+                    clip.close();
+                    try {
+                        streamToClose.close();
+                    } catch(IOException e) {
+                        System.out.println(e);
+                    }
+                }
+            });
+            
+            clip.start();
+        } catch (Exception err) {
+            System.err.println("Error playing overlapping sound " + fileName + ": " + err.getMessage());
         }
     }
 
