@@ -90,6 +90,7 @@ public class MainScreenAction {
     }
 
     public void loadLastSave() {
+        AudioLoader.getInstance().stopAll();
         List<SaveInfo> saves = saveLoader.listAvailableSaves();
         if(!saves.isEmpty()) {
             String saveId = saves.get(0).saveId;

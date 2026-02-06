@@ -43,11 +43,16 @@ public class MainScreen extends Screen {
             return;
         }
         if(loadSaveMenu.isActive()) {
-           loadSaveMenu.handleAction(action);
-        } else {
-            handleMainMenuAction(action);
+            loadSaveMenu.handleAction(action);
+            return;
         }
-        if(!stateController.isLoadInProgress()) setSound("select");
+        
+        handleMainMenuAction(action);
+        if(shouldPlaySelectSound(action)) setSound("select");
+    }
+
+    private boolean shouldPlaySelectSound(String action) {
+        return !action.equals("continue");
     }
 
     @Override

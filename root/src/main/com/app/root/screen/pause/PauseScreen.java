@@ -77,9 +77,8 @@ public class PauseScreen extends Screen {
 
     @Override
     public void update() {
-       if(lastMouseX >= 0 && lastMouseY >= 0) {
+        if(lastMouseX >= 0 && lastMouseY >= 0) {
            handleMouseMove(lastMouseX, lastMouseY);
-           System.out.println(lastMouseX);
         }
     }
 

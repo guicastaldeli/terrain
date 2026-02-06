@@ -107,7 +107,6 @@ public class LoadSaveMenu extends Screen {
      */
     public void hide() {
         hide(true);
-        setSound("select");
     }
 
     public void hide(boolean returnToMain) {
@@ -349,6 +348,7 @@ public class LoadSaveMenu extends Screen {
                     hide(false);
                     break;
                 case "delete":
+                    setSound("select");
                     mainScreen.mainScreenAction.deleteSave(saveId);
                     mainScreen.refreshSaveList();
                     updateSaveSlots();
@@ -358,6 +358,7 @@ public class LoadSaveMenu extends Screen {
         }
         switch(action) {
             case "back":
+                setSound("select");
                 hide();
                 break;
         }
