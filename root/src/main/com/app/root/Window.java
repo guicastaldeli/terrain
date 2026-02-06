@@ -21,7 +21,7 @@ public class Window {
     private int WIDTH = 1280;
     private int HEIGHT = 720;
     private List<Runnable> resizeCallbacks = new ArrayList<>();
-    public final String WINDOW_TITLE = "build";
+    public final String WINDOW_TITLE = "Terrain";
 
     public long getWindow() {
         return window;
@@ -69,11 +69,13 @@ public class Window {
         TimeCycle.TimePeriod period
     ) {
         String title = 
-            WINDOW_TITLE + 
+            WINDOW_TITLE +
+            /*
             " / " 
             + "FPS: " + fps + 
             " / " + 
             "Tick: " + tickCount +
+            */
             " / " +
             "Time: " + time + " (" + period + ")";
         glfwSetWindowTitle(window, title);
