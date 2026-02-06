@@ -40,7 +40,7 @@ void setSkyboxFrag() {
                     float normalizedDepth = starDepth / 2.0;
                     
                     float baseSize = 0.4;
-                    float sizeVariation = mix(0.2, 1.8, normalizedDepth);
+                    float sizeVariation = mix(0.01, 0.5, normalizedDepth);
                     float edgeThreshold = baseSize * sizeVariation;
                     
                     float edgeX = smoothstep(edgeThreshold, edgeThreshold - 0.1, abs(rotatedUV.x));

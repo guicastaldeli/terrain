@@ -1,23 +1,30 @@
 package main.com.app.root;
+import main.com.app.root._resources.AudioLoader;
 
 public class TimeCycle {
     /**
      * Time Period
      */
     public enum TimePeriod {
-        MIDNIGHT(0, 4),
-        DAWN(4, 6),
-        MORNING(6, 12),
-        AFTERNOON(12, 17),
-        DUSK(17, 19),
-        NIGHT(19, 24);  
+        MIDNIGHT(0, 4, "env/night.wav"),
+        DAWN(4, 6, "env/dawn.wav"),
+        MORNING(6, 12, "env/morning.wav"),
+        AFTERNOON(12, 17, "env/afternoon.wav"),
+        DUSK(17, 19, "env/dusk.wav"),
+        NIGHT(19, 24, "env/night.wav");
 
         public final int startHour;
         public final int endHour;
+        public final String soundFile;
         
-        TimePeriod(int startHour, int endHour) {
+        TimePeriod(
+            int startHour, 
+            int endHour,
+            String soundFile
+        ) {
             this.startHour = startHour;
             this.endHour = endHour;
+            this.soundFile = soundFile;
         }
 
         public boolean isActive(float hour) {
@@ -36,8 +43,12 @@ public class TimeCycle {
     private float timeSpeed = 60.0f;
     private float timeDayPercentage = 0.25f;
 
+    private EnvSounds envSounds;
+
     public TimeCycle() {
-        setTime(6, 0);
+        this.envSounds = new EnvSounds(this);
+        envSounds.currentPeriod = getCurrentTimePeriod();
+        setTime(7, 0);
         updateTime();
     }
 
@@ -52,6 +63,7 @@ public class TimeCycle {
             currentTime += DAY_DURATION;
         }
         updateTime();
+        envSounds.update();
     }
 
     private void updateTime() {
@@ -112,6 +124,13 @@ public class TimeCycle {
         float totalHours = hour + (min / 60.0f);
         currentTime = (totalHours / 24.0f) * DAY_DURATION;
         updateTime();
+
+        TimePeriod newPeriod = getCurrentTimePeriod();
+        if(newPeriod != envSounds.currentPeriod) {
+            envSounds.stop();
+            envSounds.currentPeriod = newPeriod;
+            envSounds.play(envSounds.currentPeriod, EnvSounds.VOLUME);
+        }
     }
 
     public void setTimeSpeed(float speed) {
@@ -133,6 +152,150 @@ public class TimeCycle {
             timeSpeed = 0.0f;
         } else {
             timeSpeed = 60.0f;
+        }
+    }
+
+    public void playSound(StateController stateController) {
+        if(stateController != null && !stateController.isInMenu()) {
+            envSounds.play(envSounds.currentPeriod, EnvSounds.VOLUME);
+        }
+    }
+
+    public void stopSounds() {
+        if(envSounds != null) {
+            envSounds.stop();
+        }
+    }
+
+    /**
+     * 
+     * Env Sounds
+     * 
+     */
+    private class EnvSounds {
+        private TimeCycle timeCycle;
+
+        public TimePeriod currentPeriod;
+        public TimePeriod nextPeriod;
+
+        public boolean isTransitioning = false;
+        public float transitionProgress = 0.0f;
+        public static final float TRANSITION_DURATION = 5.0f;
+        public static final float VOLUME = 0.3f;
+
+        public EnvSounds(TimeCycle timeCycle) {
+            this.timeCycle = timeCycle;
+        }
+
+        /**
+         * 
+         * Start Transition
+         * 
+         */
+        public void startTransition(TimePeriod newPeriod) {
+            boolean sameSoundFile = 
+                currentPeriod != null && 
+                currentPeriod.soundFile.equals(newPeriod.soundFile);
+
+            if(!sameSoundFile) {
+                isTransitioning = true;
+                transitionProgress = 0.0f;
+                nextPeriod = newPeriod;
+                play(nextPeriod, 0.0f);
+            } else {
+                currentPeriod = newPeriod;
+                isTransitioning = false;
+                AudioLoader.getInstance().setVolume(currentPeriod.soundFile, VOLUME);
+            }
+        }
+
+        /**
+         * 
+         * Play
+         * 
+         */
+        public void play(TimePeriod period, float volume) {
+            String soundFile = period.soundFile;
+
+            if(currentPeriod == null || !currentPeriod.soundFile.equals(soundFile)) {
+                AudioLoader.getInstance().stop(soundFile);
+            }
+            AudioLoader.getInstance().play(soundFile, volume, true);
+        }
+
+        /**
+         * 
+         * Stop
+         * 
+         */
+        public void stop() {
+            for(TimePeriod period : TimePeriod.values()) {
+                AudioLoader.getInstance().stop(period.soundFile);
+            }
+            isTransitioning = false;
+        }
+
+        /**
+         * Complete Transition
+         */
+        public void completeTransition() {
+            if(currentPeriod != null && nextPeriod != null && 
+                !currentPeriod.soundFile.equals(nextPeriod.soundFile)
+            ) {
+                AudioLoader.getInstance().stop(currentPeriod.soundFile);
+            }
+            
+            AudioLoader.getInstance().setVolume(nextPeriod.soundFile, VOLUME);
+            
+            currentPeriod = nextPeriod;
+            nextPeriod = null;
+            isTransitioning = false;
+            transitionProgress = 0.0f;
+        }
+
+        /**
+         * 
+         * Update
+         * 
+         */
+        public void update() {
+            TimePeriod newPeriod = timeCycle.getCurrentTimePeriod();
+            
+            if(newPeriod != currentPeriod) {
+                boolean sameSoundFile = 
+                    currentPeriod != null && 
+                    currentPeriod.soundFile.equals(newPeriod.soundFile);
+                if(!sameSoundFile) {
+                    if(!isTransitioning) {
+                        startTransition(newPeriod);
+                    }
+                } else {
+                    currentPeriod = newPeriod;
+                    if(isTransitioning) {
+                        isTransitioning = false;
+                        transitionProgress = 0.0f;
+                        nextPeriod = null;
+                    }
+                }
+            }
+
+            if(isTransitioning) {
+                transitionProgress += Tick.getIDeltaTime();
+                if(transitionProgress >= TRANSITION_DURATION) {
+                    completeTransition();
+                } else {
+                    float progress = transitionProgress / TRANSITION_DURATION;
+                    updateTransitionVolumes(progress);
+                }
+            }
+        }
+
+        public void updateTransitionVolumes(float progress) {
+            float currentVolume = VOLUME * (1.0f - progress);
+            AudioLoader.getInstance().setVolume(currentPeriod.soundFile, currentVolume);
+
+            float nextVolume = VOLUME * progress;
+            AudioLoader.getInstance().setVolume(nextPeriod.soundFile, nextVolume);
         }
     }
 } 

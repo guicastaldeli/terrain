@@ -34,76 +34,101 @@ public class StateController implements Serializable {
         lastAutoSaveTime = System.currentTimeMillis();
     }
 
-    /* Paused */
+    /**
+     * 
+     * Paused
+     * 
+     */
     public void setPaused(boolean paused) {
         isPaused = paused;
         Tick.instance.setPaused(paused);
     }
+    
     public boolean isPaused() {
         return isPaused;
     }
 
-    /* Is In Menu */
+    /**
+     * 
+     * Is In Menu
+     * 
+     */
     public void setInMenu(boolean inMenu) {
         isInMenu = inMenu;
     }
+
     public boolean isInMenu() {
         return isInMenu;
     }
 
-    /* Current Save Id */
+    /**
+     * 
+     * Current Level
+     * 
+     */
     public void setCurrentSaveId(String saveId) { 
         currentSaveId = saveId; 
     }
+
     public String getCurrentSaveId() { 
         return currentSaveId; 
     }
 
-    /* Current Level */
     public void setCurrentLevel(String level) {
         currentLevel = level;
     }
+
     public String getCurrentLevel() {
         return currentLevel;
     }
 
-    /* Events */
+    /**
+     * 
+     * Events
+     * 
+     */
     public void addActiveEvent(String event) {
         if(!activeEvents.contains(event)) {
             activeEvents.add(event);
         }
     }
+
     public void removeActiveEvent(String event) {
         activeEvents.remove(event);
     }
+
     public boolean hasActiveEvent(String event) {
         return activeEvents.contains(event);
     }
 
-    /* Temp State */
+    /**
+     * 
+     * Time State
+     * 
+     */
     public void setTempState(String key, Object val) {
         tempState.put(key, val);
     }
+
     public Object getTempState(String key) {
         return tempState.get(key);
     }
+
     public void clearTempState() {
         tempState.clear();
     }
 
-    /* Save */
+    /**
+     * 
+     * Save
+     * 
+     */
     public void setSaveInProgress(boolean saving) {
         saveInProgress = saving;
     }
+
     public boolean isSaveInProgress() {
         return saveInProgress;
-    }
-
-    public void setLoadInProgress(boolean loading) {
-        loadInProgress = loading;
-    }
-    public boolean isLoadInProgress() {
-        return loadInProgress;
     }
 
     public boolean shouldAutoSave() {
@@ -121,5 +146,18 @@ public class StateController implements Serializable {
     }
     public int getAutoSaveInterval() {
         return autoSaveInterval;
+    }
+
+    /**
+     * 
+     * Load
+     * 
+     */
+    public void setLoadInProgress(boolean loading) {
+        loadInProgress = loading;
+    }
+
+    public boolean isLoadInProgress() {
+        return loadInProgress;
     }
 }

@@ -41,6 +41,7 @@ public class PauseScreen extends Screen {
                 pauseScreenAction.save();
                 break;
             case "exit":
+                tick.getTimeCycle().stopSounds();
                 pauseScreenAction.exitToMenu();
                 break;
         }

@@ -288,6 +288,8 @@ public class Scene {
     public void init(boolean reset) {
         cleanup();
         setup(reset);
+        stateController.setInMenu(false);
+        tick.getTimeCycle().playSound(stateController);
     }
 
     public void cleanup() {

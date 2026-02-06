@@ -156,7 +156,8 @@ public class MainScreen extends Screen {
         mainScreenScene = new MainScreenScene(
             window, 
             tick, 
-            shaderProgram
+            shaderProgram,
+            stateController
         );
         mainScreenScene.init();
     }

@@ -1,5 +1,6 @@
 package main.com.app.root.screen.main.scene;
 import main.com.app.root.DependencyContainer;
+import main.com.app.root.StateController;
 import main.com.app.root.Tick;
 import main.com.app.root.Window;
 import main.com.app.root._resources.AudioLoader;
@@ -24,6 +25,7 @@ public class MainScreenScene {
     private final Window window;
     private final Tick tick;
     private final ShaderProgram shaderProgram;
+    private final StateController stateController;
     private Camera camera;
 
     private Mesh mesh;
@@ -50,11 +52,13 @@ public class MainScreenScene {
     public MainScreenScene(
         Window window, 
         Tick tick,
-        ShaderProgram shaderProgram
+        ShaderProgram shaderProgram,
+        StateController stateController
     ) {
         this.window = window;
         this.tick = tick;
         this.shaderProgram = shaderProgram;
+        this.stateController = stateController;
     }
 
     public boolean isInit() {
@@ -126,6 +130,7 @@ public class MainScreenScene {
      * Start
      */
     private void start() {
+        stateController.setInMenu(true);
         world = new MainScreenWorld(
             tick, 
             mesh, 
