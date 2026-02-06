@@ -62,9 +62,9 @@ public class TorchGenerator {
         
         this.collisionManager = collisionManager;
         
-        float colliderWidth = 15.0f; 
-        float colliderHeight = 15.0f;
-        float colliderDepth = 15.0f;
+        float colliderWidth = 10.0f; 
+        float colliderHeight = 10.0f;
+        float colliderDepth = 10.0f;
         
         BoundingBox bbox = new BoundingBox(
             position.x - colliderWidth / 2.0f,

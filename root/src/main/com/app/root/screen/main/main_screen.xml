@@ -2,7 +2,7 @@
 <main_screen>
     <img
         id="title" 
-        src="main/logo.png"
+        src="logo.png"
         x="1.5%" y="13.9%" 
         width="31.25%" height="11.1%"
         color="0.871, 0.580, 0.949"

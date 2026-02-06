@@ -72,7 +72,7 @@ return {
             name = "torch",
             path = "root/src/main/com/app/root/_resources/env/torch.obj",
             texture = "root/src/main/com/app/root/_resources/texture/env/torch.png",
-            scale = { 25.0, 25.0, 25.0 }
+            scale = { 3.0, 3.0, 3.0 }
         },
         -- Clouds
         {
