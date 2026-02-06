@@ -45,6 +45,8 @@ public class MainScreenScene {
     private float cameraY = 450.0f;
     private float cameraZ = 150.0f;
 
+    public final static String ENV_MENU_AUDIO = "main/env_menu.wav";
+
     public MainScreenScene(
         Window window, 
         Tick tick,
@@ -111,9 +113,13 @@ public class MainScreenScene {
     }
 
     private void setSound() {
-        String file = "main/env_menu.wav";
-        AudioLoader.getInstance().play(file);
-        AudioLoader.getInstance().setVolume(file, 0.15f);
+        float vol = 0.15f;
+        
+        if(AudioLoader.getInstance().isLoaded(ENV_MENU_AUDIO)) {
+            AudioLoader.getInstance().resume(ENV_MENU_AUDIO);
+        } else {
+            AudioLoader.getInstance().play(ENV_MENU_AUDIO, vol, true);
+        }
     }
 
     /**
@@ -127,7 +133,6 @@ public class MainScreenScene {
             shaderProgram,
             particleManager
         );
-        setSound();
     }
 
     /**
@@ -177,6 +182,7 @@ public class MainScreenScene {
             shaderProgram, 
             envController
         );
+        setSound();
     }
 
     /**

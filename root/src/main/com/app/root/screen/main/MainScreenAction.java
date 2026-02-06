@@ -6,6 +6,8 @@ import main.com.app.root._save.SaveGenerator;
 import main.com.app.root._save.SaveInfo;
 import main.com.app.root._save.SaveLoader;
 import main.com.app.root.screen.ScreenController;
+import main.com.app.root.screen.main.scene.MainScreenScene;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class MainScreenAction {
      */
     public void start(String saveName) {
         try {
-            AudioLoader.getInstance().stopAll();
+            AudioLoader.getInstance().stop(MainScreenScene.ENV_MENU_AUDIO);
             scene.init(true);
             if(scene.getDataGetter() != null) {
                 scene.getDataGetter().setEnvController(scene.getEnvController());
@@ -67,7 +69,7 @@ public class MainScreenAction {
      * Load
      */
     public void load(String saveId) {
-        AudioLoader.getInstance().stopAll();
+        AudioLoader.getInstance().stop(MainScreenScene.ENV_MENU_AUDIO);
         AudioLoader.getInstance().play("main/select_world.wav", 0.1f);
         scene.init(false);
         if(scene.getDataGetter() != null) {
@@ -90,8 +92,8 @@ public class MainScreenAction {
     }
 
     public void loadLastSave() {
-        AudioLoader.getInstance().stopAll();
         List<SaveInfo> saves = saveLoader.listAvailableSaves();
+        AudioLoader.getInstance().stop(MainScreenScene.ENV_MENU_AUDIO);
         if(!saves.isEmpty()) {
             String saveId = saves.get(0).saveId;
             load(saveId);

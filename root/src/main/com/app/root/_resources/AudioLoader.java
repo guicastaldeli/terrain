@@ -256,6 +256,34 @@ public class AudioLoader {
 
     /**
      * 
+     * Resume
+     * 
+     */
+    public void resume(String fileName) {
+        if(muted) return;
+        
+        if(soundClips.containsKey(fileName)) {
+            Clip clip = soundClips.get(fileName);
+            if(!clip.isRunning()) {
+                clip.start();
+            }
+        }
+    }
+
+    public void resumeAll() {
+        if(muted) return;
+        
+        for(Clip clip : soundClips.values()) {
+            if(!clip.isRunning() && 
+                clip.getFramePosition() > 0
+            ) {
+                clip.start();
+            }
+        }
+    }
+
+    /**
+     * 
      * Muted
      * 
      */
