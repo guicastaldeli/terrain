@@ -79,7 +79,7 @@ public class PlayerInputMap {
      */
     public void keyboardCallback() {
         if(keyPressed[GLFW_KEY_F] && !fKeyPressed) {
-            playerController.toggleFlyMode();
+            //playerController.toggleFlyMode();
             fKeyPressed = true;
         } else if(!keyPressed[GLFW_KEY_F]) {
             fKeyPressed = false;

@@ -176,7 +176,7 @@ public class StaticObject implements Collider {
         }
 
         float playerBottom = box.minY;
-        float groundMargin = 1.0f;
+        float groundMargin = 4.0f;
         float maxStepHeight = 1.0f;
 
         boolean isOnGround = false;
