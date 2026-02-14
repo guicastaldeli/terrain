@@ -41,13 +41,26 @@ for /r "%LIB_DIR%" %%f in (*.jar) do (
 )
 
 echo.
-echo Step 2: Copying Java source files...
+echo Step 2: Copying Java source files and resources...
 echo   Copying from %SRC_DIR% to %MODIFIED_SRC_DIR%...
 xcopy /S /I /Y "%SRC_DIR%\*.java" "%MODIFIED_SRC_DIR%\" >nul
 
+REM Copy entire main directory structure (includes Lua files)
+echo   Copying all source files including Lua...
+robocopy "%SRC_DIR%\main" "%MODIFIED_SRC_DIR%\main" *.lua /S /NFL /NDL /NJH /NJS /NP >nul
+if %errorlevel% gtr 7 (
+    echo   Warning: Some Lua files may not have been copied
+)
+
 set FILE_COUNT=0
 for /r "%MODIFIED_SRC_DIR%" %%f in (*.java) do set /a FILE_COUNT+=1
-echo   Found %FILE_COUNT% Java files
+set LUA_COUNT=0
+for /r "%MODIFIED_SRC_DIR%" %%f in (*.lua) do set /a LUA_COUNT+=1
+echo   Found %FILE_COUNT% Java files and %LUA_COUNT% Lua files
+
+if %LUA_COUNT%==0 (
+    echo   WARNING: No Lua files found! Font paths may not be transformed.
+)
 
 echo.
 echo Step 3: Applying comprehensive code transformations...
@@ -166,15 +179,36 @@ if exist "%BUILD_DIR%\classes\main\com\app\root\env" (
     )
 )
 
-echo   Listing shader files in JAR-friendly structure:
-if exist "%BUILD_DIR%\classes\main\com\app\root\_shaders\main" (
-    echo   Main shaders: _shaders/main/
-    dir /b "%BUILD_DIR%\classes\main\com\app\root\_shaders\main\*.glsl" 2>nul
+echo.
+echo   ============================================
+echo   SHADER STRUCTURE DIAGNOSTICS
+echo   ============================================
+echo.
+echo   Checking if shader files exist in expected locations...
+echo.
+if exist "%BUILD_DIR%\classes\main\com\app\root\_shaders\main\frag.glsl" (
+    echo   ✓ Found: _shaders/main/frag.glsl
+) else (
+    echo   ✗ MISSING: _shaders/main/frag.glsl
 )
-if exist "%BUILD_DIR%\classes\main\com\app\root\_shaders\env" (
-    echo   Env shaders: _shaders/env/
-    dir /b /s "%BUILD_DIR%\classes\main\com\app\root\_shaders\env\*.glsl" 2>nul | find "sb_frag.glsl"
+
+if exist "%BUILD_DIR%\classes\main\com\app\root\_shaders\env\skybox\shaders\sb_frag.glsl" (
+    echo   ✓ Found: _shaders/env/skybox/shaders/sb_frag.glsl
+) else (
+    echo   ✗ MISSING: _shaders/env/skybox/shaders/sb_frag.glsl
+    echo.
+    echo   Searching for sb_frag.glsl anywhere...
+    dir /s /b "%BUILD_DIR%\classes\*sb_frag.glsl" 2>nul
 )
+
+echo.
+echo   Complete _shaders directory tree:
+if exist "%BUILD_DIR%\classes\main\com\app\root\_shaders" (
+    tree /F "%BUILD_DIR%\classes\main\com\app\root\_shaders" | more
+) else (
+    echo   ERROR: _shaders directory does not exist!
+)
+echo   ============================================
 
 echo.
 echo   Resource file counts:
