@@ -1,0 +1,13 @@
+package main.com.app.root.ui;
+
+public interface UIHandler {
+    default void render() {};
+    default void render(UIElement uiElement) {};
+    default void handleAction(String action) {};
+    default void handleKeyPress(int key, int action) {};
+    default void onWindowResize(int width, int height) {};
+    default void handleMouseMove(int mouseX, int mouseY) {};
+    default void onShow() {};
+    default void onHide() {};
+    default void update() {};
+}

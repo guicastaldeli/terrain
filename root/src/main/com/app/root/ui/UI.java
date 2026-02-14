@@ -1,0 +1,238 @@
+package main.com.app.root.ui;
+import main.com.app.root.Window;
+import main.com.app.root._shaders.ShaderProgram;
+import main.com.app.root._text_renderer.TextRenderer;
+import main.com.app.root.mesh.Mesh;
+import main.com.app.root._font.FontConfig;
+import main.com.app.root._font.FontMap;
+import main.com.app.root.Console;
+import main.com.app.root.DocParser;
+import main.com.app.root.Upgrader;
+import java.util.List;
+
+public class UI implements UIHandler {
+    public static final String DIR = "root/src/main/com/app/root/ui/";
+
+    public static Window window;
+    public static ShaderProgram shaderProgram;
+    public static UIController uiController;
+    public static Upgrader upgrader;
+    public static Mesh mesh;
+    public TextRenderer textRenderer;
+
+    public String uiName;
+    public String filePath;
+    public UIData uiData;
+    public boolean visible;
+    private UIElement uiElement;
+
+    public int lastMouseX = -1;
+    public int lastMouseY = -1;
+
+    public static void init(
+        Window window, 
+        ShaderProgram shaderProgram, 
+        UIController uiController,
+        Upgrader upgrader,
+        Mesh mesh
+    ) {
+        try {
+            UI.window = window;
+            UI.shaderProgram = shaderProgram;
+            UI.uiController = uiController;
+            UI.upgrader = upgrader;
+            UI.mesh = mesh;
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public UI(String filePath, String uiName) {
+        this.filePath = filePath;
+        this.uiName = uiName;
+        try {
+            FontConfig fontConfig = FontMap.getFont("arial");
+            this.textRenderer = new TextRenderer(
+                window,
+                shaderProgram,
+                window.getWidth(),
+                window.getHeight()
+            );
+
+            this.uiData = DocParser.parseUI(
+                filePath, 
+                window.getWidth(), 
+                window.getHeight()
+            );
+            
+            System.out.println("ui initialized successfully");
+            System.out.println("TextRenderer: " + textRenderer);
+            System.out.println("uiData: " + uiData);
+            System.out.println("Elements count: " + (uiData != null ? uiData.elements.size() : 0));
+        } catch(Exception err) {
+            System.err.println("Failed to init ui: " + uiName);
+            System.err.println("Error: " + err.getMessage());
+            err.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onShow() {
+        this.visible = true;
+    }
+
+    @Override
+    public void onHide() {
+        this.visible = false;
+    }
+
+    public boolean isClickable() {
+        return 
+            uiElement.type.equals("button") || 
+            uiElement.type.equals("upgrade_button") || 
+            uiElement.type.equals("equip_button");
+    }
+
+    public String checkClick(int mouseX, int mouseY) {
+        if(!visible) return null;
+
+        List<UIElement> buttons = DocParser.getElementsByType(uiData, "button");
+        for(UIElement button : buttons) {
+            float width = textRenderer.getTextWidth(button.text, button.scale);
+            float height = textRenderer.getFontMetrics().lineHeight * button.scale;
+
+            if(mouseX >= button.x && 
+                mouseX <= button.x + width &&
+                mouseY >= button.y && 
+                mouseY <= button.y + height
+            ) {
+                Console.getInstance().handleAction(button.action);
+                return button.action;
+            }
+        }
+        return null;
+    }
+
+    public TextRenderer getTextRenderer() {
+        return textRenderer;
+    }
+
+    /**
+     * 
+     * Update
+     * 
+     */
+    public void update() {
+       if(lastMouseX >= 0 && lastMouseY >= 0) {
+           handleMouseMove(lastMouseX, lastMouseY);
+        }
+    }
+
+    /**
+     * 
+     * Render
+     * 
+     */
+    @Override
+    public void render() {
+        if(!visible || textRenderer == null) return;
+        
+        for(UIElement element : uiData.elements) {
+            if(element.visible) {
+                if(element.type.equals("div") || element.type.equals("button")) {
+                    DocParser.renderUIElement(
+                        element, 
+                        window.getWidth(), window.getHeight(), 
+                        shaderProgram
+                    );
+                }
+                
+                if((element.type.equals("button") || element.type.equals("label")) && 
+                    element.text != null && !element.text.isEmpty() && textRenderer != null) {
+                    if(element.hasShadow) {
+                        textRenderer.renderTextWithShadow(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.shadowOffsetX,
+                            element.shadowOffsetY,
+                            element.shadowBlur,
+                            element.shadowColor,
+                            element.fontFamily
+                        );
+                    } else {
+                        textRenderer.renderText(
+                            element.text,
+                            element.x,
+                            element.y,
+                            element.scale,
+                            element.color,
+                            element.fontFamily
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void render(UIElement element) {
+        if(!element.visible) return;
+        
+        if(element.type.equals("div") || element.type.equals("button")) {
+            DocParser.renderUIElement(
+                element, 
+                window.getWidth(), window.getHeight(), 
+                shaderProgram
+            );
+        }
+        
+        if((element.type.equals("button") || element.type.equals("label")) && 
+            element.text != null && !element.text.isEmpty() && textRenderer != null) {
+            if(element.hasShadow) {
+                textRenderer.renderTextWithShadow(
+                    element.text,
+                    element.x,
+                    element.y,
+                    element.scale,
+                    element.color,
+                    element.shadowOffsetX,
+                    element.shadowOffsetY,
+                    element.shadowBlur,
+                    element.shadowColor,
+                    element.fontFamily
+                );
+            } else {
+                textRenderer.renderText(
+                    element.text,
+                    element.x,
+                    element.y,
+                    element.scale,
+                    element.color,
+                    element.fontFamily
+                );
+            }
+        }
+    }
+
+    /**
+     * Handle Mouse Move
+     */
+    public void handleMouseMove(int mouseX, int mouseY) {
+        this.lastMouseX = mouseX;
+        this.lastMouseY = mouseY;
+        if(uiData == null) return;
+        
+        for(UIElement element : uiData.elements) {
+            if(!element.visible || !element.hoverable) continue;
+            
+            boolean mouseOver = element.containsPoint(mouseX, mouseY);
+            if(mouseOver && !element.isHovered) {
+                element.applyHover();
+            } else if(!mouseOver && element.isHovered) {
+                element.removeHover();
+            }
+        }
+    }
+}

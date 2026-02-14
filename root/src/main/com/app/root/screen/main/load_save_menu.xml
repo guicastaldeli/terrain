@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<load_save_menu>
+    <div 
+        id="header" 
+        x="2.5%" y="2.5%" 
+        width="95%" height="95%"
+        background="0.447, 0.522, 0.580, 0.9" 
+        border="2.0" 
+        borderColor="1.0,1.0,1.0,1.0"
+    >
+        <button 
+            id="backBtn" 
+            x="3.5%" y="3.0%" 
+            scale="1.0" 
+            color="0.114, 0.118, 0.122" 
+            action="back"
+            fontFamily="comic_sans"
+            width="21%" height="8%"
+            textShadow="2,2 0 0.8,0.8,0.8,1.0"
+            hoverable="true"
+            hoverTextColor="0.4, 0.4, 0.4, 1.0"
+        >
+            &lt;- Back to Menu
+        </button>
+        <label 
+            id="title" 
+            x="3.5%" y="15.0%" 
+            scale="1.0" 
+            color="0.294, 0.341, 0.380"
+            fontFamily="comic_sans"
+            textShadow="2,2 0 0,0,0,1.0"
+        >
+            Load Game
+        </label>
+        
+        <div 
+            id="scrollbarBg" 
+            x="93%" y="22.5%" 
+            width="1%" height="65%"
+            background="0.2,0.2,0.2,0.5"
+        />
+        <div 
+            id="scrollbarThumb" 
+            x="93%" y="25%" 
+            width="1%" height="10%"
+            background="0.6,0.6,0.6,0.8"
+        />
+
+        <container 
+            id="saveSlots" 
+            x="3.5%" 
+            y="10%"
+        >
+        </container>
+    </div>
+</load_save_menu>
