@@ -43,13 +43,12 @@ for /r "%LIB_DIR%" %%f in (*.jar) do (
 echo.
 echo Step 2: Copying Java source files and resources...
 echo   Copying from %SRC_DIR% to %MODIFIED_SRC_DIR%...
-xcopy /S /I /Y "%SRC_DIR%\*.java" "%MODIFIED_SRC_DIR%\" >nul
 
-REM Copy entire main directory structure (includes Lua files)
-echo   Copying all source files including Lua...
-robocopy "%SRC_DIR%\main" "%MODIFIED_SRC_DIR%\main" *.lua /S /NFL /NDL /NJH /NJS /NP >nul
+REM Copy everything from src to modified_src
+echo   Copying all files (Java, Lua, GLSL, fonts, XML, images, audio)...
+robocopy "%SRC_DIR%" "%MODIFIED_SRC_DIR%" /E /NFL /NDL /NJH /NJS /NP >nul
 if %errorlevel% gtr 7 (
-    echo   Warning: Some Lua files may not have been copied
+    echo   Warning: Some files may not have been copied
 )
 
 set FILE_COUNT=0
@@ -149,17 +148,18 @@ if exist "%BUILD_DIR%\classes\main\com\app\root\Main.class" (
 
 echo.
 echo Step 6: Copying ALL resource files...
-echo   Copying resources (Lua, XML, GLSL, fonts, images, audio)...
+echo   Copying resources (Lua, XML, GLSL, fonts, images, audio) from MODIFIED sources...
 
-if exist "%SRC_DIR%\main" (
-    echo   Source: %SRC_DIR%\main
+REM Copy from modified_src/main instead of src/main to preserve transformations
+if exist "%MODIFIED_SRC_DIR%\main" (
+    echo   Source: %MODIFIED_SRC_DIR%\main
     echo   Target: %BUILD_DIR%\classes\main
-    robocopy "%SRC_DIR%\main" "%BUILD_DIR%\classes\main" /E /XF *.java *.class /NFL /NDL /NJH /NJS
+    robocopy "%MODIFIED_SRC_DIR%\main" "%BUILD_DIR%\classes\main" /E /XF *.java *.class /NFL /NDL /NJH /NJS
     if %errorlevel% gtr 7 (
         echo   Warning: Some files may not have been copied
     )
 ) else (
-    echo   ERROR: %SRC_DIR%\main not found!
+    echo   ERROR: %MODIFIED_SRC_DIR%\main not found!
     pause
     exit /b 1
 )
