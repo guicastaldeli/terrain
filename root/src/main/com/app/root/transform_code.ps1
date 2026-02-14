@@ -23,6 +23,7 @@ $modelMapCount = 0
 $objLoaderCount = 0
 $gltfLoaderCount = 0
 $animationLoaderCount = 0
+$mainDataLoaderCount = 0
 
 foreach ($file in $allFiles) {
     $content = Get-Content -Path $file.FullName -Raw
@@ -358,15 +359,15 @@ String baseDir = filePath.substring(0, filePath.lastIndexOf("/"));
 
     # 11. ANIMATIONLOADER - Use ResourceLoader for animation file loading
     if ($file.Name -eq 'AnimationLoader.java') {
-    Write-Host "  -> Transforming AnimationLoader.java (animation file loading with Assimp)"
-    
-    # Add imports if not present
-    if ($content -notmatch 'import main\.com\.app\.root\.utils\.ResourceLoader') {
-        $content = $content -replace '(package main\.com\.app\.root\.mesh;)', "`$1`nimport main.com.app.root.utils.ResourceLoader;"
-    }
-    
-    # Replace aiImportFile(filePath, FLAGS) with extracted temp file wrapped in try-catch
-    $content = $content -replace 'AIScene scene = aiImportFile\(filePath, FLAGS\);', @'
+        Write-Host "  -> Transforming AnimationLoader.java (animation file loading with Assimp)"
+        
+        # Add imports if not present
+        if ($content -notmatch 'import main\.com\.app\.root\.utils\.ResourceLoader') {
+            $content = $content -replace '(package main\.com\.app\.root\.mesh;)', "`$1`nimport main.com.app.root.utils.ResourceLoader;"
+        }
+        
+        # Replace aiImportFile(filePath, FLAGS) with extracted temp file wrapped in try-catch
+        $content = $content -replace 'AIScene scene = aiImportFile\(filePath, FLAGS\);', @'
 AIScene scene = null;
         try {
             String extractedPath = ResourceLoader.getNativeResourcePath(filePath);
@@ -375,10 +376,61 @@ AIScene scene = null;
             throw new RuntimeException("Failed to extract model file: " + filePath, e);
         }
 '@
-    
-    $animationLoaderCount++
-    $fileModified = $true
-}
+        
+        $animationLoaderCount++
+        $fileModified = $true
+    }
+
+    # 12. MAINDATALOADER - Fix data file paths for save/load
+    if ($file.Name -eq 'MainDataLoader.java') {
+        Write-Host "  -> Transforming MainDataLoader.java (data file saving/loading)"
+        
+        # Add import if not present
+        if ($content -notmatch 'import main\.com\.app\.root\.utils\.ResourceLoader') {
+            $content = $content -replace '(package main\.com\.app\.root;)', "`$1`nimport main.com.app.root.utils.ResourceLoader;`nimport java.io.InputStream;"
+        }
+        
+        # Fix DATA_PATH to use external saves directory
+        $content = $content -replace 'private static final String DATA_PATH = "root/src/main/com/app/root/_data/main_data.lua";', 'private static final String DATA_PATH = "saves/main_data.lua";'
+        $content = $content -replace 'private static final String DATA_PATH = "main/com/app/root/_data/main_data.lua";', 'private static final String DATA_PATH = "saves/main_data.lua";'
+        
+        # Fix loadfile to use ResourceLoader for initial load
+        $content = $content -replace 'LuaValue chunk = globals\.loadfile\(DATA_PATH\);', @'
+LuaValue chunk;
+            File dataFile = new File(DATA_PATH);
+            if (dataFile.exists()) {
+                chunk = globals.loadfile(DATA_PATH);
+            } else {
+                // First time - load from JAR resources as fallback
+                try {
+                    InputStream stream = ResourceLoader.class.getClassLoader().getResourceAsStream("main/com/app/root/_data/main_data.lua");
+                    if (stream != null) {
+                        chunk = globals.load(stream, "main_data.lua", "t", globals);
+                        stream.close();
+                    } else {
+                        return createDefaultData();
+                    }
+                } catch (Exception ex) {
+                    return createDefaultData();
+                }
+            }
+'@
+        
+        # Fix saveData to ensure directory exists
+        $content = $content -replace 'File dir = new File\(DATA_PATH\);', @'
+File dataFile = new File(DATA_PATH);
+            File dir = dataFile.getParentFile();
+            if (dir != null && !dir.exists()) {
+                dir.mkdirs();
+            }
+'@
+        
+        # Fix the writer to use dataFile variable
+        $content = $content -replace 'try\(FileWriter writer = new FileWriter\(filePath\)\)', 'try(FileWriter writer = new FileWriter(dataFile))'
+        
+        $mainDataLoaderCount++
+        $fileModified = $true
+    }
 
     # Save if modified
     if ($fileModified) {
@@ -397,3 +449,4 @@ Write-Host "    - ModelMap fixes: $modelMapCount files"
 Write-Host "    - ObjLoader fixes: $objLoaderCount files"
 Write-Host "    - GltfLoader fixes: $gltfLoaderCount files"
 Write-Host "    - AnimationLoader fixes: $animationLoaderCount files"
+Write-Host "    - MainDataLoader fixes: $mainDataLoaderCount files"
