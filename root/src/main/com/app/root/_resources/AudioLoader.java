@@ -177,7 +177,7 @@ public class AudioLoader {
             }
 
             clip.start();
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Error playing sound " + fileName + ": " + err.getMessage());
         }
     }
@@ -199,7 +199,7 @@ public class AudioLoader {
             } else {
                 clip.setFramePosition(0);
             }
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Error playing sound " + fileName + ": " + err.getMessage());
         }
     }
@@ -265,7 +265,7 @@ public class AudioLoader {
                 }
             }, durationMs);
             
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Error playing overlapping sound " + fileName + ": " + err.getMessage());
         }
     }
@@ -320,7 +320,7 @@ public class AudioLoader {
             });
             
             clip.start();
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Error playing overlapping sound " + fileName + ": " + err.getMessage());
         }
     }
@@ -349,7 +349,7 @@ public class AudioLoader {
                     }
                 }
             }, durationMs);
-        } catch (Exception err) {
+        } catch(Exception err) {
             System.err.println("Error playing sound " + fileName + ": " + err.getMessage());
         }
     }

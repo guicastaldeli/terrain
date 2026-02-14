@@ -247,7 +247,7 @@ public class MeshData {
 
     public Vector3f getPosition() {
         Object position = data.get(DataType.POSITION);
-        if (position instanceof Vector3f) {
+        if(position instanceof Vector3f) {
             return (Vector3f) position;
         }
         return new Vector3f(0, 0, 0);
@@ -264,7 +264,7 @@ public class MeshData {
 
     public Vector3f getRotation() {
         Object rotation = data.get(DataType.ROTATION);
-        if (rotation instanceof Vector3f) {
+        if(rotation instanceof Vector3f) {
             return (Vector3f) rotation;
         }
         return new Vector3f(0, 0, 0);

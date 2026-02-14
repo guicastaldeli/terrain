@@ -1,35 +1,31 @@
 package main.com.app.root.utils;
-
-import java.io.*;
+import org.lwjgl.BufferUtils;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import org.lwjgl.BufferUtils;
+import java.io.*;
 
 /**
- * ResourceLoader - Auto-detects if running from JAR or dev environment
- * and loads resources accordingly. No code changes needed!
+ *  ---- ResourceLoader - Auto-detects if running from JAR or dev environment
+ *  ---- and loads resources accordingly!. 
  */
 public class ResourceLoader {
-    
-    private static final boolean IS_JAR;
     private static final File TEMP_DIR;
+    private static final boolean isJar;
 
     static {
-        // Detect if running from JAR
         String className = ResourceLoader.class.getName().replace('.', '/');
         String classJar = ResourceLoader.class.getResource("/" + className + ".class").toString();
-        IS_JAR = classJar.startsWith("jar:");
+        isJar = classJar.startsWith("jar:");
         
-        // Create temp directory for extracted resources
-        if (IS_JAR) {
+        if(isJar) {
             try {
                 TEMP_DIR = Files.createTempDirectory("terrain_game_").toFile();
                 TEMP_DIR.deleteOnExit();
                 System.out.println("Created temp directory for resources: " + TEMP_DIR.getAbsolutePath());
-            } catch (IOException e) {
+            } catch(IOException e) {
                 throw new RuntimeException("Failed to create temp directory", e);
             }
         } else {
@@ -38,14 +34,12 @@ public class ResourceLoader {
     }
 
     /**
-     * Load a font file as ByteBuffer (for STB TrueType)
-     * Works in both dev (filesystem) and JAR (resources)
+     * Load Font to Buffer
      */
     public static ByteBuffer loadFontToBuffer(String path) throws IOException {
-        if (IS_JAR) {
-            // Running from JAR - load from resources
+        if(isJar) {
             InputStream stream = ResourceLoader.class.getClassLoader().getResourceAsStream(path);
-            if (stream == null) {
+            if(stream == null) {
                 throw new IOException("Font not found in JAR: " + path);
             }
 
@@ -56,14 +50,13 @@ public class ResourceLoader {
                 buffer.flip();
                 stream.close();
                 return buffer;
-            } catch (IOException e) {
+            } catch(IOException e) {
                 stream.close();
                 throw e;
             }
         } else {
-            // Running in dev - use filesystem
             Path fontPath = Paths.get(path);
-            if (!Files.exists(fontPath)) {
+            if(!Files.exists(fontPath)) {
                 throw new IOException("Font file not found: " + path);
             }
 
@@ -76,32 +69,27 @@ public class ResourceLoader {
     }
 
     /**
-     * Get a file path for native libraries (STBImage, OpenAL, Assimp)
-     * Extracts from JAR to temp file if needed
+     * Get Native Path
      */
     public static String getNativeResourcePath(String resourcePath) throws IOException {
-        if (IS_JAR) {
-            // Extract from JAR to temp directory
+        if(isJar) {
             InputStream stream = ResourceLoader.class.getClassLoader().getResourceAsStream(resourcePath);
-            if (stream == null) {
+            if(stream == null) {
                 throw new IOException("Resource not found in JAR: " + resourcePath);
             }
 
-            // Create subdirectories in temp if needed
             String[] pathParts = resourcePath.split("/");
             String fileName = pathParts[pathParts.length - 1];
             
-            // Create subdirectory structure
             File targetDir = TEMP_DIR;
-            for (int i = 0; i < pathParts.length - 1; i++) {
+            for(int i = 0; i < pathParts.length - 1; i++) {
                 targetDir = new File(targetDir, pathParts[i]);
             }
             targetDir.mkdirs();
             
             File tempFile = new File(targetDir, fileName);
             
-            // Only extract if not already extracted
-            if (!tempFile.exists()) {
+            if(!tempFile.exists()) {
                 Files.copy(stream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 tempFile.deleteOnExit();
             }
@@ -109,9 +97,8 @@ public class ResourceLoader {
             
             return tempFile.getAbsolutePath();
         } else {
-            // Running in dev - return path as-is
             File file = new File(resourcePath);
-            if (!file.exists()) {
+            if(!file.exists()) {
                 throw new IOException("File not found: " + resourcePath);
             }
             return file.getAbsolutePath();
@@ -119,21 +106,18 @@ public class ResourceLoader {
     }
 
     /**
-     * Get InputStream for any resource
-     * Works in both dev and JAR
+     * Get Resource Stream
      */
     public static InputStream getResourceStream(String path) throws IOException {
-        if (IS_JAR) {
-            // Running from JAR - load from resources
+        if(isJar) {
             InputStream stream = ResourceLoader.class.getClassLoader().getResourceAsStream(path);
-            if (stream == null) {
+            if(stream == null) {
                 throw new IOException("Resource not found in JAR: " + path);
             }
             return stream;
         } else {
-            // Running in dev - use filesystem
             Path filePath = Paths.get(path);
-            if (!Files.exists(filePath)) {
+            if(!Files.exists(filePath)) {
                 throw new IOException("File not found: " + path);
             }
             return Files.newInputStream(filePath);
@@ -141,20 +125,17 @@ public class ResourceLoader {
     }
 
     /**
-     * Get File path for XML parsing
-     * Works in both dev and JAR
+     * Get XML Stream
      */
     public static InputStream getXMLStream(String path) throws IOException {
         return getResourceStream(path);
     }
 
     /**
-     * Get absolute path to external directory (like natives/ or saves/)
-     * These are OUTSIDE the JAR
+     * Get External Path
      */
     public static String getExternalPath(String relativePath) {
-        if (IS_JAR) {
-            // When in JAR, external files are relative to JAR location
+        if(isJar) {
             try {
                 String jarPath = ResourceLoader.class.getProtectionDomain()
                     .getCodeSource()
@@ -164,24 +145,21 @@ public class ResourceLoader {
                 File jarFile = new File(jarPath);
                 File externalFile = new File(jarFile.getParent(), relativePath);
                 return externalFile.getAbsolutePath();
-            } catch (Exception e) {
-                // Fallback to current directory
+            } catch(Exception e) {
                 return new File(relativePath).getAbsolutePath();
             }
         } else {
-            // In dev, use the path as-is
             return new File(relativePath).getAbsolutePath();
         }
     }
 
     /**
-     * Read all bytes from a resource (works in both JAR and dev)
-     * Used by GltfLoader for loading GLTF JSON and binary data
+     * Read All Bytes from Resource
      */
     public static byte[] readAllBytesFromResource(String resourcePath) throws IOException {
-        if (IS_JAR) {
+        if(isJar) {
             InputStream stream = ResourceLoader.class.getClassLoader().getResourceAsStream(resourcePath);
-            if (stream == null) {
+            if(stream == null) {
                 throw new IOException("Resource not found in JAR: " + resourcePath);
             }
             try {
@@ -190,19 +168,15 @@ public class ResourceLoader {
                 stream.close();
             }
         } else {
-            // Running in dev - use filesystem
             Path filePath = Paths.get(resourcePath);
-            if (!Files.exists(filePath)) {
+            if(!Files.exists(filePath)) {
                 throw new IOException("File not found: " + resourcePath);
             }
             return Files.readAllBytes(filePath);
         }
     }
 
-    /**
-     * Check if running from JAR
-     */
     public static boolean isRunningFromJar() {
-        return IS_JAR;
+        return isJar;
     }
 }

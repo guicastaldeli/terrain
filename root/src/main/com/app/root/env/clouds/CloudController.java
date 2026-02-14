@@ -16,7 +16,7 @@ public class CloudController implements EnvInstance<CloudController> {
 
     @Override
     public CloudController getInstance() {
-        if (this.cloudGenerator == null) {
+        if(this.cloudGenerator == null) {
             this.cloudGenerator = new CloudSpawner(
                 tick, 
                 mesh, 
