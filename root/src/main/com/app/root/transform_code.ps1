@@ -21,15 +21,19 @@ foreach ($file in $files) {
     $originalContent = $content
     $fileModified = $false
 
-    # 1. PATH REPLACEMENTS
+    # 1. PATH REPLACEMENTS - Apply to ALL files containing root/src/
     if ($content -match 'root/src/') {
         Write-Host "  -> Found 'root/src/' in: $($file.Name)"
+        
+        # Font directory paths
+        $content = $content -replace 'root/src/main/com/app/root/_font/', 'main/com/app/root/_font/'
+        
         # Saves directory - external folder
         $content = $content -replace 'root/src/main/com/app/root/_resources/saves/', 'saves/'
         
         # DLL directory - external natives folder
-        $content = $content -replace 'root/src/main/com/app/root/env/_noise/\\.build', 'natives'
-        $content = $content -replace 'main/com/app/root/env/_noise/\\.build', 'natives'
+        $content = $content -replace 'root/src/main/com/app/root/env/_noise/\.build', 'natives'
+        $content = $content -replace 'main/com/app/root/env/_noise/\.build', 'natives'
         
         # All other resources - remove root/src/
         $content = $content -replace 'root/src/', ''
@@ -97,27 +101,20 @@ foreach ($file in $files) {
 
     # 4. NOISEGENERATORWRAPPER - Use external path for natives
     if ($file.Name -eq 'NoiseGeneratorWrapper.java') {
-        if ($content -match 'DLL_DIR|\.build|noise_generator\.dll') {
+        if ($content -match 'DLL_PATH|\.build|noise_generator\.dll') {
             Write-Host "  -> Transforming NoiseGeneratorWrapper.java (DLL loading)"
             
             # Add import if not present
             if ($content -notmatch 'import main\.com\.app\.root\.utils\.ResourceLoader') {
-                $content = $content -replace '(package main\.com\.app\.root\.env;)', "`$1`nimport main.com.app.root.utils.ResourceLoader;"
+                $content = $content -replace '(package main\.com\.app\.root\.env;)', "`$1`nimport main.com.app.root.utils.ResourceLoader;`nimport java.io.File;"
             }
             
-            # Replace any string literal containing the old path
-            $content = $content -replace '"main/com/app/root/env/_noise/\.build"', '"natives"'
-            $content = $content -replace '"[^"]*env/_noise/\.build"', '"natives"'
+            # Replace the DLL_PATH constant value
+            $content = $content -replace 'private static final String DLL_PATH = "root/src/main/com/app/root/env/_noise/\.build/";', 'private static final String DLL_PATH = ResourceLoader.getExternalPath("natives");'
+            $content = $content -replace 'private static final String DLL_PATH = "[^"]*env/_noise/\.build[^"]*";', 'private static final String DLL_PATH = ResourceLoader.getExternalPath("natives");'
             
-            # Wrap string literals for natives path with ResourceLoader
-            $content = $content -replace 'String\s+DLL_DIR\s*=\s*"natives";', 'String DLL_DIR = ResourceLoader.getExternalPath("natives");'
-            $content = $content -replace 'new\s+File\s*\(\s*"natives"\s*\)', 'new File(ResourceLoader.getExternalPath("natives"))'
-            
-            # Wrap existing File constructions
-            $content = $content -replace 'File\s+dllDir\s*=\s*new\s+File\s*\(\s*DLL_DIR\s*\)', 'File dllDir = new File(ResourceLoader.getExternalPath(DLL_DIR))'
-            
-            # Fix System.load calls to use ResourceLoader
-            $content = $content -replace 'new\s+File\s*\(\s*DLL_DIR\s*,\s*"([^"]+)"\s*\)\.getAbsolutePath\(\)', 'new File(ResourceLoader.getExternalPath(DLL_DIR), "$1").getAbsolutePath()'
+            # Replace Paths.get(DLL_PATH) with new File(DLL_PATH).toPath()
+            $content = $content -replace 'Path directory = Paths\.get\(DLL_PATH\);', 'Path directory = new File(DLL_PATH).toPath();'
             
             $dllCount++
             $fileModified = $true
