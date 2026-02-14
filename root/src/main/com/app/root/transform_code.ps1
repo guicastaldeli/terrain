@@ -210,7 +210,7 @@ private void loadData() {
         try {
             // In a JAR, we need to enumerate resources differently
             // Try common model definition files
-            String[] possibleFiles = {"player.lua", "env.lua", "items.lua", "enemies.lua", "objects.lua", "clouds.lua", "weapons.lua", "list.lua"};
+            String[] possibleFiles = {"player.lua", "env.lua", "axes.lua", "cube.lua", "obj.lua", "quad.lua", "rectangle.lua", "skybox.lua", "triangle.lua", "world.lua", "items.lua", "enemies.lua", "objects.lua", "clouds.lua", "weapons.lua", "list.lua"};
             
             for (String fileName : possibleFiles) {
                 String luaFile = directory + fileName;
