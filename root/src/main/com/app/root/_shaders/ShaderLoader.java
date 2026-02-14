@@ -52,20 +52,31 @@ public class ShaderLoader {
                 file = file.replace("\"", "").replace("'", "");
 
                 String path;
-                if(file.contains("/")) {
+                // Handle absolute paths (starting with /)
+                if(file.startsWith("/")) {
                     path = file.substring(1);
-                } else if(file.contains("/")){
+                } 
+                // Handle relative paths (containing ../ or ./)
+                else if(file.contains("../") || file.contains("./")) {
                     path = resolveRelativePath(parentDir, file);
-                } else {
-                    path =parentDir + file;
+                } 
+                // Handle simple filenames in same directory
+                else {
+                    path = parentDir + file;
                 }
 
                 String includeContent;
                 try {
                     includeContent = loadFile(path);
                 } catch(IOException err) {
-                    path = file;
-                    includeContent = loadFile(path);
+                    // Fallback: try the path as-is
+                    try {
+                        path = file;
+                        includeContent = loadFile(path);
+                    } catch(IOException err2) {
+                        throw new IOException("Could not find shader include: " + file + 
+                            " (tried: " + path + " and " + file + ")", err);
+                    }
                 }
 
                 includeContent = processIncludes(includeContent, path);
@@ -88,21 +99,62 @@ public class ShaderLoader {
         return "";
     }
 
-    private static String resolveRelativePath(String dir, String path) {
-        return dir + path;
+    private static String resolveRelativePath(String baseDir, String relativePath) {
+        // Split the base directory into parts
+        String[] baseParts = baseDir.split("/");
+        String[] relativeParts = relativePath.split("/");
+        
+        // Build result path, handling ../ and ./
+        StringBuilder result = new StringBuilder();
+        int baseDepth = baseParts.length;
+        
+        // Count how many levels to go up
+        int upCount = 0;
+        int relativeStart = 0;
+        for(int i = 0; i < relativeParts.length; i++) {
+            if(relativeParts[i].equals("..")) {
+                upCount++;
+                relativeStart = i + 1;
+            } else if(relativeParts[i].equals(".")) {
+                relativeStart = i + 1;
+            } else {
+                break;
+            }
+        }
+        
+        // Add base path minus the upCount directories
+        for(int i = 0; i < baseDepth - upCount; i++) {
+            if(!baseParts[i].isEmpty()) {
+                result.append(baseParts[i]).append("/");
+            }
+        }
+        
+        // Add remaining relative path parts
+        for(int i = relativeStart; i < relativeParts.length; i++) {
+            result.append(relativeParts[i]);
+            if(i < relativeParts.length - 1) {
+                result.append("/");
+            }
+        }
+        
+        return result.toString();
     }
 
     private static String stripVersionDirective(String content) {
         Scanner scanner = new Scanner(content);
         StringBuilder res = new StringBuilder();
-        boolean firstLine = true;
+        boolean versionFound = false;
 
         while(scanner.hasNextLine()) {
             String line = scanner.nextLine();
             String trimmed = line.trim();
-            if(firstLine && trimmed.startsWith("#version")) {
-                res.append(line).append("\n");
-                firstLine = false;
+            // Skip all version directives except the first one we encounter
+            if(trimmed.startsWith("#version")) {
+                if(!versionFound) {
+                    res.append(line).append("\n");
+                    versionFound = true;
+                }
+                // Skip subsequent version directives
             } else {
                 res.append(line).append("\n");
             }
