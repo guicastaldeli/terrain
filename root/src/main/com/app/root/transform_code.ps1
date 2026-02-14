@@ -115,6 +115,42 @@ foreach ($file in $allFiles) {
         }
     }
 
+    # 5. TEXTURELOADER - Wrap paths with ResourceLoader for STBImage
+    if ($file.Name -eq 'TextureLoader.java') {
+        if ($content -match 'STBImage\.stbi_load') {
+            Write-Host "  -> Transforming TextureLoader.java (texture loading)"
+            
+            # Add import if not present
+            if ($content -notmatch 'import main\.com\.app\.root\.utils\.ResourceLoader') {
+                $content = $content -replace '(package main\.com\.app\.root\._resources;)', "`$1`nimport main.com.app.root.utils.ResourceLoader;"
+            }
+            
+            # Wrap STBImage.stbi_load filePath parameter with ResourceLoader.getNativeResourcePath
+            # Pattern: STBImage.stbi_load(filePath, ...
+            $content = $content -replace 'STBImage\.stbi_load\s*\(\s*filePath\s*,', 'STBImage.stbi_load(ResourceLoader.getNativeResourcePath(filePath),'
+            
+            $fileModified = $true
+        }
+    }
+
+    # 6. AUDIOLOADER - Wrap paths with ResourceLoader for Java Sound API
+    if ($file.Name -eq 'AudioLoader.java') {
+        if ($content -match 'new File\(filePath\)' -and $content -match 'AudioSystem') {
+            Write-Host "  -> Transforming AudioLoader.java (audio loading)"
+            
+            # Add import if not present
+            if ($content -notmatch 'import main\.com\.app\.root\.utils\.ResourceLoader') {
+                $content = $content -replace '(package main\.com\.app\.root\._resources;)', "`$1`nimport main.com.app.root.utils.ResourceLoader;"
+            }
+            
+            # Replace new File(filePath) with new File(ResourceLoader.getNativeResourcePath(filePath))
+            # Look for the pattern in AudioSystem.getAudioInputStream context
+            $content = $content -replace 'File audioFile = new File\(filePath\);', 'File audioFile = new File(ResourceLoader.getNativeResourcePath(filePath));'
+            
+            $fileModified = $true
+        }
+    }
+
     # Save if modified
     if ($fileModified) {
         Set-Content -Path $file.FullName -Value $content -NoNewline

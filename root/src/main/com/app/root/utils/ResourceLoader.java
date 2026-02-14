@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import org.lwjgl.BufferUtils;
 
 /**
@@ -14,14 +15,28 @@ import org.lwjgl.BufferUtils;
 public class ResourceLoader {
     
     private static final boolean IS_JAR;
-    
+    private static final File TEMP_DIR;
+
     static {
         // Detect if running from JAR
         String className = ResourceLoader.class.getName().replace('.', '/');
         String classJar = ResourceLoader.class.getResource("/" + className + ".class").toString();
         IS_JAR = classJar.startsWith("jar:");
+        
+        // Create temp directory for extracted resources
+        if (IS_JAR) {
+            try {
+                TEMP_DIR = Files.createTempDirectory("terrain_game_").toFile();
+                TEMP_DIR.deleteOnExit();
+                System.out.println("Created temp directory for resources: " + TEMP_DIR.getAbsolutePath());
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to create temp directory", e);
+            }
+        } else {
+            TEMP_DIR = null;
+        }
     }
-    
+
     /**
      * Load a font file as ByteBuffer (for STB TrueType)
      * Works in both dev (filesystem) and JAR (resources)
@@ -33,7 +48,7 @@ public class ResourceLoader {
             if (stream == null) {
                 throw new IOException("Font not found in JAR: " + path);
             }
-            
+
             try {
                 byte[] fontBytes = stream.readAllBytes();
                 ByteBuffer buffer = BufferUtils.createByteBuffer(fontBytes.length + 1);
@@ -51,7 +66,7 @@ public class ResourceLoader {
             if (!Files.exists(fontPath)) {
                 throw new IOException("Font file not found: " + path);
             }
-            
+
             byte[] fontBytes = Files.readAllBytes(fontPath);
             ByteBuffer buffer = BufferUtils.createByteBuffer(fontBytes.length + 1);
             buffer.put(fontBytes);
@@ -59,7 +74,50 @@ public class ResourceLoader {
             return buffer;
         }
     }
-    
+
+    /**
+     * Get a file path for native libraries (STBImage, OpenAL)
+     * Extracts from JAR to temp file if needed
+     */
+    public static String getNativeResourcePath(String resourcePath) throws IOException {
+        if (IS_JAR) {
+            // Extract from JAR to temp directory
+            InputStream stream = ResourceLoader.class.getClassLoader().getResourceAsStream(resourcePath);
+            if (stream == null) {
+                throw new IOException("Resource not found in JAR: " + resourcePath);
+            }
+
+            // Create subdirectories in temp if needed
+            String[] pathParts = resourcePath.split("/");
+            String fileName = pathParts[pathParts.length - 1];
+            
+            // Create subdirectory structure
+            File targetDir = TEMP_DIR;
+            for (int i = 0; i < pathParts.length - 1; i++) {
+                targetDir = new File(targetDir, pathParts[i]);
+            }
+            targetDir.mkdirs();
+            
+            File tempFile = new File(targetDir, fileName);
+            
+            // Only extract if not already extracted
+            if (!tempFile.exists()) {
+                Files.copy(stream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                tempFile.deleteOnExit();
+            }
+            stream.close();
+            
+            return tempFile.getAbsolutePath();
+        } else {
+            // Running in dev - return path as-is
+            File file = new File(resourcePath);
+            if (!file.exists()) {
+                throw new IOException("File not found: " + resourcePath);
+            }
+            return file.getAbsolutePath();
+        }
+    }
+
     /**
      * Get InputStream for any resource
      * Works in both dev and JAR
@@ -81,7 +139,7 @@ public class ResourceLoader {
             return Files.newInputStream(filePath);
         }
     }
-    
+
     /**
      * Get File path for XML parsing
      * Works in both dev and JAR
@@ -89,7 +147,7 @@ public class ResourceLoader {
     public static InputStream getXMLStream(String path) throws IOException {
         return getResourceStream(path);
     }
-    
+
     /**
      * Get absolute path to external directory (like natives/ or saves/)
      * These are OUTSIDE the JAR
@@ -115,7 +173,7 @@ public class ResourceLoader {
             return new File(relativePath).getAbsolutePath();
         }
     }
-    
+
     /**
      * Check if running from JAR
      */
