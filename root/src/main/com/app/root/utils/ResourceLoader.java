@@ -76,7 +76,7 @@ public class ResourceLoader {
     }
 
     /**
-     * Get a file path for native libraries (STBImage, OpenAL)
+     * Get a file path for native libraries (STBImage, OpenAL, Assimp)
      * Extracts from JAR to temp file if needed
      */
     public static String getNativeResourcePath(String resourcePath) throws IOException {
@@ -171,6 +171,31 @@ public class ResourceLoader {
         } else {
             // In dev, use the path as-is
             return new File(relativePath).getAbsolutePath();
+        }
+    }
+
+    /**
+     * Read all bytes from a resource (works in both JAR and dev)
+     * Used by GltfLoader for loading GLTF JSON and binary data
+     */
+    public static byte[] readAllBytesFromResource(String resourcePath) throws IOException {
+        if (IS_JAR) {
+            InputStream stream = ResourceLoader.class.getClassLoader().getResourceAsStream(resourcePath);
+            if (stream == null) {
+                throw new IOException("Resource not found in JAR: " + resourcePath);
+            }
+            try {
+                return stream.readAllBytes();
+            } finally {
+                stream.close();
+            }
+        } else {
+            // Running in dev - use filesystem
+            Path filePath = Paths.get(resourcePath);
+            if (!Files.exists(filePath)) {
+                throw new IOException("File not found: " + resourcePath);
+            }
+            return Files.readAllBytes(filePath);
         }
     }
 
