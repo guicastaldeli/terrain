@@ -26,9 +26,9 @@ going from morning until dawn.
 - Each time you break a tree, a new tree with a superior level will
 be generated in its place, trees go from **Level 0** up to **Level 10**,
 each tree can only be broken by its corresponding axe, so:
-* **Tree 0** -> **Axe 0**
-* **Tree 1** -> **Axe 1**
-* and goes on...
+- **Tree 0** -> **Axe 0**
+- **Tree 1** -> **Axe 1**
+- and goes on...
 
 Once you break a **Level 10** tree, this tree will go back to **Level 0**.
 
@@ -42,13 +42,13 @@ to collect the corresponding wood quantity to upgrade to an upper level of
 your axe, also up from **Level 0** to **Level 10**.
 
 ### Controls:
-**[W]** - **Move Forward**
-**[S]** - **Move Backward**
-**[D]** - **Move Right**
-**[A]** - **Move Left**
-**[Space]** - **Jump**
-**[E]** - **Opens Upgrade Menu**
-**[ESC]** - **Pause**
+- **[W]** - **Move Forward**
+- **[S]** - **Move Backward**
+- **[D]** - **Move Right**
+- **[A]** - **Move Left**
+- **[Space]** - **Jump**
+- **[E]** - **Opens Upgrade Menu**
+- **[ESC]** - **Pause**
 
 
 And that's it, go explore Terrain, and collect some woods!.
