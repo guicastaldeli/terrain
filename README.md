@@ -23,7 +23,7 @@ going from morning until dawn.
 
 ## Upgrade System
 ##### Trees
-- Each time you break a tree, a new tree with a superior level will
+Each time you break a tree, a new tree with a superior level will
 be generated in its place, trees go from **Level 0** up to **Level 10**,
 each tree can only be broken by its corresponding axe, so:
 - **Tree 0** -> **Axe 0**
